@@ -1,3 +1,5 @@
+import os
+
 # Django settings for thrms project.
 
 DEBUG = True
@@ -9,16 +11,37 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'jmr_thrms_django',
-        'USER': 'jmr_thrms_django',
-        'PASSWORD': 'Cas250Tor_sql',
-        'HOST': '',
-        'PORT': '',
+if os.uname()[1].endswith('webfaction.com'):
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'jmr_thrms_django',
+            'USER': 'jmr_thrms_django',
+            'PASSWORD': 'Cas250Tor_sql',
+            'HOST': '',
+            'PORT': '',
+            }
         }
-    }
+
+    #STATIC_ROOT = '/home/jmr/webapps/thrms_static/'
+    #PROJECT_BASE = '/home/jmr/webapps/thrms_django/thrms/'
+
+else:
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'thrms',
+            'USER': 'root',
+            'PASSWORD': 'Cas250Tor_sql',
+            'HOST': '',
+            'PORT': '',
+            }
+        }
+
+    #STATIC_ROOT = '/home/jmr/www/static/'
+    #PROJECT_BASE = '/home/jmr/projects/thrms/'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
