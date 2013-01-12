@@ -1,0 +1,19 @@
+{% extends "thrms/base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block mainbar %}
+
+<h1>The latest items</h1>
+
+{% if latest_items %}
+    <ul>
+    {% for item in latest_items %}
+        <li><a href="/{{ item.get_absolute_url }}">{{ item.get_cap_kind_with_id }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No item are available.</p>
+{% endif %}
+
+{% endblock %}

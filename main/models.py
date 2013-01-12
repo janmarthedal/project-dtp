@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 class Tag(models.Model):
     class Meta:
@@ -30,7 +31,7 @@ class Item(models.Model):
     )
 
     kind        = models.CharField(max_length=1, choices=KIND_CHOICES)
-    status      = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
     created_by  = models.ForeignKey(User, related_name='+')
     created_at  = models.DateTimeField(auto_now_add=True)
     modified_by = models.ForeignKey(User, related_name='+')
@@ -48,8 +49,10 @@ class Item(models.Model):
 
     def get_cap_kind_with_id(self):
 	if self.final_id:
-        	return "%s %s" % (self.get_cap_kind(), self.final_id)
-        return "%s %i" % (self.get_cap_kind(), self.id)
+            return "%s %s" % (self.get_cap_kind(), self.final_id)
+        if self.id:
+            return "%s %i" % (self.get_cap_kind(), self.id)
+        return "%s ?" % self.get_cap_kind()
 
     def get_absolute_url(self):
         return self.final_id
@@ -63,6 +66,20 @@ class Item(models.Model):
         if self.parent:
             ret += " (%s)" % self.parent.get_cap_kind_with_id()
         return ret
+
+    def make_final(self, user):
+	if self.status != 'F':
+            self.status = 'F'
+            self.modified_by = user
+            self.final_id = "%s%i" % (self.kind, self.id)
+            self.final_at = datetime.datetime.now()
+            self.save()
+
+    def make_review(self, user):
+	if self.status != 'R':
+            self.status = 'R'
+            self.modified_by = user
+            self.save()
 
     def clean_fields(self, exclude=None):
         models.Model.clean_fields(self, exclude)
