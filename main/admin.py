@@ -1,9 +1,13 @@
 from main.models import Item, Tag, ItemTag
 from django.contrib import admin
 
+class ItemTagsInline(admin.TabularInline):
+    model = ItemTag
+
 class ItemAdmin(admin.ModelAdmin):
     list_display = ('__unicode__', 'status')
     actions = ['make_final_action', 'make_review_action']
+    inlines = [ItemTagsInline]
 
     def get_form(self, request, obj=None, **kwargs):
         self.exclude = ['modified_by', 'deps', 'final_at', 'final_id', 'status']

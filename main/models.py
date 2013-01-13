@@ -71,8 +71,9 @@ class Item(models.Model):
 	if self.status != 'F':
             self.status = 'F'
             self.modified_by = user
-            self.final_id = "%s%i" % (self.kind, self.id)
-            self.final_at = datetime.datetime.now()
+            if not self.final_id:
+                self.final_id = "%s%i" % (self.kind, self.id)
+                self.final_at = datetime.datetime.now()
             self.save()
 
     def make_review(self, user):
