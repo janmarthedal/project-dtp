@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block title %}Account{% endblock %}
+
+{% block mainbar %}
+
+<h1>Account for {{ username }}</h1>
+
+<p><a href="{% url 'items.views.new_definition' %}">New definition</a></p>
+
+<p><a href="{% url 'items.views.new_theorem' %}">New theorem</a></p>
+
+<p><a href="{% url 'users.views.logout' %}">log out</a></p>
+
+{% endblock %}
+

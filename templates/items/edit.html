@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block title %}New {{ kind }}{% endblock %}
+
+{% block mainbar %}
+
+<h1>New {{ kind }}</h1>
+
+<form method="post" action="{% url 'items.views.edit' %}">
+
+<textarea name="body" class="body">{{ body }}</textarea>
+
+<p>Primary tags:</p>
+<textarea name="primarytags" class="tags primary-tags">{{ primarytags }}</textarea>
+
+<p>Other tags:</p>
+<textarea name="othertags" class="tags other-tags">{{ othertags }}</textarea>
+
+<p>
+  <input type="submit" value="preview" />
+  <input type="submit" value="save" />
+</p>
+
+<input type="hidden" name="kind" value="{{ kind }}" />
+</form>
+
+{% endblock %}
+

@@ -1,3 +1,54 @@
 body { 
-  background:#ddd;
+  background: #fff;
 }
+
+#wrap {
+  background-color: #f7f7f7;
+  padding: 0px;
+  max-width: 80em;
+  margin: 0px auto;
+}
+
+/* header */
+
+#header {
+  background-color: #ddd;
+  padding: 0.5em;
+  overflow: auto;
+}
+
+#logo {
+  font-size: 2em;
+  color: #77f;
+  float: left;
+}
+
+#user {
+  float: right;
+}
+
+/* content */
+
+#content {
+  padding: 0.5em;
+  overflow: auto;
+}
+
+textarea.body {
+  width: 100%;
+  height: 20em;
+}
+
+textarea.tags {
+  width: 40%;
+  height: 5em;
+  max-width: 40em;
+}
+
+/* footer */
+
+#footer {
+  background-color: #ddd;
+  padding: 0.5em;
+}
+
