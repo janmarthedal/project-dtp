@@ -114,6 +114,8 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'thrms.urls'
 
+LOGIN_URL = '/user/login'
+
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'thrms.wsgi.application'
 
