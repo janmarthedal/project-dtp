@@ -12,13 +12,14 @@ body {
 /* header */
 
 #header {
-  background-color: #ddd;
+/*  background-color: #ddd; */
   padding: 0.5em;
   overflow: auto;
+  border-bottom: 2px solid black;
 }
 
 #logo {
-  font-size: 2em;
+  font-size: 200%;
   color: #77f;
   float: left;
 }
@@ -48,7 +49,9 @@ textarea.tags {
 /* footer */
 
 #footer {
-  background-color: #ddd;
+/*  background-color: #ddd; */
   padding: 0.5em;
+  font-size: 80%;
+  border-top: 2px solid black;
 }
 

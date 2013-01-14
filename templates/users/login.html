@@ -12,6 +12,7 @@
 {% endif %}
 
 <form method="post" action="{% url 'users.views.login' %}">
+{% csrf_token %}
 <table>
 <tr>
   <td>User name:</td>

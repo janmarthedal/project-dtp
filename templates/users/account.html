@@ -7,9 +7,9 @@
 
 <h1>Account for {{ username }}</h1>
 
-<p><a href="{% url 'items.views.new_definition' %}">New definition</a></p>
+<p><a href="{% url 'items.views.new' kind='definition' %}">New definition</a></p>
 
-<p><a href="{% url 'items.views.new_theorem' %}">New theorem</a></p>
+<p><a href="{% url 'items.views.new' kind='theorem' %}">New theorem</a></p>
 
 <p><a href="{% url 'users.views.logout' %}">log out</a></p>
 

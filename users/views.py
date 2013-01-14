@@ -26,7 +26,7 @@ def login(request):
                 c['error'] = 'Account has been disabled'
         else:
             c['error'] = 'Invalid login and/or password'
-    return render(request, 'users/ogin.html', c)
+    return render(request, 'users/login.html', c)
 
 def logout(request):
     auth.logout(request)
