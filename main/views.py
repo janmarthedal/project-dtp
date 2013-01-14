@@ -2,13 +2,10 @@ from django.shortcuts import render
 from main.models import Item, ItemTag, Tag
 from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_safe
+from main.helpers import init_context
 
 @require_safe
 def index(request):
-    #latest_items = Item.objects.filter(status='F').order_by('-modified_at')[:10]
-    #latest_item_list = [{
-    #    'link': item.get_absolute_url(),
-    #    'name': item.get_cap_kind_with_id()
-    #} for item in latest_items]
-    return render(request, 'thrms/index.html')
+    c = init_context(request)
+    return render(request, 'index.html', c)
 

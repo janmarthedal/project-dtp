@@ -1,3 +1,5 @@
+{% load url from future %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -22,8 +24,12 @@
 	<div id="logo">
 	  thrms
 	</div>
-        <div id="login">
-          <a href="{% url login_view %}">log in</a>
+        <div id="user">
+          {% if username %}
+          <a href="{% url 'users.views.account' %}">{{ username }}</a>
+          {% else %}
+          <a href="{% url 'users.views.login' %}">log in</a>
+          {% endif %}
         </div>
       </div>
       <div id="content">
