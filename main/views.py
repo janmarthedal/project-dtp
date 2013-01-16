@@ -1,6 +1,4 @@
 from django.shortcuts import render
-from main.models import Item, ItemTag, Tag
-from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_safe
 from main.helpers import init_context
 

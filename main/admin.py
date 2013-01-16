@@ -1,4 +1,4 @@
-from main.models import Item, Tag, ItemTag
+from items.models import Item, Tag, ItemTag
 from django.contrib import admin
 
 class ItemTagsInline(admin.TabularInline):

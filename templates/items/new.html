@@ -7,21 +7,34 @@
 
 <h1>New {{ kind }}</h1>
 
+{% if errors %}
+{% for error_header, error_list in errors.iteritems %}
+<div class="error">
+  <p>{{ error_header }}:</p>
+  <ul>
+{% for error in error_list %}
+    <li>{{ error }}</li>
+{% endfor %}
+  </ul>
+</div>
+{% endfor %}
+{% endif %}
+
 <form method="post" action="{% url 'items.views.new' kind=kind %}">
 {% csrf_token %}
 
-<textarea name="body" class="body">{{ body }}</textarea>
+  <textarea name="body" class="body">{{ body }}</textarea>
 
-<p>Primary tags:</p>
-<textarea name="primarytags" class="tags primary-tags">{{ primarytags }}</textarea>
+  <p>Primary tags:</p>
+  <textarea name="primarytags" class="tags primary-tags">{{ primarytags }}</textarea>
 
-<p>Other tags:</p>
-<textarea name="othertags" class="tags other-tags">{{ othertags }}</textarea>
+  <p>Other tags:</p>
+  <textarea name="othertags" class="tags other-tags">{{ othertags }}</textarea>
 
-<p>
-  <input type="submit" value="preview" />
-  <input type="submit" value="save" />
-</p>
+  <p>
+    <input type="submit" name="submit" value="preview" />
+    <input type="submit" name="submit" value="save" />
+  </p>
 </form>
 
 {% endblock %}
