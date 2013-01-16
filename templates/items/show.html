@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block title %}{% if error %}Error{% else %}{{ kind|capfirst }} {{ id }}{% endif %}{% endblock %}
+
+{% block mainbar %}
+
+<h1>{% if error %}Error{% else %}{{ kind|capfirst }} {{ id }}{% endif %}</h1>
+
+{% if error %}
+<p>Item {{ id }} does not exist or access denied.</p>
+{% else %}
+<p>bla bla</p>
+{% endif %}
+
+{% endblock %}
+

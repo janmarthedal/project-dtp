@@ -1,7 +1,7 @@
 import logging
 import re
 from django.shortcuts import render
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_safe
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -52,4 +52,18 @@ def new(request, kind):
             c[k] = request.POST[k]
     c['kind'] = kind
     return render(request, 'items/new.html', c)
+
+@require_safe
+def show(request, item_id):
+    c = init_context(request)
+    c['id'] = item_id
+    try:
+        item = Item.objects.get(pk=item_id)
+        if item.status == 'R' or (item.status == 'D' and request.user.is_authenticated() and item.created_by.id == request.user.id):
+            c['kind'] = item.get_kind_display()
+        else:
+            c['error'] = 'Access denied'
+    except Item.DoesNotExist:
+        c['error'] = 'Item does not exist'
+    return render(request, 'items/show.html', c)
 
