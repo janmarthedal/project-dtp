@@ -42,8 +42,8 @@ class Item(models.Model):
 
     STATUS_CHOICES = (
         ('D', 'draft'),
-        ('R', 'review'),
-        ('F', 'final'),
+        ('R', 'under review'),
+        ('F', 'published'),
         ('S', 'suspended'),
         ('B', 'broken')
     )
@@ -75,10 +75,6 @@ class Item(models.Model):
     def get_absolute_url(self):
         return self.final_id
 
-    #@models.permalink
-    #def get_absolute_url(self):
-    #    return ('main.views.show_item', [self.alias])
-
     def __unicode__(self):
         ret = self.get_cap_kind_with_id()
         if self.parent:
@@ -86,7 +82,7 @@ class Item(models.Model):
         return ret
 
     def make_final(self, user):
-	if self.status != 'F':
+        if self.status != 'F':
             self.status = 'F'
             self.modified_by = user
             if not self.final_id:
@@ -95,40 +91,10 @@ class Item(models.Model):
             self.save()
 
     def make_review(self, user):
-	if self.status != 'R':
+        if self.status != 'R':
             self.status = 'R'
             self.modified_by = user
             self.save()
-
-    def clean_fields(self, exclude=None):
-        models.Model.clean_fields(self, exclude)
-        """
-        # check kind
-        self.kind = get_string_value(self.kind)
-        if self.kind not in [n for (n, _) in self.KIND_CHOICES]:
-            raise ValidationError('kind wrong choice')
-        # check status
-        self.status = get_string_value(self.status)
-        if self.status not in [n for (n, _) in self.STATUS_CHOICES]:
-            raise ValidationError('status wrong choice')
-        """
-
-    def clean(self):
-        models.Model.clean(self)
-        """
-        if self.kind == 'P':
-            if self.parent is None:
-                raise ValidationError('parent missing')
-            if self.parent.kind != 'T':
-                raise ValidationError('proof parent must be theorem')
-        elif self.kind == 'I':
-            if self.parent is None:
-                raise ValidationError('parent missing')
-            if self.parent.kind == 'I':
-                raise ValidationError('info parent cannot be info')
-        elif self.parent is not None:
-            raise ValidationError('parent should be null')
-        """
 
 
 class ItemTag(models.Model):

@@ -5,12 +5,52 @@
 
 {% block mainbar %}
 
-<h1>{% if error %}Error{% else %}{{ kind|capfirst }} {{ id }}{% endif %}</h1>
-
 {% if error %}
+
+<h1>Error</h1>
+
 <p>Item {{ id }} does not exist or access denied.</p>
+
 {% else %}
-<p>bla bla</p>
+
+<h1>{{ kind|capfirst }} {{ id }}</h1>
+
+{% for tag in primary_tags %}
+<div class="tag primary">
+{{ tag|safe }}
+</div>
+{% endfor %}
+
+<table class="iteminfo">
+  <tr>
+    <th>Status</th>
+    <td>{{ status|capfirst }}</td>
+  </tr>
+  <tr>
+    <th>Created by</th>
+    <td>{{ created_by }}</td>
+  </tr>
+  <tr>
+    <th>Latest modification</th>
+    <td>{{ modified_at }}</td>
+  </tr>
+</table>
+
+{% if other_tags %}
+<div class="taglist">
+  <span>Other tags:</span>
+  <ul>
+{% for tag in other_tags %}
+    <li>{{ tag|safe }}</li>
+{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="itembody">
+{{ body|safe }}
+</div>
+
 {% endif %}
 
 {% endblock %}

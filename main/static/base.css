@@ -46,6 +46,20 @@ textarea.tags {
   max-width: 40em;
 }
 
+table.iteminfo {
+  padding: 0.5em;
+  margin: 0em;
+  border: 1px solid #444;
+}
+
+table.iteminfo tr th {
+  text-align: left;
+}
+
+div.itembody {
+  padding: 1em 0;
+}
+
 /* footer */
 
 #footer {
