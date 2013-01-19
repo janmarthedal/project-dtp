@@ -41,5 +41,18 @@
 {{ body|safe }}
 </div>
 
+{% if own_item %}
+{% if status == 'draft' %}
+<p><a href="#">Edit</a></p>
+<p><a href="#">Submit for review</a></p>
+<p><a href="{% url 'items.views.publish' id %}">Publish</a></p>
+{% elif status == 'review' %}
+<p><a href="#">Revert to draft</a></p>
+<p><a href="{% url 'items.views.publish' id %}">Publish</a></p>
+{% endif %}
+{% else %}
+<p>Is ready to publish? <a href="#">Yes</a> / <a href="#">No</a></p>
+{% endif %}
+
 {% endblock %}
 

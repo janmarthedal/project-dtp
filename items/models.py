@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from items.helpers import make_short_name
 import datetime
 
 class Tag(models.Model):
@@ -83,6 +84,14 @@ class Item(models.Model):
             ret += " (%s)" % self.parent.get_cap_kind_with_id()
         return ret
 
+    def make_final(self, user):
+        if not self.final_id:
+            self.status = 'F'
+            self.modified_by = user
+            self.final_id = make_short_name(4)
+            self.final_at = datetime.datetime.utcnow()
+            self.save()
+        return self.final_id
 
 class ItemTag(models.Model):
     class Meta:

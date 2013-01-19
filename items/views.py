@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from main.helpers import init_context
 from items.models import Item
-from items.helpers import prepare_tags, prepare_body, typeset_body, typeset_tag
+from items.helpers import prepare_tags, prepare_body, typeset_body, typeset_tag, make_short_name
 from users.helpers import get_user_info
 
 import logging
@@ -37,10 +37,8 @@ def show(request, item_id):
     c = init_context(request)
     c['id'] = item_id
     item = get_object_or_404(Item, pk=item_id)
-    if item.status == 'D':
-        if not request.user.is_authenticated() or item.created_by.id != request.user.id:
-            raise Http404
-    elif item.status != 'R':
+    own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
+    if not ((item.status == 'D' and own_item) or item.status == 'R'):
         raise Http404 
     tags = [(typeset_tag(itemtag.tag.name), itemtag.primary)
             for itemtag in item.itemtag_set.all()]
@@ -51,5 +49,31 @@ def show(request, item_id):
     c['body']         = typeset_body(item.body)
     c['primary_tags'] = [t[0] for t in tags if t[1]]
     c['other_tags']   = [t[0] for t in tags if not t[1]]
+    c['own_item']     = own_item
     return render(request, 'items/show.html', c)
+
+@require_safe
+def show_final(request, final_id):
+    c = init_context(request)
+    c['final_id'] = final_id
+    item = get_object_or_404(Item, final_id=final_id)
+    tags = [(typeset_tag(itemtag.tag.name), itemtag.primary)
+            for itemtag in item.itemtag_set.all()]
+    c['kind']         = item.get_kind_display()
+    c['created_by']   = get_user_info(item.created_by)
+    c['published_at'] = str(item.final_at)
+    c['body']         = typeset_body(item.body)
+    c['primary_tags'] = [t[0] for t in tags if t[1]]
+    c['other_tags']   = [t[0] for t in tags if not t[1]]
+    return render(request, 'items/show_final.html', c)
+
+@login_required
+def publish(request, item_id):
+    item = get_object_or_404(Item, pk=item_id)
+    own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
+    if not own_item or item.status not in ['D', 'R', 'F']:
+        raise Http404 
+    if item.status != 'F':
+        item.make_final(request.user)
+    return HttpResponseRedirect(reverse('items.views.show_final', args=[item.final_id]))
 

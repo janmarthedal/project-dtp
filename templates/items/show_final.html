@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block title %}{{ kind|capfirst }} {{ final_id }}{% endblock %}
+
+{% block mainbar %}
+
+<h1>{{ kind|capfirst }} {{ final_id }}</h1>
+
+{% for tag in primary_tags %}
+<div class="primary-tag">
+{{ tag|safe }}
+</div>
+{% endfor %}
+
+<table class="iteminfo">
+  <tr>
+    <th>Created by</th>
+    <td><a href="{% url 'users.views.profile' created_by.id %}">{{ created_by.name }}</a></td>
+  </tr>
+  <tr>
+    <th>Published at</th>
+    <td>{{ published_at }}</td>
+  </tr>
+</table>
+
+{% if other_tags %}
+<div class="taglist">
+  <span class="header">Other tags:</span>
+{% for tag in other_tags %}
+  <span class="other-tag">{{ tag|safe }}</span>
+{% endfor %}
+</div>
+{% endif %}
+
+<div class="itembody">
+{{ body|safe }}
+</div>
+
+{% endblock %}
+

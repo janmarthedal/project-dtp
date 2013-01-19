@@ -4,5 +4,6 @@ urlpatterns = patterns('items.views',
     url(r'^theorem/new$',    'new', { 'kind': 'theorem' }),
     url(r'^definition/new$', 'new', { 'kind': 'definition' }),
     url(r'^show/(\d+)$',     'show'),
+    url(r'^publish/(\d+)$',  'publish'),
 )
 

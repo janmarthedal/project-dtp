@@ -32,8 +32,7 @@ def prepare_tags(primary_tags, other_tags, errors):
     return tags
 
 def prepare_body(body, errors):
-    body = make_html_safe(body.strip())
-    return body
+    return body.strip()
 
 SHORT_NAME_CHARS = '23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 #SHORT_NAME_CHARS = ''.join(set(string.ascii_letters + string.digits) - set('0oO1lI'))
@@ -41,7 +40,44 @@ SHORT_NAME_CHARS = '23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 def make_short_name(length):
     return ''.join(random.choice(SHORT_NAME_CHARS) for _ in range(length))
 
-def typeset_body(st):
+test_body = """
+First paragraf
+is started here
+
+We have
+$$
+\sum_{k=1}^n k
+$$
+
+and then we get the
+result.
+
+"""
+
+def typeset_body_paragraph(par):
+    par = par.replace('\n', ' ')
+    par = re.sub(r'\s{2,}', ' ', par)
+    par = par.strip()
+    parts = par.split('$')
+    for k in range(len(parts)):
+        if k % 2 == 1:
+            parts[k] = '\(' + parts[k].strip() + '\)'
+    return '<p>' + ''.join(parts) + '</p>'
+
+def typeset_body(body):
+    parts = body.strip().split('$$')
+    for i in range(len(parts)):
+        if i % 2 == 1:
+            parts[i] = '\n\[\n' + parts[i].strip() + '\n\]\n'
+        else:
+            parts2 = re.split(r'\s*\n\s*\n\s*', parts[i].strip())
+            parts2 = map(typeset_body_paragraph, parts2)
+            #for j in range(len(parts2)):
+            #    parts2[j] = typeset_body_paragraph(parts2[j])
+            parts[i] = '\n'.join(parts2)
+    return ''.join(parts)
+
+def typeset_body2(st):
     secret = make_short_name(8)
     parts = st.split('$$')
     maths = []
