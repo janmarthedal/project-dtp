@@ -32,6 +32,10 @@ def new(request, kind):
     c['kind'] = kind
     return render(request, 'items/new.html', c)
 
+@login_required
+def edit(request, item_id):
+    return show(request, item_id)
+
 @require_safe
 def show(request, item_id):
     c = init_context(request)
@@ -68,12 +72,18 @@ def show_final(request, final_id):
     return render(request, 'items/show_final.html', c)
 
 @login_required
-def publish(request, item_id):
+@require_POST
+def change_status(request):
+    logger.debug(str(request.POST))
+    item_id = request.POST['item']
     item = get_object_or_404(Item, pk=item_id)
     own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
-    if not own_item or item.status not in ['D', 'R', 'F']:
-        raise Http404 
-    if item.status != 'F':
-        item.make_final(request.user)
-    return HttpResponseRedirect(reverse('items.views.show_final', args=[item.final_id]))
+    if request.POST['submit'].lower() == 'publish':
+        if not own_item or item.status not in ['D', 'R', 'F']:
+            raise Http404 
+        if item.status != 'F':
+            item.make_final(request.user)
+        return HttpResponseRedirect(reverse('items.views.show_final', args=[item.final_id]))
+    else:
+        raise Http404
 

@@ -43,12 +43,30 @@
 
 {% if own_item %}
 {% if status == 'draft' %}
-<p><a href="#">Edit</a></p>
-<p><a href="#">Submit for review</a></p>
-<p><a href="{% url 'items.views.publish' id %}">Publish</a></p>
+<form method="GET" action="{% url 'items.views.edit' id %}">
+  <input type="submit" value="Edit" />
+</form>
+<form method="POST" action="{% url 'items.views.change_status' %}">
+  {% csrf_token %}
+  <input type="submit" name="submit" value="Submit for review" />
+  <input type="hidden" name="item" value="{{ id }}" />
+</form>
+<form method="POST" action="{% url 'items.views.change_status' %}">
+  {% csrf_token %}
+  <input type="submit" name="submit" value="Publish" />
+  <input type="hidden" name="item" value="{{ id }}" />
+</form>
 {% elif status == 'review' %}
-<p><a href="#">Revert to draft</a></p>
-<p><a href="{% url 'items.views.publish' id %}">Publish</a></p>
+<form method="POST" action="{% url 'items.views.change_status' %}">
+  {% csrf_token %}
+  <input type="submit" name="submit" value="Revert to draft" />
+  <input type="hidden" name="item" value="{{ id }}" />
+</form>
+<form method="POST" action="{% url 'items.views.change_status' %}">
+  {% csrf_token %}
+  <input type="submit" name="submit" value="Publish" />
+  <input type="hidden" name="item" value="{{ id }}" />
+</form>
 {% endif %}
 {% else %}
 <p>Is ready to publish? <a href="#">Yes</a> / <a href="#">No</a></p>
