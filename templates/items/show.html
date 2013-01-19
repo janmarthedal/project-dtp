@@ -1,22 +1,14 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-{% block title %}{% if error %}Error{% else %}{{ kind|capfirst }} {{ id }}{% endif %}{% endblock %}
+{% block title %}{{ kind|capfirst }} {{ id }}{% endblock %}
 
 {% block mainbar %}
-
-{% if error %}
-
-<h1>Error</h1>
-
-<p>Item {{ id }} does not exist or access denied.</p>
-
-{% else %}
 
 <h1>{{ kind|capfirst }} {{ id }}</h1>
 
 {% for tag in primary_tags %}
-<div class="tag primary">
+<div class="primary-tag">
 {{ tag|safe }}
 </div>
 {% endfor %}
@@ -28,7 +20,7 @@
   </tr>
   <tr>
     <th>Created by</th>
-    <td>{{ created_by }}</td>
+    <td><a href="{% url 'users.views.profile' created_by.id %}">{{ created_by.name }}</a></td>
   </tr>
   <tr>
     <th>Latest modification</th>
@@ -38,20 +30,16 @@
 
 {% if other_tags %}
 <div class="taglist">
-  <span>Other tags:</span>
-  <ul>
+  <span class="header">Other tags:</span>
 {% for tag in other_tags %}
-    <li>{{ tag|safe }}</li>
+  <span class="other-tag">{{ tag|safe }}</span>
 {% endfor %}
-  </ul>
 </div>
 {% endif %}
 
 <div class="itembody">
 {{ body|safe }}
 </div>
-
-{% endif %}
 
 {% endblock %}
 

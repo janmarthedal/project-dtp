@@ -33,7 +33,7 @@ def prepare_tags(primary_tags, other_tags, errors):
 
 def prepare_body(body, errors):
     body = make_html_safe(body.strip())
-    return body, []
+    return body
 
 SHORT_NAME_CHARS = '23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 #SHORT_NAME_CHARS = ''.join(set(string.ascii_letters + string.digits) - set('0oO1lI'))

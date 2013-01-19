@@ -35,6 +35,12 @@ body {
   overflow: auto;
 }
 
+h1 {
+  font-size: 200%;
+  padding: 0em;
+  margin: 0.2em 0em;
+}
+
 textarea.body {
   width: 100%;
   height: 20em;
@@ -48,7 +54,7 @@ textarea.tags {
 
 table.iteminfo {
   padding: 0.5em;
-  margin: 0em;
+  margin: 0.5em 0em;
   border: 1px solid #444;
 }
 
@@ -58,6 +64,23 @@ table.iteminfo tr th {
 
 div.itembody {
   padding: 1em 0;
+}
+
+div.primary-tag {
+  padding: 0em;
+  margin: 0.2em 0em 0.2em 1em;
+  font-size: 120%;
+}
+
+div.taglist {
+  padding: 0em;
+  margin: 0.2em 0em;
+}
+
+span.other-tag {
+  padding: 0.1em 0.2em;
+  margin: 0.1em;
+  border: 1px solid black;
 }
 
 /* footer */

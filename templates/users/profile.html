@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-{% block title %}Account{% endblock %}
+{% block title %}{{ user.name }}{% endblock %}
 
 {% block mainbar %}
 
-<h1>Account for {{ username }}</h1>
+<h1>{{ user.name }}</h1>
+
+{% if own_profile %}
 
 <p><a href="{% url 'items.views.new' kind='definition' %}">New definition</a></p>
 
 <p><a href="{% url 'items.views.new' kind='theorem' %}">New theorem</a></p>
 
 <p><a href="{% url 'users.views.logout' %}">log out</a></p>
+
+{% endif %}
 
 {% endblock %}
 

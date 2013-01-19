@@ -25,8 +25,8 @@
 	  thrms.net
 	</div>
         <div id="user">
-          {% if username %}
-          <a href="{% url 'users.views.account' %}">{{ username }}</a>
+          {% if auth %}
+          <a href="{% url 'users.views.profile' auth.id %}">{{ auth.name }}</a>
           {% else %}
           <a href="{% url 'users.views.login' %}">log in</a>
           {% endif %}

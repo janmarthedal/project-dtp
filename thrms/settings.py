@@ -1,15 +1,10 @@
 import os
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-
-ADMINS = (
-    ('Jan Marthedal Rasmussen', 'jmr@kanooth.com'),
-)
-
-MANAGERS = ADMINS
+############ Site specific settings ############
 
 if os.uname()[1].endswith('webfaction.com'):
+
+    DEBUG = False
 
     DATABASES = {
         'default': {
@@ -27,6 +22,8 @@ if os.uname()[1].endswith('webfaction.com'):
 
 else:
 
+    DEBUG = True
+    
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -40,6 +37,16 @@ else:
 
     STATIC_ROOT = '/home/jmr/www/static/'
     PROJECT_BASE = '/home/jmr/projects/thrms-site/'
+
+############ Common settings ############
+
+ADMINS = (
+    ('Jan Marthedal Rasmussen', 'jmr@kanooth.com'),
+)
+
+MANAGERS = ADMINS
+
+TEMPLATE_DEBUG = DEBUG
 
 TEMPLATE_DIRS = (
     PROJECT_BASE + 'templates',
@@ -57,18 +64,16 @@ TIME_ZONE = 'Europe/Copenhagen'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 1
-
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
-USE_I18N = True
+USE_I18N = False
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
-USE_L10N = True
+USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = True
+USE_TZ = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -123,13 +128,10 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+#    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
     'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
     'main',
     'items',
     'users',

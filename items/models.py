@@ -10,13 +10,15 @@ class Tag(models.Model):
         return self.name
 
 class ItemManager(models.Manager):
-    def add_item(self, user, kind, body, tags, deps):
+    def add_item(self, user, kind, body, tags):
         kind_key = filter(lambda kc: kc[1] == kind, Item.KIND_CHOICES)[0][0]
 
         item = Item(kind        = kind_key,
                     status      = 'D',
                     created_by  = user,
+                    created_at  = datetime.datetime.utcnow(),
                     modified_by = user,
+                    modified_at = datetime.datetime.utcnow(),
                     body        = body)
         item.save()
         
@@ -51,9 +53,9 @@ class Item(models.Model):
     kind        = models.CharField(max_length=1, choices=KIND_CHOICES)
     status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
     created_by  = models.ForeignKey(User, related_name='+')
-    created_at  = models.DateTimeField(auto_now_add=True)
+    created_at  = models.DateTimeField()
     modified_by = models.ForeignKey(User, related_name='+')
-    modified_at = models.DateTimeField(auto_now=True)
+    modified_at = models.DateTimeField()
     final_at    = models.DateTimeField(null=True, blank=True)
     final_id    = models.CharField(max_length=10, db_index=True, unique=True,
                                    null=True, blank=True)
@@ -80,21 +82,6 @@ class Item(models.Model):
         if self.parent:
             ret += " (%s)" % self.parent.get_cap_kind_with_id()
         return ret
-
-    def make_final(self, user):
-        if self.status != 'F':
-            self.status = 'F'
-            self.modified_by = user
-            if not self.final_id:
-                self.final_id = "%s%i" % (self.kind, self.id)
-                self.final_at = datetime.datetime.now()
-            self.save()
-
-    def make_review(self, user):
-        if self.status != 'R':
-            self.status = 'R'
-            self.modified_by = user
-            self.save()
 
 
 class ItemTag(models.Model):

@@ -25,7 +25,9 @@
 </table>
 
 <input type="submit" value="login" />
+{% if next %}
 <input type="hidden" name="next" value="{{ next }}" />
+{% endif %}
 </form>
 
 {% endblock %}
