@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from items.helpers import make_short_name
 import datetime
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Tag(models.Model):
     class Meta:
         db_table = 'tags'
@@ -17,9 +20,9 @@ class ItemManager(models.Manager):
         item = Item(kind        = kind_key,
                     status      = 'D',
                     created_by  = user,
-                    created_at  = datetime.datetime.utcnow(),
+                    #created_at  = datetime.datetime.utcnow(),
                     modified_by = user,
-                    modified_at = datetime.datetime.utcnow(),
+                    #modified_at = datetime.datetime.utcnow(),
                     body        = body)
         item.save()
         
@@ -54,9 +57,9 @@ class Item(models.Model):
     kind        = models.CharField(max_length=1, choices=KIND_CHOICES)
     status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
     created_by  = models.ForeignKey(User, related_name='+')
-    created_at  = models.DateTimeField()
+    created_at  = models.DateTimeField(default=datetime.datetime.utcnow)
     modified_by = models.ForeignKey(User, related_name='+')
-    modified_at = models.DateTimeField()
+    modified_at = models.DateTimeField(default=datetime.datetime.utcnow)
     final_at    = models.DateTimeField(null=True, blank=True)
     final_id    = models.CharField(max_length=10, db_index=True, unique=True,
                                    null=True, blank=True)
@@ -88,10 +91,15 @@ class Item(models.Model):
         if not self.final_id:
             self.status = 'F'
             self.modified_by = user
-            self.final_id = make_short_name(4)
             self.final_at = datetime.datetime.utcnow()
-            self.save()
-        return self.final_id
+            for length in range(4, 10+1):
+                self.final_id = make_short_name(length)
+                try:
+                    self.save()
+                    break
+                except IntegrityError:
+                    pass
+            logger.debug("Publish of %i successful with final_id '%s'" % (self.id, self.final_id))
 
 class ItemTag(models.Model):
     class Meta:

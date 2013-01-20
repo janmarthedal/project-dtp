@@ -74,7 +74,6 @@ def show_final(request, final_id):
 @login_required
 @require_POST
 def change_status(request):
-    logger.debug(str(request.POST))
     item_id = request.POST['item']
     item = get_object_or_404(Item, pk=item_id)
     own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
@@ -85,5 +84,6 @@ def change_status(request):
             item.make_final(request.user)
         return HttpResponseRedirect(reverse('items.views.show_final', args=[item.final_id]))
     else:
+        # TODO
         raise Http404
 
