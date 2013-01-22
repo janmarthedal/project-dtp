@@ -135,6 +135,7 @@ INSTALLED_APPS = (
     'main',
     'items',
     'users',
+    'refs',
 )
 
 LOGGING = {

@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "base_mainbar.html" %}
 {% load url from future %}
 
 {% block title %}{{ kind|capfirst }} {{ id }}{% endblock %}
 
-{% block mainbar %}
+{% block maintitle %}{{ kind|capfirst }} {{ id }}{% endblock %}
 
-<h1>{{ kind|capfirst }} {{ id }}</h1>
+{% block maincontent %}
 
 {% for tag in primary_tags %}
 <div class="primary-tag">
@@ -41,30 +41,34 @@
 {{ body|safe }}
 </div>
 
+<div class="item-actions">
+
 {% if own_item %}
 {% if status == 'draft' %}
-<form method="GET" action="{% url 'items.views.edit' id %}">
-  <input type="submit" value="Edit" />
-</form>
+<a href="{% url 'items.views.edit' id %}">edit</a>
 <form method="POST" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
-  <input type="submit" name="submit" value="Submit for review" />
+  <input class="button" type="submit" value="submit for review" />
+  <input type="hidden" name="status" value="review" />
   <input type="hidden" name="item" value="{{ id }}" />
 </form>
 <form method="POST" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
-  <input type="submit" name="submit" value="Publish" />
+  <input class="button" type="submit" value="publish" />
+  <input type="hidden" name="status" value="publish" />
   <input type="hidden" name="item" value="{{ id }}" />
 </form>
 {% elif status == 'review' %}
 <form method="POST" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
-  <input type="submit" name="submit" value="Revert to draft" />
+  <input class="button" type="submit" value="revert to draft" />
+  <input type="hidden" name="status" value="draft" />
   <input type="hidden" name="item" value="{{ id }}" />
 </form>
 <form method="POST" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
-  <input type="submit" name="submit" value="Publish" />
+  <input class="button" type="submit" value="publish" />
+  <input type="hidden" name="status" value="publish" />
   <input type="hidden" name="item" value="{{ id }}" />
 </form>
 {% endif %}
@@ -72,5 +76,9 @@
 <p>Is ready to publish? <a href="#">Yes</a> / <a href="#">No</a></p>
 {% endif %}
 
-{% endblock %}
+<div class="clr"></div>
+
+</div>
+
+{% endblock maincontent %}
 

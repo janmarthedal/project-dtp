@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-{% block title %}New {{ kind }}{% endblock %}
+{% block title %}Edit {{ kind }} {{ id }}{% endblock %}
 
 {% block mainbar %}
 
-<h1>New {{ kind }}</h1>
+<h1>Edit {{ kind }} {{ id }}</h1>
 
 {% if errors %}
 {% for error_header, error_list in errors.iteritems %}
@@ -20,7 +20,7 @@
 {% endfor %}
 {% endif %}
 
-<form method="post" action="{% url 'items.views.new' kind=kind %}">
+<form method="post" action="{% url 'items.views.edit' id %}">
 {% csrf_token %}
 
   <textarea name="body" class="body">{{ body }}</textarea>
@@ -33,7 +33,7 @@
 
   <div class="item-actions">
     <input class="button" type="submit" name="submit" value="preview" />
-    <input class="button" type="submit" name="submit" value="save" />
+    <input class="button" type="submit" name="submit" value="update" />
   </div>
 </form>
 

@@ -20,9 +20,7 @@ class ItemManager(models.Manager):
         item = Item(kind        = kind_key,
                     status      = 'D',
                     created_by  = user,
-                    #created_at  = datetime.datetime.utcnow(),
                     modified_by = user,
-                    #modified_at = datetime.datetime.utcnow(),
                     body        = body)
         item.save()
         
@@ -32,6 +30,19 @@ class ItemManager(models.Manager):
             itemtag.save()
 
         return item.id
+
+    def update_item(self, item, user, body, tags):
+        item.modified_by = user
+        item.modified_at = datetime.datetime.utcnow()
+        item.body        = body
+        item.save()
+
+        ItemTag.objects.filter(item=item).delete()
+        for tag_name, is_primary in tags.iteritems():
+            tag, created = Tag.objects.get_or_create(name=tag_name)
+            itemtag = ItemTag(item=item, tag=tag, primary=is_primary)
+            itemtag.save()
+
 
 class Item(models.Model):
     class Meta:
@@ -65,8 +76,7 @@ class Item(models.Model):
                                    null=True, blank=True)
     parent      = models.ForeignKey('self', null=True, blank=True)
     body        = models.TextField(null=True, blank=True)
-    tags        = models.ManyToManyField(Tag, blank=True, through='ItemTag')
-    deps        = models.ManyToManyField('self', blank=True)
+    tags        = models.ManyToManyField(Tag, blank=True, through='ItemTag', related_name='item_tags')
 
     def get_cap_kind(self):
         return self.get_kind_display().capitalize()

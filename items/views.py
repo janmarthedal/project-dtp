@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.http import require_POST, require_safe
+from django.views.decorators.http import require_POST, require_safe, require_http_methods
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -11,7 +11,12 @@ from users.helpers import get_user_info
 import logging
 logger = logging.getLogger(__name__)
 
+# assumes the datetime dt is in UTC with no tzinfo
+def datetime_user_string(user, dt):
+    return dt.replace(microsecond=0).isoformat(' ') + ' UTC'
+
 @login_required
+@require_http_methods(["GET", "POST"])
 def new(request, kind):
     c = init_context(request)
     if request.method == 'POST':
@@ -33,8 +38,37 @@ def new(request, kind):
     return render(request, 'items/new.html', c)
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def edit(request, item_id):
-    return show(request, item_id)
+    c = init_context(request)
+    item = get_object_or_404(Item, pk=item_id)
+    own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
+    if not (item.status == 'D' and own_item):
+        raise Http404
+    c['id']   = item_id
+    c['kind'] = item.get_kind_display()
+    if request.method == 'GET':
+        tags = [(itemtag.tag.name, itemtag.primary)
+                for itemtag in item.itemtag_set.all()]
+        c['body']         = item.body
+        c['primarytags'] = '\n'.join([t[0] for t in tags if t[1]])
+        c['othertags']   = '\n'.join([t[0] for t in tags if not t[1]])
+    else:
+        if request.POST['submit'].lower() == 'update':
+            errors = {}
+            primary_tag_list = request.POST['primarytags'].splitlines()
+            other_tag_list   = request.POST['othertags'].splitlines()
+            tags = prepare_tags(primary_tag_list, other_tag_list, errors)
+            body = prepare_body(request.POST['body'], errors)
+            if errors:
+                c['errors'] = errors
+            else:
+                Item.objects.update_item(item, request.user, body, tags)
+                logger.debug('Updated %s' % str(item_id))
+                return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
+        for k in ['body', 'primarytags', 'othertags']:
+            c[k] = request.POST[k]
+    return render(request, 'items/edit.html', c)
 
 @require_safe
 def show(request, item_id):
@@ -49,7 +83,7 @@ def show(request, item_id):
     c['kind']         = item.get_kind_display()
     c['status']       = item.get_status_display()
     c['created_by']   = get_user_info(item.created_by)
-    c['modified_at']  = str(item.modified_at)
+    c['modified_at']  = datetime_user_string(request.user, item.modified_at)
     c['body']         = typeset_body(item.body)
     c['primary_tags'] = [t[0] for t in tags if t[1]]
     c['other_tags']   = [t[0] for t in tags if not t[1]]
@@ -65,7 +99,7 @@ def show_final(request, final_id):
             for itemtag in item.itemtag_set.all()]
     c['kind']         = item.get_kind_display()
     c['created_by']   = get_user_info(item.created_by)
-    c['published_at'] = str(item.final_at)
+    c['published_at'] = datetime_user_string(request.user, item.final_at)
     c['body']         = typeset_body(item.body)
     c['primary_tags'] = [t[0] for t in tags if t[1]]
     c['other_tags']   = [t[0] for t in tags if not t[1]]
@@ -77,7 +111,7 @@ def change_status(request):
     item_id = request.POST['item']
     item = get_object_or_404(Item, pk=item_id)
     own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
-    if request.POST['submit'].lower() == 'publish':
+    if request.POST['status'] == 'publish':
         if not own_item or item.status not in ['D', 'R', 'F']:
             raise Http404 
         if item.status != 'F':

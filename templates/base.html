@@ -21,9 +21,9 @@
   <body>
     <div id="wrap">
       <div id="header">
-	<div id="logo">
-	  thrms.net
-	</div>
+	    <div id="logo">
+	      thrms.net
+	    </div>
         <div id="user">
           {% if auth %}
           <a href="{% url 'users.views.profile' auth.id %}">{{ auth.name }}</a>
@@ -33,12 +33,20 @@
         </div>
       </div>
       <div id="content">
-	<div id="mainbar">
-	  {% block mainbar %}{% endblock %}
-	</div>
+	    <div id="mainbar">
+	      {% block mainbar %}
+          {% endblock mainbar %}
+	    </div>
+        <div id="sidebar">
+          <p>This is the side bar</p>
+          <p>Some stuff should be inserted here</p>
+          <p>But what?</p>
+        </div>
       </div>
       <div id="footer">
-        Copyright 2013 SputSoft
+        <a class="license" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
+        site design &copy; 2013 sputsoft<br>
+        user contributions are licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.
       </div>
     </div>
   </body>
