@@ -1,10 +1,30 @@
 {% extends "base_mainbar.html" %}
 {% load url from future %}
 
-{% block title %}Edit {{ kind }} {{ id }}{% endblock %}
-{% block maintitle %}Edit {{ kind }} {{ id }}{% endblock %}
+{% block title %}
+Edit {{ kind }} {{ id }}{% if preview %} preview{% endif %}
+{% endblock %}
 
-{% block mainbar %}
+{% block maintitle %}
+Edit {{ kind }} {{ id }}{% if preview %} preview{% if preview.primary_tags %} ({{ preview.primary_tags|join:", " }}){% endif %}{% endif %}
+{% endblock %}
+
+{% block maincontent %}
+
+{% if preview %}
+<div class="itembody">
+{{ preview.body|safe }}
+</div>
+<div class="iteminfo">
+{% if preview.other_tags %}
+<div class="taglist">
+{% for tag in preview.other_tags %}
+  <span class="tag">{{ tag|safe }}</span>
+{% endfor %}
+</div>
+{% endif %}
+</div>
+{% endif %}
 
 <form method="post" action="{% url 'items.views.edit' id %}">
 {% csrf_token %}
@@ -23,5 +43,5 @@
   </div>
 </form>
 
-{% endblock mainbar %}
+{% endblock maincontent %}
 

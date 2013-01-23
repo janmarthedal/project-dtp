@@ -24,7 +24,6 @@ def new(request, kind):
         primary_tag_list = request.POST['primarytags'].splitlines()
         other_tag_list   = request.POST['othertags'].splitlines()
         tags = prepare_tags(primary_tag_list, other_tag_list, messages)
-        logger.debug(str(tags))
         body = prepare_body(request.POST['body'], messages)
         if request.POST['submit'].lower() == 'save':
             if not messages:
@@ -56,24 +55,27 @@ def edit(request, item_id):
     if request.method == 'GET':
         tags = [(itemtag.tag.name, itemtag.primary)
                 for itemtag in item.itemtag_set.all()]
-        c['body']         = item.body
+        c['body']        = item.body
         c['primarytags'] = '\n'.join([t[0] for t in tags if t[1]])
         c['othertags']   = '\n'.join([t[0] for t in tags if not t[1]])
     else:
+        messages = []
+        primary_tag_list = request.POST['primarytags'].splitlines()
+        other_tag_list   = request.POST['othertags'].splitlines()
+        tags = prepare_tags(primary_tag_list, other_tag_list, messages)
+        body = prepare_body(request.POST['body'], messages)
         if request.POST['submit'].lower() == 'update':
-            messages = []
-            primary_tag_list = request.POST['primarytags'].splitlines()
-            other_tag_list   = request.POST['othertags'].splitlines()
-            tags = prepare_tags(primary_tag_list, other_tag_list, messages)
-            body = prepare_body(request.POST['body'], messages)
-            if messages:
-                c['messages'].extend(messages)
-            else:
+            if not messages:
                 Item.objects.update_item(item, request.user, body, tags)
                 message = '%s %s successfully update' % (kind.capitalize(), str(item_id))
                 logger.debug(message)
                 request.session['message'] = message
                 return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
+        else:  # preview
+            c['preview'] = { 'body':         typeset_body(body),
+                             'primary_tags': [typeset_tag(t[0]) for t in tags if t[1]],
+                             'other_tags':   [typeset_tag(t[0]) for t in tags if not t[1]] }
+        c['messages'].extend(messages)
         for k in ['body', 'primarytags', 'othertags']:
             c[k] = request.POST[k]
     return render(request, 'items/edit.html', c)
