@@ -21,16 +21,18 @@ def new(request, kind):
     c = init_context(request)
     if request.method == 'POST':
         if request.POST['submit'].lower() == 'save':
-            errors = {}
+            messages = []
             primary_tag_list = request.POST['primarytags'].splitlines()
             other_tag_list   = request.POST['othertags'].splitlines()
-            tags = prepare_tags(primary_tag_list, other_tag_list, errors)
-            body = prepare_body(request.POST['body'], errors)
-            if errors:
-                c['errors'] = errors
+            tags = prepare_tags(primary_tag_list, other_tag_list, messages)
+            body = prepare_body(request.POST['body'], messages)
+            if messages:
+                c['messages'].extend(messages)
             else:
                 item_id = Item.objects.add_item(request.user, kind, body, tags)
-                logger.debug('Created %s %d' % (kind, item_id))
+                message = '%s %s successfully created' % (kind.capitalize(), str(item_id))
+                logger.debug(message)
+                request.session['message'] = message
                 return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
         for k in ['body', 'primarytags', 'othertags']:
             c[k] = request.POST[k]
@@ -55,16 +57,18 @@ def edit(request, item_id):
         c['othertags']   = '\n'.join([t[0] for t in tags if not t[1]])
     else:
         if request.POST['submit'].lower() == 'update':
-            errors = {}
+            messages = []
             primary_tag_list = request.POST['primarytags'].splitlines()
             other_tag_list   = request.POST['othertags'].splitlines()
-            tags = prepare_tags(primary_tag_list, other_tag_list, errors)
-            body = prepare_body(request.POST['body'], errors)
-            if errors:
-                c['errors'] = errors
+            tags = prepare_tags(primary_tag_list, other_tag_list, messages)
+            body = prepare_body(request.POST['body'], messages)
+            if messages:
+                c['messages'].extend(messages)
             else:
                 Item.objects.update_item(item, request.user, body, tags)
-                logger.debug('Updated %s' % str(item_id))
+                message = '%s %s successfully update' % (kind.capitalize(), str(item_id))
+                logger.debug(message)
+                request.session['message'] = message
                 return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
         for k in ['body', 'primarytags', 'othertags']:
             c[k] = request.POST[k]
@@ -73,13 +77,13 @@ def edit(request, item_id):
 @require_safe
 def show(request, item_id):
     c = init_context(request)
-    c['id'] = item_id
     item = get_object_or_404(Item, pk=item_id)
     own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
     if not ((item.status == 'D' and own_item) or item.status == 'R'):
         raise Http404 
     tags = [(typeset_tag(itemtag.tag.name), itemtag.primary)
             for itemtag in item.itemtag_set.all()]
+    c['id']           = item_id
     c['kind']         = item.get_kind_display()
     c['status']       = item.get_status_display()
     c['created_by']   = get_user_info(item.created_by)
@@ -93,10 +97,10 @@ def show(request, item_id):
 @require_safe
 def show_final(request, final_id):
     c = init_context(request)
-    c['final_id'] = final_id
     item = get_object_or_404(Item, final_id=final_id)
     tags = [(typeset_tag(itemtag.tag.name), itemtag.primary)
             for itemtag in item.itemtag_set.all()]
+    c['final_id']     = final_id
     c['kind']         = item.get_kind_display()
     c['created_by']   = get_user_info(item.created_by)
     c['published_at'] = datetime_user_string(request.user, item.final_at)

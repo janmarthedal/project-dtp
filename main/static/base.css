@@ -89,7 +89,7 @@ div.itembody {
   border: 2px solid #888;
 }
 
-div.primary-tag {
+div.primary.tag {
   padding: 0em;
   margin: 0.2em 0em 0.2em 1em;
   font-size: 1.2em;
@@ -100,7 +100,7 @@ div.taglist {
   margin: 0.2em 0em;
 }
 
-span.other-tag {
+span.tag {
   padding: 0.1em 0.2em;
   margin: 0.1em;
   border: 2px solid #888;

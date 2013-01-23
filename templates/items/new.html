@@ -1,24 +1,11 @@
-{% extends "base.html" %}
+{% extends "base_mainbar.html" %}
 {% load url from future %}
 
 {% block title %}New {{ kind }}{% endblock %}
 
-{% block mainbar %}
+{% block maintitle %}New {{ kind }}{% endblock %}
 
-<h1>New {{ kind }}</h1>
-
-{% if errors %}
-{% for error_header, error_list in errors.iteritems %}
-<div class="error">
-  <p>{{ error_header }}:</p>
-  <ul>
-{% for error in error_list %}
-    <li>{{ error }}</li>
-{% endfor %}
-  </ul>
-</div>
-{% endfor %}
-{% endif %}
+{% block maincontent %}
 
 <form method="post" action="{% url 'items.views.new' kind=kind %}">
 {% csrf_token %}
@@ -37,5 +24,5 @@
   </div>
 </form>
 
-{% endblock %}
+{% endblock maincontent %}
 

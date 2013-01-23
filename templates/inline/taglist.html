@@ -1,0 +1,6 @@
+{% spaceless %}
+<span class="header">{{ header }}</span>
+{% for tag in taglist %}
+<span class="tag">{{ tag|safe }}</span>
+{% endfor %}
+{% endspaceless %}

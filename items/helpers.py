@@ -2,6 +2,8 @@ import re
 import string
 import random
 from collections import Counter
+from django.template.loader import get_template
+from django.template import Context
 import markdown
 
 import logging
@@ -18,23 +20,26 @@ def normalize_tag(name):
     name = make_html_safe(name)
     return name
 
-def prepare_tags(primary_tags, other_tags, errors):
+def prepare_tags(primary_tags, other_tags, messages):
     primary_tags = filter(None, map(normalize_tag, primary_tags))
     other_tags   = filter(None, map(normalize_tag, other_tags))
     tag_counter = Counter(primary_tags) + Counter(other_tags)
     duplicates = [p[0] for p in tag_counter.iteritems() if p[1] > 1]
     if duplicates:
-        errors['Duplicate tags'] = duplicates
+        t = get_template('inline/taglist.html')
+        c = Context({'header':  'Tag duplicates:',
+                     'taglist': map(typeset_tag, duplicates)})
+        messages.append(t.render(c))
         return None
     tags = {}
     tags.update(dict.fromkeys(primary_tags, True))
     tags.update(dict.fromkeys(other_tags, False))
     return tags
 
-def prepare_body(body, errors):
+def prepare_body(body, messages):
     return body.strip()
 
-SHORT_NAME_CHARS = '23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
+SHORT_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 #SHORT_NAME_CHARS = ''.join(set(string.ascii_letters + string.digits) - set('0oO1lI'))
 
 def make_short_name(length):
@@ -72,8 +77,6 @@ def typeset_body(body):
         else:
             parts2 = re.split(r'\s*\n\s*\n\s*', parts[i].strip())
             parts2 = map(typeset_body_paragraph, parts2)
-            #for j in range(len(parts2)):
-            #    parts2[j] = typeset_body_paragraph(parts2[j])
             parts[i] = '\n'.join(parts2)
     return ''.join(parts)
 
@@ -105,5 +108,5 @@ def typeset_tag(st):
     for i in range(len(parts)):
         if i % 2 == 1:
             parts[i] = '\(' + parts[i] + '\)'
-    return ''.join(parts)
+    return make_html_safe(''.join(parts))
 
