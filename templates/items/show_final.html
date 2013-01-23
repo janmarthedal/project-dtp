@@ -1,41 +1,32 @@
-{% extends "base.html" %}
+{% extends "base_mainbar.html" %}
 {% load url from future %}
 
 {% block title %}{{ kind|capfirst }} {{ final_id }}{% endblock %}
+{% block maintitle %}
+{% spaceless %}
+{{ kind|capfirst }} {{ final_id }}
+{% if primary_tags %} ({{ primary_tags|join:", " }}){% endif %}
+{% endspaceless %}
+{% endblock %}
 
-{% block mainbar %}
-
-<h1>{{ kind|capfirst }} {{ final_id }}</h1>
-
-{% for tag in primary_tags %}
-<div class="primary-tag">
-{{ tag|safe }}
-</div>
-{% endfor %}
-
-<table class="iteminfo">
-  <tr>
-    <th>Created by</th>
-    <td><a href="{% url 'users.views.profile' created_by.id %}">{{ created_by.name }}</a></td>
-  </tr>
-  <tr>
-    <th>Published at</th>
-    <td>{{ published_at }}</td>
-  </tr>
-</table>
-
-{% if other_tags %}
-<div class="taglist">
-  <span class="header">Other tags:</span>
-{% for tag in other_tags %}
-  <span class="other-tag">{{ tag|safe }}</span>
-{% endfor %}
-</div>
-{% endif %}
+{% block maincontent %}
 
 <div class="itembody">
 {{ body|safe }}
 </div>
+
+<div class="iteminfo">
+<p>created by <a href="{% url 'users.views.profile' created_by.id %}">{{ created_by.name }}</a>, published at {{ published_at }}</p>
+{% if other_tags %}
+<div class="taglist">
+{% for tag in other_tags %}
+  <span class="tag">{{ tag|safe }}</span>
+{% endfor %}
+</div>
+{% endif %}
+</div>
+
+<div class="clr"></div>
 
 {% endblock %}
 

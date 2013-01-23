@@ -1,9 +1,9 @@
 import re
 import string
-import random
 from collections import Counter
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.crypto import get_random_string
 import markdown
 
 import logging
@@ -31,19 +31,17 @@ def prepare_tags(primary_tags, other_tags, messages):
                      'taglist': map(typeset_tag, duplicates)})
         messages.append(t.render(c))
         return None
-    tags = {}
-    tags.update(dict.fromkeys(primary_tags, True))
-    tags.update(dict.fromkeys(other_tags, False))
+    tags = [(tag, True) for tag in primary_tags]
+    tags.extend([(tag, False) for tag in other_tags])
     return tags
 
 def prepare_body(body, messages):
     return body.strip()
 
 SHORT_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
-#SHORT_NAME_CHARS = ''.join(set(string.ascii_letters + string.digits) - set('0oO1lI'))
 
 def make_short_name(length):
-    return ''.join(random.choice(SHORT_NAME_CHARS) for _ in range(length))
+    return get_random_string(length, SHORT_NAME_CHARS)
 
 test_body = """
 First paragraf

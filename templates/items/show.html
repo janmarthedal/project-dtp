@@ -3,43 +3,31 @@
 
 {% block title %}{{ kind|capfirst }} {{ id }}{% endblock %}
 
-{% block maintitle %}{{ kind|capfirst }} {{ id }}{% endblock %}
+{% block maintitle %}
+{% spaceless %}
+{{ kind|capfirst }} {{ id }}
+{% if primary_tags %} ({{ primary_tags|join:", " }}){% endif %}
+{% endspaceless %}
+{% endblock %}
 
 {% block maincontent %}
 
-{% for tag in primary_tags %}
-<div class="primary-tag">
-{{ tag|safe }}
+<div class="itembody">
+{{ body|safe }}
 </div>
-{% endfor %}
 
-<table class="iteminfo">
-  <tr>
-    <th>Status</th>
-    <td>{{ status|capfirst }}</td>
-  </tr>
-  <tr>
-    <th>Created by</th>
-    <td><a href="{% url 'users.views.profile' created_by.id %}">{{ created_by.name }}</a></td>
-  </tr>
-  <tr>
-    <th>Latest modification</th>
-    <td>{{ modified_at }}</td>
-  </tr>
-</table>
-
+<div class="iteminfo">
+<p>{{ status }}, latest edit by <a href="{% url 'users.views.profile' modified_by.id %}">{{ modified_by.name }}</a> at {{ modified_at }}</p>
 {% if other_tags %}
 <div class="taglist">
-  <span class="header">Other tags:</span>
 {% for tag in other_tags %}
   <span class="tag">{{ tag|safe }}</span>
 {% endfor %}
 </div>
 {% endif %}
-
-<div class="itembody">
-{{ body|safe }}
 </div>
+
+<div class="clr"></div>
 
 <div class="item-actions">
 

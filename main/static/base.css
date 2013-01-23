@@ -25,12 +25,13 @@ body {
 }
 
 #logo {
-  font-size: 2.5em;
+  font-size: 3em;
   color: #77f;
   float: left;
 }
 
 #user {
+  font-size: 0.8em;
   float: right;
 }
 
@@ -56,7 +57,7 @@ body {
 }
 
 h1 {
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: normal;
   padding: 0em;
   margin: 0.2em 0em;
@@ -73,14 +74,19 @@ textarea.tags {
   max-width: 40em;
 }
 
-table.iteminfo {
-  padding: 0.5em;
-  margin: 1em 0em;
-  background: #eee;
+.iteminfo {
+  padding: 0em;
+  margin: 0em;
+  width: 50%;
+  float: right;
 }
 
-table.iteminfo tr th {
-  text-align: left;
+.iteminfo p {
+  font-size: 0.7em;
+}
+
+.iteminfo .taglist {
+  font-size: 0.8em;
 }
 
 div.itembody {
@@ -89,18 +95,18 @@ div.itembody {
   border: 2px solid #888;
 }
 
-div.primary.tag {
+.primarytags .tag {
   padding: 0em;
   margin: 0.2em 0em 0.2em 1em;
   font-size: 1.2em;
 }
 
-div.taglist {
+.taglist {
   padding: 0em;
-  margin: 0.2em 0em;
+  margin: 0.5em 0em;
 }
 
-span.tag {
+.taglist .tag {
   padding: 0.1em 0.2em;
   margin: 0.1em;
   border: 2px solid #888;

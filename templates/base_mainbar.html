@@ -2,8 +2,6 @@
 
 {% block mainbar %}
 
-<h1>{% block maintitle %}{% endblock %}</h1>
-
 {% if messages %}
 <ul id="messages">
 {% for message in messages %}
@@ -11,6 +9,8 @@
 {% endfor %}
 </ul>
 {% endif %}
+
+<h1>{% block maintitle %}{% endblock %}</h1>
 
 {% block maincontent %}
 {% endblock maincontent %}

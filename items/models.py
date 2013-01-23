@@ -24,7 +24,7 @@ class ItemManager(models.Manager):
                     body        = body)
         item.save()
         
-        for tag_name, is_primary in tags.iteritems():
+        for (tag_name, is_primary) in tags:
             tag, created = Tag.objects.get_or_create(name=tag_name)
             itemtag = ItemTag(item=item, tag=tag, primary=is_primary)
             itemtag.save()

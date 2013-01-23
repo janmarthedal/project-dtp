@@ -20,20 +20,24 @@ def datetime_user_string(user, dt):
 def new(request, kind):
     c = init_context(request)
     if request.method == 'POST':
+        messages = []
+        primary_tag_list = request.POST['primarytags'].splitlines()
+        other_tag_list   = request.POST['othertags'].splitlines()
+        tags = prepare_tags(primary_tag_list, other_tag_list, messages)
+        logger.debug(str(tags))
+        body = prepare_body(request.POST['body'], messages)
         if request.POST['submit'].lower() == 'save':
-            messages = []
-            primary_tag_list = request.POST['primarytags'].splitlines()
-            other_tag_list   = request.POST['othertags'].splitlines()
-            tags = prepare_tags(primary_tag_list, other_tag_list, messages)
-            body = prepare_body(request.POST['body'], messages)
-            if messages:
-                c['messages'].extend(messages)
-            else:
+            if not messages:
                 item_id = Item.objects.add_item(request.user, kind, body, tags)
                 message = '%s %s successfully created' % (kind.capitalize(), str(item_id))
                 logger.debug(message)
                 request.session['message'] = message
                 return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
+        else:  # preview
+            c['preview'] = { 'body':         typeset_body(body),
+                             'primary_tags': [typeset_tag(t[0]) for t in tags if t[1]],
+                             'other_tags':   [typeset_tag(t[0]) for t in tags if not t[1]] }
+        c['messages'].extend(messages)
         for k in ['body', 'primarytags', 'othertags']:
             c[k] = request.POST[k]
     c['kind'] = kind
@@ -86,7 +90,7 @@ def show(request, item_id):
     c['id']           = item_id
     c['kind']         = item.get_kind_display()
     c['status']       = item.get_status_display()
-    c['created_by']   = get_user_info(item.created_by)
+    c['modified_by']  = get_user_info(item.modified_by)
     c['modified_at']  = datetime_user_string(request.user, item.modified_at)
     c['body']         = typeset_body(item.body)
     c['primary_tags'] = [t[0] for t in tags if t[1]]

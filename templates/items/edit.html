@@ -1,24 +1,10 @@
-{% extends "base.html" %}
+{% extends "base_mainbar.html" %}
 {% load url from future %}
 
 {% block title %}Edit {{ kind }} {{ id }}{% endblock %}
+{% block maintitle %}Edit {{ kind }} {{ id }}{% endblock %}
 
 {% block mainbar %}
-
-<h1>Edit {{ kind }} {{ id }}</h1>
-
-{% if errors %}
-{% for error_header, error_list in errors.iteritems %}
-<div class="error">
-  <p>{{ error_header }}:</p>
-  <ul>
-{% for error in error_list %}
-    <li>{{ error }}</li>
-{% endfor %}
-  </ul>
-</div>
-{% endfor %}
-{% endif %}
 
 <form method="post" action="{% url 'items.views.edit' id %}">
 {% csrf_token %}
@@ -37,5 +23,5 @@
   </div>
 </form>
 
-{% endblock %}
+{% endblock mainbar %}
 
