@@ -1,11 +1,11 @@
-{% extends "base_mainbar.html" %}
+{% extends "base.html" %}
 {% load url from future %}
 
 {% block title %}Log in{% endblock %}
 
-{% block maintitle %}Log in{% endblock %}
+{% block mainbar %}
 
-{% block maincontent %}
+<h1>Log in</h1>
 
 <form method="post" action="{% url 'users.views.login' %}">
 {% csrf_token %}
@@ -26,5 +26,5 @@
 {% endif %}
 </form>
 
-{% endblock maincontent %}
+{% endblock mainbar %}
 

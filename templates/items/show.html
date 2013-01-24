@@ -1,16 +1,17 @@
-{% extends "base_mainbar.html" %}
+{% extends "base.html" %}
+{% include "includes/messages.html" %}
 {% load url from future %}
 
 {% block title %}{{ kind|capfirst }} {{ id }}{% endblock %}
 
-{% block maintitle %}
+{% block mainbar %}
+
 {% spaceless %}
+<h1>
 {{ kind|capfirst }} {{ id }}
 {% if primary_tags %} ({{ primary_tags|join:", " }}){% endif %}
+</h1>
 {% endspaceless %}
-{% endblock %}
-
-{% block maincontent %}
 
 <div class="itembody">
 {{ body|safe }}
@@ -68,5 +69,5 @@
 
 </div>
 
-{% endblock maincontent %}
+{% endblock mainbar %}
 

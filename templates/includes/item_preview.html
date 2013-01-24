@@ -1,0 +1,15 @@
+{% if preview %}
+<div class="itembody">
+{{ preview.body|safe }}
+</div>
+<div class="iteminfo">
+{% if preview.other_tags %}
+<div class="taglist">
+{% for tag in preview.other_tags %}
+  <span class="tag">{{ tag|safe }}</span>
+{% endfor %}
+</div>
+{% endif %}
+</div>
+{% endif %}
+

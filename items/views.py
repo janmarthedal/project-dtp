@@ -3,6 +3,7 @@ from django.views.decorators.http import require_POST, require_safe, require_htt
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from main.helpers import init_context, datetime_user_string
 from items.models import Item
 from items.helpers import prepare_tags, prepare_body, typeset_body, typeset_tag, make_short_name
@@ -16,23 +17,28 @@ logger = logging.getLogger(__name__)
 def new(request, kind):
     c = init_context(request)
     if request.method == 'POST':
-        messages = []
+        item_messages = []
         primary_tag_list = request.POST['primarytags'].splitlines()
         other_tag_list   = request.POST['othertags'].splitlines()
-        tags = prepare_tags(primary_tag_list, other_tag_list, messages)
-        body = prepare_body(request.POST['body'], messages)
+        tags = prepare_tags(primary_tag_list, other_tag_list, item_messages)
+        body = prepare_body(request.POST['body'], item_messages)
         if request.POST['submit'].lower() == 'save':
-            if not messages:
+            if item_messages:
+                for im in item_messages:
+                    messages.error(request, im)
+            else:
                 item_id = Item.objects.add_item(request.user, kind, body, tags)
                 message = '%s %s successfully created' % (kind.capitalize(), str(item_id))
                 logger.debug(message)
-                request.session['message'] = message
+                messages.success(request, message)
                 return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
         else:  # preview
             c['preview'] = { 'body':         typeset_body(body),
                              'primary_tags': [typeset_tag(t[0]) for t in tags if t[1]],
                              'other_tags':   [typeset_tag(t[0]) for t in tags if not t[1]] }
-        c['messages'].extend(messages)
+            if item_messages:
+                for im in item_messages:
+                    messages.warning(request, im)
         for k in ['body', 'primarytags', 'othertags']:
             c[k] = request.POST[k]
     c['kind'] = kind
@@ -46,8 +52,6 @@ def edit(request, item_id):
     own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
     if not (item.status == 'D' and own_item):
         raise Http404
-    c['id']   = item_id
-    c['kind'] = item.get_kind_display()
     if request.method == 'GET':
         tags = [(itemtag.tag.name, itemtag.primary)
                 for itemtag in item.itemtag_set.all()]
@@ -55,25 +59,32 @@ def edit(request, item_id):
         c['primarytags'] = '\n'.join([t[0] for t in tags if t[1]])
         c['othertags']   = '\n'.join([t[0] for t in tags if not t[1]])
     else:
-        messages = []
+        item_messages = []
         primary_tag_list = request.POST['primarytags'].splitlines()
         other_tag_list   = request.POST['othertags'].splitlines()
-        tags = prepare_tags(primary_tag_list, other_tag_list, messages)
-        body = prepare_body(request.POST['body'], messages)
+        tags = prepare_tags(primary_tag_list, other_tag_list, item_messages)
+        body = prepare_body(request.POST['body'], item_messages)
         if request.POST['submit'].lower() == 'update':
-            if not messages:
+            if item_messages:
+                for im in item_messages:
+                    messages.error(request, im)
+            else:
                 Item.objects.update_item(item, request.user, body, tags)
                 message = '%s %s successfully update' % (kind.capitalize(), str(item_id))
                 logger.debug(message)
-                request.session['message'] = message
+                messages.success(request, message)
                 return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
         else:  # preview
             c['preview'] = { 'body':         typeset_body(body),
                              'primary_tags': [typeset_tag(t[0]) for t in tags if t[1]],
                              'other_tags':   [typeset_tag(t[0]) for t in tags if not t[1]] }
-        c['messages'].extend(messages)
+            if item_messages:
+                for im in item_messages:
+                    messages.warning(request, im)
         for k in ['body', 'primarytags', 'othertags']:
             c[k] = request.POST[k]
+    c['id']   = item_id
+    c['kind'] = item.get_kind_display()
     return render(request, 'items/edit.html', c)
 
 @require_safe

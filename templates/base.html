@@ -21,9 +21,9 @@
   <body>
     <div id="wrap">
       <div id="header">
-	    <div id="logo">
-	      thrms.net
-	    </div>
+        <div id="logo">
+          thrms.net
+        </div>
         <div id="user">
           {% if auth %}
           <a href="{% url 'users.views.profile' auth.id %}">{{ auth.name }}</a>
@@ -33,14 +33,13 @@
         </div>
       </div>
       <div id="content">
-	    <div id="mainbar">
-	      {% block mainbar %}
+        <div id="mainbar">
+          {% include "includes/messages.html" %}
+          {% block mainbar %}
           {% endblock mainbar %}
-	    </div>
+        </div>
         <div id="sidebar">
           <p>This is the side bar</p>
-          <p>Some stuff should be inserted here</p>
-          <p>But what?</p>
         </div>
       </div>
       <div id="footer">
