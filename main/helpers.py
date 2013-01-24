@@ -10,3 +10,7 @@ def init_context(request):
     c['messages'] = messages
     return c
 
+# assumes the datetime dt is in UTC with no tzinfo
+def datetime_user_string(user, dt):
+    return dt.replace(microsecond=0).isoformat(' ') + ' UTC'
+

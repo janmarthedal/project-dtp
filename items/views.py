@@ -3,17 +3,13 @@ from django.views.decorators.http import require_POST, require_safe, require_htt
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from main.helpers import init_context
+from main.helpers import init_context, datetime_user_string
 from items.models import Item
 from items.helpers import prepare_tags, prepare_body, typeset_body, typeset_tag, make_short_name
 from users.helpers import get_user_info
 
 import logging
 logger = logging.getLogger(__name__)
-
-# assumes the datetime dt is in UTC with no tzinfo
-def datetime_user_string(user, dt):
-    return dt.replace(microsecond=0).isoformat(' ') + ' UTC'
 
 @login_required
 @require_http_methods(["GET", "POST"])
