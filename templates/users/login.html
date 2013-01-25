@@ -10,20 +10,9 @@
 <form method="post" action="{% url 'users.views.login' %}">
 {% csrf_token %}
 <table>
-<tr>
-  <td>User name:</td>
-  <td><input type="text" name="user" /></td>
-</tr>
-<tr>
-  <td>Password:</td>
-  <td><input type="password" name="pwd" /></td>
-</tr>
+{{ form.as_table }}
 </table>
-
 <input type="submit" value="login" />
-{% if next %}
-<input type="hidden" name="next" value="{{ next }}" />
-{% endif %}
 </form>
 
 {% endblock mainbar %}

@@ -9,23 +9,17 @@ New {{ kind }}{% if preview %} preview{% endif %}
 
 <h1>New {{ kind }}{% if preview %} preview{% if preview.primary_tags %} ({{ preview.primary_tags|join:", " }}){% endif %}{% endif %}</h1>
 
-{% include "includes/item_preview.html" %}
+{% include "items/include/preview.html" %}
 
-<form method="post" action="{% url 'items.views.new' kind=kind %}">
-{% csrf_token %}
+<form method="post" action="{% url 'items.views.new' kind=kind %}">{% csrf_token %}
 
-  <textarea name="body" class="body">{{ body }}</textarea>
-
-  <p>Primary tags:</p>
-  <textarea name="primarytags" class="tags primary-tags">{{ primarytags }}</textarea>
-
-  <p>Other tags:</p>
-  <textarea name="othertags" class="tags other-tags">{{ othertags }}</textarea>
+  {% include "items/include/edit_fields.html" %}
 
   <div class="item-actions">
     <input class="button" type="submit" name="submit" value="preview" />
     <input class="button" type="submit" name="submit" value="save" />
   </div>
+
 </form>
 
 {% endblock mainbar %}

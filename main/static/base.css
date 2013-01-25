@@ -30,6 +30,10 @@ body {
   float: left;
 }
 
+#logo a {
+  text-decoration: none;
+}
+
 #user {
   font-size: 0.8em;
   float: right;

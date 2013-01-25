@@ -22,7 +22,7 @@
     <div id="wrap">
       <div id="header">
         <div id="logo">
-          thrms.net
+          <a href="{% url 'main.views.index' %}">thrms.net</a>
         </div>
         <div id="user">
           {% if auth %}
@@ -34,7 +34,7 @@
       </div>
       <div id="content">
         <div id="mainbar">
-          {% include "includes/messages.html" %}
+          {% include "include/messages.html" %}
           {% block mainbar %}
           {% endblock mainbar %}
         </div>
