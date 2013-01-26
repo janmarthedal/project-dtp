@@ -13,8 +13,15 @@ class Tag(models.Model):
     def __unicode__(self):
         return self.name
 
+def add_item_tags(item, tags, primary):
+    for tag_name in tags:
+        tag, created = Tag.objects.get_or_create(name=tag_name)
+        itemtag = ItemTag(item=item, tag=tag, primary=primary)
+        itemtag.save()
+
 class ItemManager(models.Manager):
-    def add_item(self, user, kind, body, tags):
+
+    def add_item(self, user, kind, body, primarytags, othertags):
         kind_key = filter(lambda kc: kc[1] == kind, Item.KIND_CHOICES)[0][0]
 
         item = Item(kind        = kind_key,
@@ -23,25 +30,21 @@ class ItemManager(models.Manager):
                     modified_by = user,
                     body        = body)
         item.save()
-        
-        for (tag_name, is_primary) in tags:
-            tag, created = Tag.objects.get_or_create(name=tag_name)
-            itemtag = ItemTag(item=item, tag=tag, primary=is_primary)
-            itemtag.save()
+
+        add_item_tags(item, primarytags, True)
+        add_item_tags(item, othertags, False)
 
         return item.id
 
-    def update_item(self, item, user, body, tags):
+    def update_item(self, item, user, body, primarytags, othertags):
         item.modified_by = user
         item.modified_at = datetime.datetime.utcnow()
         item.body        = body
         item.save()
 
         ItemTag.objects.filter(item=item).delete()
-        for (tag_name, is_primary) in tags:
-            tag, created = Tag.objects.get_or_create(name=tag_name)
-            itemtag = ItemTag(item=item, tag=tag, primary=is_primary)
-            itemtag.save()
+        add_item_tags(item, primarytags, True)
+        add_item_tags(item, othertags, False)
 
 
 class Item(models.Model):

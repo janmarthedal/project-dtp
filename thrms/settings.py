@@ -36,7 +36,7 @@ else:
         }
 
     STATIC_ROOT = '/home/jmr/www/static/'
-    PROJECT_BASE = '/home/jmr/projects/thrms-site/'
+    PROJECT_BASE = '/home/jmr/projects/thrms/'
 
 ############ Common settings ############
 

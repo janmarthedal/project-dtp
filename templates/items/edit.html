@@ -7,7 +7,7 @@ Edit {{ kind }} {{ id }}{% if preview %} preview{% endif %}
 
 {% block mainbar %}
 
-<h1>Edit {{ kind }} {{ id }}{% if preview %} preview{% if preview.primary_tags %} ({{ preview.primary_tags|join:", " }}){% endif %}{% endif %}</h1>
+<h1>Edit {{ kind }} {{ id }}{% if preview %} preview{% if preview.primarytags %} ({{ preview.primarytags|join:", " }}){% endif %}{% endif %}</h1>
 
 {% include "items/include/preview.html" %}
 

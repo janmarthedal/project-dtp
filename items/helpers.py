@@ -1,7 +1,5 @@
 import re
 import string
-from collections import Counter
-from django.template.loader import get_template
 from django.template import Context
 from django.utils.crypto import get_random_string
 import markdown
@@ -17,26 +15,7 @@ def make_html_safe(st):
 def normalize_tag(name):
     name = name.strip()
     name = re.sub(r' {2,}', r' ', name)
-    name = make_html_safe(name)
     return name
-
-def prepare_tags(primary_tags, other_tags, messages):
-    primary_tags = filter(None, map(normalize_tag, primary_tags))
-    other_tags   = filter(None, map(normalize_tag, other_tags))
-    tag_counter = Counter(primary_tags) + Counter(other_tags)
-    duplicates = [p[0] for p in tag_counter.iteritems() if p[1] > 1]
-    if duplicates:
-        t = get_template('inline/taglist.html')
-        c = Context({'header':  'Tag duplicates:',
-                     'taglist': map(typeset_tag, duplicates)})
-        messages.append(t.render(c))
-        return None
-    tags = [(tag, True) for tag in primary_tags]
-    tags.extend([(tag, False) for tag in other_tags])
-    return tags
-
-def prepare_body(body, messages):
-    return body.strip()
 
 SHORT_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 

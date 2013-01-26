@@ -1,22 +1,52 @@
+from collections import Counter
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_safe, require_http_methods
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.contrib import messages
+from django.template.loader import get_template
+from django.template import Context
 from django import forms
 from main.helpers import init_context, datetime_user_string
 from items.models import Item
-from items.helpers import prepare_tags, prepare_body, typeset_body, typeset_tag, make_short_name
+from items.helpers import normalize_tag, typeset_body, typeset_tag, make_short_name
 from users.helpers import get_user_info
 
 import logging
 logger = logging.getLogger(__name__)
 
+class TagListField(forms.CharField):
+
+    def __init__(self, *args, **kwargs):
+        super(TagListField, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        value = super(TagListField, self).clean(value)
+        tag_list = filter(None, map(normalize_tag, value.splitlines()))
+        return tag_list
+
 class EditItemForm(forms.Form):
     body        = forms.CharField(widget=forms.Textarea(attrs={'class': 'body'}), required=False)
-    primarytags = forms.CharField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
-    othertags   = forms.CharField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
+    primarytags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
+    othertags   = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
+
+    def clean_body(self):
+        return self.cleaned_data['body'].strip()
+
+    def clean(self):
+        cleaned_data = super(EditItemForm, self).clean()
+        primarytags = cleaned_data['primarytags']
+        othertags   = cleaned_data['othertags']
+        tag_counter = Counter(primarytags) + Counter(othertags)
+        duplicates = [p[0] for p in tag_counter.iteritems() if p[1] > 1]
+        if duplicates:
+            t = get_template('inline/taglist.html')
+            c = Context({'header':  'Tag duplicates:',
+                         'taglist': map(typeset_tag, duplicates)})
+            raise ValidationError([t.render(c)])
+        return cleaned_data
 
 @login_required
 @require_http_methods(["GET", "POST"])
@@ -27,30 +57,20 @@ def new(request, kind):
     else:
         form = EditItemForm(request.POST)
         if form.is_valid():
-            item_messages = []
-            primary_tag_list = form.cleaned_data['primarytags'].splitlines()
-            other_tag_list   = form.cleaned_data['othertags'].splitlines()
-            tags = prepare_tags(primary_tag_list, other_tag_list, item_messages)
-            body = prepare_body(form.cleaned_data['body'], item_messages)
+            primarytags = form.cleaned_data['primarytags']
+            othertags   = form.cleaned_data['othertags']
+            body        = form.cleaned_data['body']
             if request.POST['submit'].lower() == 'save':
-                if item_messages:
-                    for im in item_messages:
-                        messages.error(request, im)
-                else:
-                    item_id = Item.objects.add_item(request.user, kind, body, tags)
-                    message = '%s %s successfully created' % (kind.capitalize(), str(item_id))
-                    logger.debug(message)
-                    messages.success(request, message)
-                    return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
+                item_id = Item.objects.add_item(request.user, kind, body, primarytags, othertags)
+                message = '%s %s successfully created' % (kind.capitalize(), str(item_id))
+                logger.debug(message)
+                messages.success(request, message)
+                return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
             else:  # preview
-                c['preview'] = { 'body':         typeset_body(body),
-                                 'primary_tags': [typeset_tag(t[0]) for t in tags if t[1]],
-                                 'other_tags':   [typeset_tag(t[0]) for t in tags if not t[1]] }
-                if item_messages:
-                    for im in item_messages:
-                        messages.warning(request, im)
-    c.update({ 'kind': kind,
-               'form': form })
+                c['preview'] = { 'body':        typeset_body(body),
+                                 'primarytags': [typeset_tag(t) for t in primarytags],
+                                 'othertags':   [typeset_tag(t) for t in othertags] }
+    c.update(dict(kind=kind, form=form))
     return render(request, 'items/new.html', c)
 
 @login_required
@@ -70,31 +90,20 @@ def edit(request, item_id):
     else:
         form = EditItemForm(request.POST)
         if form.is_valid():
-            item_messages = []
-            primary_tag_list = request.POST['primarytags'].splitlines()
-            other_tag_list   = request.POST['othertags'].splitlines()
-            tags = prepare_tags(primary_tag_list, other_tag_list, item_messages)
-            body = prepare_body(request.POST['body'], item_messages)
+            primarytags = form.cleaned_data['primarytags']
+            othertags   = form.cleaned_data['othertags']
+            body        = form.cleaned_data['body']
             if request.POST['submit'].lower() == 'update':
-                if item_messages:
-                    for im in item_messages:
-                        messages.error(request, im)
-                else:
-                    Item.objects.update_item(item, request.user, body, tags)
-                    message = '%s %s successfully update' % (item.get_kind_display().capitalize(), str(item_id))
-                    logger.debug(message)
-                    messages.success(request, message)
-                    return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
+                Item.objects.update_item(item, request.user, body, primarytags, othertags)
+                message = '%s %s successfully updated' % (item.get_kind_display().capitalize(), str(item_id))
+                logger.debug(message)
+                messages.success(request, message)
+                return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
             else:  # preview
-                c['preview'] = { 'body':         typeset_body(body),
-                                 'primary_tags': [typeset_tag(t[0]) for t in tags if t[1]],
-                                 'other_tags':   [typeset_tag(t[0]) for t in tags if not t[1]] }
-                if item_messages:
-                    for im in item_messages:
-                        messages.warning(request, im)
-    c.update({ 'id':   item_id,
-               'kind': item.get_kind_display(),
-               'form': form })
+                c['preview'] = { 'body':        typeset_body(body),
+                                 'primarytags': [typeset_tag(t) for t in primarytags],
+                                 'othertags':   [typeset_tag(t) for t in othertags] }
+    c.update(dict(id=item_id, kind=item.get_kind_display(), form=form))
     return render(request, 'items/edit.html', c)
 
 @require_safe
