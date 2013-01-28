@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-{% block title %}{{ user.name }}{% endblock %}
+{% block title %}{{ pageuser.get_full_name }}{% endblock %}
 
 {% block mainbar %}
 
-<h1>{{ user.name }}</h1>
+<h1>{{ pageuser.get_full_name }}</h1>
 
 {% if own_profile %}
 

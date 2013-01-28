@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-{% block title %}{{ kind|capfirst }} {{ id }}{% endblock %}
+{% block title %}{{ item.get_kind_display|capfirst }} {{ item.id }}{% endblock %}
 
 {% block mainbar %}
 
 {% spaceless %}
 <h1>
-{{ kind|capfirst }} {{ id }}
+{{ item.get_kind_display|capfirst }} {{ item.id }}
 {% if primary_tags %} ({{ primary_tags|join:", " }}){% endif %}
 </h1>
 {% endspaceless %}
@@ -17,7 +17,7 @@
 </div>
 
 <div class="iteminfo">
-<p>{{ status }}, latest edit by <a href="{% url 'users.views.profile' modified_by.id %}">{{ modified_by.name }}</a> at {{ modified_at }}</p>
+<p>{{ item.get_status_display }}, latest edit by <a href="{% url 'users.views.profile' item.modified_by.get_username %}">{{ item.modified_by.get_full_name }}</a> at {{ modified_at }}</p>
 {% if other_tags %}
 <div class="taglist">
 {% for tag in other_tags %}
@@ -31,37 +31,32 @@
 
 <div class="item-actions">
 
-{% if own_item %}
-{% if status == 'draft' %}
-<a href="{% url 'items.views.edit' id %}">edit</a>
-<form method="POST" action="{% url 'items.views.change_status' %}">
-  {% csrf_token %}
-  <input class="button" type="submit" value="submit for review" />
-  <input type="hidden" name="status" value="review" />
-  <input type="hidden" name="item" value="{{ id }}" />
-</form>
-<form method="POST" action="{% url 'items.views.change_status' %}">
-  {% csrf_token %}
-  <input class="button" type="submit" value="publish" />
-  <input type="hidden" name="status" value="publish" />
-  <input type="hidden" name="item" value="{{ id }}" />
-</form>
-{% elif status == 'review' %}
+{% if perm.edit %}
+<a href="{% url 'items.views.edit' item.id %}">edit</a>
+{% endif %}
+{% if perm.to_draft %}
 <form method="POST" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
   <input class="button" type="submit" value="revert to draft" />
   <input type="hidden" name="status" value="draft" />
-  <input type="hidden" name="item" value="{{ id }}" />
+  <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
+{% endif %}
+{% if perm.to_review %}
+<form method="POST" action="{% url 'items.views.change_status' %}">
+  {% csrf_token %}
+  <input class="button" type="submit" value="submit for review" />
+  <input type="hidden" name="status" value="review" />
+  <input type="hidden" name="item" value="{{ item.id }}" />
+</form>
+{% endif %}
+{% if perm.to_final %}
 <form method="POST" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
   <input class="button" type="submit" value="publish" />
   <input type="hidden" name="status" value="publish" />
-  <input type="hidden" name="item" value="{{ id }}" />
+  <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
-{% endif %}
-{% else %}
-<p>Is ready to publish? <a href="#">Yes</a> / <a href="#">No</a></p>
 {% endif %}
 
 <div class="clr"></div>

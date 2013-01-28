@@ -3,11 +3,10 @@ from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_http_methods, require_safe
 from django.contrib import auth
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django import forms
 from main.helpers import init_context
-from users.helpers import get_user_info
 
 import logging
 logger = logging.getLogger(__name__)
@@ -29,6 +28,10 @@ def login(request):
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
+            if username.find('@') >= 0:
+                q = get_user_model().objects.filter(email=username)
+                if len(q) == 1:
+                    username = q[0].pk
             user = auth.authenticate(username=username, password=password)
             if user is not None:
                 if user.is_active:
@@ -50,8 +53,8 @@ def logout(request):
 @require_safe
 def profile(request, user_id):
     c = init_context(request)
-    user = get_object_or_404(User, pk=user_id)
-    c['user'] = get_user_info(user)
-    c['own_profile'] = c['user'] == c.get('auth')
+    pageuser = get_object_or_404(get_user_model(), pk=user_id)
+    c['pageuser'] = pageuser
+    c['own_profile'] = request.user == pageuser
     return render(request, 'users/profile.html', c)
 

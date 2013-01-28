@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.utils import timezone
 from items.helpers import make_short_name
 import datetime
 
@@ -38,7 +39,7 @@ class ItemManager(models.Manager):
 
     def update_item(self, item, user, body, primarytags, othertags):
         item.modified_by = user
-        item.modified_at = datetime.datetime.utcnow()
+        item.modified_at = timezone.now()
         item.body        = body
         item.save()
 
@@ -70,10 +71,10 @@ class Item(models.Model):
 
     kind        = models.CharField(max_length=1, choices=KIND_CHOICES)
     status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
-    created_by  = models.ForeignKey(User, related_name='+')
-    created_at  = models.DateTimeField(default=datetime.datetime.utcnow)
-    modified_by = models.ForeignKey(User, related_name='+')
-    modified_at = models.DateTimeField(default=datetime.datetime.utcnow)
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    created_at  = models.DateTimeField(default=timezone.now)
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified_at = models.DateTimeField(default=timezone.now)
     final_at    = models.DateTimeField(null=True, blank=True)
     final_id    = models.CharField(max_length=10, db_index=True, unique=True,
                                    null=True, blank=True)

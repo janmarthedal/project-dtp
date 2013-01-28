@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-{% block title %}{{ kind|capfirst }} {{ final_id }}{% endblock %}
+{% block title %}{{ item.get_kind_display|capfirst }} {{ item.final_id }}{% endblock %}
 
 {% block mainbar %}
 
-<h1>{{ kind|capfirst }} {{ final_id }}{% if primary_tags %} ({{ primary_tags|join:", " }}){% endif %}</h1>
+<h1>{{ item.get_kind_display|capfirst }} {{ item.final_id }}{% if primary_tags %} ({{ primary_tags|join:", " }}){% endif %}</h1>
 
 <div class="itembody">
 {{ body|safe }}
 </div>
 
 <div class="iteminfo">
-<p>created by <a href="{% url 'users.views.profile' created_by.id %}">{{ created_by.name }}</a>, published at {{ published_at }}</p>
+<p>created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ published_at }}</p>
 {% if other_tags %}
 <div class="taglist">
 {% for tag in other_tags %}
@@ -20,6 +20,19 @@
 {% endfor %}
 </div>
 {% endif %}
+</div>
+
+<div class="clr"></div>
+
+<div class="item-actions">
+
+{% if perm.add_proof %}
+<a href="">add proof</a>
+{% endif %}
+{% if perm.add_source %}
+<a href="">add validation source</a>
+{% endif %}
+
 </div>
 
 <div class="clr"></div>

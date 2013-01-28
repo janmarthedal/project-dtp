@@ -12,10 +12,22 @@ from django import forms
 from main.helpers import init_context, datetime_user_string
 from items.models import Item
 from items.helpers import normalize_tag, typeset_body, typeset_tag, make_short_name
-from users.helpers import get_user_info
 
 import logging
 logger = logging.getLogger(__name__)
+
+def get_user_item_permissions(user, item):
+    own_item = user == item.created_by
+    logged_in = user.is_authenticated()
+    return {
+        'view':       (item.status == 'D' and own_item) or item.status == 'R',
+        'edit':       item.status == 'D' and own_item,
+        'to_draft':   item.status == 'R' and own_item,
+        'to_review':  item.status == 'D' and own_item,
+        'to_final':   item.status in ['D', 'R'] and own_item,
+        'add_proof':  item.status == 'F' and item.kind == 'T' and logged_in,
+        'add_source': item.status == 'F' and logged_in,
+        }    
 
 class TagListField(forms.CharField):
 
@@ -110,35 +122,36 @@ def edit(request, item_id):
 def show(request, item_id):
     c = init_context(request)
     item = get_object_or_404(Item, pk=item_id)
-    own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
-    if not ((item.status == 'D' and own_item) or item.status == 'R'):
+    permissions = get_user_item_permissions(request.user, item)
+    if not permissions['view']:
         raise Http404 
     tags = [(typeset_tag(itemtag.tag.name), itemtag.primary)
             for itemtag in item.itemtag_set.all()]
-    c['id']           = item_id
-    c['kind']         = item.get_kind_display()
-    c['status']       = item.get_status_display()
-    c['modified_by']  = get_user_info(item.modified_by)
-    c['modified_at']  = datetime_user_string(request.user, item.modified_at)
-    c['body']         = typeset_body(item.body)
-    c['primary_tags'] = [t[0] for t in tags if t[1]]
-    c['other_tags']   = [t[0] for t in tags if not t[1]]
-    c['own_item']     = own_item
+    c.update({
+        'modified_at':  datetime_user_string(request.user, item.modified_at),
+        'body':         typeset_body(item.body),
+        'primary_tags': [t[0] for t in tags if t[1]],
+        'other_tags':   [t[0] for t in tags if not t[1]],
+        'item':         item,
+        'perm':         permissions
+        })
     return render(request, 'items/show.html', c)
 
 @require_safe
 def show_final(request, final_id):
     c = init_context(request)
     item = get_object_or_404(Item, final_id=final_id)
+    permissions = get_user_item_permissions(request.user, item)
     tags = [(typeset_tag(itemtag.tag.name), itemtag.primary)
             for itemtag in item.itemtag_set.all()]
-    c['final_id']     = final_id
-    c['kind']         = item.get_kind_display()
-    c['created_by']   = get_user_info(item.created_by)
-    c['published_at'] = datetime_user_string(request.user, item.final_at)
-    c['body']         = typeset_body(item.body)
-    c['primary_tags'] = [t[0] for t in tags if t[1]]
-    c['other_tags']   = [t[0] for t in tags if not t[1]]
+    c.update({
+        'published_at': datetime_user_string(request.user, item.final_at),
+        'body':         typeset_body(item.body),
+        'primary_tags': [t[0] for t in tags if t[1]],
+        'other_tags':   [t[0] for t in tags if not t[1]],
+        'item':         item,
+        'perm':         permissions,
+        })
     return render(request, 'items/show_final.html', c)
 
 @login_required

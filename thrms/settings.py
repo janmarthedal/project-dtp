@@ -73,7 +73,7 @@ USE_I18N = False
 USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = False
+USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -120,6 +120,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'thrms.urls'
 
 LOGIN_URL = '/user/login'
+
+AUTH_USER_MODEL = 'users.MyUser'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'thrms.wsgi.application'
