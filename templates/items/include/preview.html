@@ -1,15 +1,25 @@
+{% load item_tags %}
+
 {% if preview %}
+<h1>
+Preview {{ preview.kind|capfirst }}
+{% if preview.id %} {{ preview.id }}{% endif %}
+{% if preview.primarytags %} ({{ preview.primarytags|typeset_tag_list|join:", " }}){% endif %}
+{% if preview.parent %} of {{ preview.parent.get_kind_display|capfirst }} {{ preview.parent.final_id }}{% endif %}
+</h1>
+
 <div class="itembody">
-{{ preview.body|safe }}
+{{ preview.body|typeset_body }}
 </div>
 <div class="iteminfo">
 {% if preview.othertags %}
 <div class="taglist">
 {% for tag in preview.othertags %}
-  <span class="tag">{{ tag|safe }}</span>
+  <span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
 </div>
 {% endif %}
 </div>
+<div class="clr"></div>
 {% endif %}
 

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load item_tags %}
 
 {% block title %}{{ item.get_kind_display|capfirst }} {{ item.id }}{% endblock %}
 
@@ -8,20 +9,21 @@
 {% spaceless %}
 <h1>
 {{ item.get_kind_display|capfirst }} {{ item.id }}
-{% if primary_tags %} ({{ primary_tags|join:", " }}){% endif %}
+{% if primarytags %} ({{ primarytags|typeset_tag_list|join:", " }}){% endif %}
+{% if item.parent %} of {{ item.parent.get_kind_display|capfirst }} {{ item.parent.final_id }}{% endif %}
 </h1>
 {% endspaceless %}
 
 <div class="itembody">
-{{ body|safe }}
+{{ item.body|typeset_body }}
 </div>
 
 <div class="iteminfo">
 <p>{{ item.get_status_display }}, latest edit by <a href="{% url 'users.views.profile' item.modified_by.get_username %}">{{ item.modified_by.get_full_name }}</a> at {{ modified_at }}</p>
-{% if other_tags %}
+{% if othertags %}
 <div class="taglist">
-{% for tag in other_tags %}
-  <span class="tag">{{ tag|safe }}</span>
+{% for tag in othertags %}
+  <span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
 </div>
 {% endif %}

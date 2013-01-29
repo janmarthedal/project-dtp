@@ -7,11 +7,13 @@ New {{ kind }}{% if preview %} preview{% endif %}
 
 {% block mainbar %}
 
-<h1>New {{ kind }}{% if preview %} preview{% if preview.primarytags %} ({{ preview.primarytags|join:", " }}){% endif %}{% endif %}</h1>
-
 {% include "items/include/preview.html" %}
 
-<form method="post" action="{% url 'items.views.new' kind=kind %}">{% csrf_token %}
+<h1>New {{ kind }}
+{% if parent %} of {{ parent.get_kind_display|capfirst }} {{ parent.final_id }}{% endif %}
+</h1>
+
+<form method="post" action="{% if parent %}{% url 'items.views.new' kind=kind parent=parent.final_id %}{% else %}{% url 'items.views.new' kind=kind %}{% endif %}">{% csrf_token %}
 
   {% include "items/include/edit_fields.html" %}
 

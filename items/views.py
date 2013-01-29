@@ -11,7 +11,7 @@ from django.template import Context
 from django import forms
 from main.helpers import init_context, datetime_user_string
 from items.models import Item
-from items.helpers import normalize_tag, typeset_body, typeset_tag, make_short_name
+from items.helpers import normalize_tag, make_short_name
 
 import logging
 logger = logging.getLogger(__name__)
@@ -55,15 +55,19 @@ class EditItemForm(forms.Form):
         duplicates = [p[0] for p in tag_counter.iteritems() if p[1] > 1]
         if duplicates:
             t = get_template('inline/taglist.html')
-            c = Context({'header':  'Tag duplicates:',
-                         'taglist': map(typeset_tag, duplicates)})
+            c = Context({ 'header':  'Tag duplicates:',
+                          'taglist': duplicates })
             raise ValidationError([t.render(c)])
         return cleaned_data
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def new(request, kind):
-    c = init_context(request)
+def new(request, kind, parent=None):
+    c = {}
+    if parent:
+        if kind != 'proof':
+            raise Http404
+        c['parent'] = get_object_or_404(Item, final_id=parent, kind='T')
     if request.method == 'GET':
         form = EditItemForm()
     else:
@@ -73,85 +77,90 @@ def new(request, kind):
             othertags   = form.cleaned_data['othertags']
             body        = form.cleaned_data['body']
             if request.POST['submit'].lower() == 'save':
-                item_id = Item.objects.add_item(request.user, kind, body, primarytags, othertags)
+                item_id = Item.objects.add_item(request.user, kind, body,
+                                                primarytags, othertags, c['parent'])
                 message = '%s %s successfully created' % (kind.capitalize(), str(item_id))
                 logger.debug(message)
                 messages.success(request, message)
                 return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
             else:  # preview
-                c['preview'] = { 'body':        typeset_body(body),
-                                 'primarytags': [typeset_tag(t) for t in primarytags],
-                                 'othertags':   [typeset_tag(t) for t in othertags] }
+                c['preview'] = { 'kind':        kind,
+                                 'body':        body,
+                                 'parent':      c['parent'],
+                                 'primarytags': primarytags,
+                                 'othertags':   othertags }
     c.update(dict(kind=kind, form=form))
     return render(request, 'items/new.html', c)
 
 @login_required
 @require_http_methods(["GET", "POST"])
 def edit(request, item_id):
-    c = init_context(request)
+    c = {}
     item = get_object_or_404(Item, pk=item_id)
-    own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
-    if not (item.status == 'D' and own_item):
+    item_perms = get_user_item_permissions(request.user, item)
+    if not item_perms['edit']:
         raise Http404
+    tags = [(itemtag.tag.name, itemtag.primary)
+            for itemtag in item.itemtag_set.all()]
+    primarytags = [t[0] for t in tags if t[1]]
+    othertags   = [t[0] for t in tags if not t[1]]
     if request.method == 'GET':
-        tags = [(itemtag.tag.name, itemtag.primary)
-                for itemtag in item.itemtag_set.all()]
         form = EditItemForm({ 'body':        item.body,
-                              'primarytags': '\n'.join([t[0] for t in tags if t[1]]),
-                              'othertags':   '\n'.join([t[0] for t in tags if not t[1]])})
+                              'primarytags': '\n'.join(primarytags),
+                              'othertags':   '\n'.join(othertags) })
     else:
         form = EditItemForm(request.POST)
         if form.is_valid():
-            primarytags = form.cleaned_data['primarytags']
-            othertags   = form.cleaned_data['othertags']
-            body        = form.cleaned_data['body']
+            newprimarytags = form.cleaned_data['primarytags']
+            newothertags   = form.cleaned_data['othertags']
+            newbody        = form.cleaned_data['body']
             if request.POST['submit'].lower() == 'update':
-                Item.objects.update_item(item, request.user, body, primarytags, othertags)
+                Item.objects.update_item(item, request.user, newbody,
+                                         newprimarytags, newothertags)
                 message = '%s %s successfully updated' % (item.get_kind_display().capitalize(), str(item_id))
                 logger.debug(message)
                 messages.success(request, message)
                 return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
             else:  # preview
-                c['preview'] = { 'body':        typeset_body(body),
-                                 'primarytags': [typeset_tag(t) for t in primarytags],
-                                 'othertags':   [typeset_tag(t) for t in othertags] }
-    c.update(dict(id=item_id, kind=item.get_kind_display(), form=form))
+                c['preview'] = { 'id':          item.id,
+                                 'kind':        item.get_kind_display(),
+                                 'body':        newbody,
+                                 'parent':      item.parent,
+                                 'primarytags': newprimarytags,
+                                 'othertags':   newothertags }
+    c.update(dict(item=item, form=form))
     return render(request, 'items/edit.html', c)
 
 @require_safe
 def show(request, item_id):
-    c = init_context(request)
     item = get_object_or_404(Item, pk=item_id)
     permissions = get_user_item_permissions(request.user, item)
     if not permissions['view']:
         raise Http404 
-    tags = [(typeset_tag(itemtag.tag.name), itemtag.primary)
+    tags = [(itemtag.tag.name, itemtag.primary)
             for itemtag in item.itemtag_set.all()]
-    c.update({
+    c = {
         'modified_at':  datetime_user_string(request.user, item.modified_at),
-        'body':         typeset_body(item.body),
         'primary_tags': [t[0] for t in tags if t[1]],
         'other_tags':   [t[0] for t in tags if not t[1]],
         'item':         item,
         'perm':         permissions
-        })
+        }
     return render(request, 'items/show.html', c)
 
 @require_safe
 def show_final(request, final_id):
-    c = init_context(request)
     item = get_object_or_404(Item, final_id=final_id)
     permissions = get_user_item_permissions(request.user, item)
-    tags = [(typeset_tag(itemtag.tag.name), itemtag.primary)
+    tags = [(itemtag.tag.name, itemtag.primary)
             for itemtag in item.itemtag_set.all()]
-    c.update({
+    c = {
         'published_at': datetime_user_string(request.user, item.final_at),
-        'body':         typeset_body(item.body),
-        'primary_tags': [t[0] for t in tags if t[1]],
-        'other_tags':   [t[0] for t in tags if not t[1]],
+        'primarytags':  [t[0] for t in tags if t[1]],
+        'othertags':    [t[0] for t in tags if not t[1]],
         'item':         item,
         'perm':         permissions,
-        })
+        }
     return render(request, 'items/show_final.html', c)
 
 @login_required
@@ -159,14 +168,15 @@ def show_final(request, final_id):
 def change_status(request):
     item_id = request.POST['item']
     item = get_object_or_404(Item, pk=item_id)
-    own_item = request.user.is_authenticated() and request.user.id == item.created_by.id
+    own_item = request.user.is_authenticated() and request.user == item.created_by
     if request.POST['status'] == 'publish':
-        if not own_item or item.status not in ['D', 'R', 'F']:
+        if not own_item or item.status not in ['D', 'R']:
             raise Http404 
-        if item.status != 'F':
-            item.make_final(request.user)
+        item.make_final(request.user)
         return HttpResponseRedirect(reverse('items.views.show_final', args=[item.final_id]))
     else:
-        # TODO
-        raise Http404
+        if not own_item or item.status != 'D':
+            raise Http404 
+        item.make_review(request.user)
+        return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
 

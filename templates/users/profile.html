@@ -7,14 +7,51 @@
 
 <h1>{{ pageuser.get_full_name }}</h1>
 
-{% if own_profile %}
+<p>Published items:</p>
 
+{% if finalitems %}
+<ul>
+{% for item in finalitems %}
+  <li><a href="{% url 'items.views.show_final' item.final_id %}">{{ item.get_kind_display|capfirst }} {{ item.final_id }}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>None so far</p>
+{% endif %}
+
+<p>Submitted for review:</p>
+
+{% if reviewitems %}
+<ul>
+{% for item in reviewitems %}
+  <li><a href="{% url 'items.views.show' item.id %}">{{ item.get_kind_display|capfirst }} {{ item.id }}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>None so far</p>
+{% endif %}
+
+{% if draftitems %}
+<p>Draft items:</p>
+<ul>
+{% for item in draftitems %}
+  <li><a href="{% url 'items.views.show' item.id %}">{{ item.get_kind_display|capfirst }} {{ item.id }}</a></li>
+{% endfor %}
+</ul>
+{% else %}
+<p>None so far</p>
+{% endif %}
+
+{% if add_definition %}
 <p><a href="{% url 'items.views.new' kind='definition' %}">New definition</a></p>
+{% endif %}
 
+{% if add_theorem %}
 <p><a href="{% url 'items.views.new' kind='theorem' %}">New theorem</a></p>
+{% endif %}
 
+{% if own_profile %}
 <p><a href="{% url 'users.views.logout' %}">log out</a></p>
-
 {% endif %}
 
 {% endblock %}

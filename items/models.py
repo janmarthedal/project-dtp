@@ -22,14 +22,15 @@ def add_item_tags(item, tags, primary):
 
 class ItemManager(models.Manager):
 
-    def add_item(self, user, kind, body, primarytags, othertags):
+    def add_item(self, user, kind, body, primarytags, othertags, parent):
         kind_key = filter(lambda kc: kc[1] == kind, Item.KIND_CHOICES)[0][0]
 
         item = Item(kind        = kind_key,
                     status      = 'D',
                     created_by  = user,
                     modified_by = user,
-                    body        = body)
+                    body        = body,
+                    parent      = parent)
         item.save()
 
         add_item_tags(item, primarytags, True)
@@ -103,9 +104,11 @@ class Item(models.Model):
 
     def make_final(self, user):
         if not self.final_id:
+            now = timezone.now()
             self.status = 'F'
             self.modified_by = user
-            self.final_at = datetime.datetime.utcnow()
+            self.modified_at = now
+            self.final_at = now
             for length in range(4, 10+1):
                 self.final_id = make_short_name(length)
                 try:
@@ -114,6 +117,14 @@ class Item(models.Model):
                 except IntegrityError:
                     pass
             logger.debug("Publish of %i successful with final_id '%s'" % (self.id, self.final_id))
+
+    def make_review(self, user):
+        if self.status != 'R':
+            self.status = 'R'
+            self.modified_by = user
+            self.modified_at = timezone.now()
+            self.save()
+            logger.debug("%i to review successful" % self.id)
 
 class ItemTag(models.Model):
     class Meta:

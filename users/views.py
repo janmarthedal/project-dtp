@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django import forms
+from items.models import Item
 from main.helpers import init_context
 
 import logging
@@ -52,9 +53,19 @@ def logout(request):
 
 @require_safe
 def profile(request, user_id):
-    c = init_context(request)
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
-    c['pageuser'] = pageuser
-    c['own_profile'] = request.user == pageuser
+    own_profile = request.user == pageuser
+    c = {
+        'pageuser':    pageuser,
+        'finalitems':  list(Item.objects.filter(status='F', created_by=pageuser).order_by('-final_at')),
+        'reviewitems': list(Item.objects.filter(status='R', created_by=pageuser).order_by('-modified_at')),
+        }
+    if own_profile:
+        c.update({
+            'own_profile':    True,
+            'add_definition': True,
+            'add_theorem':    True,
+            'draftitems':     list(Item.objects.filter(status='D', created_by=pageuser).order_by('-modified_at')),
+        })
     return render(request, 'users/profile.html', c)
 

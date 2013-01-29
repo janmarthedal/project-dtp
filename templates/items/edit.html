@@ -2,16 +2,18 @@
 {% load url from future %}
 
 {% block title %}
-Edit {{ kind }} {{ id }}{% if preview %} preview{% endif %}
+Edit {{ item.get_kind_display|capfirst }} {{ item.id }}{% if preview %} preview{% endif %}
 {% endblock %}
 
 {% block mainbar %}
 
-<h1>Edit {{ kind }} {{ id }}{% if preview %} preview{% if preview.primarytags %} ({{ preview.primarytags|join:", " }}){% endif %}{% endif %}</h1>
-
 {% include "items/include/preview.html" %}
 
-<form method="post" action="{% url 'items.views.edit' id %}">
+<h1>Edit {{ item.get_kind_display|capfirst }} {{ item.id }}
+{% if item.parent %} of {{ item.parent.get_kind_display|capfirst }} {{ item.parent.final_id }}{% endif %}
+</h1>
+
+<form method="post" action="{% url 'items.views.edit' item.id %}">
 {% csrf_token %}
 
   {% include "items/include/edit_fields.html" %}
