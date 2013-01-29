@@ -36,7 +36,7 @@ class ItemManager(models.Manager):
         add_item_tags(item, primarytags, True)
         add_item_tags(item, othertags, False)
 
-        return item.id
+        return item
 
     def update_item(self, item, user, body, primarytags, othertags):
         item.modified_by = user
@@ -83,18 +83,37 @@ class Item(models.Model):
     body        = models.TextField(null=True, blank=True)
     tags        = models.ManyToManyField(Tag, blank=True, through='ItemTag', related_name='item_tags')
 
+    def __init__(self, *args, **kwargs):
+        super(Item, self).__init__(*args, **kwargs)
+        self._cache = {}
+
+    def _set_tag_cache(self):
+        tags = [(itemtag.tag.name, itemtag.primary)
+                for itemtag in self.itemtag_set.all()]
+        self._cache['primary_tags'] = [t[0] for t in tags if t[1]]
+        self._cache['other_tags']   = [t[0] for t in tags if not t[1]]
+
+    @property
+    def primary_tags(self):
+        if 'primary_tags' not in self._cache:
+            self._set_tag_cache()
+        return self._cache['primary_tags']
+
+    @property
+    def other_tags(self):
+        if 'other_tags' not in self._cache:
+            self._set_tag_cache()
+        return self._cache['other_tags']
+
     def get_cap_kind(self):
         return self.get_kind_display().capitalize()
 
     def get_cap_kind_with_id(self):
-	if self.final_id:
+        if self.final_id:
             return "%s %s" % (self.get_cap_kind(), self.final_id)
         if self.id:
             return "%s %i" % (self.get_cap_kind(), self.id)
         return "%s ?" % self.get_cap_kind()
-
-    def get_absolute_url(self):
-        return self.final_id
 
     def __unicode__(self):
         ret = self.get_cap_kind_with_id()
@@ -103,12 +122,11 @@ class Item(models.Model):
         return ret
 
     def make_final(self, user):
-        if not self.final_id:
-            now = timezone.now()
-            self.status = 'F'
+        if self.status != 'F':
+            self.status      = 'F'
             self.modified_by = user
-            self.modified_at = now
-            self.final_at = now
+            self.modified_at = timezone.now()
+            self.final_at    = self.modified_at
             for length in range(4, 10+1):
                 self.final_id = make_short_name(length)
                 try:
@@ -120,7 +138,7 @@ class Item(models.Model):
 
     def make_review(self, user):
         if self.status != 'R':
-            self.status = 'R'
+            self.status      = 'R'
             self.modified_by = user
             self.modified_at = timezone.now()
             self.save()

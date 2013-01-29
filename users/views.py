@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django import forms
 from items.models import Item
-from main.helpers import init_context
 
 import logging
 logger = logging.getLogger(__name__)
@@ -19,7 +18,6 @@ class LoginForm(forms.Form):
 
 @require_http_methods(["GET", "POST"])
 def login(request):
-    c = init_context(request)
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.id]))
     if request.method == 'GET':
@@ -43,8 +41,7 @@ def login(request):
                     messages.info(request, 'Account has been disabled')
             else:
                 messages.warning(request, 'Invalid login and/or password')
-    c['form'] = form
-    return render(request, 'users/login.html', c)
+    return render(request, 'users/login.html', { 'form': form })
 
 @require_safe
 def logout(request):

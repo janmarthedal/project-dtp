@@ -7,29 +7,9 @@
 
 <h1>Dashboard</h1>
 
-<p>Latest published items:</p>
+{% include 'items/include/itemlist.html' with header='Latest published items' itemlist=finalitems only %}
 
-{% if finalitems %}
-<ul>
-{% for item in finalitems %}
-  <li><a href="{% url 'items.views.show_final' item.final_id %}">{{ item.get_kind_display|capfirst }} {{ item.final_id }}</a></li>
-{% endfor %}
-</ul>
-{% else %}
-<p>None so far</p>
-{% endif %}
-
-<p>Latest items submitted for review:</p>
-
-{% if reviewitems %}
-<ul>
-{% for item in reviewitems %}
-  <li><a href="{% url 'items.views.show' item.id %}">{{ item.get_kind_display|capfirst }} {{ item.id }}</a></li>
-{% endfor %}
-</ul>
-{% else %}
-<p>None so far</p>
-{% endif %}
+{% include 'items/include/itemlist.html' with header='Latest items submitted for review' itemlist=reviewitems only %}
 
 {% endblock %}
 

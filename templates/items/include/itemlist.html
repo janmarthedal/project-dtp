@@ -1,0 +1,19 @@
+<div class="itemlist">
+  <div class="header">{{ header }}:</div>
+{% if itemlist %}
+  <ul>
+{% for item in itemlist %}
+  <li>
+{% if item.final_id %}
+    <a href="{% url 'items.views.show_final' item.final_id %}">{{ item.get_kind_display|capfirst }} {{ item.final_id }}</a>
+{% else %}
+    <a href="{% url 'items.views.show' item.id %}">{{ item.get_kind_display|capfirst }} {{ item.id }}</a>
+{% endif %}
+  </li>
+{% endfor %}
+  </ul>
+{% else %}
+  <p>None so far</p>
+{% endif %}
+</div>
+

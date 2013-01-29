@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% load url from future %}
 {% load item_tags %}
+{% load user_tags %}
 
 {% block title %}{{ item.get_kind_display|capfirst }} {{ item.final_id }}{% endblock %}
 
 {% block mainbar %}
 
 <h1>{{ item.get_kind_display|capfirst }} {{ item.final_id }}
-{% if primarytags %} ({{ primarytags|typeset_tag_list|join:", " }}){% endif %}
+{% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
 {% if item.parent %} of {{ item.parent.get_kind_display|capfirst }} {{ item.parent.final_id }}{% endif %}</h1>
 
 <div class="itembody">
@@ -15,10 +16,10 @@
 </div>
 
 <div class="iteminfo">
-<p>created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ published_at }}</p>
-{% if other_tags %}
+<p>created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ item.final_at|datetime_user:user }}</p>
+{% if item.other_tags %}
 <div class="taglist">
-{% for tag in othertags %}
+{% for tag in item.othertags %}
   <span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
 </div>
