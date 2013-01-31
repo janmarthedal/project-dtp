@@ -1,3 +1,4 @@
+from exceptions import ValueError
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_http_methods, require_safe
@@ -31,7 +32,10 @@ def login(request):
                 q = get_user_model().objects.filter(email=username)
                 if len(q) == 1:
                     username = q[0].pk
-            user = auth.authenticate(username=username, password=password)
+            try:
+                user = auth.authenticate(username=username, password=password)
+            except ValueError:
+                user = None
             if user is not None:
                 if user.is_active:
                     auth.login(request, user)

@@ -13,9 +13,9 @@ body {
 }
 
 #wrap {
-  padding: 0em 0.5em;
-  max-width: 80em;
-  margin: 0px auto;
+  padding: 1em;
+  /*max-width: 80em;
+  margin: 0px auto;*/
 }
 
 .clr {
@@ -101,16 +101,11 @@ div.itembody {
   border: 2px solid #888;
 }
 
-.primarytags .tag {
-  margin: 0.2em 0em 0.2em 1em;
-  font-size: 1.2em;
-}
-
 .taglist {
   margin: 0.5em 0em;
 }
 
-.taglist .tag {
+span.tag {
   padding: 0.1em 0.2em;
   margin: 0.1em;
   border: 2px solid #888;
@@ -142,6 +137,20 @@ div.item-actions a:hover, div.item-actions input.button:hover {
   background: #bff;
   border: 1px solid #000;
   padding: 0.5em 0.5em 0.5em 2em;
+}
+
+div.itemlist div.row {
+  /*border-bottom: 1px solid #efefef;
+  border-top: 1px solid #fff;*/
+  border: 1px solid #efefef;
+  margin-left: 2em;
+  padding: 0.5em;
+}
+
+div.itemlist div.row div.title {
+}
+
+div.itemlist div.row div.info {
 }
 
 /* footer */

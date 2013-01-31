@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from items.helpers import make_short_name
-import datetime
 
 import logging
 logger = logging.getLogger(__name__)
@@ -105,20 +104,12 @@ class Item(models.Model):
             self._set_tag_cache()
         return self._cache['other_tags']
 
-    def get_cap_kind(self):
-        return self.get_kind_display().capitalize()
-
-    def get_cap_kind_with_id(self):
-        if self.final_id:
-            return "%s %s" % (self.get_cap_kind(), self.final_id)
-        if self.id:
-            return "%s %i" % (self.get_cap_kind(), self.id)
-        return "%s ?" % self.get_cap_kind()
-
     def __unicode__(self):
-        ret = self.get_cap_kind_with_id()
-        if self.parent:
-            ret += " (%s)" % self.parent.get_cap_kind_with_id()
+        ret = self.get_kind_display().capitalize()
+        if self.final_id:
+            ret += " %s" % self.final_id
+        elif self.id:
+            ret += " %s" % str(self.id)
         return ret
 
     def make_final(self, user):
@@ -150,5 +141,4 @@ class ItemTag(models.Model):
     item    = models.ForeignKey(Item)
     tag     = models.ForeignKey(Tag)
     primary = models.BooleanField()
-
 

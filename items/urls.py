@@ -9,3 +9,7 @@ urlpatterns = patterns('items.views',
     url(r'^change_status$',             'change_status'),
 )
 
+urlpatterns += patterns('validate.views',
+    url(r'^add/source/(\w+)$', 'add_source'),
+)
+

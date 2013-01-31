@@ -1,19 +1,19 @@
+{% load item_tags %}
+
+<h2>{{ header }}:</h2>
 <div class="itemlist">
-  <div class="header">{{ header }}:</div>
 {% if itemlist %}
-  <ul>
 {% for item in itemlist %}
-  <li>
-{% if item.final_id %}
-    <a href="{% url 'items.views.show_final' item.final_id %}">{{ item.get_kind_display|capfirst }} {{ item.final_id }}</a>
-{% else %}
-    <a href="{% url 'items.views.show' item.id %}">{{ item.get_kind_display|capfirst }} {{ item.id }}</a>
-{% endif %}
-  </li>
+  <div class="row">
+    <div class="title">
+      <a href="{% if item.final_id %}{% url 'items.views.show_final' item.final_id %}{% else %}{% url 'items.views.show' item.id %}{% endif %}">{{ item }}{% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}</a>
+    </div>
+    <div class="info">
+      {% include 'inline/taglist.html' with taglist=item.other_tags only %}
+    </div>
+    <div class="clr"></div>
+  </div>
 {% endfor %}
-  </ul>
-{% else %}
-  <p>None so far</p>
 {% endif %}
 </div>
 

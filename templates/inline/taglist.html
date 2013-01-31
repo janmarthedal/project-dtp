@@ -1,6 +1,10 @@
+{% load item_tags %}
+
 {% spaceless %}
+{% if header %}
 <span class="header">{{ header }}</span>
+{% endif %}
 {% for tag in taglist %}
-<span class="tag">{{ tag|safe }}</span>
+<span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
 {% endspaceless %}

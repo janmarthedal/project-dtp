@@ -3,13 +3,13 @@
 {% load item_tags %}
 {% load user_tags %}
 
-{% block title %}{{ item.get_kind_display|capfirst }} {{ item.id }}{% endblock %}
+{% block title %}{{ item }}{% endblock %}
 
 {% block mainbar %}
 
 {% spaceless %}
 <h1>
-{{ item.get_kind_display|capfirst }} {{ item.id }}
+{{ item }}
 {% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
 {% if item.parent %} of {{ item.parent.get_kind_display|capfirst }} {{ item.parent.final_id }}{% endif %}
 </h1>
