@@ -25,22 +25,22 @@ class AttributeFormSet(BaseFormSet):
 
 def make_attribute_list(field_value_pairs):
     attrs = []
-    for (name, value) in field_value_pairs:
-        field, created = RefField.objects.get_or_create(name=name)
-        attr, created = RefAttribute.objects.get_or_create(field=field, value=value)
+    for attr in field_value_pairs:
+        field, created = RefField.objects.get_or_create(name=attr['field'].lower())
+        attr, created = RefAttribute.objects.get_or_create(field=field, value=attr['value'])
         attrs.append(attr)
     return attrs
 
-def get_or_create_refnode(attrs):
+def get_or_create_refnode(attrs, user):
     query = RefNode.objects.annotate(attr_count=Count('attributes')).filter(attr_count=len(attrs))
     for attr in attrs:
         query = query.filter(attributes__field__name=attr['field'].lower(),
                              attributes__value=attr['value'])
     if query.count():
         return query[0].pk
-    refnode = RefNode()
+    refnode = RefNode(created_by=user)
     refnode.save()
-    refnode.attributes = make_attribute_list(source)
+    refnode.attributes = make_attribute_list(attrs)
     refnode.save()
     return refnode
 
@@ -51,7 +51,6 @@ def add_source(request, final_id):
     c = { 'item': item }
     AttributeFormSetGen = formset_factory(AttributeForm, formset=AttributeFormSet, extra=4)
     if request.method == 'POST':
-        logger.debug(request.POST)
         formset = AttributeFormSetGen(request.POST)
         if formset.is_valid():
             attrs = formset.get_field_value_pairs()
@@ -66,7 +65,7 @@ def add_source(request, final_id):
                 formset = AttributeFormSetGen(initial=attrs)
 
             elif action == 'next':
-                c['source'] = get_or_create_refnode(attrs)
+                c['source'] = get_or_create_refnode(attrs, request.user)
                 formset = AttributeFormSetGen()
 
             elif action == 'preview':

@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.utils import timezone
 
 class RefField(models.Model):
     class Meta:
@@ -14,5 +16,7 @@ class RefAttribute(models.Model):
 class RefNode(models.Model):
     class Meta:
         db_table = 'ref_node'
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    created_at = models.DateTimeField(default=timezone.now)
     attributes = models.ManyToManyField(RefAttribute)
 
