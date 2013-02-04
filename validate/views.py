@@ -5,7 +5,8 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django import forms
-from django.forms.formsets import formset_factory
+from django.forms.formsets import formset_factory, BaseFormSet
+from django.db.models import Count
 from items.models import Item
 from refs.models import RefField, RefAttribute, RefNode
 from validate.models import SourceValidation
@@ -14,60 +15,82 @@ import logging
 logger = logging.getLogger(__name__)
 
 class AttributeForm(forms.Form):
-    field = forms.CharField(max_length=32)
-    value = forms.CharField(max_length=128)
+    field = forms.CharField(max_length=32, required=False)
+    value = forms.CharField(max_length=128, required=False)
+
+class AttributeFormSet(BaseFormSet):
+    def get_field_value_pairs(self):
+        return [src for src in self.cleaned_data
+                if 'field' in src and 'value' in src and src['field'] and src['value']]
+
+def make_attribute_list(field_value_pairs):
+    attrs = []
+    for (name, value) in field_value_pairs:
+        field, created = RefField.objects.get_or_create(name=name)
+        attr, created = RefAttribute.objects.get_or_create(field=field, value=value)
+        attrs.append(attr)
+    return attrs
+
+def get_or_create_refnode(attrs):
+    query = RefNode.objects.annotate(attr_count=Count('attributes')).filter(attr_count=len(attrs))
+    for attr in attrs:
+        query = query.filter(attributes__field__name=attr['field'].lower(),
+                             attributes__value=attr['value'])
+    if query.count():
+        return query[0].pk
+    refnode = RefNode()
+    refnode.save()
+    refnode.attributes = make_attribute_list(source)
+    refnode.save()
+    return refnode
 
 @login_required
 @require_http_methods(["GET", "POST"])
 def add_source(request, final_id):
     item = get_object_or_404(Item, final_id=final_id)
     c = { 'item': item }
-    AttributeFormSet = formset_factory(AttributeForm, extra=4)
+    AttributeFormSetGen = formset_factory(AttributeForm, formset=AttributeFormSet, extra=4)
     if request.method == 'POST':
-        logger.debug(str(request.POST))
-        formset = AttributeFormSet(request.POST)
+        logger.debug(request.POST)
+        formset = AttributeFormSetGen(request.POST)
         if formset.is_valid():
+            attrs = formset.get_field_value_pairs()
             action = request.POST['submit'].lower()
-            if action == 'search':
-                logger.debug('search')
-            elif action == 'next':
-                logger.debug(str(formset.cleaned_data))
-                source = [(src['field'], src['value']) for src in formset.cleaned_data
-                          if 'field' in src and 'value' in src]
-                c['source'] = json.dumps(source)
-                formset = AttributeFormSet()
-            elif action == 'preview':
-                c['source'] = request.POST['source']
-            else:  # add validation
-                source = json.loads(request.POST['source'].replace('&quot;', '"'))
-                logger.debug(source)
-                attrs = []
-                for src in source:
-                    field, created = RefField.objects.get_or_create(name=src[0])
-                    attr, created = RefAttribute.objects.get_or_create(field=field, value=src[1])
-                    attrs.append(attr)
-                refnode = RefNode()
-                refnode.save()
-                refnode.attributes = attrs
-                refnode.save()
 
-                locs = [(src['field'], src['value']) for src in formset.cleaned_data
-                        if 'field' in src and 'value' in src]
-                
-                sourceval = SourceValidation(item=item, source=refnode, created_by=request.user)
-                attrs = []
-                for src in locs:
-                    field, created = RefField.objects.get_or_create(name=src[0])
-                    attr, created = RefAttribute.objects.get_or_create(field=field, value=src[1])
-                    attrs.append(attr)
+            if action == 'search':
+                query = RefNode.objects
+                for attr in attrs:
+                    query = query.filter(attributes__field__name=attr['field'].lower(),
+                                         attributes__value__icontains=attr['value'])
+                c['search'] = { 'results': list(query) }
+                formset = AttributeFormSetGen(initial=attrs)
+
+            elif action == 'next':
+                c['source'] = get_or_create_refnode(attrs)
+                formset = AttributeFormSetGen()
+
+            elif action == 'preview':
+                c['source'] = get_object_or_404(RefNode, pk=request.POST['source'])
+                formset = AttributeFormSetGen(initial=attrs)
+
+            else:  # add validation
+                refnode_id = request.POST['source']
+                sourceval = SourceValidation(item=item, source=refnode_id, created_by=request.user)
                 sourceval.save()
-                sourceval.location = attrs
+                sourceval.location = make_attribute_list(attrs)
                 sourceval.save()
                 return HttpResponseRedirect(reverse('items.views.show_final', args=[item.final_id]))
+
         else:
             logger.debug(str(formset.errors))
+
+    elif 'source' in request.GET:
+        c['source'] = get_object_or_404(RefNode, pk=request.GET['source'])
+        formset = AttributeFormSetGen()
+
     else:
-        formset = AttributeFormSet(initial=[{'field':'author'}, {'field':'title'}])
+        formset = AttributeFormSetGen(initial=[{'field': 'author'}, {'field': 'title'}])
+
     c['formset'] = formset
     return render(request, 'items/add_source.html', c)
 

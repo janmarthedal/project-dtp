@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load ref_tags %}
 
 {% block title %}Add Validation Source for {{ item }}{% endblock %}
 
 {% block mainbar %}
 
 <h1>Add Validation Source for {{ item }}</h1>
+
+{% if source %}
+<div>{{ source|typeset_refnode }}</div>
+{% endif %}
 
 <form method="post" action="{% url 'validate.views.add_source' item.final_id %}">
   {% csrf_token %}
@@ -17,7 +22,7 @@
     {% endfor %}
   </table>
   {% if source %}
-  <input type="hidden" name="source" value="{{ source }}" />
+  <input type="hidden" name="source" value="{{ source.pk }}" />
   <input type="submit" name="submit" value="preview" />
   <input type="submit" name="submit" value="add validation" />
   {% else %}
@@ -25,5 +30,20 @@
   <input type="submit" name="submit" value="next" />
   {% endif %}
 </form>
+
+{% if search %}
+<div>
+{% if search.results %}
+{% for node in search.results %}
+<div>
+<a href="{% url 'validate.views.add_source' item.final_id %}?source={{ node.id }}">
+{{ node|typeset_refnode }}</a>
+</div>
+{% endfor %}
+{% else %}
+<p>No matches found</p>
+{% endif %}
+</div>
+{% endif %}
 
 {% endblock %}
