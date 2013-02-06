@@ -14,12 +14,8 @@
 
 <form method="post" action="{% url 'validate.views.add_source' item.final_id %}">
   {% csrf_token %}
-  {{ formset.management_form }}
   <table>
-    <tr><th>Field</th><th>Value</th></tr>
-    {% for form in formset %}
-    <tr>{% for field in form %}<td>{{ field }}</td>{% endfor %}</tr>
-    {% endfor %}
+  {{ form.as_table }}
   </table>
   {% if source %}
   <input type="hidden" name="source" value="{{ source.pk }}" />

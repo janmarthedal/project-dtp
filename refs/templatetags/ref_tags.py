@@ -7,17 +7,9 @@ register = template.Library()
 
 @register.filter
 def typeset_refnode(refnode):
-    attrs = {}
-    for a in refnode.attributes.all():
-        field = escape(a.field.name)
-        value = escape(a.value)
-        if field in attrs:
-            attrs[field].append(value)
-        else:
-            attrs[field] = [value]
     ret = ''
-    if 'author' in attrs:
-        authors = attrs.pop('author')
+    authors = [escape(a.name) for a in refnode.authors.all()]
+    if authors:
         if len(authors) == 1:
             ret += authors[0]
         elif len(authors) == 2:
@@ -25,13 +17,13 @@ def typeset_refnode(refnode):
         else:
             ret += ', '.join(authors[0:-2]) + ', and ' + authors[-1]
         ret += '. '
-    if len(attrs.get('title', [])) == 1:
-        ret += '<i>' + attrs.pop('title')[0] + '</i>. '
-    if len(attrs) > 0:
-        elems = []
-        for field, values in attrs.iteritems():
-            for value in values:
-                elems.append(field + ': ' + value)
+    if refnode.title:
+        ret += '<i>' + escape(refnode.title) + '</i>. '
+    elems = []
+    for field in ['publisher', 'edition', 'series', 'year', 'isbn10', 'isbn13', 'extra']:
+        if refnode.__dict__[field]:
+            elems.append(field + ': ' + escape(refnode.__dict__[field]))
+    if elems:
         ret += '(' + ', '.join(elems) + ')'
     return mark_safe(ret)
 
