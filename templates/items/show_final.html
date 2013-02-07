@@ -19,7 +19,7 @@
 <p>created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ item.final_at|datetime_user:user }}</p>
 {% if item.other_tags %}
 <div class="taglist">
-{% for tag in item.othertags %}
+{% for tag in item.other_tags %}
   <span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
 </div>

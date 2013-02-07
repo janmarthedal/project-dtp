@@ -101,6 +101,10 @@ div.itembody {
   border: 2px solid #888;
 }
 
+div.itembody ol, div.itembody ul {
+  margin-left: 2em;
+}
+
 .taglist {
   margin: 0.5em 0em;
 }

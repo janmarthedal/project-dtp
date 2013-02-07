@@ -49,9 +49,14 @@ def add_source(request, final_id):
                     query = RefNode.objects
                     for field in ['author1', 'author2', 'author3', 'author4']:
                         if form.cleaned_data.get(field):
-                            query.filter(authors__name__icontains=form.cleaned_data[field])
-                    if form.cleaned_data.get('title'):
-                        query.filter(title__icontains=form.cleaned_data['title'])
+                            query = query.filter(authors__name__icontains=form.cleaned_data[field])
+                    kwargs = {}
+                    for field in ['title', 'isbn10', 'isbn13', 'publisher', 'series',
+                                  'edition', 'year', 'extra']:
+                        if form.cleaned_data.get(field):
+                            kwargs['%s__icontains' % field] = form.cleaned_data[field]
+                    if kwargs:
+                        query = query.filter(kwargs)
                     c['search'] = { 'results': query.all() }
 
                 elif action == 'next':
