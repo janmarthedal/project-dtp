@@ -3,6 +3,7 @@ import string
 from django.template import Context
 from django.utils.crypto import get_random_string
 from django.utils.http import urlquote, urlencode
+from django.core.urlresolvers import reverse
 import markdown
 
 import logging
@@ -60,13 +61,20 @@ def typeset_body2(body):
 
 def conceptMatch(match, maths, secret):
     key = 'Z%s%iZ' % (secret, len(maths))
-    maths.append((key, key))
     name = match.group(1) or match.group(2)
     # TODO: use reverse lookup
     url = '/concept/' + urlquote(match.group(2))
     if match.group(3):
-        url += '?' + urlencode({ 'tags': match.group(3) })
-    return '<a href="%s">%s</a>' % (url, name)
+        url += '?' + urlencode(dict(tags=match.group(3)))
+    maths.append((key, '<a href="%s">%s</a>' % (url, name)))
+    return key
+
+def itemRefMatch(match, maths, secret):
+    key = 'Z%s%iZ' % (secret, len(maths))
+    final_id = match.group(1)
+    url = reverse('items.views.show_final', args=[final_id])
+    maths.append((key, '<a href="%s">%s</a>' % (url, final_id)))
+    return key
 
 def typeset_body(st):
     secret = make_short_name(8)
@@ -88,6 +96,8 @@ def typeset_body(st):
     st = ''.join(parts)
     st = re.sub(r'\[([a-zA-Z ]*)#([a-zA-Z ]+)(?:\(([a-zA-Z ]+(?:,[a-zA-Z ]+)*)\))?\]',
                 lambda match: conceptMatch(match, maths, secret), st)
+    st = re.sub(r'\[@(\w+)\]',
+                lambda match: itemRefMatch(match, maths, secret), st)
     st = markdown.markdown(st)
     for (old, new) in maths:
         st = st.replace(old, new)
