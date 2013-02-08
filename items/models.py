@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone
 from items.helpers import make_short_name

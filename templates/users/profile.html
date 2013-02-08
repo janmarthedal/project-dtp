@@ -21,6 +21,10 @@
 <p><a href="{% url 'items.views.new' kind='theorem' %}">New theorem</a></p>
 {% endif %}
 
+{% if user.is_admin %}
+<p><a href="{% url 'admin.views.index' %}">Administration</a></p>
+{% endif %}
+
 {% if own_profile %}
 <p><a href="{% url 'users.views.logout' %}">log out</a></p>
 {% endif %}
