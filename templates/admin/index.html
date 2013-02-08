@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block title %}Administration{% endblock %}
+
+{% block mainbar %}
+
+<h1>Administration</h1>
+
+<ul>
+<li><a href="{% url 'admin.views.recalc_deps'%}">Recalculate dependencies</a></li>
+</ul>
+
+{% endblock %}
+

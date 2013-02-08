@@ -139,6 +139,7 @@ INSTALLED_APPS = (
     'users',
     'refs',
     'validate',
+    'admin',
 )
 
 LOGGING = {

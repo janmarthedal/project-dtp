@@ -8,9 +8,11 @@
 
 {{ form.body }}
 
-<label for="id_primarytags">Primary tags:</label>
+{% if primary_text %}
+<label for="id_primarytags">{{ primary_text }}:</label>
 {{ form.primarytags }}<br/>
+{% endif %}
 
-<label for="id_othertags">Other tags:</label>
+<label for="id_othertags">Tags:</label>
 {{ form.othertags }}
 

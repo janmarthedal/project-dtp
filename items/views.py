@@ -59,9 +59,11 @@ class EditItemForm(forms.Form):
             raise ValidationError([t.render(c)])
         return cleaned_data
 
-@login_required
 @require_http_methods(["GET", "POST"])
 def new(request, kind, parent=None):
+    if not request.user.is_authenticated():
+        messages.info(request, 'You must log in to create a %s' % kind)
+        return HttpResponseRedirect('%s?next=%s' % (reverse('users.views.login'), request.path))
     c = {}
     if parent:
         if kind != 'proof':
@@ -89,6 +91,10 @@ def new(request, kind, parent=None):
                                  'primarytags': primarytags,
                                  'othertags':   othertags }
     c.update(dict(kind=kind, form=form))
+    if kind == 'definition':
+        c['primary_text'] = 'Terms defined'
+    elif kind == 'theorem':
+        c['primary_text'] = 'Name(s) of theorem'
     return render(request, 'items/new.html', c)
 
 @login_required
@@ -101,7 +107,7 @@ def edit(request, item_id):
         raise Http404
     if request.method == 'GET':
         form = EditItemForm({ 'body':        item.body,
-                             'primarytags': '\n'.join(item.primary_tags),
+                              'primarytags': '\n'.join(item.primary_tags),
                               'othertags':   '\n'.join(item.other_tags) })
     else:
         form = EditItemForm(request.POST)

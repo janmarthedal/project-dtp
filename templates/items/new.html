@@ -2,14 +2,14 @@
 {% load url from future %}
 
 {% block title %}
-New {{ kind }}{% if preview %} preview{% endif %}
+Add {{ kind }}{% if preview %} preview{% endif %}
 {% endblock %}
 
 {% block mainbar %}
 
 {% include "items/include/preview.html" %}
 
-<h1>New {{ kind }}
+<h1>Add {{ kind }}
 {% if parent %} of {{ parent.get_kind_display|capfirst }} {{ parent.final_id }}{% endif %}
 </h1>
 
@@ -19,7 +19,7 @@ New {{ kind }}{% if preview %} preview{% endif %}
 
   <div class="item-actions">
     <input class="button" type="submit" name="submit" value="preview" />
-    <input class="button" type="submit" name="submit" value="save" />
+    <input class="button" type="submit" name="submit" value="save draft" />
   </div>
 
 </form>
