@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block title %}Definitions{% endblock %}
+
+{% block mainbar %}
+
+<h1>Definitions</h1>
+
+{% endblock %}
+
+{% block sidebar %}
+
+<a href="{% url 'items.views.new' kind='definition' %}">Add definition</a>
+
+{% endblock %}
+

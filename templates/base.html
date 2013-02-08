@@ -33,10 +33,10 @@
         </div>
         <div id="hmenu">
           <ul>
-            <li>Browse</li>
-            <li>Definitions</li>
-            <li>Theorems</li>
-            <li>Proofs</li>
+            <li>Overview</li>
+            <li><a href="{% url 'definitions.views.index' %}">Definitions</a></li>
+            <li><a href="{% url 'theorems.views.index' %}">Theorems</a></li>
+            <li><a href="{% url 'proofs.views.index' %}">Proofs</a></li>
             <li>References</li>
             <li>Media</li>
             <li>Users</li>
@@ -50,7 +50,8 @@
           {% endblock mainbar %}
         </div>
         <div id="sidebar">
-          <p>This is the side bar</p>
+          {% block sidebar %}
+          {% endblock %}
         </div>
       </div>
       <div id="footer">

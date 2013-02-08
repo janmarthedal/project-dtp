@@ -77,19 +77,19 @@ def new(request, kind, parent=None):
             primarytags = form.cleaned_data['primarytags']
             othertags   = form.cleaned_data['othertags']
             body        = form.cleaned_data['body']
-            if request.POST['submit'].lower() == 'save':
+            if request.POST['submit'].lower() == 'preview':
+                c['preview'] = { 'kind':        kind,
+                                 'body':        body,
+                                 'parent':      c.get('parent'),
+                                 'primarytags': primarytags,
+                                 'othertags':   othertags }
+            else:                      # save draft
                 item = Item.objects.add_item(request.user, kind, body,
                                              primarytags, othertags, c.get('parent'))
                 message = u'%s successfully created' % item
                 logger.debug(message)
                 messages.success(request, message)
                 return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
-            else:  # preview
-                c['preview'] = { 'kind':        kind,
-                                 'body':        body,
-                                 'parent':      c.get('parent'),
-                                 'primarytags': primarytags,
-                                 'othertags':   othertags }
     c.update(dict(kind=kind, form=form))
     if kind == 'definition':
         c['primary_text'] = 'Terms defined'
@@ -115,20 +115,20 @@ def edit(request, item_id):
             primarytags = form.cleaned_data['primarytags']
             othertags   = form.cleaned_data['othertags']
             body        = form.cleaned_data['body']
-            if request.POST['submit'].lower() == 'update':
-                Item.objects.update_item(item, request.user, body,
-                                         primarytags, othertags)
-                message = u'%s successfully updated' % item
-                logger.debug(message)
-                messages.success(request, message)
-                return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
-            else:  # preview
+            if request.POST['submit'].lower() == 'preview':
                 c['preview'] = { 'id':          item.id,
                                  'kind':        item.get_kind_display(),
                                  'body':        body,
                                  'parent':      item.parent,
                                  'primarytags': primarytags,
                                  'othertags':   othertags }
+            else:                      # update draft
+                Item.objects.update_item(item, request.user, body,
+                                         primarytags, othertags)
+                message = u'%s successfully updated' % item
+                logger.debug(message)
+                messages.success(request, message)
+                return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
     c.update(dict(item=item, form=form))
     return render(request, 'items/edit.html', c)
 

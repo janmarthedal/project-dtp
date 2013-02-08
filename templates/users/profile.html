@@ -13,17 +13,13 @@
 
 {% include 'items/include/itemlist.html' with header='Draft items' itemlist=draftitems only %}
 
-{% if add_definition %}
-<p><a href="{% url 'items.views.new' kind='definition' %}">New definition</a></p>
-{% endif %}
-
-{% if add_theorem %}
-<p><a href="{% url 'items.views.new' kind='theorem' %}">New theorem</a></p>
-{% endif %}
-
 {% if user.is_admin %}
 <p><a href="{% url 'admin.views.index' %}">Administration</a></p>
 {% endif %}
+
+{% endblock %}
+
+{% block sidebar %}
 
 {% if own_profile %}
 <p><a href="{% url 'users.views.logout' %}">log out</a></p>
