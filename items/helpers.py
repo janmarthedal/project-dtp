@@ -1,9 +1,9 @@
 import re
 import string
 from django.template import Context
-from django.utils.crypto import get_random_string
 from django.utils.http import urlquote, urlencode
 from django.core.urlresolvers import reverse
+from django.utils import crypto
 import markdown
 
 import logging
@@ -13,16 +13,6 @@ def make_html_safe(st):
     st = st.replace('<', '%lt;')
     st = st.replace('>', '%gt;')
     return st
-
-def normalize_tag(name):
-    name = name.strip()
-    name = re.sub(r' {2,}', r' ', name)
-    return name
-
-SHORT_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
-
-def make_short_name(length):
-    return get_random_string(length, SHORT_NAME_CHARS)
 
 test_body = """
 First paragraf
@@ -77,7 +67,7 @@ def itemRefMatch(match, maths, secret):
     return key
 
 def typeset_body(st):
-    secret = make_short_name(8)
+    secret = crypto.get_random_string(8)
     parts = st.split('$$')
     maths = []
     for i in range(len(parts)):

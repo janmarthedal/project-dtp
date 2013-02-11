@@ -10,10 +10,10 @@ Add {{ kind }}{% if preview %} preview{% endif %}
 {% include "items/include/preview.html" %}
 
 <h1>Add {{ kind }}
-{% if parent %} of {{ parent.get_kind_display|capfirst }} {{ parent.final_id }}{% endif %}
+{% if parent %} of {{ parent }}{% endif %}
 </h1>
 
-<form method="post" action="{% if parent %}{% url 'items.views.new' kind=kind parent=parent.final_id %}{% else %}{% url 'items.views.new' kind=kind %}{% endif %}">{% csrf_token %}
+<form method="post" action="{% if parent %}{% url 'items.views.new' kind=kind parent=parent.public_id %}{% else %}{% url 'items.views.new' kind=kind %}{% endif %}">{% csrf_token %}
 
   {% include "items/include/edit_fields.html" %}
 

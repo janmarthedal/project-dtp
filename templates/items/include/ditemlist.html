@@ -1,0 +1,19 @@
+{% load item_tags %}
+
+<h2>{{ header }}:</h2>
+<div class="itemlist">
+{% if itemlist %}
+{% for item in itemlist %}
+  <div class="row">
+    <div class="title">
+      <a href="{% url 'items.views.show' item.id %}">{{ item }}{% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}</a>
+    </div>
+    <div class="info">
+      {% include 'inline/taglist.html' with taglist=item.secondary_tags only %}
+    </div>
+    <div class="clr"></div>
+  </div>
+{% endfor %}
+{% endif %}
+</div>
+

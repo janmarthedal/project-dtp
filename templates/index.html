@@ -7,9 +7,9 @@
 
 <h1>Dashboard</h1>
 
-{% include 'items/include/itemlist.html' with header='Latest published items' itemlist=finalitems only %}
+{% include 'items/include/fitemlist.html' with header='Latest published items' itemlist=finalitems only %}
 
-{% include 'items/include/itemlist.html' with header='Latest items submitted for review' itemlist=reviewitems only %}
+{% include 'items/include/ditemlist.html' with header='Latest items submitted for review' itemlist=reviewitems only %}
 
 {% endblock %}
 

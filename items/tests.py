@@ -1,16 +1,10 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
-
 from django.test import TestCase
+from items.models import final_id_to_name, final_name_to_id
 
+class FinalIdTest(TestCase):
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
+    def test_one(self):
+        for exp in range(0, 20):
+            v = 11**exp
+            self.assertEqual(final_name_to_id(final_id_to_name(v)), v)
+

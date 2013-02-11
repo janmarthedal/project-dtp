@@ -9,17 +9,17 @@
 
 <h1>{{ item }}
 {% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
-{% if item.parent %} of {{ item.parent.get_kind_display|capfirst }} {{ item.parent.final_id }}{% endif %}</h1>
+{% if item.parent %} of {{ item.parent }}{% endif %}</h1>
 
 <div class="itembody">
 {{ item.body|typeset_body }}
 </div>
 
 <div class="iteminfo">
-<p>created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ item.final_at|datetime_user:user }}</p>
-{% if item.other_tags %}
+<p>created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ item.created_at|datetime_user:user }}</p>
+{% if item.secondary_tags %}
 <div class="taglist">
-{% for tag in item.other_tags %}
+{% for tag in item.secondary_tags %}
   <span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
 </div>
@@ -31,10 +31,10 @@
 <div class="item-actions">
 
 {% if perm.add_proof %}
-<a href="{% url 'items.views.new' kind='proof' parent=item.final_id %}">add proof</a>
+<a href="{% url 'items.views.new' kind='proof' parent=item.public_id %}">add proof</a>
 {% endif %}
 {% if perm.add_source %}
-<a href="{% url 'validate.views.add_source' item.final_id %}">add validation source</a>
+<a href="{% url 'validate.views.add_source' item.public_id %}">add validation source</a>
 {% endif %}
 
 </div>

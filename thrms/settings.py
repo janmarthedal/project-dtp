@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'theorems',
     'definitions',
     'proofs',
+    'tags',
 )
 
 LOGGING = {

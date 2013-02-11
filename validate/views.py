@@ -5,8 +5,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django import forms
-from django.db.models import Count
-from items.models import Item
+from items.models import FinalItem, final_name_to_id
 from refs.models import RefNode, RefAuthor
 from validate.models import SourceValidation
 
@@ -32,8 +31,9 @@ class AddLocation(forms.Form):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def add_source(request, final_id):
-    item = get_object_or_404(Item, final_id=final_id)
+def add_source(request, final_name):
+    final_id = final_name_to_id(final_name)
+    item = get_object_or_404(FinalItem, pk=final_id)
     c = { 'item': item }
     source = None
 
@@ -89,7 +89,7 @@ def add_source(request, final_id):
                                                          source=source,
                                                          location=form.cleaned_data['location'])
                     source_validation.save()
-                    return HttpResponseRedirect(reverse('items.views.show_final', args=[item.final_id]))
+                    return HttpResponseRedirect(reverse('items.views.show_final', args=[item.public_id()]))
 
     elif 'source' in request.GET:
         source = get_object_or_404(RefNode, pk=request.GET['source'])

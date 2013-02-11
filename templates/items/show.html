@@ -11,7 +11,7 @@
 <h1>
 {{ item }}
 {% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
-{% if item.parent %} of {{ item.parent.get_kind_display|capfirst }} {{ item.parent.final_id }}{% endif %}
+{% if item.parent %} of {{ item }}{% endif %}
 </h1>
 {% endspaceless %}
 
@@ -20,10 +20,10 @@
 </div>
 
 <div class="iteminfo">
-<p>{{ item.get_status_display }}, latest edit by <a href="{% url 'users.views.profile' item.modified_by.get_username %}">{{ item.modified_by.get_full_name }}</a> at {{ item.modified_at|datetime_user:user }}</p>
-{% if item.other_tags %}
+<p>{{ item.get_status_display }}, latest edit by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a> at {{ item.modified_at|datetime_user:user }}</p>
+{% if item.secondary_tags %}
 <div class="taglist">
-{% for tag in item.other_tags %}
+{% for tag in item.secondary_tags %}
   <span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
 </div>

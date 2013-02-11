@@ -7,15 +7,17 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django import forms
-from items.models import Item
+from items.models import DraftItem, FinalItem
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=30)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     nexturl  = forms.CharField(widget=forms.HiddenInput, required=False)
+
 
 @require_http_methods(["GET", "POST"])
 def login(request):
@@ -47,10 +49,12 @@ def login(request):
                 messages.warning(request, 'Invalid login and/or password')
     return render(request, 'users/login.html', { 'form': form })
 
+
 @require_safe
 def logout(request):
     auth.logout(request)
     return HttpResponseRedirect(reverse('main.views.index'))
+
 
 @require_safe
 def profile(request, user_id):
@@ -58,15 +62,15 @@ def profile(request, user_id):
     own_profile = request.user == pageuser
     c = {
         'pageuser':    pageuser,
-        'finalitems':  list(Item.objects.filter(status='F', created_by=pageuser).order_by('-final_at')),
-        'reviewitems': list(Item.objects.filter(status='R', created_by=pageuser).order_by('-modified_at')),
+        'finalitems':  list(FinalItem.objects.filter(status='F', created_by=pageuser).order_by('-created_at')),
+        'reviewitems': list(DraftItem.objects.filter(status='R', created_by=pageuser).order_by('-modified_at')),
         }
     if own_profile:
         c.update({
             'own_profile':    True,
             'add_definition': True,
             'add_theorem':    True,
-            'draftitems':     list(Item.objects.filter(status='D', created_by=pageuser).order_by('-modified_at')),
+            'draftitems':     list(DraftItem.objects.filter(status='D', created_by=pageuser).order_by('-modified_at')),
         })
     return render(request, 'users/profile.html', c)
 

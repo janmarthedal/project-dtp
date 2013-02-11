@@ -7,11 +7,11 @@
 
 <h1>{{ pageuser.get_full_name }}</h1>
 
-{% include 'items/include/itemlist.html' with header='Published items' itemlist=finalitems only %}
+{% include 'items/include/fitemlist.html' with header='Published items' itemlist=finalitems only %}
 
-{% include 'items/include/itemlist.html' with header='Submitted for review' itemlist=reviewitems only %}
+{% include 'items/include/ditemlist.html' with header='Submitted for review' itemlist=reviewitems only %}
 
-{% include 'items/include/itemlist.html' with header='Draft items' itemlist=draftitems only %}
+{% include 'items/include/ditemlist.html' with header='Draft items' itemlist=draftitems only %}
 
 {% if user.is_admin %}
 <p><a href="{% url 'admin.views.index' %}">Administration</a></p>

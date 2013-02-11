@@ -2,15 +2,15 @@
 {% load url from future %}
 
 {% block title %}
-Edit {{ item.get_kind_display|capfirst }} {{ item.id }}{% if preview %} preview{% endif %}
+Edit {{ item }}{% if preview %} preview{% endif %}
 {% endblock %}
 
 {% block mainbar %}
 
 {% include "items/include/preview.html" %}
 
-<h1>Edit {{ item.get_kind_display|capfirst }} {{ item.id }}
-{% if item.parent %} of {{ item.parent.get_kind_display|capfirst }} {{ item.parent.final_id }}{% endif %}
+<h1>Edit {{ item }}
+{% if item.parent %} of {{ item }}{% endif %}
 </h1>
 
 <form method="post" action="{% url 'items.views.edit' item.id %}">

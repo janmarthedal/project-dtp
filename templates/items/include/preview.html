@@ -5,16 +5,16 @@
 Preview {{ preview.kind|capfirst }}
 {% if preview.id %} {{ preview.id }}{% endif %}
 {% if preview.primarytags %} ({{ preview.primarytags|typeset_tag_list|join:", " }}){% endif %}
-{% if preview.parent %} of {{ preview.parent.get_kind_display|capfirst }} {{ preview.parent.final_id }}{% endif %}
+{% if preview.parent %} of {{ preview.parent }}{% endif %}
 </h1>
 
 <div class="itembody">
 {{ preview.body|typeset_body }}
 </div>
 <div class="iteminfo">
-{% if preview.othertags %}
+{% if preview.secondarytags %}
 <div class="taglist">
-{% for tag in preview.othertags %}
+{% for tag in preview.secondarytags %}
   <span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
 </div>

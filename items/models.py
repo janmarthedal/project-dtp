@@ -1,96 +1,57 @@
+import random
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone
-from items.helpers import make_short_name
+from tags.models import Tag, Concept
 
 import logging
 logger = logging.getLogger(__name__)
 
-class Tag(models.Model):
+
+FINAL_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
+FINAL_NAME_MIN_LENGTH = 4
+
+def final_id_to_name(value):
+    base = len(FINAL_NAME_CHARS)
+    length = FINAL_NAME_MIN_LENGTH
+    while value >= base**length:
+        value -= base**length
+        length += 1
+    name = ''
+    while length > 0:
+        name = FINAL_NAME_CHARS[value % base] + name
+        value /= base
+        length -= 1
+    return name
+
+def final_name_to_id(name):
+    base = len(FINAL_NAME_CHARS)
+    value = 0
+    for c in name:
+        value = base*value + FINAL_NAME_CHARS.find(c)
+    length = FINAL_NAME_MIN_LENGTH
+    while length < len(name):
+        value += base**length
+        length += 1
+    return value
+
+
+
+class BaseItem(models.Model):
+
     class Meta:
-        db_table = 'tags'
-    name = models.CharField(max_length=255, db_index=True)
-    def __unicode__(self):
-        return self.name
+        abstract = True
 
-def add_item_tags(item, tags, primary):
-    for tag_name in tags:
-        tag, created = Tag.objects.get_or_create(name=tag_name)
-        itemtag = ItemTag(item=item, tag=tag, primary=primary)
-        itemtag.save()
-
-class ItemManager(models.Manager):
-
-    def add_item(self, user, kind, body, primarytags, othertags, parent):
-        kind_key = filter(lambda kc: kc[1] == kind, Item.KIND_CHOICES)[0][0]
-
-        item = Item(kind        = kind_key,
-                    status      = 'D',
-                    created_by  = user,
-                    modified_by = user,
-                    body        = body,
-                    parent      = parent)
-        item.save()
-
-        add_item_tags(item, primarytags, True)
-        add_item_tags(item, othertags, False)
-
-        return item
-
-    def update_item(self, item, user, body, primarytags, othertags):
-        item.modified_by = user
-        item.modified_at = timezone.now()
-        item.body        = body
-        item.save()
-
-        ItemTag.objects.filter(item=item).delete()
-        add_item_tags(item, primarytags, True)
-        add_item_tags(item, othertags, False)
-
-
-class Item(models.Model):
-    class Meta:
-        db_table = 'items'
-
-    objects = ItemManager()
-
-    KIND_CHOICES = (
+    TYPE_CHOICES = (
         ('D', 'definition'),
         ('T', 'theorem'),
         ('P', 'proof'),
         ('I', 'info')
     )
 
-    STATUS_CHOICES = (
-        ('D', 'draft'),
-        ('R', 'under review'),
-        ('F', 'published'),
-        ('S', 'suspended'),
-        ('B', 'broken')
-    )
-
-    kind        = models.CharField(max_length=1, choices=KIND_CHOICES)
-    status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
-    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
-    created_at  = models.DateTimeField(default=timezone.now)
-    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
-    modified_at = models.DateTimeField(default=timezone.now)
-    final_at    = models.DateTimeField(null=True, blank=True)
-    final_id    = models.CharField(max_length=10, db_index=True, unique=True,
-                                   null=True, blank=True)
-    parent      = models.ForeignKey('self', null=True, blank=True)
-    body        = models.TextField(null=True, blank=True)
-    tags        = models.ManyToManyField(Tag, blank=True, through='ItemTag', related_name='item_tags')
-
     def __init__(self, *args, **kwargs):
-        super(Item, self).__init__(*args, **kwargs)
+        super(BaseItem, self).__init__(*args, **kwargs)
         self._cache = {}
-
-    def _set_tag_cache(self):
-        tags = [(itemtag.tag.name, itemtag.primary)
-                for itemtag in self.itemtag_set.all()]
-        self._cache['primary_tags'] = [t[0] for t in tags if t[1]]
-        self._cache['other_tags']   = [t[0] for t in tags if not t[1]]
 
     @property
     def primary_tags(self):
@@ -99,46 +60,158 @@ class Item(models.Model):
         return self._cache['primary_tags']
 
     @property
-    def other_tags(self):
-        if 'other_tags' not in self._cache:
+    def secondary_tags(self):
+        if 'secondary_tags' not in self._cache:
             self._set_tag_cache()
-        return self._cache['other_tags']
+        return self._cache['secondary_tags']
+
+    itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
+    parent   = models.ForeignKey('FinalItem', null=True)
+    body     = models.TextField(null=True)
+
+
+class FinalItemManager(models.Manager):
+
+    def add_item(self, draft_item):
+        item = FinalItem(itemtype    = draft_item.itemtype,
+                         status      = 'F',
+                         created_by  = draft_item.created_by,
+                         modified_by = draft_item.created_by,
+                         body        = draft_item.body,
+                         parent      = draft_item.parent)
+        base = len(FINAL_NAME_CHARS)
+        max_val = base**FINAL_NAME_MIN_LENGTH
+        while True:
+            item.id = random.randint(0, max_val - 1)
+            try:
+                item.save()
+                break
+            except IntegrityError:
+                max_val *= 64
+
+        for draftitemtag in draft_item.draftitemtag_set.all():
+            finalitemtag = FinalItemTag(item=item, tag=draftitemtag.tag,
+                                        primary=draftitemtag.primary)
+            finalitemtag.save()
+
+        return item
+
+
+class FinalItem(BaseItem):
+
+    class Meta:
+        db_table = 'final_items'
+
+    objects = FinalItemManager()
+
+    STATUS_CHOICES = (
+        ('F', 'published'),
+        ('S', 'suspended'),
+        ('B', 'broken')
+    )
+
+    id           = models.BigIntegerField(primary_key=True)
+    status       = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
+    created_by   = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    created_at   = models.DateTimeField(default=timezone.now)
+    modified_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified_at  = models.DateTimeField(default=timezone.now)
+    item_deps    = models.ManyToManyField('self')
+    concept_deps = models.ManyToManyField(Concept)
+    tags         = models.ManyToManyField(Tag, through='FinalItemTag')
+
+    def public_id(self):
+        return final_id_to_name(self.id)
 
     def __unicode__(self):
-        ret = self.get_kind_display().capitalize()
-        if self.final_id:
-            ret += " %s" % self.final_id
-        elif self.id:
-            ret += " %s" % str(self.id)
-        return ret
+        return "%s %s" % (self.get_itemtype_display().capitalize(), self.public_id())
 
-    def make_final(self, user):
-        if self.status != 'F':
-            self.status      = 'F'
-            self.modified_by = user
-            self.modified_at = timezone.now()
-            self.final_at    = self.modified_at
-            for length in range(4, 10+1):
-                self.final_id = make_short_name(length)
-                try:
-                    self.save()
-                    break
-                except IntegrityError:
-                    pass
-            logger.debug("Publish of %i successful with final_id '%s'" % (self.id, self.final_id))
+    def _set_tag_cache(self):
+        tags = [(itemtag.tag.name, itemtag.primary)
+                for itemtag in self.finalitemtag_set.all()]
+        self._cache['primary_tags']   = [t[0] for t in tags if t[1]]
+        self._cache['secondary_tags'] = [t[0] for t in tags if not t[1]]
 
-    def make_review(self, user):
+
+class DraftItemManager(models.Manager):
+
+    def _add_tags(self, item, primary_tags, secondary_tags):
+        for name in primary_tags:
+            DraftItemTag(item=item, tag=Tag.objects.fetch(name), primary=True).save()
+        for name in secondary_tags:
+            DraftItemTag(item=item, tag=Tag.objects.fetch(name), primary=False).save()
+
+    def add_item(self, user, itemtype, body, primary_tags, secondary_tags, parent):
+        type_key = filter(lambda kc: kc[1] == itemtype, DraftItem.TYPE_CHOICES)[0][0]
+
+        item = DraftItem(itemtype   = type_key,
+                         status     = 'D',
+                         created_by = user,
+                         body       = body,
+                         parent     = parent)
+        item.save()
+
+        self._add_tags(item, primary_tags, secondary_tags)
+
+        return item
+
+    def update_item(self, item, user, body, primary_tags, secondary_tags):
+        item.modified_at = timezone.now()
+        item.body        = body
+        item.save()
+
+        item.draftitemtag_set.all().delete()
+        self._add_tags(item, primary_tags, secondary_tags)
+
+
+class DraftItem(BaseItem):
+
+    class Meta:
+        db_table = 'draft_items'
+
+    objects = DraftItemManager()
+
+    STATUS_CHOICES = (
+        ('D', 'draft'),
+        ('R', 'under review'),
+    )
+
+    status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified_at = models.DateTimeField(default=timezone.now)
+    tags        = models.ManyToManyField(Tag, through='DraftItemTag')
+
+    def __unicode__(self):
+        return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
+
+    def _set_tag_cache(self):
+        tags = [(itemtag.tag.name, itemtag.primary)
+                for itemtag in self.draftitemtag_set.all()]
+        self._cache['primary_tags']   = [t[0] for t in tags if t[1]]
+        self._cache['secondary_tags'] = [t[0] for t in tags if not t[1]]
+
+    def make_review(self):
         if self.status != 'R':
             self.status      = 'R'
-            self.modified_by = user
             self.modified_at = timezone.now()
             self.save()
-            logger.debug("%i to review successful" % self.id)
+            logger.debug("%d to review successful" % self.id)
 
-class ItemTag(models.Model):
+
+class DraftItemTag(models.Model):
     class Meta:
-        db_table = 'item_tags'
-    item    = models.ForeignKey(Item)
+        db_table = 'draft_item_tags'
+    item    = models.ForeignKey(DraftItem)
     tag     = models.ForeignKey(Tag)
     primary = models.BooleanField()
+
+
+class FinalItemTag(models.Model):
+    class Meta:
+        db_table = 'final_item_tags'
+    item    = models.ForeignKey(FinalItem)
+    tag     = models.ForeignKey(Tag)
+    primary = models.BooleanField()
+
+
 

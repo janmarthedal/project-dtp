@@ -13,6 +13,6 @@ def typeset_tag(value):
     return mark_safe(items.helpers.typeset_tag(value))
 
 @register.filter
-def typeset_tag_list(value):
-    return map(typeset_tag, value)
+def typeset_tag_list(tag_list):
+    return map(typeset_tag, tag_list)
 
