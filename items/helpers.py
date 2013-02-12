@@ -1,6 +1,4 @@
 import re
-import string
-from django.template import Context
 from django.utils.http import urlquote, urlencode
 from django.core.urlresolvers import reverse
 from django.utils import crypto
@@ -15,18 +13,92 @@ def make_html_safe(st):
     return st
 
 test_body = """
-First paragraf
-is started here
+First [#integer] paragraf
+is started [@2222] here
 
 We have
 $$
 \sum_{k=1}^n k
 $$
 
-and then we get the
-result.
+and [number#positive integer(number theory,abc)] then we get $e^x$ the
+[@ab2c] result.
 
 """
+
+class BodyScanner:
+
+    def _make_key(self):
+        self._counter += 1
+        return 'Z%s%dZ' % (self._secret, self._counter)
+    
+    def _add_display_maths(self, st):
+        key = self._make_key()
+        self._dmaths.append((key, st))
+        return key
+    
+    def _add_inline_maths(self, st):
+        key = self._make_key()
+        self._imaths.append((key, st))
+        return key
+    
+    def _conceptMatch(self, match):
+        key = self._make_key()
+        tags = match.group(3).split(',') if match.group(3) else []
+        self._conceptRefs.append((key, '', match.group(1), match.group(2), tags))
+    
+    def _itemRefMatch(self, match):
+        key = self._make_key()
+        self._itemRefs.append((key, '', match.group(1)))
+    
+    def __init__(self, body):
+        self._secret = crypto.get_random_string(8)
+        self._counter = 0
+        self._dmaths = []
+        self._imaths = []
+        self._conceptRefs = []
+        self._itemRefs = [] 
+        parts = body.split('$$')
+        for i in range(len(parts)):
+            if i % 2 == 1:
+                parts[i] = self._add_display_maths(parts[i])
+            else:
+                parts2 = parts[i].split('$')
+                for j in range(len(parts2)):
+                    if j % 2 == 1:
+                        parts2[j] = self._add_inline_maths(parts2[j])
+                parts[i] = ''.join(parts2)
+        body = ''.join(parts)
+        body = re.sub(r'\[([a-zA-Z ]*)#([a-zA-Z ]+)(?:\(([a-zA-Z ]+(?:,[a-zA-Z ]+)*)\))?\]',
+                      lambda match: self._conceptMatch(match), body)
+        body = re.sub(r'\[@(\w+)\]',
+                      lambda match: self._itemRefMatch(match), body)
+        self.body = body
+
+    def transformDisplayMath(self, func):
+        self._dmaths = map(lambda p: (p[0], func(p[1])), self._dmaths)
+
+    def transformInlineMath(self, func):
+        self._imaths = map(lambda p: (p[0], func(p[1])), self._imaths)
+
+    def transformConcepts(self, func):
+        self._conceptRefs = map(lambda p: (p[0], func(p[2], p[3], p[4]), p[2], p[3], p[4]), self._conceptRefs)
+
+    def transformItemRefs(self, func):
+        self._itemRefs = map(lambda p: (p[0], func(p[2]), p[2]), self._itemRefs)
+
+    def assemble(self):
+        st = self.body
+        for (key, value) in self._dmaths:
+            st = st.replace(key, value)
+        for (key, value) in self._imaths:
+            st = st.replace(key, value)
+        for (key, value, _1, _2, _3) in self._conceptRefs:
+            st = st.replace(key, value)
+        for (key, value, _1) in self._itemRefs:
+            st = st.replace(key, value)
+        return st
+        
 
 def typeset_body_paragraph(par):
     par = par.replace('\n', ' ')
