@@ -11,13 +11,13 @@ ol, ul {
     list-style: none;
 }
 
-body { 
+body {
   background: #fff;
   font: 100% verdana, tahoma, arial, sans-serif;
 }
 
 #wrap {
-  padding: 1em;
+  padding: 0.1em 1em;
 }
 
 .clr {
@@ -67,14 +67,14 @@ body {
 
 #sidebar {
   float: right;
-  width: 25%;
+  width: 15%;
 }
 
 /* main bar */
 
 #mainbar {
   float: left;
-  width: 72%;
+  width: 85%;
 }
 
 h1 {
@@ -161,13 +161,14 @@ div.itemlist div.row {
   border-top: 1px solid #fff;*/
   border: 1px solid #efefef;
   margin-left: 2em;
-  padding: 0.5em;
+  padding: 0.3em;
 }
 
 div.itemlist div.row div.title {
 }
 
 div.itemlist div.row div.info {
+    margin: 0.4em 0em;
 }
 
 /* footer */

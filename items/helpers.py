@@ -3,6 +3,7 @@ from django.utils.http import urlquote, urlencode
 from django.core.urlresolvers import reverse
 from django.utils import crypto
 import markdown
+from tags.helpers import clean_tag
 
 import logging
 logger = logging.getLogger(__name__)
@@ -28,29 +29,6 @@ and [number#positive integer(number theory,abc)] then we get $e^x$ the
 
 class BodyScanner:
 
-    def _make_key(self):
-        self._counter += 1
-        return 'Z%s%dZ' % (self._secret, self._counter)
-    
-    def _add_display_maths(self, st):
-        key = self._make_key()
-        self._dmaths.append((key, st))
-        return key
-    
-    def _add_inline_maths(self, st):
-        key = self._make_key()
-        self._imaths.append((key, st))
-        return key
-    
-    def _conceptMatch(self, match):
-        key = self._make_key()
-        tags = match.group(3).split(',') if match.group(3) else []
-        self._conceptRefs.append((key, '', match.group(1), match.group(2), tags))
-    
-    def _itemRefMatch(self, match):
-        key = self._make_key()
-        self._itemRefs.append((key, '', match.group(1)))
-    
     def __init__(self, body):
         self._secret = crypto.get_random_string(8)
         self._counter = 0
@@ -70,11 +48,38 @@ class BodyScanner:
                 parts[i] = ''.join(parts2)
         body = ''.join(parts)
         body = re.sub(r'\[([a-zA-Z ]*)#([a-zA-Z ]+)(?:\(([a-zA-Z ]+(?:,[a-zA-Z ]+)*)\))?\]',
-                      lambda match: self._conceptMatch(match), body)
+                      self._conceptMatch, body)
         body = re.sub(r'\[@(\w+)\]',
-                      lambda match: self._itemRefMatch(match), body)
+                      self._itemRefMatch, body)
         self.body = body
 
+    def _make_key(self):
+        self._counter += 1
+        return 'Z%s%dZ' % (self._secret, self._counter)
+    
+    def _add_display_maths(self, st):
+        key = self._make_key()
+        self._dmaths.append((key, st))
+        return key
+    
+    def _add_inline_maths(self, st):
+        key = self._make_key()
+        self._imaths.append((key, st))
+        return key
+    
+    def _conceptMatch(self, match):
+        key = self._make_key()
+        name        = match.group(1)
+        primary     = clean_tag(match.group(2))
+        secondaries = map(clean_tag, match.group(3).split(',')) if match.group(3) else []
+        self._conceptRefs.append((key, '', name, primary, secondaries))
+        return key
+    
+    def _itemRefMatch(self, match):
+        key = self._make_key()
+        self._itemRefs.append((key, '', match.group(1)))
+        return key
+    
     def transformDisplayMath(self, func):
         self._dmaths = map(lambda p: (p[0], func(p[1])), self._dmaths)
 
@@ -86,6 +91,12 @@ class BodyScanner:
 
     def transformItemRefs(self, func):
         self._itemRefs = map(lambda p: (p[0], func(p[2]), p[2]), self._itemRefs)
+
+    def getItemRefList(self):
+        return [p[2] for p in self._itemRefs]
+
+    def getConceptList(self):
+        return [(p[3], p[4]) for p in self._conceptRefs]
 
     def assemble(self):
         st = self.body
@@ -100,70 +111,26 @@ class BodyScanner:
         return st
         
 
-def typeset_body_paragraph(par):
-    par = par.replace('\n', ' ')
-    par = re.sub(r'\s{2,}', ' ', par)
-    par = par.strip()
-    parts = par.split('$')
-    for k in range(len(parts)):
-        if k % 2 == 1:
-            parts[k] = '\(' + parts[k].strip() + '\)'
-    return '<p>' + ''.join(parts) + '</p>'
-
-def typeset_body2(body):
-    parts = body.strip().split('$$')
-    for i in range(len(parts)):
-        if i % 2 == 1:
-            parts[i] = '\n\[\n' + parts[i].strip() + '\n\]\n'
-        else:
-            parts2 = re.split(r'\s*\n\s*\n\s*', parts[i].strip())
-            parts2 = map(typeset_body_paragraph, parts2)
-            parts[i] = '\n'.join(parts2)
-    return ''.join(parts)
-
-def conceptMatch(match, maths, secret):
-    key = 'Z%s%iZ' % (secret, len(maths))
-    name = match.group(1) or match.group(2)
+def typesetConcept(name, primary, secondaries):
+    name = name or primary
     # TODO: use reverse lookup
-    url = '/concept/' + urlquote(match.group(2))
-    if match.group(3):
-        url += '?' + urlencode(dict(tags=match.group(3)))
-    maths.append((key, '<a href="%s">%s</a>' % (url, name)))
-    return key
+    url = '/concept/' + urlquote(primary)
+    if secondaries:
+        url += '?' + urlencode(dict(tags=','.join(secondaries)))
+    return '<a href="%s">%s</a>' % (url, name)
 
-def itemRefMatch(match, maths, secret):
-    key = 'Z%s%iZ' % (secret, len(maths))
-    final_id = match.group(1)
+def typesetItemRef(final_id):
     url = reverse('items.views.show_final', args=[final_id])
-    maths.append((key, '<a href="%s">%s</a>' % (url, final_id)))
-    return key
+    return '<a href="%s">%s</a>' % (url, final_id)
 
 def typeset_body(st):
-    secret = crypto.get_random_string(8)
-    parts = st.split('$$')
-    maths = []
-    for i in range(len(parts)):
-        if i % 2 == 1:
-            key = 'Z%s%iZ' % (secret, len(maths))
-            maths.append((key, '\[' + parts[i] + '\]'))
-            parts[i] = key
-        else:
-            parts2 = parts[i].split('$')
-            for j in range(len(parts2)):
-                if j % 2 == 1:
-                    key = 'Z%s%iZ' % (secret, len(maths))
-                    maths.append((key, '\(' + parts2[j] + '\)'))
-                    parts2[j] = key
-            parts[i] = ''.join(parts2)
-    st = ''.join(parts)
-    st = re.sub(r'\[([a-zA-Z ]*)#([a-zA-Z ]+)(?:\(([a-zA-Z ]+(?:,[a-zA-Z ]+)*)\))?\]',
-                lambda match: conceptMatch(match, maths, secret), st)
-    st = re.sub(r'\[@(\w+)\]',
-                lambda match: itemRefMatch(match, maths, secret), st)
-    st = markdown.markdown(st)
-    for (old, new) in maths:
-        st = st.replace(old, new)
-    return st
+    bs = BodyScanner(st)
+    bs.body = markdown.markdown(bs.body)
+    bs.transformDisplayMath(lambda st: '\\[' + st + '\\]')
+    bs.transformInlineMath(lambda st: '\\(' + st + '\\)')
+    bs.transformConcepts(typesetConcept)
+    bs.transformItemRefs(typesetItemRef)
+    return bs.assemble()
 
 def typeset_tag(st):
     parts = st.split('$')

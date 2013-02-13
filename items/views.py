@@ -10,6 +10,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django import forms
 from items.models import DraftItem, FinalItem, final_name_to_id
+from items.helpers import BodyScanner
 from tags.helpers import clean_tag
 
 import logging
@@ -50,17 +51,28 @@ class EditItemForm(forms.Form):
         return self.cleaned_data['body'].strip()
 
     def clean(self):
-        cleaned_data = super(EditItemForm, self).clean()
-        primarytags   = cleaned_data['primarytags']
-        secondarytags = cleaned_data['secondarytags']
+        self.pre_validate = super(EditItemForm, self).clean()
+        errors = []
+        # check tags
+        primarytags   = self.pre_validate['primarytags']
+        secondarytags = self.pre_validate['secondarytags']
         tag_counter = Counter(primarytags) + Counter(secondarytags)
         duplicates = [p[0] for p in tag_counter.iteritems() if p[1] > 1]
         if duplicates:
             t = get_template('inline/taglist.html')
             c = Context({ 'header':  'Tag duplicates:',
                           'taglist': duplicates })
-            raise ValidationError([t.render(c)])
-        return cleaned_data
+            errors.append(t.render(c))
+        # check body
+        self.bodyscan = BodyScanner(self.pre_validate['body'])
+        for final_name in set(self.bodyscan.getItemRefList()):
+            try:
+                FinalItem.objects.get(pk=final_name_to_id(final_name), status='F')
+            except FinalItem.DoesNotExist:
+                errors.append('Reference %s does not exist' % final_name)
+        if errors:
+            raise ValidationError(errors)
+        return self.pre_validate
 
 
 @require_http_methods(["GET", "POST"])
@@ -78,24 +90,24 @@ def new(request, kind, parent=None):
         form = EditItemForm()
     else:
         form = EditItemForm(request.POST)
-        if form.is_valid():
-            primarytags   = form.cleaned_data['primarytags']
-            secondarytags = form.cleaned_data['secondarytags']
-            body          = form.cleaned_data['body']
-            if request.POST['submit'].lower() == 'preview':
-                c['preview'] = { 'kind':          kind,
-                                 'body':          body,
-                                 'parent':        c.get('parent'),
-                                 'primarytags':   primarytags,
-                                 'secondarytags': secondarytags }
-            else:                      # save draft
-                item = DraftItem.objects.add_item(request.user, kind, body,
-                                                  primarytags, secondarytags,
-                                                  c.get('parent'))
-                message = u'%s successfully created' % item
-                logger.debug(message)
-                messages.success(request, message)
-                return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
+        is_valid = form.is_valid()
+        primarytags   = form.pre_validate['primarytags']
+        secondarytags = form.pre_validate['secondarytags']
+        body          = form.pre_validate['body']
+        if request.POST['submit'].lower() == 'preview':
+            c['preview'] = { 'kind':          kind,
+                             'body':          body,
+                             'parent':        c.get('parent'),
+                             'primarytags':   primarytags,
+                             'secondarytags': secondarytags }
+        elif is_valid:                 # save draft
+            item = DraftItem.objects.add_item(request.user, kind, body,
+                                              primarytags, secondarytags,
+                                              c.get('parent'))
+            message = u'%s successfully created' % item
+            logger.debug(message)
+            messages.success(request, message)
+            return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
     c.update(dict(kind=kind, form=form))
     if kind == 'definition':
         c['primary_text'] = 'Terms defined'
@@ -117,24 +129,24 @@ def edit(request, item_id):
                               'secondarytags': '\n'.join(item.secondary_tags) })
     else:
         form = EditItemForm(request.POST)
-        if form.is_valid():
-            primarytags   = form.cleaned_data['primarytags']
-            secondarytags = form.cleaned_data['secondarytags']
-            body          = form.cleaned_data['body']
-            if request.POST['submit'].lower() == 'preview':
-                c['preview'] = { 'id':            item.id,
-                                 'kind':          item.get_itemtype_display(),
-                                 'body':          body,
-                                 'parent':        item.parent,
-                                 'primarytags':   primarytags,
-                                 'secondarytags': secondarytags }
-            else:                      # update draft
-                DraftItem.objects.update_item(item, request.user, body,
-                                              primarytags, secondarytags)
-                message = u'%s successfully updated' % item
-                logger.debug(message)
-                messages.success(request, message)
-                return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
+        is_valid = form.is_valid()
+        primarytags   = form.pre_validate['primarytags']
+        secondarytags = form.pre_validate['secondarytags']
+        body          = form.pre_validate['body']
+        if request.POST['submit'].lower() == 'preview':
+            c['preview'] = { 'id':            item.id,
+                             'kind':          item.get_itemtype_display(),
+                             'body':          body,
+                             'parent':        item.parent,
+                             'primarytags':   primarytags,
+                             'secondarytags': secondarytags }
+        elif is_valid:                 # update draft
+            DraftItem.objects.update_item(item, request.user, body,
+                                          primarytags, secondarytags)
+            message = u'%s successfully updated' % item
+            logger.debug(message)
+            messages.success(request, message)
+            return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
     c.update(dict(item=item, form=form))
     if item.itemtype == 'D':
         c['primary_text'] = 'Terms defined'
