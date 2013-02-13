@@ -184,6 +184,7 @@ def change_status(request):
         if not own_item or item.status not in ['D', 'R']:
             raise Http404
         fitem = FinalItem.objects.add_item(item)
+        fitem.set_dependencies()
         item.delete()
         return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.public_id()]))
     else:   # to review

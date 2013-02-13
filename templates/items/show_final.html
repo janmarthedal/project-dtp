@@ -28,18 +28,19 @@
 
 <div class="clr"></div>
 
-<div class="item-actions">
-
-{% if perm.add_proof %}
-<a href="{% url 'items.views.new' kind='proof' parent=item.public_id %}">add proof</a>
-{% endif %}
-{% if perm.add_source %}
-<a href="{% url 'validate.views.add_source' item.public_id %}">add validation source</a>
-{% endif %}
-
-</div>
-
-<div class="clr"></div>
-
 {% endblock mainbar %}
 
+{% block sidebar %}
+
+<div class="actions">
+{% if perm.add_proof %}
+<a class="button" href="{% url 'items.views.new' kind='proof' parent=item.public_id %}">add proof</a>
+<div class="clr"></div>
+{% endif %}
+{% if perm.add_source %}
+<a class="button" href="{% url 'validate.views.add_source' item.public_id %}">add validation source</a>
+<div class="clr"></div>
+{% endif %}
+</div>
+
+{% endblock %}

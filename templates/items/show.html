@@ -32,10 +32,14 @@
 
 <div class="clr"></div>
 
-<div class="actions">
+{% endblock mainbar %}
 
+{% block sidebar %}
+
+<div class="actions">
 {% if perm.edit %}
-<a href="{% url 'items.views.edit' item.id %}">edit</a>
+<a class="button" href="{% url 'items.views.edit' item.id %}">edit</a>
+<div class="clr"></div>
 {% endif %}
 {% if perm.to_draft %}
 <form method="post" action="{% url 'items.views.change_status' %}">
@@ -44,6 +48,7 @@
   <input type="hidden" name="status" value="draft" />
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
+<div class="clr"></div>
 {% endif %}
 {% if perm.to_review %}
 <form method="post" action="{% url 'items.views.change_status' %}">
@@ -52,6 +57,7 @@
   <input type="hidden" name="status" value="review" />
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
+<div class="clr"></div>
 {% endif %}
 {% if perm.to_final %}
 <form method="post" action="{% url 'items.views.change_status' %}">
@@ -60,11 +66,8 @@
   <input type="hidden" name="status" value="publish" />
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
-{% endif %}
-
 <div class="clr"></div>
-
+{% endif %}
 </div>
 
-{% endblock mainbar %}
-
+{% endblock %}

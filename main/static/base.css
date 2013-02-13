@@ -129,21 +129,20 @@ span.tag {
 }
 
 div.actions {
-  margin: 0.5em;
-  overflow: auto:
+  padding: 0.5em;
 }
 
-div.actions a, div.actions input.button {
-  cursor: default;
-  text-decoration: none;
-  border: 1px solid #006;
-  background: #9cf;
-  color: #000;
-  font: 1em verdana, tahoma, arial, sans-serif;
-  /* font-size: 100%; */
-  padding: 0.5em;
-  margin: 0.2em 0.5em;
-  float: left;
+a.button, input.button {
+    display: block;
+    cursor: default;
+    text-decoration: none;
+    border: 1px solid #006;
+    background: #9cf;
+    color: #000;
+    font: 1em verdana, tahoma, arial, sans-serif;
+    padding: 0.5em;
+    margin: 0.2em;
+    float: left;
 }
 
 div.actions a:hover, div.actions input.button:hover {

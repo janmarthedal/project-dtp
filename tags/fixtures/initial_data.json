@@ -1,0 +1,9 @@
+[{"pk": 1, "model": "tags.tag", "fields": {"name": "integer", "normalized": "integer"}},
+{"pk": 2, "model": "tags.tag", "fields": {"name": "rational integer", "normalized": "rational integer"}},
+{"pk": 3, "model": "tags.tag", "fields": {"name": "number", "normalized": "number"}},
+{"pk": 4, "model": "tags.tag", "fields": {"name": "prime", "normalized": "prime"}},
+{"pk": 5, "model": "tags.tag", "fields": {"name": "positive integer", "normalized": "positive integer"}},
+{"pk": 6, "model": "tags.tag", "fields": {"name": "divisor", "normalized": "divisor"}},
+{"pk": 7, "model": "tags.tag", "fields": {"name": "product", "normalized": "product"}},
+{"pk": 8, "model": "tags.tag", "fields": {"name": "Euclid's Second Theorem", "normalized": "euclid's second theorem"}},
+{"pk": 9, "model": "tags.tag", "fields": {"name": "infinite", "normalized": "infinite"}}]

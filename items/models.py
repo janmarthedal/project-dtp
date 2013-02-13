@@ -3,6 +3,7 @@ from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone
 from tags.models import Tag, Concept
+from items.helpers import BodyScanner
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,10 +26,15 @@ def final_id_to_name(value):
     return name
 
 def final_name_to_id(name):
+    if len(name) < FINAL_NAME_MIN_LENGTH:
+        raise ValueError()
     base = len(FINAL_NAME_CHARS)
     value = 0
     for c in name:
-        value = base*value + FINAL_NAME_CHARS.find(c)
+        idx = FINAL_NAME_CHARS.find(c)
+        if idx < 0:
+            raise ValueError()
+        value = base*value + idx
     length = FINAL_NAME_MIN_LENGTH
     while length < len(name):
         value += base**length
@@ -116,12 +122,25 @@ class FinalItem(BaseItem):
     created_at   = models.DateTimeField(default=timezone.now)
     modified_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     modified_at  = models.DateTimeField(default=timezone.now)
-    item_deps    = models.ManyToManyField('self')
+    item_deps    = models.ManyToManyField('self', related_name='+', symmetrical=False)
     concept_deps = models.ManyToManyField(Concept)
     tags         = models.ManyToManyField(Tag, through='FinalItemTag')
 
     def public_id(self):
         return final_id_to_name(self.id)
+
+    def set_dependencies(self):
+        bs = BodyScanner(self.body)
+        itemref_names = bs.getItemRefList()
+        try:
+            itemref_ids    = map(final_name_to_id, itemref_names)
+            itemref_items  = map(lambda fid: FinalItem.objects.get(pk=fid), itemref_ids)
+            self.item_deps = itemref_items
+            self.save()
+        except ValueError:
+            logger.error('set_dependencies: illegal item name')
+        except FinalItem.DoesNotExist:
+            logger.error('set_dependencies: non-existent item')
 
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.public_id())

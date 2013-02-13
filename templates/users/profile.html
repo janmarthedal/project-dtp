@@ -23,7 +23,8 @@
 
 <div class="actions">
 {% if own_profile %}
-<p><a href="{% url 'users.views.logout' %}">log out</a></p>
+<a class="button" href="{% url 'users.views.logout' %}">log out</a>
+<div class="clr"></div>
 {% endif %}
 </div>
 
