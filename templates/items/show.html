@@ -32,13 +32,13 @@
 
 <div class="clr"></div>
 
-<div class="item-actions">
+<div class="actions">
 
 {% if perm.edit %}
 <a href="{% url 'items.views.edit' item.id %}">edit</a>
 {% endif %}
 {% if perm.to_draft %}
-<form method="POST" action="{% url 'items.views.change_status' %}">
+<form method="post" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
   <input class="button" type="submit" value="revert to draft" />
   <input type="hidden" name="status" value="draft" />
@@ -46,7 +46,7 @@
 </form>
 {% endif %}
 {% if perm.to_review %}
-<form method="POST" action="{% url 'items.views.change_status' %}">
+<form method="post" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
   <input class="button" type="submit" value="submit for review" />
   <input type="hidden" name="status" value="review" />
@@ -54,7 +54,7 @@
 </form>
 {% endif %}
 {% if perm.to_final %}
-<form method="POST" action="{% url 'items.views.change_status' %}">
+<form method="post" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
   <input class="button" type="submit" value="publish" />
   <input type="hidden" name="status" value="publish" />

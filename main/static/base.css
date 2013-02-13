@@ -67,14 +67,14 @@ body {
 
 #sidebar {
   float: right;
-  width: 15%;
+  width: 20em;
 }
 
 /* main bar */
 
 #mainbar {
-  float: left;
-  width: 85%;
+    margin-right: 20em;
+    padding-right: 1em;
 }
 
 h1 {
@@ -128,12 +128,12 @@ span.tag {
   border: 2px solid #888;
 }
 
-div.item-actions {
+div.actions {
   margin: 0.5em;
   overflow: auto:
 }
 
-div.item-actions a, div.item-actions input.button {
+div.actions a, div.actions input.button {
   cursor: default;
   text-decoration: none;
   border: 1px solid #006;
@@ -146,7 +146,7 @@ div.item-actions a, div.item-actions input.button {
   float: left;
 }
 
-div.item-actions a:hover, div.item-actions input.button:hover {
+div.actions a:hover, div.actions input.button:hover {
   background: #adf;
 }
 
@@ -175,6 +175,7 @@ div.itemlist div.row div.info {
 
 #footer {
   clear: both;
+  margin-top: 0.5em;
   padding: 0.5em 0em;
   font-size: 0.8em;
   border-top: 2px solid black;
