@@ -1,6 +1,8 @@
 {% load item_tags %}
 
+{% if header %}
 <h2>{{ header }}:</h2>
+{% endif %}
 <div class="itemlist">
 {% if itemlist %}
 {% for item in itemlist %}

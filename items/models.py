@@ -141,6 +141,7 @@ class FinalItem(BaseItem):
             logger.error('set_dependencies: illegal item name')
         except FinalItem.DoesNotExist:
             logger.error('set_dependencies: non-existent item')
+        #Concept.objects.annotate(Count('secondaries')).filter(primary=tag1,secondaries__count=2,secondaries=tag2,secondaries=tag3)
 
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.public_id())

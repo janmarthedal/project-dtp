@@ -2,6 +2,7 @@
 {% load url from future %}
 {% load item_tags %}
 {% load user_tags %}
+{% load ref_tags %}
 
 {% block title %}{{ item }}{% endblock %}
 
@@ -27,6 +28,31 @@
 </div>
 
 <div class="clr"></div>
+
+{% if validation_list %}
+<div class="item-count">{{ validation_count }} validations (<a href="{% url 'items.views.show_final' item.public_id %}">hide</a>)</div>
+<ul class="validation-list">
+{% for val in validation_list %}
+<li><p>{{ val.source|typeset_refnode }}</p>
+	<p>{{ val.location }}</p></li>
+{% endfor %}
+</ul>
+{% elif validation_count %}
+<div class="item-count">{{ validation_count }} validations (<a href="{% url 'items.views.show_final' item.public_id %}?vals=1">show</a>)</div>
+{% else %}
+<div class="item-count">no validations</div>
+{% endif %}
+
+{% if item.itemtype == 'T' %}
+{% if proof_list %}
+<div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.public_id %}">hide</a>)</div>
+{% include 'items/include/fitemlist.html' with itemlist=proof_list only %}
+{% elif proof_count %}
+<div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.public_id %}?prfs=1">show</a>)</div>
+{% else %}
+<div class="item-count">no proofs</div>
+{% endif %}
+{% endif %}
 
 {% endblock mainbar %}
 

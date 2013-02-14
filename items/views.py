@@ -1,6 +1,6 @@
 from collections import Counter
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.http import require_POST, require_safe, require_http_methods
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -10,6 +10,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django import forms
 from items.models import DraftItem, FinalItem, final_name_to_id
+from validate.models import SourceValidation
 from items.helpers import BodyScanner
 from tags.helpers import clean_tag
 
@@ -154,7 +155,7 @@ def edit(request, item_id):
         c['primary_text'] = 'Name(s) of theorem'
     return render(request, 'items/edit.html', c)
 
-@require_safe
+@require_GET
 def show(request, item_id):
     item = get_object_or_404(DraftItem, pk=item_id)
     permissions = get_user_item_permissions(request.user, item)
@@ -164,13 +165,20 @@ def show(request, item_id):
           'perm': permissions }
     return render(request, 'items/show.html', c)
 
-@require_safe
+@require_GET
 def show_final(request, final_name):
     final_id = final_name_to_id(final_name)
     item = get_object_or_404(FinalItem, pk=final_id)
-    permissions = get_user_item_permissions(request.user, item)
-    c = { 'item': item,
-          'perm': permissions }
+    validation_count = item.sourcevalidation_set.count()
+    proof_count = item.finalitem_set.filter(itemtype='P', status='F').count() if item.itemtype == 'T' else 0
+    c = { 'item':             item,
+          'perm':             get_user_item_permissions(request.user, item),
+          'validation_count': validation_count,
+          'proof_count':      proof_count }
+    if validation_count and 'vals' in request.GET:
+        c['validation_list'] = item.sourcevalidation_set.all()
+    if proof_count and 'prfs' in request.GET:
+        c['proof_list'] = item.finalitem_set.filter(itemtype='P', status='F').all()
     return render(request, 'items/show_final.html', c)
 
 @require_POST

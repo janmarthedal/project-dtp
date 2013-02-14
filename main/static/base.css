@@ -77,11 +77,14 @@ body {
     padding-right: 1em;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  color: #487858;
+}
+
 h1 {
   font-size: 1.5em;
   font-weight: normal;
   margin: 0.2em 0em;
-  color: #487858;
 }
 
 textarea.body {
@@ -116,6 +119,11 @@ div.itembody {
 
 div.itembody ol, div.itembody ul {
   margin-left: 2em;
+}
+
+ul.validation-list {
+    margin-left: 2em;
+    list-style-type: square;
 }
 
 .taglist {
