@@ -5,7 +5,6 @@ def clean_tag(name):
     name = re.sub(r' {2,}', r' ', name)
     return name
 
-# assumes 'name' has been cleaned
 def normalize_tag(name):
-    return name.lower()
+    return clean_tag(name).lower()
 

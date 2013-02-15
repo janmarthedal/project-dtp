@@ -13,10 +13,6 @@
 
 {% include 'items/include/ditemlist.html' with header='Draft items' itemlist=draftitems only %}
 
-{% if user.is_admin %}
-<p><a href="{% url 'admin.views.index' %}">Administration</a></p>
-{% endif %}
-
 {% endblock %}
 
 {% block sidebar %}

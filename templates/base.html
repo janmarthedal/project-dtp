@@ -43,6 +43,9 @@
             <li>References</li>
             <li>Media</li>
             <li>Users</li>
+            {% if user.is_admin %}
+			<li><a href="{% url 'admin.views.index' %}">Admin</a></li>
+			{% endif %}
           </ul>
         </div>
       </div>

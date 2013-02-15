@@ -114,7 +114,7 @@ class BodyScanner:
 def typesetConcept(name, primary, secondaries):
     name = name or primary
     # TODO: use reverse lookup
-    url = '/concept/' + urlquote(primary)
+    url = reverse('definitions.views.concept_search', args=[primary])
     if secondaries:
         url += '?' + urlencode(dict(tags=','.join(secondaries)))
     return '<a href="%s">%s</a>' % (url, name)

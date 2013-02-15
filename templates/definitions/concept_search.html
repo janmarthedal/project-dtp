@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block title %}Definition search{% endblock %}
+
+{% block mainbar %}
+
+<h1>Definitions for {{ primary }}</h1>
+
+{% if secondaries %}
+{% include 'inline/taglist.html' with header='With tags:' taglist=secondaries only %}
+{% endif %}
+
+{% include 'items/include/fitemlist.html' with itemlist=result_list only %}
+
+{% endblock %}
+

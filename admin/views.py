@@ -13,7 +13,9 @@ def index(request):
 def recalc_deps(request):
     if not (request.user.is_authenticated() and request.user.is_admin):
         raise Http404
-    c = {}
-    c['final_item_count'] = FinalItem.objects.filter(status='F').count()
+    fitems = FinalItem.objects.filter(status='F').all()
+    for fitem in fitems:
+        fitem.set_dependencies()
+    c = { 'final_item_count': len(fitems) }
     return render(request, 'admin/recalc_deps.html', c)
 

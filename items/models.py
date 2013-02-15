@@ -133,15 +133,17 @@ class FinalItem(BaseItem):
         bs = BodyScanner(self.body)
         itemref_names = bs.getItemRefList()
         try:
-            itemref_ids    = map(final_name_to_id, itemref_names)
-            itemref_items  = map(lambda fid: FinalItem.objects.get(pk=fid), itemref_ids)
-            self.item_deps = itemref_items
-            self.save()
+            itemref_ids   = map(final_name_to_id, itemref_names)
+            itemref_items = map(lambda fid: FinalItem.objects.get(pk=fid), itemref_ids)
         except ValueError:
             logger.error('set_dependencies: illegal item name')
         except FinalItem.DoesNotExist:
             logger.error('set_dependencies: non-existent item')
-        #Concept.objects.annotate(Count('secondaries')).filter(primary=tag1,secondaries__count=2,secondaries=tag2,secondaries=tag3)
+        concept_structs = bs.getConceptList()
+        concept_objects = map(lambda cs: Concept.objects.fetch(*cs), concept_structs)
+        self.item_deps    = itemref_items
+        self.concept_deps = concept_objects
+        self.save()
 
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.public_id())
