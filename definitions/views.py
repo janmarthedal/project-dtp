@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
 from items.models import FinalItem
-from tags.models import Tag
 from tags.helpers import clean_tag, normalize_tag
 
 @require_GET

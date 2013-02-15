@@ -27,13 +27,13 @@ def final_id_to_name(value):
 
 def final_name_to_id(name):
     if len(name) < FINAL_NAME_MIN_LENGTH:
-        raise ValueError()
+        raise ValueError('Public id too short')
     base = len(FINAL_NAME_CHARS)
     value = 0
     for c in name:
         idx = FINAL_NAME_CHARS.find(c)
         if idx < 0:
-            raise ValueError()
+            raise ValueError('Illegal character in public id')
         value = base*value + idx
     length = FINAL_NAME_MIN_LENGTH
     while length < len(name):

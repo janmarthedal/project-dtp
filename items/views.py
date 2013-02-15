@@ -10,7 +10,6 @@ from django.template.loader import get_template
 from django.template import Context
 from django import forms
 from items.models import DraftItem, FinalItem, final_name_to_id
-from validate.models import SourceValidation
 from items.helpers import BodyScanner
 from tags.helpers import clean_tag
 
@@ -167,7 +166,10 @@ def show(request, item_id):
 
 @require_GET
 def show_final(request, final_name):
-    final_id = final_name_to_id(final_name)
+    try:
+        final_id = final_name_to_id(final_name)
+    except ValueError:
+        raise Http404
     item = get_object_or_404(FinalItem, pk=final_id)
     validation_count = item.sourcevalidation_set.count()
     proof_count = item.finalitem_set.filter(itemtype='P', status='F').count() if item.itemtype == 'T' else 0
@@ -201,3 +203,12 @@ def change_status(request):
         item.make_review(request.user)
         return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
 
+@require_POST
+def delete_public(request):
+    if not (request.user.is_authenticated() and request.user.is_admin) :
+        raise Http404
+    item_id = request.POST['item']
+    item = get_object_or_404(FinalItem, pk=item_id)
+    item.delete()
+    return HttpResponseRedirect(reverse('main.views.index'))
+    

@@ -14,7 +14,7 @@ def make_html_safe(st):
     return st
 
 test_body = """
-First [#integer] paragraf
+First [#non-negative integer] paragraf
 is started [@2222] here
 
 We have
@@ -47,7 +47,7 @@ class BodyScanner:
                         parts2[j] = self._add_inline_maths(parts2[j])
                 parts[i] = ''.join(parts2)
         body = ''.join(parts)
-        body = re.sub(r'\[([a-zA-Z ]*)#([a-zA-Z ]+)(?:\(([a-zA-Z ]+(?:,[a-zA-Z ]+)*)\))?\]',
+        body = re.sub(r'\[([a-zA-Z -]*)#([a-zA-Z -]+)(?:\(([a-zA-Z -]+(?:,[a-zA-Z -]+)*)\))?\]',
                       self._conceptMatch, body)
         body = re.sub(r'\[@(\w+)\]',
                       self._itemRefMatch, body)

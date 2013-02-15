@@ -11,7 +11,7 @@
 <h1>
 {{ item }}
 {% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
-{% if item.parent %} of {{ item }}{% endif %}
+{% if item.parent %} of {{ item.parent }}{% endif %}
 </h1>
 {% endspaceless %}
 

@@ -67,6 +67,14 @@
 <a class="button" href="{% url 'validate.views.add_source' item.public_id %}">add validation source</a>
 <div class="clr"></div>
 {% endif %}
+{% if user.is_admin %}
+<form method="post" action="{% url 'items.views.delete_public' %}">
+  {% csrf_token %}
+  <input class="button" type="submit" value="delete" />
+  <input type="hidden" name="item" value="{{ item.id }}" />
+</form>
+<div class="clr"></div>
+{% endif %}
 </div>
 
 {% endblock %}
