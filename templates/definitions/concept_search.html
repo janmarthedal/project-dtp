@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% load url from future %}
+{% load item_tags %}
 
 {% block title %}Definition search{% endblock %}
 
 {% block mainbar %}
 
-<h1>Definitions for {{ primary }}</h1>
+<h1>Definitions for {{ primary|typeset_tag }}</h1>
 
 {% if secondaries %}
 {% include 'inline/taglist.html' with header='With tags:' taglist=secondaries only %}

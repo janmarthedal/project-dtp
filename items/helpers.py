@@ -22,7 +22,7 @@ $$
 \sum_{k=1}^n k
 $$
 
-and [number#positive integer(number theory,abc)] then we get $e^x$ the
+and [number#positive integer(number $e^x$ theory,abc)] then we get $e^x$ the
 [@ab2c] result.
 
 """
@@ -33,7 +33,7 @@ class BodyScanner:
         self._secret = crypto.get_random_string(8)
         self._counter = 0
         self._dmaths = []
-        self._imaths = []
+        self._imaths = {}
         self._conceptRefs = []
         self._itemRefs = [] 
         parts = body.split('$$')
@@ -47,11 +47,12 @@ class BodyScanner:
                         parts2[j] = self._add_inline_maths(parts2[j])
                 parts[i] = ''.join(parts2)
         body = ''.join(parts)
-        body = re.sub(r'\[([a-zA-Z -]*)#([a-zA-Z -]+)(?:\(([a-zA-Z -]+(?:,[a-zA-Z -]+)*)\))?\]',
+        body = re.sub(r'\[([0-9a-zA-Z -]*)#([0-9a-zA-Z -]+)(?:\(([0-9a-zA-Z -]+(?:,[0-9a-zA-Z -]+)*)\))?\]',
                       self._conceptMatch, body)
         body = re.sub(r'\[@(\w+)\]',
                       self._itemRefMatch, body)
         self.body = body
+        self._imaths = self._imaths.items()
 
     def _make_key(self):
         self._counter += 1
@@ -61,17 +62,22 @@ class BodyScanner:
         key = self._make_key()
         self._dmaths.append((key, st))
         return key
-    
+
     def _add_inline_maths(self, st):
         key = self._make_key()
-        self._imaths.append((key, st))
+        self._imaths[key] = st;
         return key
+
+    def _prepare_tag(self, st):
+        return re.sub('Z' + self._secret + r'\d+Z',
+                      lambda m: '$' + self._imaths.get(m.group(0), '!') + '$',
+                      clean_tag(st))
     
     def _conceptMatch(self, match):
         key = self._make_key()
         name        = match.group(1)
-        primary     = clean_tag(match.group(2))
-        secondaries = map(clean_tag, match.group(3).split(',')) if match.group(3) else []
+        primary     = self._prepare_tag(match.group(2))
+        secondaries = map(self._prepare_tag, match.group(3).split(',')) if match.group(3) else []
         self._conceptRefs.append((key, '', name, primary, secondaries))
         return key
     
@@ -113,11 +119,10 @@ class BodyScanner:
 
 def typesetConcept(name, primary, secondaries):
     name = name or primary
-    # TODO: use reverse lookup
-    url = reverse('definitions.views.concept_search', args=[primary])
+    url = reverse('definitions.views.concept_search', args=[urlquote(primary)])
     if secondaries:
         url += '?' + urlencode(dict(tags=','.join(secondaries)))
-    return '<a href="%s">%s</a>' % (url, name)
+    return '<a href="%s">%s</a>' % (url, typeset_tag(name))
 
 def typesetItemRef(final_id):
     url = reverse('items.views.show_final', args=[final_id])
