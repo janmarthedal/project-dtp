@@ -2,7 +2,7 @@ import random
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone
-from tags.models import Tag, Concept
+from tags.models import Tag
 from items.helpers import BodyScanner
 
 import logging
@@ -122,28 +122,10 @@ class FinalItem(BaseItem):
     created_at   = models.DateTimeField(default=timezone.now)
     modified_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     modified_at  = models.DateTimeField(default=timezone.now)
-    item_deps    = models.ManyToManyField('self', related_name='+', symmetrical=False)
-    concept_deps = models.ManyToManyField(Concept)
     tags         = models.ManyToManyField(Tag, through='FinalItemTag')
 
     def public_id(self):
         return final_id_to_name(self.id)
-
-    def set_dependencies(self):
-        bs = BodyScanner(self.body)
-        itemref_names = bs.getItemRefList()
-        try:
-            itemref_ids   = map(final_name_to_id, itemref_names)
-            itemref_items = map(lambda fid: FinalItem.objects.get(pk=fid), itemref_ids)
-        except ValueError:
-            logger.error('set_dependencies: illegal item name')
-        except FinalItem.DoesNotExist:
-            logger.error('set_dependencies: non-existent item')
-        concept_structs = bs.getConceptList()
-        concept_objects = map(lambda cs: Concept.objects.fetch(*cs), concept_structs)
-        self.item_deps    = itemref_items
-        self.concept_deps = concept_objects
-        self.save()
 
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.public_id())
@@ -234,6 +216,4 @@ class FinalItemTag(models.Model):
     item    = models.ForeignKey(FinalItem)
     tag     = models.ForeignKey(Tag)
     primary = models.BooleanField()
-
-
 
