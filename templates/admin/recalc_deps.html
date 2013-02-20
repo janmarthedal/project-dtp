@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% load url from future %}
 
 {% block title %}Administration{% endblock %}
 
 {% block mainbar %}
 
-<h1>Recalculate published item dependencies</h1>
+<h1>Recalculated published item dependencies</h1>
 
-<p>Ok, processed {{ final_item_count }} published items</p>
+<p>Processed {{ public_item_count }} published items</p>
+<p>A total of {{ item_dependencies }} item dependencies and {{ concept_references }} concept references</p>
 
 {% endblock %}
 

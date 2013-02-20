@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'definitions',
     'proofs',
     'tags',
+    'analysis',
 )
 
 LOGGING = {

@@ -3,7 +3,6 @@ from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone
 from tags.models import Tag
-from items.helpers import BodyScanner
 
 import logging
 logger = logging.getLogger(__name__)
@@ -205,6 +204,7 @@ class DraftItem(BaseItem):
 class DraftItemTag(models.Model):
     class Meta:
         db_table = 'draft_item_tags'
+        unique_together = ('item', 'tag')
     item    = models.ForeignKey(DraftItem)
     tag     = models.ForeignKey(Tag)
     primary = models.BooleanField()
@@ -213,6 +213,7 @@ class DraftItemTag(models.Model):
 class FinalItemTag(models.Model):
     class Meta:
         db_table = 'final_item_tags'
+        unique_together = ('item', 'tag')
     item    = models.ForeignKey(FinalItem)
     tag     = models.ForeignKey(Tag)
     primary = models.BooleanField()

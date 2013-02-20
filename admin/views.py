@@ -1,7 +1,7 @@
-from django.http import HttpResponseRedirect, Http404
+from django.http import Http404
 from django.views.decorators.http import require_GET
 from django.shortcuts import render
-from items.models import FinalItem
+from analysis.models import recalc_all
 
 @require_GET
 def index(request):
@@ -13,9 +13,5 @@ def index(request):
 def recalc_deps(request):
     if not (request.user.is_authenticated() and request.user.is_admin):
         raise Http404
-    fitems = FinalItem.objects.filter(status='F').all()
-    for fitem in fitems:
-        fitem.set_dependencies()
-    c = { 'final_item_count': len(fitems) }
+    c = recalc_all()
     return render(request, 'admin/recalc_deps.html', c)
-
