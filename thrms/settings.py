@@ -140,9 +140,6 @@ INSTALLED_APPS = (
     'refs',
     'validate',
     'admin',
-    'theorems',
-    'definitions',
-    'proofs',
     'tags',
     'analysis',
 )
