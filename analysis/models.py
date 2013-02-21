@@ -40,7 +40,7 @@ class ItemDependency(models.Model):
     class Meta:
         db_table = 'item_deps'
         unique_together = ('from_item', 'to_item')
-    from_item = models.ForeignKey(FinalItem, related_name='+')
+    from_item = models.ForeignKey(FinalItem, related_name='+', db_index=True)
     to_item   = models.ForeignKey(FinalItem, related_name='+')
 
 
@@ -48,13 +48,14 @@ class ItemConceptReference(models.Model):
     class Meta:
         db_table = 'item_concept_refs'
         unique_together = ('item', 'concept')
-    item    = models.ForeignKey(FinalItem, related_name='+')
+    item    = models.ForeignKey(FinalItem, related_name='+', db_index=True)
     concept = models.ForeignKey(Concept, related_name='+')
 
 
 def add_final_item_dependencies(fitem):
     bs = BodyScanner(fitem.body)
 
+    ItemDependency.objects.filter(from_item=fitem).delete()
     for itemref_name in bs.getItemRefList():
         try:
             itemref_id = final_name_to_id(itemref_name)
@@ -62,23 +63,32 @@ def add_final_item_dependencies(fitem):
             itemdep = ItemDependency(from_item=fitem, to_item=itemref_item)
             itemdep.save()
         except ValueError:
-            logger.error("set_dependencies: illegal item name '%s'" % itemref_name)
+            logger.error("add_final_item_dependencies: illegal item name '%s'" % itemref_name)
         except FinalItem.DoesNotExist:
-            logger.error("set_dependencies: non-existent item '%s'" % str(itemref_id))
-    
+            logger.error("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
+
+    ItemConceptReference.objects.filter(item=fitem).delete()    
     for concept_struct in bs.getConceptList():
         concept = Concept.objects.fetch(*concept_struct)
         conceptref = ItemConceptReference(item=fitem, concept=concept)
         conceptref.save()
 
 
+def queryset_generator(queryset):
+    items = queryset.order_by('pk')[:100]
+    while items:
+        latest_pk = items[len(items) - 1].pk
+        for item in items:
+            yield item
+        items = queryset.filter(pk__gt=latest_pk).order_by('pk')[:100]
+
+
 def recalc_all():
-    ItemDependency.objects.all().delete()
-    ItemConceptReference.objects.all().delete()
-    fitems = FinalItem.objects.filter(status='F').all()
-    for fitem in fitems:
+    item_count = 0
+    for fitem in queryset_generator(FinalItem.objects.filter(status='F')):
         add_final_item_dependencies(fitem)
-    c = { 'public_item_count':  len(fitems),
+        item_count += 1
+    c = { 'public_item_count':  item_count,
           'concept_references': ItemConceptReference.objects.count(),
           'item_dependencies':  ItemDependency.objects.count() }
     return c
