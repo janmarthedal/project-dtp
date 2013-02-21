@@ -12,6 +12,7 @@ from django import forms
 from items.models import DraftItem, FinalItem, final_name_to_id
 from items.helpers import BodyScanner
 from tags.helpers import clean_tag
+from analysis.models import add_final_item_dependencies
 
 import logging
 logger = logging.getLogger(__name__)
@@ -194,7 +195,7 @@ def change_status(request):
         if not own_item or item.status not in ['D', 'R']:
             raise Http404
         fitem = FinalItem.objects.add_item(item)
-        fitem.set_dependencies()
+        add_final_item_dependencies(fitem)
         item.delete()
         return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.public_id()]))
     else:   # to review

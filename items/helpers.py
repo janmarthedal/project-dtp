@@ -119,7 +119,7 @@ class BodyScanner:
 
 def typesetConcept(name, primary, secondaries):
     name = name or primary
-    url = reverse('definitions.views.concept_search', args=[urlquote(primary)])
+    url = reverse('items.definitions.views.concept_search', args=[urlquote(primary)])
     if secondaries:
         url += '?' + urlencode(dict(tags=','.join(secondaries)))
     return '<a href="%s">%s</a>' % (url, typeset_tag(name))
