@@ -121,7 +121,7 @@ ROOT_URLCONF = 'thrms.urls'
 
 LOGIN_URL = '/user/login'
 
-AUTH_USER_MODEL = 'users.MyUser'
+AUTH_USER_MODEL = 'users.User'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'thrms.wsgi.application'
