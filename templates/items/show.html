@@ -39,6 +39,12 @@
 {% if perm.edit %}
 <a class="button" href="{% url 'items.views.edit' item.id %}">edit</a>
 <div class="clr"></div>
+<form method="post" action="{% url 'items.views.delete_draft' %}">
+  {% csrf_token %}
+  <input class="button" type="submit" value="delete" />
+  <input type="hidden" name="item" value="{{ item.id }}" />
+</form>
+<div class="clr"></div>
 {% endif %}
 {% if perm.to_draft %}
 <form method="post" action="{% url 'items.views.change_status' %}">

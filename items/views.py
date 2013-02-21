@@ -206,10 +206,21 @@ def change_status(request):
 
 @require_POST
 def delete_public(request):
-    if not (request.user.is_authenticated() and request.user.is_admin) :
+    if not (request.user.is_authenticated() and request.user.is_admin):
         raise Http404
     item_id = request.POST['item']
     item = get_object_or_404(FinalItem, pk=item_id)
     item.delete()
     return HttpResponseRedirect(reverse('main.views.index'))
-    
+
+@require_POST
+def delete_draft(request):
+    if not request.user.is_authenticated():
+        raise Http404
+    item_id = request.POST['item']
+    item = get_object_or_404(DraftItem, pk=item_id)
+    if request.user != item.created_by:
+        raise Http404
+    item.delete()
+    return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.get_username()]))
+
