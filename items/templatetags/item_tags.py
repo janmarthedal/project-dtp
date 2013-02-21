@@ -14,5 +14,5 @@ def typeset_tag(value):
 
 @register.filter
 def typeset_tag_list(tag_list):
-    return map(typeset_tag, tag_list)
+    return [typeset_tag(tag.name) for tag in tag_list]
 

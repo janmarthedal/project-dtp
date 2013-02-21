@@ -130,7 +130,7 @@ class FinalItem(BaseItem):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.public_id())
 
     def _set_tag_cache(self):
-        tags = [(itemtag.tag.name, itemtag.primary)
+        tags = [(itemtag.tag, itemtag.primary)
                 for itemtag in self.finalitemtag_set.all()]
         self._cache['primary_tags']   = [t[0] for t in tags if t[1]]
         self._cache['secondary_tags'] = [t[0] for t in tags if not t[1]]
@@ -188,7 +188,7 @@ class DraftItem(BaseItem):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
 
     def _set_tag_cache(self):
-        tags = [(itemtag.tag.name, itemtag.primary)
+        tags = [(itemtag.tag, itemtag.primary)
                 for itemtag in self.draftitemtag_set.all()]
         self._cache['primary_tags']   = [t[0] for t in tags if t[1]]
         self._cache['secondary_tags'] = [t[0] for t in tags if not t[1]]
