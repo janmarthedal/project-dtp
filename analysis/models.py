@@ -61,12 +61,12 @@ class ItemConceptReference(models.Model):
     concept = models.ForeignKey(Concept, related_name='+')
 
 
-class DefinitionMatchingConcept(models.Model):
+class ConceptDefinition(models.Model):
     class Meta:
-        db_table = 'def_match_concept'
+        db_table = 'definition_concept'
         unique_together = ('item', 'concept')
-    item    = models.ForeignKey(FinalItem, related_name='+', db_index=True)
     concept = models.ForeignKey(Concept, related_name='+')
+    item    = models.ForeignKey(FinalItem, related_name='+')
 
 
 def add_final_item_dependencies(fitem):
@@ -89,16 +89,6 @@ def add_final_item_dependencies(fitem):
         concept = Concept.objects.fetch(*concept_struct)
         conceptref = ItemConceptReference(item=fitem, concept=concept)
         conceptref.save()
-
-    if fitem.itemtype == 'D':
-        DefinitionMatchingConcept.objects.filter(item=fitem).delete()
-        primary_tags = fitem.primary_tags
-        all_tags = set(primary_tags) | set(fitem.secondary_tags)
-        for primary_tag in primary_tags:
-            for concept in queryset_generator(Concept.objects.filter(primary=primary_tag)):
-                if set(concept.secondaries.all()) <= all_tags:
-                    dmc = DefinitionMatchingConcept(item=fitem, concept=concept)
-                    dmc.save()
 
 
 def recalc_all():
