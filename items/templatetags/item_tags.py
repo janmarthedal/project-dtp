@@ -9,10 +9,10 @@ def typeset_body(value):
     return mark_safe(items.helpers.typeset_body(value))
 
 @register.filter
-def typeset_tag(value):
-    return mark_safe(items.helpers.typeset_tag(value))
+def typeset_tag(tag):
+    return mark_safe(items.helpers.typeset_tag(tag.name))
 
 @register.filter
 def typeset_tag_list(tag_list):
-    return [typeset_tag(tag.name) for tag in tag_list]
+    return [typeset_tag(tag) for tag in tag_list]
 

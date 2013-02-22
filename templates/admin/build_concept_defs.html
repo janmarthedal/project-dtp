@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Administration{% endblock %}
+
+{% block mainbar %}
+
+<h1>Built concept definitions</h1>
+
+<p>Processed {{ concept_count }} concepts</p>
+<p>Created {{ concept_definition_count}} concept definition links</p>
+<p>(Took {{ time|floatformat:2 }} seconds)</p>
+
+{% endblock %}
+

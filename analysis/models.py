@@ -1,3 +1,4 @@
+import time
 from django.db import models
 from tags.models import Tag
 from items.models import FinalItem, final_name_to_id
@@ -63,7 +64,7 @@ class ItemConceptReference(models.Model):
 
 class ConceptDefinition(models.Model):
     class Meta:
-        db_table = 'definition_concept'
+        db_table = 'concept_definition'
         unique_together = ('item', 'concept')
     concept = models.ForeignKey(Concept, related_name='+')
     item    = models.ForeignKey(FinalItem, related_name='+')
@@ -91,13 +92,34 @@ def add_final_item_dependencies(fitem):
         conceptref.save()
 
 
-def recalc_all():
+def build_concept_definitions():
+    t = time.clock()
+    ConceptDefinition.objects.all().delete()
+    for concept in queryset_generator(Concept.objects):
+        query = FinalItem.objects.filter(itemtype='D', status='F', finalitemtag__tag=concept.primary, finalitemtag__primary=True)
+        for secondary_tag in concept.secondaries.all():
+            query = query.filter(finalitemtag__tag=secondary_tag)
+        definition_list = query.all()
+        for item in definition_list:
+            cd = ConceptDefinition(concept=concept, item=item)
+            cd.save()
+    t = time.clock() - t
+    c = { 'concept_count':            Concept.objects.count(),
+          'concept_definition_count': ConceptDefinition.objects.count(), 
+          'time':                     t }
+    return c
+
+
+def rebuild_dependencies():
+    t = time.clock()
     item_count = 0
     for fitem in queryset_generator(FinalItem.objects.filter(status='F')):
         add_final_item_dependencies(fitem)
         item_count += 1
+    t = time.clock() - t
     c = { 'public_item_count':  item_count,
           'concept_references': ItemConceptReference.objects.count(),
-          'item_dependencies':  ItemDependency.objects.count() }
+          'item_dependencies':  ItemDependency.objects.count(),
+          'time':               t }
     return c
 

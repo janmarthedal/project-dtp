@@ -19,7 +19,7 @@ def concept_search(request, primary_name):
     secondary_norms = map(normalize_tag, secondary_names)
     query = FinalItem.objects.filter(itemtype='D', status='F', finalitemtag__tag__normalized=primary_norm, finalitemtag__primary=True)
     for secondary_norm in set(secondary_norms):
-        query = query.filter(finalitemtag__tag__normalized=secondary_norm, finalitemtag__primary=False)
+        query = query.filter(finalitemtag__tag__normalized=secondary_norm)
     fitem_list = query.all()
     c = { 'primary':     primary_name,
           'secondaries': secondary_names,
