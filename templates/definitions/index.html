@@ -1,10 +1,17 @@
 {% extends "base.html" %}
+{% load item_tags %}
 
 {% block title %}Definitions{% endblock %}
 
 {% block mainbar %}
 
 <h1>Definitions</h1>
+
+<ul>
+{% for concept in missing_defs %}
+  <li>{{ concept.primary.name|typeset_tag }}{% include 'inline/taglist.html' with taglist=concept.secondaries.all only %}</li>
+{% endfor %}
+</ul>
 
 {% include 'items/include/fitemlist.html' with header='Latest published definitions' itemlist=finalitems only %}
 

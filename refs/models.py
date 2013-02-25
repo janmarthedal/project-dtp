@@ -21,6 +21,7 @@ class RefNode(models.Model):
     publisher  = models.CharField(max_length=64, null=True, blank=True)
     series     = models.CharField(max_length=64, null=True, blank=True)
     edition    = models.CharField(max_length=16, null=True, blank=True)
+    volume     = models.CharField(max_length=16, null=True, blank=True)
     year       = models.IntegerField(null=True, blank=True)
     extra      = models.CharField(max_length=256, null=True, blank=True)
 

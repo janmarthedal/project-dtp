@@ -42,8 +42,12 @@ class Concept(models.Model):
     class Meta:
         db_table = 'concepts'
     objects = ConceptManager()
-    primary     = models.ForeignKey(Tag, related_name='+', db_index=True)
-    secondaries = models.ManyToManyField(Tag, related_name='+')
+    primary       = models.ForeignKey(Tag, related_name='+', db_index=True)
+    secondaries   = models.ManyToManyField(Tag, related_name='+')
+    refs_to_this  = models.IntegerField(null=True)
+    defs_for_this = models.IntegerField(null=True)
+    def __unicode__(self):
+        return self.primary.name
 
 
 class ItemDependency(models.Model):
@@ -59,14 +63,14 @@ class ItemConceptReference(models.Model):
         db_table = 'item_concept_refs'
         unique_together = ('item', 'concept')
     item    = models.ForeignKey(FinalItem, related_name='+', db_index=True)
-    concept = models.ForeignKey(Concept, related_name='+')
+    concept = models.ForeignKey(Concept, related_name='concept_refs')
 
 
 class ConceptDefinition(models.Model):
     class Meta:
         db_table = 'concept_definition'
         unique_together = ('item', 'concept')
-    concept = models.ForeignKey(Concept, related_name='+')
+    concept = models.ForeignKey(Concept, related_name='concept_defs')
     item    = models.ForeignKey(FinalItem, related_name='+')
 
 
@@ -92,6 +96,13 @@ def add_final_item_dependencies(fitem):
         conceptref.save()
 
 
+def set_concept_counters():
+    for concept in queryset_generator(Concept.objects):
+        concept.refs_to_this = concept.concept_refs.count()
+        concept.defs_for_this = concept.concept_defs.count()
+        concept.save()
+
+
 def build_concept_definitions():
     t = time.clock()
     ConceptDefinition.objects.all().delete()
@@ -103,6 +114,7 @@ def build_concept_definitions():
         for item in definition_list:
             cd = ConceptDefinition(concept=concept, item=item)
             cd.save()
+    set_concept_counters()
     t = time.clock() - t
     c = { 'concept_count':            Concept.objects.count(),
           'concept_definition_count': ConceptDefinition.objects.count(), 
@@ -122,4 +134,5 @@ def rebuild_dependencies():
           'item_dependencies':  ItemDependency.objects.count(),
           'time':               t }
     return c
+
 

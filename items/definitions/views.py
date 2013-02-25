@@ -2,11 +2,13 @@ from django.shortcuts import render
 from django.views.decorators.http import require_GET
 from items.models import FinalItem
 from tags.helpers import clean_tag, normalize_tag
+from analysis.models import Concept
 
 @require_GET
 def index(request):
     c = {
-        'finalitems':  list(FinalItem.objects.filter(itemtype='D', status='F').order_by('-created_at')[:5]),
+         'missing_defs': Concept.objects.exclude(refs_to_this=0).filter(defs_for_this=0).all(),
+         'finalitems':   list(FinalItem.objects.filter(itemtype='D', status='F').order_by('-created_at')[:5]),
         }
     return render(request, 'definitions/index.html', c) 
 
