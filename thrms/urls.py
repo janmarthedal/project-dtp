@@ -2,7 +2,9 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
     url(r'^admin/',        include('admin.urls')),
-    url(r'^user/',         include('users.urls')),
+    url(r'^users/',        include('users.urls')),
+    url(r'^sources/',      include('refs.urls')),
+    url(r'^media/',        include('media.urls')),
     url(r'^item/',         include('items.urls')),
     url(r'^theorems/',     include('items.theorems.urls')),
     url(r'^definitions/',  include('items.definitions.urls')),

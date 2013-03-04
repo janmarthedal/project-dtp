@@ -13,6 +13,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@require_safe
+def index(request):
+    return render(request, 'users/index.html')    
+
+
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=30)
     password = forms.CharField(widget=forms.PasswordInput, required=False)

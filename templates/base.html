@@ -38,9 +38,9 @@
             <li><a href="{% url 'items.definitions.views.index' %}">Definitions</a></li>
             <li><a href="{% url 'items.theorems.views.index' %}">Theorems</a></li>
             <li><a href="{% url 'items.proofs.views.index' %}">Proofs</a></li>
-            <li>References</li>
-            <li>Media</li>
-            <li>Users</li>
+            <li><a href="{% url 'refs.views.index' %}">Sources</a></li>
+            <li><a href="{% url 'media.views.index' %}">Media</a></li>
+            <li><a href="{% url 'users.views.index' %}">Users</a></li>
             {% if user.is_admin %}
 			<li><a href="{% url 'admin.views.index' %}">Admin</a></li>
 			{% endif %}

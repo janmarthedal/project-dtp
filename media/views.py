@@ -3,4 +3,4 @@ from django.views.decorators.http import require_safe
 
 @require_safe
 def index(request):
-    return render(request, 'refs/index.html')    
+    return render(request, 'media/index.html')    
