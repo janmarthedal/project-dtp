@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 
 @require_safe
 def index(request):
-    return render(request, 'users/index.html')    
+    all_users = list(get_user_model().objects.filter(is_active=True).order_by('name'))
+    return render(request, 'users/index.html', { 'userlist': all_users })
 
 
 class LoginForm(forms.Form):

@@ -6,6 +6,11 @@
 
 <h1>Users</h1>
 
+<ul>
+{% for u in userlist %}
+    <li><a href="{% url 'users.views.profile' u.get_username %}">{{ u.get_full_name }}</a></li>
+{% endfor %}
+</ul>
 
 {% endblock %}
 
