@@ -1,12 +1,25 @@
 import re
+import markdown
 from django.utils.http import urlquote, urlencode
 from django.core.urlresolvers import reverse
 from django.utils import crypto
-import markdown
+from django import forms
 from tags.helpers import clean_tag
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+class TagListField(forms.CharField):
+
+    def __init__(self, *args, **kwargs):
+        super(TagListField, self).__init__(*args, **kwargs)
+
+    def clean(self, value):
+        value = super(TagListField, self).clean(value)
+        tag_list = filter(None, map(clean_tag, value.splitlines()))
+        return tag_list
+
 
 def make_html_safe(st):
     st = st.replace('<', '%lt;')

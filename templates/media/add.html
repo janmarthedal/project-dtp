@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Add media{% endblock %}
+
+{% block mainbar %}
+
+<h1>Add media</h1>
+
+<form enctype="multipart/form-data" action="" method="post">
+
+{{ form.file }}
+
+<label for="id_tags">Tags:</label>
+{{ form.tags }}<br/>
+
+</form>
+
+{% endblock %}
+

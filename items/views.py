@@ -10,8 +10,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django import forms
 from items.models import DraftItem, FinalItem, final_name_to_id
-from items.helpers import BodyScanner
-from tags.helpers import clean_tag
+from items.helpers import BodyScanner, TagListField
 from analysis.models import add_final_item_dependencies
 
 import logging
@@ -30,17 +29,6 @@ def get_user_item_permissions(user, item):
         'add_proof':  item.status == 'F' and item.itemtype == 'T' and logged_in,
         'add_source': item.status == 'F' and logged_in,
         }    
-
-
-class TagListField(forms.CharField):
-
-    def __init__(self, *args, **kwargs):
-        super(TagListField, self).__init__(*args, **kwargs)
-
-    def clean(self, value):
-        value = super(TagListField, self).clean(value)
-        tag_list = filter(None, map(clean_tag, value.splitlines()))
-        return tag_list
 
 
 class EditItemForm(forms.Form):

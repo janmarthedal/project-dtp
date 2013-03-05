@@ -6,7 +6,15 @@
 
 <h1>Media</h1>
 
-<p>Nothing here yet.</p>
+<p>None found</p>
+
+{% endblock %}
+
+{% block sidebar %}
+
+<div class="actions">
+<a class="button" href="{% url 'media.views.add' %}">Add media</a>
+</div>
 
 {% endblock %}
 
