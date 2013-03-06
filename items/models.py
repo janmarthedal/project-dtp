@@ -115,7 +115,7 @@ class FinalItem(BaseItem):
         ('B', 'broken')
     )
 
-    id           = models.BigIntegerField(primary_key=True)
+    final_id     = models.CharField(max_length=10, unique=True, db_index=True)
     status       = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
     created_by   = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     created_at   = models.DateTimeField(default=timezone.now)
