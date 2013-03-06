@@ -7,10 +7,12 @@
 
 <h1>Definitions</h1>
 
-<ul>
+<ul class="concepts">
+{% spaceless %}
 {% for concept in missing_defs %}
   <li>{{ concept.primary.name|typeset_tag }}{% include 'inline/taglist.html' with taglist=concept.secondaries.all only %}</li>
 {% endfor %}
+{% endspaceless %}
 </ul>
 
 {% include 'items/include/fitemlist.html' with header='Latest published definitions' itemlist=finalitems only %}

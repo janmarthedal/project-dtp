@@ -179,6 +179,14 @@ div.itemlist div.row div.info {
     margin: 0.4em 0em;
 }
 
+ul.concepts {
+    list-style-type: disc;
+}
+
+.concepts li {
+    margin: 0.5em 0em 0.5em 2em;
+}
+
 /* footer */
 
 #footer {
