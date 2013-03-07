@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.template.loader import get_template
 from django.template import Context
 from django import forms
-from items.models import DraftItem, FinalItem, final_name_to_id
+from items.models import DraftItem, FinalItem
 from items.helpers import BodyScanner, TagListField
 from analysis.models import add_final_item_dependencies
 
@@ -54,11 +54,11 @@ class EditItemForm(forms.Form):
             errors.append(t.render(c))
         # check body
         self.bodyscan = BodyScanner(self.pre_validate['body'])
-        for final_name in set(self.bodyscan.getItemRefList()):
+        for final_id in set(self.bodyscan.getItemRefList()):
             try:
-                FinalItem.objects.get(pk=final_name_to_id(final_name), status='F')
+                FinalItem.objects.get(final_id=final_id, status='F')
             except FinalItem.DoesNotExist:
-                errors.append('Reference %s does not exist' % final_name)
+                errors.append('Reference %s does not exist' % final_id)
         if errors:
             raise ValidationError(errors)
         return self.pre_validate
@@ -73,8 +73,7 @@ def new(request, kind, parent=None):
     if parent:
         if kind != 'proof':
             raise Http404
-        parent_id = final_name_to_id(parent)
-        c['parent'] = get_object_or_404(FinalItem, pk=parent_id, itemtype='T')
+        c['parent'] = get_object_or_404(FinalItem, final_id=parent, itemtype='T')
     if request.method == 'GET':
         form = EditItemForm()
     else:
@@ -154,12 +153,8 @@ def show(request, item_id):
     return render(request, 'items/show.html', c)
 
 @require_GET
-def show_final(request, final_name):
-    try:
-        final_id = final_name_to_id(final_name)
-    except ValueError:
-        raise Http404
-    item = get_object_or_404(FinalItem, pk=final_id)
+def show_final(request, final_id):
+    item = get_object_or_404(FinalItem, final_id=final_id)
     validation_count = item.sourcevalidation_set.count()
     proof_count = item.finalitem_set.filter(itemtype='P', status='F').count() if item.itemtype == 'T' else 0
     c = { 'item':             item,
@@ -185,7 +180,7 @@ def change_status(request):
         fitem = FinalItem.objects.add_item(item)
         add_final_item_dependencies(fitem)
         item.delete()
-        return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.public_id()]))
+        return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
     else:   # to review
         if not own_item or item.status != 'D':
             raise Http404 

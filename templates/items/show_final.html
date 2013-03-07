@@ -29,7 +29,7 @@
 <div class="clr"></div>
 
 {% if validation_list %}
-<div class="item-count">{{ validation_count }} validations (<a href="{% url 'items.views.show_final' item.public_id %}">hide</a>)</div>
+<div class="item-count">{{ validation_count }} validations (<a href="{% url 'items.views.show_final' item.final_id %}">hide</a>)</div>
 <ul class="validation-list">
 {% for val in validation_list %}
 <li><p>{{ val.source|typeset_refnode }}</p>
@@ -37,17 +37,17 @@
 {% endfor %}
 </ul>
 {% elif validation_count %}
-<div class="item-count">{{ validation_count }} validations (<a href="{% url 'items.views.show_final' item.public_id %}?vals=1">show</a>)</div>
+<div class="item-count">{{ validation_count }} validations (<a href="{% url 'items.views.show_final' item.final_id %}?vals=1">show</a>)</div>
 {% else %}
 <div class="item-count">no validations</div>
 {% endif %}
 
 {% if item.itemtype == 'T' %}
 {% if proof_list %}
-<div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.public_id %}">hide</a>)</div>
+<div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.final_id %}">hide</a>)</div>
 {% include 'items/include/fitemlist.html' with itemlist=proof_list only %}
 {% elif proof_count %}
-<div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.public_id %}?prfs=1">show</a>)</div>
+<div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.final_id %}?prfs=1">show</a>)</div>
 {% else %}
 <div class="item-count">no proofs</div>
 {% endif %}
@@ -59,11 +59,11 @@
 
 <div class="actions">
 {% if perm.add_proof %}
-<a class="button" href="{% url 'items.views.new' kind='proof' parent=item.public_id %}">add proof</a>
+<a class="button" href="{% url 'items.views.new' kind='proof' parent=item.final_id %}">add proof</a>
 <div class="clr"></div>
 {% endif %}
 {% if perm.add_source %}
-<a class="button" href="{% url 'validate.views.add_source' item.public_id %}">add validation source</a>
+<a class="button" href="{% url 'validate.views.add_source' item.final_id %}">add validation source</a>
 <div class="clr"></div>
 {% endif %}
 {% if user.is_admin %}

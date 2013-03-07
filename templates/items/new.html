@@ -12,7 +12,7 @@ Add {{ kind }}{% if preview %} preview{% endif %}
 {% if parent %} of {{ parent }}{% endif %}
 </h1>
 
-<form method="post" action="{% if parent %}{% url 'items.views.new' kind=kind parent=parent.public_id %}{% else %}{% url 'items.views.new' kind=kind %}{% endif %}">{% csrf_token %}
+<form method="post" action="{% if parent %}{% url 'items.views.new' kind=kind parent=parent.final_id %}{% else %}{% url 'items.views.new' kind=kind %}{% endif %}">{% csrf_token %}
 
   {% include "items/include/edit_fields.html" %}
 

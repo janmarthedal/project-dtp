@@ -2,6 +2,7 @@ import random
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 from tags.models import Tag
 
 import logging
@@ -10,37 +11,6 @@ logger = logging.getLogger(__name__)
 
 FINAL_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 FINAL_NAME_MIN_LENGTH = 4
-
-def final_id_to_name(value):
-    base = len(FINAL_NAME_CHARS)
-    length = FINAL_NAME_MIN_LENGTH
-    while value >= base**length:
-        value -= base**length
-        length += 1
-    name = ''
-    while length > 0:
-        name = FINAL_NAME_CHARS[value % base] + name
-        value /= base
-        length -= 1
-    return name
-
-def final_name_to_id(name):
-    if len(name) < FINAL_NAME_MIN_LENGTH:
-        raise ValueError('Public id too short')
-    base = len(FINAL_NAME_CHARS)
-    value = 0
-    for c in name:
-        idx = FINAL_NAME_CHARS.find(c)
-        if idx < 0:
-            raise ValueError('Illegal character in public id')
-        value = base*value + idx
-    length = FINAL_NAME_MIN_LENGTH
-    while length < len(name):
-        value += base**length
-        length += 1
-    return value
-
-
 
 class BaseItem(models.Model):
 
@@ -84,15 +54,14 @@ class FinalItemManager(models.Manager):
                          modified_by = draft_item.created_by,
                          body        = draft_item.body,
                          parent      = draft_item.parent)
-        base = len(FINAL_NAME_CHARS)
-        max_val = base**FINAL_NAME_MIN_LENGTH
+        length = FINAL_NAME_MIN_LENGTH
         while True:
-            item.id = random.randint(0, max_val - 1)
+            item.final_id = get_random_string(length, FINAL_NAME_CHARS)
             try:
                 item.save()
                 break
             except IntegrityError:
-                max_val *= 64
+                length += 1
 
         for draftitemtag in draft_item.draftitemtag_set.all():
             finalitemtag = FinalItemTag(item=item, tag=draftitemtag.tag,
@@ -123,11 +92,8 @@ class FinalItem(BaseItem):
     modified_at  = models.DateTimeField(default=timezone.now)
     tags         = models.ManyToManyField(Tag, through='FinalItemTag')
 
-    def public_id(self):
-        return final_id_to_name(self.id)
-
     def __unicode__(self):
-        return "%s %s" % (self.get_itemtype_display().capitalize(), self.public_id())
+        return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
 
     def _set_tag_cache(self):
         tags = [(itemtag.tag, itemtag.primary)

@@ -1,7 +1,7 @@
 import time
 from django.db import models
 from tags.models import Tag
-from items.models import FinalItem, final_name_to_id
+from items.models import FinalItem
 from items.helpers import BodyScanner
 
 import logging
@@ -78,14 +78,13 @@ def add_final_item_dependencies(fitem):
     bs = BodyScanner(fitem.body)
 
     ItemDependency.objects.filter(from_item=fitem).delete()
-    for itemref_name in bs.getItemRefList():
+    for itemref_id in bs.getItemRefList():
         try:
-            itemref_id = final_name_to_id(itemref_name)
-            itemref_item = FinalItem.objects.get(pk=itemref_id)
+            itemref_item = FinalItem.objects.get(final_id=itemref_id)
             itemdep = ItemDependency(from_item=fitem, to_item=itemref_item)
             itemdep.save()
         except ValueError:
-            logger.error("add_final_item_dependencies: illegal item name '%s'" % itemref_name)
+            logger.error("add_final_item_dependencies: illegal item name '%s'" % itemref_id)
         except FinalItem.DoesNotExist:
             logger.error("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
 
