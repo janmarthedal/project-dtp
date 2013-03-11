@@ -146,38 +146,54 @@ INSTALLED_APPS = (
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+#    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
     'formatters': {
         'verbose': {
             'format': '%(levelname)s [%(asctime)s] %(module)s: %(message)s'
-            },
+        },
         'simple': {
             'format': '%(levelname)s %(message)s'
-            },
         },
+    },
     'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': PROJECT_BASE + 'log/debug.log',
             'formatter': 'verbose',
-            },
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
-            },
         },
+    },
     'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
         '': {
             'handlers': ['file', 'console'],
             'propagate': True,
             'level': 'DEBUG',
-            },
+        },
         'django.db.backends': {
             'handlers': ['file'],
             'propagate': False,
             'level': 'INFO',
-            },
-        }
+        },
+    }
 }
