@@ -117,8 +117,14 @@ div.itembody {
   border: 2px solid #888;
 }
 
-div.itembody ol, div.itembody ul {
+div.itembody ol {
   margin-left: 2em;
+  list-style-type: lower-latin;
+}
+
+div.itembody ul {
+  margin-left: 2em;
+  list-style-type: square;
 }
 
 ul.validation-list, ul.source-list {
