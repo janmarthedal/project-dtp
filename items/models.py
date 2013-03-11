@@ -1,4 +1,3 @@
-import random
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone

@@ -139,7 +139,6 @@ INSTALLED_APPS = (
     'items',
     'users',
     'refs',
-    'validate',
     'admin',
     'tags',
     'analysis',

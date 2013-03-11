@@ -63,7 +63,7 @@
 <div class="clr"></div>
 {% endif %}
 {% if perm.add_source %}
-<a class="button" href="{% url 'validate.views.add_source' item.final_id %}">add validation source</a>
+<a class="button" href="{% url 'refs.views.add_source' item.final_id %}">add validation source</a>
 <div class="clr"></div>
 {% endif %}
 {% if user.is_admin %}

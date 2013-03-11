@@ -7,8 +7,3 @@ urlpatterns = patterns('items.views',
     url(r'^delete_draft$',  'delete_draft'),
     url(r'^(\d+)$',         'show'),
 )
-
-urlpatterns += patterns('validate.views',
-    url(r'^source/add/(\w+)$', 'add_source'),
-)
-

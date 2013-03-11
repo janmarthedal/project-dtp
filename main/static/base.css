@@ -121,7 +121,7 @@ div.itembody ol, div.itembody ul {
   margin-left: 2em;
 }
 
-ul.validation-list {
+ul.validation-list, ul.source-list {
     margin-left: 2em;
     list-style-type: square;
 }
