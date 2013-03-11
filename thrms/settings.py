@@ -20,6 +20,13 @@ if os.uname()[1].endswith('webfaction.com'):
     STATIC_ROOT = '/home/jmr/webapps/thrms_static/'
     PROJECT_BASE = '/home/jmr/webapps/thrms_django/thrms/'
 
+    EMAIL_HOST = 'smtp.webfaction.com'
+    EMAIL_HOST_USER = 'jmr'
+    EMAIL_HOST_PASSWORD = 'Knuth316'
+    DEFAULT_FROM_EMAIL = 'jmr@thrms.net'
+    SERVER_EMAIL = 'jmr@thrms.net'
+    ALLOWED_HOSTS = ['thrms.net']
+
 else:
 
     DEBUG = True
@@ -41,7 +48,8 @@ else:
 ############ Common settings ############
 
 ADMINS = (
-    ('Jan Marthedal Rasmussen', 'jmr@kanooth.com'),
+#    ('Jan Marthedal Rasmussen', 'jmr@kanooth.com'),
+    ('Jan Marthedal Rasmussen', 'jan.marthedal@gmail.com'),
 )
 
 MANAGERS = ADMINS
