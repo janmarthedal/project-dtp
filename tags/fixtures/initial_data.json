@@ -366,5 +366,45 @@
         }, 
         "model": "tags.tag", 
         "pk": 46
+    }, 
+    {
+        "fields": {
+            "name": "negative", 
+            "normalized": "negative"
+        }, 
+        "model": "tags.tag", 
+        "pk": 47
+    }, 
+    {
+        "fields": {
+            "name": "game", 
+            "normalized": "game"
+        }, 
+        "model": "tags.tag", 
+        "pk": 48
+    }, 
+    {
+        "fields": {
+            "name": "combinatorial game", 
+            "normalized": "combinatorial game"
+        }, 
+        "model": "tags.tag", 
+        "pk": 49
+    }, 
+    {
+        "fields": {
+            "name": "zero", 
+            "normalized": "zero"
+        }, 
+        "model": "tags.tag", 
+        "pk": 50
+    }, 
+    {
+        "fields": {
+            "name": "fuzzy", 
+            "normalized": "fuzzy"
+        }, 
+        "model": "tags.tag", 
+        "pk": 51
     }
 ]

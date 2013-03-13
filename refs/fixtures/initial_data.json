@@ -29,6 +29,13 @@
     }, 
     {
         "fields": {
+            "name": "Conway, John"
+        }, 
+        "model": "refs.refauthor", 
+        "pk": 5
+    }, 
+    {
+        "fields": {
             "authors": [
                 1, 
                 2
@@ -107,6 +114,26 @@
         }, 
         "model": "refs.refnode", 
         "pk": 4
+    }, 
+    {
+        "fields": {
+            "authors": [
+                5
+            ], 
+            "created_at": "2013-03-13T09:40:48Z", 
+            "created_by": 2, 
+            "edition": "Second", 
+            "extra": "pages:242", 
+            "isbn10": "1568811276", 
+            "isbn13": null, 
+            "publisher": "A K Peters, Ltd.", 
+            "series": null, 
+            "title": "On Numbers and Games", 
+            "volume": null, 
+            "year": 2001
+        }, 
+        "model": "refs.refnode", 
+        "pk": 5
     }, 
     {
         "fields": {
@@ -316,5 +343,60 @@
         }, 
         "model": "refs.sourcevalidation", 
         "pk": 19
+    }, 
+    {
+        "fields": {
+            "created_at": "2013-03-13T09:41:25Z", 
+            "created_by": 2, 
+            "item": 22, 
+            "location": "Chapter 7, page 73", 
+            "source": 5
+        }, 
+        "model": "refs.sourcevalidation", 
+        "pk": 20
+    }, 
+    {
+        "fields": {
+            "created_at": "2013-03-13T09:45:46Z", 
+            "created_by": 2, 
+            "item": 23, 
+            "location": "Chapter 7, page 73", 
+            "source": 5
+        }, 
+        "model": "refs.sourcevalidation", 
+        "pk": 21
+    }, 
+    {
+        "fields": {
+            "created_at": "2013-03-13T09:51:16Z", 
+            "created_by": 2, 
+            "item": 24, 
+            "location": "Chapter 7, page 73", 
+            "source": 5
+        }, 
+        "model": "refs.sourcevalidation", 
+        "pk": 22
+    }, 
+    {
+        "fields": {
+            "created_at": "2013-03-13T09:53:53Z", 
+            "created_by": 2, 
+            "item": 25, 
+            "location": "Chapter 7, page 73", 
+            "source": 5
+        }, 
+        "model": "refs.sourcevalidation", 
+        "pk": 23
+    }, 
+    {
+        "fields": {
+            "created_at": "2013-03-13T09:55:23Z", 
+            "created_by": 2, 
+            "item": 26, 
+            "location": "Chapter 7, page 73", 
+            "source": 5
+        }, 
+        "model": "refs.sourcevalidation", 
+        "pk": 24
     }
 ]

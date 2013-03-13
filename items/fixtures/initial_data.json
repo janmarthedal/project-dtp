@@ -316,6 +316,81 @@
     }, 
     {
         "fields": {
+            "body": "Let $G$ be a [#combinatorial game]. The game where the roles of Left and Right are reversed throughout $G$ is called the *negative* of $G$:\r\n$$\r\n-G = \\{ -G^R | -G^L \\}\r\n$$\r\n(inductive definition).", 
+            "created_at": "2013-03-13T09:38:19Z", 
+            "created_by": 2, 
+            "final_id": "GfeA", 
+            "itemtype": "D", 
+            "modified_at": "2013-03-13T09:38:19Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 22
+    }, 
+    {
+        "fields": {
+            "body": "A [game#combinatorial game] $G$ is *positive* if there is a winning strategy for Left and we write\r\n$$\r\nG > 0 \\; .\r\n$$", 
+            "created_at": "2013-03-13T09:45:22Z", 
+            "created_by": 2, 
+            "final_id": "3vkH", 
+            "itemtype": "D", 
+            "modified_at": "2013-03-13T09:45:22Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 23
+    }, 
+    {
+        "fields": {
+            "body": "A [game#combinatorial game] $G$ is *negative* if there is a winning strategy for Right and we write\r\n$$\r\nG < 0 \\; .\r\n$$", 
+            "created_at": "2013-03-13T09:51:04Z", 
+            "created_by": 2, 
+            "final_id": "dupm", 
+            "itemtype": "D", 
+            "modified_at": "2013-03-13T09:51:04Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 24
+    }, 
+    {
+        "fields": {
+            "body": "A [game#combinatorial game] $G$ is *zero* if there is a winning strategy for the second player\r\n$$\r\nG = 0 \\; .\r\n$$", 
+            "created_at": "2013-03-13T09:53:39Z", 
+            "created_by": 2, 
+            "final_id": "e2T2", 
+            "itemtype": "D", 
+            "modified_at": "2013-03-13T09:53:39Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 25
+    }, 
+    {
+        "fields": {
+            "body": "A [game#combinatorial game] $G$ is *fuzzy* if there is a winning strategy for the first player\r\n$$\r\nG \\parallel 0 \\; .\r\n$$", 
+            "created_at": "2013-03-13T09:55:13Z", 
+            "created_by": 2, 
+            "final_id": "PtRj", 
+            "itemtype": "D", 
+            "modified_at": "2013-03-13T09:55:13Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 26
+    }, 
+    {
+        "fields": {
             "body": "New def", 
             "created_by": 2, 
             "itemtype": "D", 
@@ -949,5 +1024,140 @@
         }, 
         "model": "items.finalitemtag", 
         "pk": 68
+    }, 
+    {
+        "fields": {
+            "item": 22, 
+            "primary": true, 
+            "tag": 47
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 69
+    }, 
+    {
+        "fields": {
+            "item": 22, 
+            "primary": false, 
+            "tag": 48
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 70
+    }, 
+    {
+        "fields": {
+            "item": 22, 
+            "primary": false, 
+            "tag": 49
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 71
+    }, 
+    {
+        "fields": {
+            "item": 23, 
+            "primary": true, 
+            "tag": 14
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 72
+    }, 
+    {
+        "fields": {
+            "item": 23, 
+            "primary": false, 
+            "tag": 48
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 73
+    }, 
+    {
+        "fields": {
+            "item": 23, 
+            "primary": false, 
+            "tag": 49
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 74
+    }, 
+    {
+        "fields": {
+            "item": 24, 
+            "primary": true, 
+            "tag": 47
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 75
+    }, 
+    {
+        "fields": {
+            "item": 24, 
+            "primary": false, 
+            "tag": 48
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 76
+    }, 
+    {
+        "fields": {
+            "item": 24, 
+            "primary": false, 
+            "tag": 49
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 77
+    }, 
+    {
+        "fields": {
+            "item": 25, 
+            "primary": false, 
+            "tag": 48
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 78
+    }, 
+    {
+        "fields": {
+            "item": 25, 
+            "primary": false, 
+            "tag": 49
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 79
+    }, 
+    {
+        "fields": {
+            "item": 25, 
+            "primary": true, 
+            "tag": 50
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 80
+    }, 
+    {
+        "fields": {
+            "item": 26, 
+            "primary": false, 
+            "tag": 48
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 81
+    }, 
+    {
+        "fields": {
+            "item": 26, 
+            "primary": false, 
+            "tag": 49
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 82
+    }, 
+    {
+        "fields": {
+            "item": 26, 
+            "primary": true, 
+            "tag": 51
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 83
     }
 ]
