@@ -1,8 +1,14 @@
 from django.shortcuts import render
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_http_methods
+from django.core.urlresolvers import reverse
 from items.models import FinalItem
 from tags.helpers import clean_tag, normalize_tag
 from analysis.models import Concept
+from items.views import item_search
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 @require_GET
 def index(request):
@@ -11,6 +17,15 @@ def index(request):
          'finalitems':   list(FinalItem.objects.filter(itemtype='D', status='F').order_by('-created_at')[:5]),
         }
     return render(request, 'definitions/index.html', c) 
+
+
+@require_http_methods(["GET", "POST"])
+def search(request):
+    c = item_search(request, 'D')
+    c['itemtype'] = 'definition'
+    c['selfurl'] = reverse('items.definitions.views.search') 
+    return render(request, 'items/search.html', c) 
+
 
 @require_GET
 def concept_search(request, primary_name):

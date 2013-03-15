@@ -12,7 +12,10 @@
 
 {% block sidebar %}
 
-<p>To add a proof, you must first find a theorem and then push the 'add proof' button</p>
+<div class="actions">
+<a class="button" href="{% url 'items.proofs.views.search' %}">Search proofs</a>
+<div class="clr"></div>
+</div>
 
 {% endblock %}
 

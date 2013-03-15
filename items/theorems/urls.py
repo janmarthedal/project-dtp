@@ -1,8 +1,9 @@
 from django.conf.urls import patterns, url
 
-urlpatterns = patterns('',
-    url(r'^add$', 'items.views.new', { 'kind': 'theorem' }),
-    url(r'^$',    'items.theorems.views.index'),
+urlpatterns = patterns('items',
+    url(r'^add$',   'views.new', { 'kind': 'theorem' }),
+    url(r'^search', 'theorems.views.search'),
+    url(r'^$',      'theorems.views.index'),
 )
 
 

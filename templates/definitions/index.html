@@ -7,6 +7,8 @@
 
 <h1>Definitions</h1>
 
+<h2>Concepts without any definitions:</h2>
+
 <ul class="concepts">
 {% spaceless %}
 {% for concept in missing_defs %}
@@ -23,6 +25,9 @@
 
 <div class="actions">
 <a class="button" href="{% url 'items.views.new' kind='definition' %}">Add definition</a>
+<div class="clr"></div>
+<a class="button" href="{% url 'items.definitions.views.search' %}">Search definitions</a>
+<div class="clr"></div>
 </div>
 
 {% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load item_tags %}
+
+{% block title %}Search {{ itemtype }}s{% endblock %}
+
+{% block mainbar %}
+
+<h1>Search {{ itemtype }}s</h1>
+
+<h2>{{ totalcount }} matching {{ itemtype }}s{% if totalcount > resultlist|length %} (showing {{ resultlist|length }}){% endif %}:</h2>
+
+{% include 'items/include/fitemlist.html' with itemlist=resultlist only %}
+
+{% endblock %}
+
+{% block sidebar %}
+
+<form class="tag-search" method="post" action="{{ selfurl }}">
+{% csrf_token %}
+
+  <label for="id_includetags">Include tags:</label>
+  {{ form.includetags }}
+
+  <label for="id_excludetags">Exclude tags:</label>
+  {{ form.excludetags }}
+
+  <input class="button" type="submit" value="search" />
+
+  <div class="clr"></div>
+</form>
+
+{% endblock %}
+

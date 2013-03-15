@@ -193,6 +193,20 @@ ul.concepts {
     margin: 0.5em 0em 0.5em 2em;
 }
 
+form.tag-search {
+    padding: 0.5em;
+    border: 1px solid #888;
+}
+
+form.tag-search label {
+    display: block;
+}
+
+form.tag-search textarea {
+    width: 95%;
+    height: 5em;
+}
+
 /* footer */
 
 #footer {
