@@ -12,8 +12,6 @@ from django import forms
 from items.models import DraftItem, FinalItem
 from items.helpers import BodyScanner, TagListField
 from analysis.models import add_final_item_dependencies
-from tags.models import Tag
-from tags.helpers import normalize_tag
 
 import logging
 logger = logging.getLogger(__name__)
@@ -208,48 +206,3 @@ def delete_draft(request):
         raise Http404
     item.delete()
     return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.get_username()]))
-
-
-class TagSearchForm(forms.Form):
-    includetags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
-    excludetags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
-
-
-def tag_names_to_tag_objects(tag_names):
-    found = []
-    not_found = []
-    tag_names = set(map(normalize_tag, tag_names)) - set([''])
-    for tag_name in tag_names:
-        try:
-            tag = Tag.objects.get(normalized=tag_name)
-            found.append(tag)
-        except Tag.DoesNotExist:
-            not_found.append(tag_name)
-    return (found, not_found)
-
-
-def item_search(request, itemtype):
-    query = None
-    if request.method == 'GET':
-        form = TagSearchForm()
-        query = FinalItem.objects.filter(itemtype=itemtype, status='F')
-    else:
-        form = TagSearchForm(request.POST)
-        if form.is_valid():
-            include_names = form.cleaned_data['includetags']
-            exclude_names = form.cleaned_data['excludetags']
-            (include_tags, not_found) = tag_names_to_tag_objects(include_names)
-            if not not_found:
-                (exclude_tags, not_found) = tag_names_to_tag_objects(exclude_names)
-                query = FinalItem.objects.filter(itemtype=itemtype, status='F')
-                for tag in include_tags:
-                    query = query.filter(finalitemtag__tag=tag)
-                for tag in exclude_tags:
-                    query = query.exclude(finalitemtag__tag=tag)
-    c = { 'form': form }
-    if query:
-        c['totalcount'] = query.count()
-        c['resultlist'] = query[:10]
-    else:
-        c['totalcount'] = 0
-    return c

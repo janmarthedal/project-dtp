@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from items.models import FinalItem
 from tags.helpers import clean_tag, normalize_tag
 from analysis.models import Concept
-from items.views import item_search
+from items.helpers import item_search
 
 import logging
 logger = logging.getLogger(__name__)

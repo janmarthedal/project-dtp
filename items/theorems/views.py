@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_safe, require_http_methods
 from django.core.urlresolvers import reverse
 from items.models import FinalItem
-from items.views import item_search
+from items.helpers import item_search
 
 
 @require_safe

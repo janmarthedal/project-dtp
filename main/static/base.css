@@ -7,6 +7,12 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
     background-color: transparent;
 }
 
+textarea {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 ol, ul {
     list-style: none;
 }
@@ -193,17 +199,12 @@ ul.concepts {
     margin: 0.5em 0em 0.5em 2em;
 }
 
-form.tag-search {
-    padding: 0.5em;
-    border: 1px solid #888;
-}
-
-form.tag-search label {
+form label {
     display: block;
 }
 
 form.tag-search textarea {
-    width: 95%;
+    width: 100%;
     height: 5em;
 }
 

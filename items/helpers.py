@@ -4,7 +4,9 @@ from django.utils.http import urlquote, urlencode
 from django.core.urlresolvers import reverse
 from django.utils import crypto
 from django import forms
-from tags.helpers import clean_tag
+from items.models import FinalItem
+from tags.models import Tag
+from tags.helpers import clean_tag, normalize_tag
 
 import logging
 logger = logging.getLogger(__name__)
@@ -157,3 +159,47 @@ def typeset_tag(st):
             parts[i] = '\(' + parts[i] + '\)'
     return make_html_safe(''.join(parts))
 
+
+class TagSearchForm(forms.Form):
+    includetags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
+    excludetags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
+
+
+def tag_names_to_tag_objects(tag_names):
+    found = []
+    not_found = []
+    tag_names = set(map(normalize_tag, tag_names)) - set([''])
+    for tag_name in tag_names:
+        try:
+            tag = Tag.objects.get(normalized=tag_name)
+            found.append(tag)
+        except Tag.DoesNotExist:
+            not_found.append(tag_name)
+    return (found, not_found)
+
+
+def item_search(request, itemtype):
+    query = None
+    if request.method == 'GET':
+        form = TagSearchForm()
+        query = FinalItem.objects.filter(itemtype=itemtype, status='F')
+    else:
+        form = TagSearchForm(request.POST)
+        if form.is_valid():
+            include_names = form.cleaned_data['includetags']
+            exclude_names = form.cleaned_data['excludetags']
+            (include_tags, not_found) = tag_names_to_tag_objects(include_names)
+            if not not_found:
+                (exclude_tags, not_found) = tag_names_to_tag_objects(exclude_names)
+                query = FinalItem.objects.filter(itemtype=itemtype, status='F')
+                for tag in include_tags:
+                    query = query.filter(finalitemtag__tag=tag)
+                for tag in exclude_tags:
+                    query = query.exclude(finalitemtag__tag=tag)
+    c = { 'form': form, 'selfurl': request.path } 
+    if query:
+        c['totalcount'] = query.count()
+        c['resultlist'] = query[:10]
+    else:
+        c['totalcount'] = 0
+    return c

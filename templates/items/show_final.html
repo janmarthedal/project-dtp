@@ -9,7 +9,7 @@
 
 <h1>{{ item }}
 {% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
-{% if item.parent %} of {{ item.parent }}{% endif %}</h1>
+{% if item.parent %} of <a href="{% url 'items.views.show_final' item.parent.final_id %}">{{ item.parent }}</a>{% endif %}</h1>
 
 <div class="itembody">
 {{ item.body|typeset_body }}
