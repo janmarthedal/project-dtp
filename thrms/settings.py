@@ -25,7 +25,7 @@ if os.uname()[1].endswith('webfaction.com'):
     EMAIL_HOST_PASSWORD = 'Knuth316'
     DEFAULT_FROM_EMAIL = 'jmr@thrms.net'
     SERVER_EMAIL = 'jmr@thrms.net'
-    ALLOWED_HOSTS = ['thrms.net']
+    ALLOWED_HOSTS = ['thrms.net', 'teoremer.com']
 
 else:
 
