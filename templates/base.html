@@ -2,10 +2,9 @@
 <html lang="en">
   <head>
     <title>teoremer | {% block title %}{% endblock %}</title>
-	<!--
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-	-->
     <link href="{{ STATIC_URL }}base.css" rel="stylesheet" type="text/css">
+    {% block head %}
+    {% endblock %}
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
         extensions: ["tex2jax.js"],

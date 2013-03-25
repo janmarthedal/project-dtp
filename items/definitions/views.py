@@ -28,6 +28,11 @@ def search(request):
 
 
 @require_GET
+def search2(request):
+    return render(request, 'items/search2.html') 
+
+
+@require_GET
 def concept_search(request, primary_name):
     primary_name = clean_tag(primary_name)
     primary_norm = normalize_tag(primary_name)
