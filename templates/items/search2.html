@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load item_tags %}
+{% load utils_tags %}
 
 {% block title %}Search {{ itemtype }}s{% endblock %}
 
@@ -28,94 +29,6 @@
     <div id="exclude-tags"></div>
 </div>
 
-<script id="tag-list-template" type="text/x-handlebars-template">
-    <div class="tag-list"></div>
-    <table>
-        <tr>
-            <td><input class="tag-name" type="text" name="tag-name"></td>
-            <td><input class="tag-add" type="button" value="Add"></td>
-        </tr>
-    </table> 
-</script>
-
-<script>
-(function($){
-
-    var TagItem = Backbone.Model.extend({
-    });
-  
-    var TagList = Backbone.Collection.extend({
-        model: TagItem
-    });
-
-    var TagItemView = Backbone.View.extend({
-        tagName: 'span',
-        events: { 
-            'click span.delete-tag': 'remove'
-        },    
-        initialize: function(){
-            _.bindAll(this, 'render', 'unrender', 'remove');
-            this.model.bind('change', this.render);
-            this.model.bind('remove', this.unrender);
-        },
-        render: function(){
-            $(this.el).html(this.model.get('name') + '<span class="delete-tag">x</span>');
-            return this;
-        },
-        unrender: function(){
-            $(this.el).remove();
-        },
-        remove: function(){
-            this.model.destroy();
-        }
-    });
-  
-    var TagListView = Backbone.View.extend({
-        events: {
-            'click input.tag-add': 'addItem'
-        },
-        template: Handlebars.compile($("#tag-list-template").html()),
-        initialize: function(){
-            _.bindAll(this, 'render', 'addItem', 'appendItem');
-            this.collection = new TagList();
-            this.collection.bind('add', this.appendItem);
-            this.render();
-        },
-        render: function(){
-            var self = this;
-            this.$el.html(this.template());
-            _(this.collection.models).each(function(item){
-                self.appendItem(item);
-            }, this);
-        },
-        addItem: function(){
-            var value = $('input.tag-name', this.el).val();
-            if (value) {
-                var item = new TagItem({
-                    name: value
-                });
-                this.collection.add(item);
-            }
-        },
-        appendItem: function(item){
-            var itemView = new TagItemView({
-                model: item
-            });
-            $('.tag-list', this.el).append(itemView.render().el);
-        }
-    });
-
-    var includeView = new TagListView({
-        el: $('#include-tags'),
-    });
-
-    var excludeView = new TagListView({
-        el: $('#exclude-tags'),
-    });
-
-})(jQuery);
-
-</script>
+{% include_raw 'items/search2_inc.html' %}
 
 {% endblock %}
-

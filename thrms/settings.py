@@ -47,6 +47,8 @@ else:
 
 ############ Common settings ############
 
+ALLOWED_INCLUDE_ROOTS = ( PROJECT_BASE, )
+
 ADMINS = (
 #    ('Jan Marthedal Rasmussen', 'jmr@kanooth.com'),
     ('Jan Marthedal Rasmussen', 'jan.marthedal@gmail.com'),

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_http_methods
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from items.models import FinalItem
 from tags.helpers import clean_tag, normalize_tag
 from analysis.models import Concept

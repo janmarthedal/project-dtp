@@ -1,0 +1,112 @@
+
+<script id="tag-list-template" type="text/x-handlebars-template">
+    <div id="{{prefix}}-tag-list"></div>
+    <table>
+        <tr>
+            <td><input id="{{prefix}}-tag-name" type="text" name="tag-name"></td>
+            <td><input id="{{prefix}}-tag-add" type="button" value="Add"></td>
+        </tr>
+    </table> 
+</script>
+
+<script>
+
+(function(window){
+
+    var $ = window.jQuery;
+
+    var TagItem = Backbone.Model.extend({
+    });
+  
+    var TagList = Backbone.Collection.extend({
+        model: TagItem
+    });
+
+    var TagItemView = Backbone.View.extend({
+        tagName: 'span',
+        events: { 
+            'click span.delete-tag': 'remove'
+        },    
+        initialize: function(){
+            _.bindAll(this, 'render', 'unrender', 'remove');
+            this.model.bind('change', this.render);
+            this.model.bind('remove', this.unrender);
+        },
+        render: function(){
+            $(this.el).html(this.model.get('name') + '<span class="delete-tag">x</span>');
+            return this;
+        },
+        unrender: function(){
+            $(this.el).remove();
+        },
+        remove: function(){
+            this.model.destroy();
+        }
+    });
+  
+    var TagListView = Backbone.View.extend({
+        events: {},
+        template: Handlebars.compile($('#tag-list-template').html()),
+        initialize: function(){
+            _.bindAll(this, 'render', 'addItem', 'appendItem');
+            this.collection = new TagList();
+            this.collection.bind('add', this.appendItem);
+            this.events['click #' + this.options.prefix + '-tag-add'] = 'addItem';
+            this.render();
+        },
+        render: function(){
+            var self = this;
+            var html = this.template({ prefix: this.options.prefix });
+            this.$el.html(html);
+            _(this.collection.models).each(function(item){
+                self.appendItem(item);
+            }, this);
+        },
+        addItem: function(){
+            var element = $('#' + this.options.prefix + '-tag-name'); 
+            var value = element.val();
+            if (value) {
+                element.val('');
+                var item = new TagItem({
+                    name: value
+                });
+                this.collection.add(item);
+            }
+        },
+        appendItem: function(item){
+            var tagItemView = new TagItemView({
+                model: item
+            });
+            $('#' + this.options.prefix + '-tag-list').append(tagItemView.render().el);
+        }
+    });
+
+    var includeView = new TagListView({
+        el: $('#include-tags'),
+        prefix: 'include'
+    });
+
+    var excludeView = new TagListView({
+        el: $('#exclude-tags'),
+        prefix: 'exclude'
+    });
+
+    includeView.collection.on('add', function() {
+       console.log('include add');
+    });
+
+    includeView.collection.on('remove', function() {
+       console.log('include remove');
+    });
+
+    excludeView.collection.on('add', function() {
+       console.log('exclude add'); 
+    });
+
+    excludeView.collection.on('remove', function() {
+       console.log('exclude remove');
+    });
+
+})(window);
+
+</script>
