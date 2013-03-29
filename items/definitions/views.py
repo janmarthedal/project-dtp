@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_http_methods
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from items.models import FinalItem
 from tags.helpers import clean_tag, normalize_tag
 from analysis.models import Concept
 from items.helpers import item_search
+from main.helpers import init_context
 
 import logging
 logger = logging.getLogger(__name__)
@@ -13,10 +13,9 @@ logger = logging.getLogger(__name__)
 
 @require_GET
 def index(request):
-    c = {
-         'missing_defs': Concept.objects.exclude(refs_to_this=0).filter(defs_for_this=0).all(),
-         'finalitems':   list(FinalItem.objects.filter(itemtype='D', status='F').order_by('-created_at')[:5]),
-        }
+    c = init_context('definitions')
+    c['missing_defs'] = Concept.objects.exclude(refs_to_this=0).filter(defs_for_this=0).all()
+    c['finalitems'] = list(FinalItem.objects.filter(itemtype='D', status='F').order_by('-created_at')[:5])
     return render(request, 'definitions/index.html', c) 
 
 
@@ -30,11 +29,13 @@ def search(request):
 
 @require_GET
 def search2(request):
-    return render(request, 'items/search2.html') 
+    c = init_context('definitions')
+    return render(request, 'items/search2.html', c) 
 
 
 @require_GET
 def concept_search(request, primary_name):
+    c = init_context('definitions')
     primary_name = clean_tag(primary_name)
     primary_norm = normalize_tag(primary_name)
     secondary_names = request.GET.get('tags', '').split(',')
@@ -44,7 +45,7 @@ def concept_search(request, primary_name):
     for secondary_norm in set(secondary_norms):
         query = query.filter(finalitemtag__tag__normalized=secondary_norm)
     fitem_list = query.all()
-    c = { 'primary':     primary_name,
-          'secondaries': secondary_names,
-          'result_list': fitem_list }
+    c['primary']     = primary_name
+    c['secondaries'] = secondary_names
+    c['result_list'] = fitem_list
     return render(request, 'definitions/concept_search.html', c)

@@ -7,6 +7,7 @@ from django import forms
 from items.models import FinalItem
 from tags.models import Tag
 from tags.helpers import clean_tag, normalize_tag
+from main.helpers import init_context
 
 import logging
 logger = logging.getLogger(__name__)
@@ -179,6 +180,7 @@ def tag_names_to_tag_objects(tag_names):
 
 
 def item_search(request, itemtype):
+    c = init_context(itemtype)
     query = None
     if request.method == 'GET':
         form = TagSearchForm()
@@ -196,7 +198,8 @@ def item_search(request, itemtype):
                     query = query.filter(finalitemtag__tag=tag)
                 for tag in exclude_tags:
                     query = query.exclude(finalitemtag__tag=tag)
-    c = { 'form': form, 'selfurl': request.path } 
+    c['form'] = form
+    c['selfurl'] = request.path 
     if query:
         c['totalcount'] = query.count()
         c['resultlist'] = query[:10]

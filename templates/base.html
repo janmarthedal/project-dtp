@@ -42,15 +42,29 @@
               {% endif %}
             </p>
             <ul class="nav">
-                <li class="active"><a href="{% url 'items.definitions.views.index' %}">Definitions</a></li>
-                <li><a href="{% url 'items.theorems.views.index' %}">Theorems</a></li>
-                <li><a href="{% url 'items.proofs.views.index' %}">Proofs</a></li>
-                <li><a href="{% url 'refs.views.index' %}">Sources</a></li>
-                <li><a href="{% url 'media.views.index' %}">Media</a></li>
-                <li><a href="{% url 'users.views.index' %}">Users</a></li>
-                {% if user.is_admin %}
-                <li><a href="{% url 'admin.views.index' %}">Admin</a></li>
-                {% endif %}
+              <li{% if active_nav == 'definitions' %} class="active"{% endif %}>
+                <a href="{% url 'items.definitions.views.index' %}">Definitions</a>
+              </li>
+              <li{% if active_nav == 'theorems' %} class="active"{% endif %}>
+                <a href="{% url 'items.theorems.views.index' %}">Theorems</a>
+              </li>
+              <li{% if active_nav == 'proofs' %} class="active"{% endif %}>
+                <a href="{% url 'items.proofs.views.index' %}">Proofs</a>
+              </li>
+              <li{% if active_nav == 'sources' %} class="active"{% endif %}>
+                <a href="{% url 'refs.views.index' %}">Sources</a>
+              </li>
+              <li{% if active_nav == 'media' %} class="active"{% endif %}>
+                <a href="{% url 'media.views.index' %}">Media</a>
+              </li>
+              <li{% if active_nav == 'users' %} class="active"{% endif %}>
+                <a href="{% url 'users.views.index' %}">Users</a>
+              </li>
+              {% if user.is_admin %}
+              <li{% if active_nav == 'admin' %} class="active"{% endif %}>
+                <a href="{% url 'admin.views.index' %}">Admin</a>
+              </li>
+              {% endif %}
             </ul>
           </div><!--/.nav-collapse -->
         </div>

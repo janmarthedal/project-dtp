@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django import forms
 from items.models import DraftItem, FinalItem
+from main.helpers import init_context
 
 import logging
 logger = logging.getLogger(__name__)
@@ -15,8 +16,9 @@ logger = logging.getLogger(__name__)
 
 @require_safe
 def index(request):
-    all_users = list(get_user_model().objects.filter(is_active=True).order_by('name'))
-    return render(request, 'users/index.html', { 'userlist': all_users })
+    c = init_context('users')
+    c['userlist'] = list(get_user_model().objects.filter(is_active=True).order_by('name'))
+    return render(request, 'users/index.html', c)
 
 
 class LoginForm(forms.Form):
@@ -27,6 +29,7 @@ class LoginForm(forms.Form):
 
 @require_http_methods(["GET", "POST"])
 def login(request):
+    c = init_context('users')
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.id]))
     if request.method == 'GET':
@@ -53,7 +56,8 @@ def login(request):
                     messages.info(request, 'Account has been disabled')
             else:
                 messages.warning(request, 'Invalid login and/or password')
-    return render(request, 'users/login.html', { 'form': form })
+    c['form'] = form
+    return render(request, 'users/login.html', c)
 
 
 @require_safe
@@ -64,13 +68,12 @@ def logout(request):
 
 @require_safe
 def profile(request, user_id):
+    c = init_context('users')
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
     own_profile = request.user == pageuser
-    c = {
-        'pageuser':    pageuser,
-        'finalitems':  list(FinalItem.objects.filter(status='F', created_by=pageuser).order_by('-created_at')),
-        'reviewitems': list(DraftItem.objects.filter(status='R', created_by=pageuser).order_by('-modified_at')),
-        }
+    c['pageuser']    = pageuser
+    c['finalitems']  = list(FinalItem.objects.filter(status='F', created_by=pageuser).order_by('-created_at'))
+    c['reviewitems'] = list(DraftItem.objects.filter(status='R', created_by=pageuser).order_by('-modified_at'))
     if own_profile:
         c.update({
             'own_profile':    True,

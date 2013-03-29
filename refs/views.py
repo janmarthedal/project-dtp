@@ -6,12 +6,14 @@ from django.http import HttpResponseRedirect
 from django import forms
 from items.models import FinalItem
 from refs.models import RefNode, RefAuthor, SourceValidation
+from main.helpers import init_context
 
 
 @require_safe
 def index(request):
-    all_sources = RefNode.objects.all()
-    return render(request, 'refs/index.html', { 'sourcelist': all_sources })
+    c = init_context('sources')
+    c['sourcelist'] = RefNode.objects.all()
+    return render(request, 'refs/index.html', c)
 
 
 class AddSourceForm(forms.Form): 
@@ -35,8 +37,9 @@ class AddLocation(forms.Form):
 @login_required
 @require_http_methods(["GET", "POST"])
 def add_source(request, final_id):
+    c = init_context('sources')
     item = get_object_or_404(FinalItem, final_id=final_id)
-    c = { 'item': item }
+    c['item'] = item
     source = None
 
     if request.method == 'POST':
