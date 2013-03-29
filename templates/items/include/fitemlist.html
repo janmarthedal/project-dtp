@@ -1,22 +1,10 @@
 {% load item_tags %}
 
-{% if header %}
-<h2>{{ header }}:</h2>
-{% endif %}
-<div class="itemlist">
-{% if itemlist %}
 {% for item in itemlist %}
-  <div class="row">
-    <div class="title">
-      <a href="{% url 'items.views.show_final' item.final_id %}">{{ item }}{% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}</a>
-    </div>
-    <div class="info">
-      {% include 'inline/taglist.html' with taglist=item.secondary_tags only %}
-    </div>
-  </div>
+<p>
+    <a href="{% url 'items.views.show_final' item.final_id %}">{{ item }}{% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}</a>
+    {% include 'inline/taglist.html' with taglist=item.secondary_tags only %}
+</p>
 {% endfor %}
-{% else %}
-<p>None found</p>
-{% endif %}
-</div>
+</table>
 

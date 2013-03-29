@@ -5,30 +5,38 @@
 
 {% block mainbar %}
 
-<h1>Definitions</h1>
+<div class="row-fluid">
 
-<h2>Concepts without any definitions:</h2>
+  <div class="span5">
+  
+    <h2>Concepts without any definitions</h2>
 
-<ul class="concepts">
-{% spaceless %}
-{% for concept in missing_defs %}
-  <li>{{ concept.primary.name|typeset_tag }}{% include 'inline/taglist.html' with taglist=concept.secondaries.all only %}</li>
-{% endfor %}
-{% endspaceless %}
-</ul>
+    <ul>
+    {% spaceless %}
+    {% for concept in missing_defs %}
+      <li>{{ concept.primary.name|typeset_tag }}{% include 'inline/taglist.html' with taglist=concept.secondaries.all only %}</li>
+    {% endfor %}
+    {% endspaceless %}
+    </ul>
+  
+  </div>
+  
+  <div class="span5">
+  
+    <h2>Latest published definitions</h2>
+    
+    {% include 'items/include/fitemlist.html' with itemlist=finalitems only %}
+  
+  </div>
 
-{% include 'items/include/fitemlist.html' with header='Latest published definitions' itemlist=finalitems only %}
+</div>
 
 {% endblock %}
 
 {% block sidebar %}
 
-<div class="actions">
-<a class="button" href="{% url 'items.views.new' kind='definition' %}">Add definition</a>
-<div class="clr"></div>
-<a class="button" href="{% url 'items.definitions.views.search' %}">Search definitions</a>
-<div class="clr"></div>
-</div>
+<p><a class="btn" href="{% url 'items.views.new' kind='definition' %}">Add definition</a></p>
+<p><a class="btn" href="{% url 'items.definitions.views.search' %}">Search definitions</a></p>
 
 {% endblock %}
 

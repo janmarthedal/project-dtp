@@ -15,14 +15,16 @@
 
     var $ = window.jQuery;
 
-    var TagItem = Backbone.Model.extend({
+    var teoremer = {}
+
+    teoremer.TagItem = Backbone.Model.extend({
     });
   
-    var TagList = Backbone.Collection.extend({
-        model: TagItem
+    teoremer.TagList = Backbone.Collection.extend({
+        model: teoremer.TagItem
     });
 
-    var TagItemView = Backbone.View.extend({
+    teoremer.TagItemView = Backbone.View.extend({
         tagName: 'span',
         events: { 
             'click span.delete-tag': 'remove'
@@ -44,12 +46,12 @@
         }
     });
   
-    var TagListView = Backbone.View.extend({
+    teoremer.TagListView = Backbone.View.extend({
         events: {},
         template: Handlebars.compile($('#tag-list-template').html()),
         initialize: function(){
             _.bindAll(this, 'render', 'addItem', 'appendItem');
-            this.collection = new TagList();
+            this.collection = new teoremer.TagList();
             this.collection.bind('add', this.appendItem);
             this.events['click #' + this.options.prefix + '-tag-add'] = 'addItem';
             this.render();
@@ -67,46 +69,52 @@
             var value = element.val();
             if (value) {
                 element.val('');
-                var item = new TagItem({
+                var item = new teoremer.TagItem({
                     name: value
                 });
                 this.collection.add(item);
             }
         },
         appendItem: function(item){
-            var tagItemView = new TagItemView({
+            var tagItemView = new teoremer.TagItemView({
                 model: item
             });
             $('#' + this.options.prefix + '-tag-list').append(tagItemView.render().el);
         }
     });
 
-    var includeView = new TagListView({
-        el: $('#include-tags'),
-        prefix: 'include'
-    });
-
-    var excludeView = new TagListView({
-        el: $('#exclude-tags'),
-        prefix: 'exclude'
-    });
-
-    includeView.collection.on('add', function() {
-       console.log('include add');
-    });
-
-    includeView.collection.on('remove', function() {
-       console.log('include remove');
-    });
-
-    excludeView.collection.on('add', function() {
-       console.log('exclude add'); 
-    });
-
-    excludeView.collection.on('remove', function() {
-       console.log('exclude remove');
-    });
+    window.teoremer = teoremer;
 
 })(window);
+
+</script>
+
+<script>
+    
+var includeView = new teoremer.TagListView({
+    el: $('#include-tags'),
+    prefix: 'include'
+});
+
+var excludeView = new teoremer.TagListView({
+    el: $('#exclude-tags'),
+    prefix: 'exclude'
+});
+
+includeView.collection.on('add', function() {
+   console.log('include add');
+});
+
+includeView.collection.on('remove', function() {
+   console.log('include remove');
+});
+
+excludeView.collection.on('add', function() {
+   console.log('exclude add'); 
+});
+
+excludeView.collection.on('remove', function() {
+   console.log('exclude remove');
+});
 
 </script>
