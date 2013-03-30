@@ -1,12 +1,10 @@
 
 <script id="tag-list-template" type="text/x-handlebars-template">
-    <div id="{{prefix}}-tag-list"></div>
-    <table>
-        <tr>
-            <td><input id="{{prefix}}-tag-name" type="text" name="tag-name"></td>
-            <td><input id="{{prefix}}-tag-add" type="button" value="Add"></td>
-        </tr>
-    </table> 
+    <p id="{{prefix}}-tag-list"></p>
+    <div class="input-append">
+      <input id="{{prefix}}-tag-name" class="span8" type="text">
+      <button id="{{prefix}}-tag-add" class="btn" type="button">Add</button>
+    </div>
 </script>
 
 <script>
