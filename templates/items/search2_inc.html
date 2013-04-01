@@ -15,6 +15,17 @@
 
     var teoremer = {}
 
+    function typeset_tag(st) {
+      var elems = st.split('$');
+      for (var n=0; n < elems.length; n++) {
+          if (n % 2 != 0) {
+              elems[n] = '\\(' + elems[n] + '\\)';
+          }
+      }
+      return elems.join('');
+  }
+
+
     teoremer.TagItem = Backbone.Model.extend({
     });
   
@@ -24,8 +35,9 @@
 
     teoremer.TagItemView = Backbone.View.extend({
         tagName: 'span',
+        className: 'tag',
         events: { 
-            'click span.delete-tag': 'remove'
+            'click .delete-tag': 'remove'
         },    
         initialize: function(){
             _.bindAll(this, 'render', 'unrender', 'remove');
@@ -33,11 +45,12 @@
             this.model.bind('remove', this.unrender);
         },
         render: function(){
-            $(this.el).html(this.model.get('name') + '<span class="delete-tag">x</span>');
+            var tag_html = typeset_tag(this.model.get('name'));
+            this.$el.html(tag_html + ' <i class="icon-remove delete-tag"></i>');
             return this;
         },
         unrender: function(){
-            $(this.el).remove();
+            this.$el.remove();
         },
         remove: function(){
             this.model.destroy();
@@ -71,6 +84,7 @@
                     name: value
                 });
                 this.collection.add(item);
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el]);
             }
         },
         appendItem: function(item){
