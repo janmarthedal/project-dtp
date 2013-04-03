@@ -5,15 +5,6 @@
 
 {% block title %}Search {{ itemtype }}s{% endblock %}
 
-{% block head %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
-{% endblock %}
-
 {% block mainbar %}
 
 <h1>Search {{ itemtype }}s</h1>
@@ -29,6 +20,12 @@
 <h4>Excluded tags</h4>
 <div id="exclude-tags"></div>
 
-{% include_raw 'items/search2_inc.html' %}
+{% endblock %}
 
+{% block bodybottom %}
+<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+{% include_raw 'items/search2_inc.html' %}
 {% endblock %}
