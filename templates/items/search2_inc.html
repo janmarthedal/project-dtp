@@ -23,7 +23,7 @@
           }
       }
       return elems.join('');
-  }
+    }
 
 
     teoremer.TagItem = Backbone.Model.extend({
@@ -66,6 +66,15 @@
             this.collection.bind('add', this.appendItem);
             this.events['click #' + this.options.prefix + '-tag-add'] = 'addItem';
             this.render();
+            $('#' + this.options.prefix + '-tag-name').typeahead({
+                source:
+                    function (query, process) {
+                        $.get('/api/tags/prefixed/' + query, function(data) {
+                            console.log(data);
+                            process(data);
+                        }, 'json');
+                    }
+            });
         },
         render: function(){
             var self = this;

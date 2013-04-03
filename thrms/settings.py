@@ -152,6 +152,7 @@ INSTALLED_APPS = (
     'admin',
     'tags',
     'analysis',
+    'api',
 )
 
 LOGGING = {
