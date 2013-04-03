@@ -1,0 +1,21 @@
+Exclude
+
+  Components
+    Breadcrumbs
+    Pagination
+    Pager
+    Progress bars
+    Media component
+
+  JS Components
+    Tooltips
+    Popovers
+    Carousel
+    
+  jQuery plugins
+    Scrollspy
+    Togglable tabs
+    Tooltips
+    Popovers
+    Affix
+    Carousel

@@ -1,12 +1,34 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <title>teoremer | signup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <!-- Begin LaunchRock Widget -->
-    <div id="lr-widget" rel="4F2WTSW7"></div>
-    <script type="text/javascript" src="//ignition.launchrock.com/ignition-current.min.js"></script>
-    <!-- End LaunchRock Widget -->
+    <div class="container">
+
+      <div class="masthead">
+        <h3 class="muted">teoremer</h3>
+      </div>
+
+      <hr>
+
+      <div class="hero-unit">
+        <h1>Making mathematical theorems accessible</h1>
+        <p class="lead">Please follow the blog for news on when we are launching.</p>
+        <a class="btn btn-large btn-success" href="//blog.teoremer.com">Go to blog</a>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; sputsoft 2013</p>
+      </footer>
+
+    </div> <!-- /container -->
+
   </body>
 </html>
