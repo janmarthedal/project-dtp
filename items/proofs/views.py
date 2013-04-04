@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from django.views.decorators.http import require_safe, require_http_methods
+from django.views.decorators.http import require_safe, require_GET
 from items.models import FinalItem
-from items.helpers import item_search
+from items.helpers import item_search_to_json
 from main.helpers import init_context
 
 
@@ -12,8 +12,10 @@ def index(request):
     return render(request, 'proofs/index.html', c) 
 
 
-@require_http_methods(["GET", "POST"])
+@require_GET
 def search(request):
-    c = item_search(request, 'P')
+    c = init_context('proof')
+    c['init_items'] = item_search_to_json(itemtype='P')
     c['itemtype'] = 'proof'
+    c['shorttype'] = 'P'
     return render(request, 'items/search.html', c) 

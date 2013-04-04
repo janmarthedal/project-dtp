@@ -1,10 +1,9 @@
 from django.shortcuts import render
-from django.views.decorators.http import require_GET, require_http_methods
-from django.core.urlresolvers import reverse
+from django.views.decorators.http import require_GET
 from items.models import FinalItem
 from tags.helpers import clean_tag, normalize_tag
 from analysis.models import Concept
-from items.helpers import item_search
+from items.helpers import item_search_to_json
 from main.helpers import init_context
 
 import logging
@@ -19,18 +18,13 @@ def index(request):
     return render(request, 'definitions/index.html', c) 
 
 
-@require_http_methods(["GET", "POST"])
-def search(request):
-    c = item_search(request, 'D')
-    c['itemtype'] = 'definition'
-    c['selfurl'] = reverse('items.definitions.views.search') 
-    return render(request, 'items/search.html', c) 
-
-
 @require_GET
-def search2(request):
+def search(request):
     c = init_context('definitions')
-    return render(request, 'items/search2.html', c) 
+    c['init_items'] = item_search_to_json(itemtype='D')
+    c['itemtype'] = 'definition'
+    c['shorttype'] = 'D'
+    return render(request, 'items/search.html', c) 
 
 
 @require_GET

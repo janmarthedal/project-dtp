@@ -12,12 +12,8 @@
 
 {% block sidebar %}
 
-<div class="actions">
-<a class="button" href="{% url 'items.views.new' kind='theorem' %}">Add theorem</a>
-<div class="clr"></div>
-<a class="button" href="{% url 'items.theorems.views.search' %}">Search theorems</a>
-<div class="clr"></div>
-</div>
+<p><a class="btn" href="{% url 'items.views.new' kind='theorem' %}">Add theorem</a></p>
+<p><a class="btn" href="{% url 'items.theorems.views.search' %}">Search theorems</a></p>
 
 {% endblock %}
 

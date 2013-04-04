@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load item_tags %}
+{% load utils_tags %}
+{% load staticfiles %}
 
 {% block title %}Search {{ itemtype }}s{% endblock %}
 
@@ -7,27 +9,51 @@
 
 <h1>Search {{ itemtype }}s</h1>
 
-<h2>{{ totalcount }} matching {{ itemtype }}s{% if totalcount > resultlist|length %} (showing {{ resultlist|length }}){% endif %}:</h2>
-
-{% include 'items/include/fitemlist.html' with itemlist=resultlist only %}
+<div id="search-item-list"></div>
 
 {% endblock %}
 
 {% block sidebar %}
 
-<form class="tag-search" method="post" action="{{ selfurl }}">
-{% csrf_token %}
-
-  <label for="id_includetags">Include tags:</label>
-  {{ form.includetags }}
-
-  <label for="id_excludetags">Exclude tags:</label>
-  {{ form.excludetags }}
-
-  <input class="button" type="submit" value="search" />
-
-  <div class="clr"></div>
-</form>
+<h4>Included tags</h4>
+<div id="include-tags"></div>
+<h4>Excluded tags</h4>
+<div id="exclude-tags"></div>
 
 {% endblock %}
 
+{% block bodybottom %}
+<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+<script src="{% static 'js/teoremer_handlebars.js' %}"></script>
+<script src="{% static 'js/teoremer.js' %}"></script>
+
+<script type="text/javascript">
+var includeView = new teoremer.TagListView({
+    el: $('#include-tags'),
+    prefix: 'include'
+});
+var excludeView = new teoremer.TagListView({
+    el: $('#exclude-tags'),
+    prefix: 'exclude'
+});
+var searchList = new teoremer.SearchListView({
+    el: $('#search-item-list'),
+    itemtype: '{{ shorttype }}'
+});
+
+searchList.collection.reset({{ init_items|safe }});
+
+includeView.collection.on('add remove', function() {
+    searchList.setIncludeTags(includeView.getTagList());
+});
+
+excludeView.collection.on('add remove', function() {
+    searchList.setExcludeTags(excludeView.getTagList());
+});
+
+</script>
+
+{% endblock %}

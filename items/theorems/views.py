@@ -1,8 +1,7 @@
 from django.shortcuts import render
-from django.views.decorators.http import require_safe, require_http_methods
-from django.core.urlresolvers import reverse
+from django.views.decorators.http import require_safe, require_GET
 from items.models import FinalItem
-from items.helpers import item_search
+from items.helpers import item_search_to_json
 from main.helpers import init_context
 
 
@@ -13,9 +12,10 @@ def index(request):
     return render(request, 'theorems/index.html', c) 
 
 
-@require_http_methods(["GET", "POST"])
+@require_GET
 def search(request):
-    c = item_search(request, 'T')
+    c = init_context('theorems')
+    c['init_items'] = item_search_to_json(itemtype='T')
     c['itemtype'] = 'theorem'
-    c['selfurl'] = reverse('items.theorems.views.search') 
+    c['shorttype'] = 'T'
     return render(request, 'items/search.html', c) 

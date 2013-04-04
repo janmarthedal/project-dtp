@@ -1,4 +1,5 @@
 import re
+import json
 import markdown
 from django.utils.http import urlquote, urlencode
 from django.core.urlresolvers import reverse
@@ -7,7 +8,6 @@ from django import forms
 from items.models import FinalItem
 from tags.models import Tag
 from tags.helpers import clean_tag, normalize_tag
-from main.helpers import init_context
 
 import logging
 logger = logging.getLogger(__name__)
@@ -179,30 +179,23 @@ def tag_names_to_tag_objects(tag_names):
     return (found, not_found)
 
 
-def item_search(request, itemtype):
-    c = init_context(itemtype)
-    query = None
-    if request.method == 'GET':
-        form = TagSearchForm()
-        query = FinalItem.objects.filter(itemtype=itemtype, status='F')
-    else:
-        form = TagSearchForm(request.POST)
-        if form.is_valid():
-            include_names = form.cleaned_data['includetags']
-            exclude_names = form.cleaned_data['excludetags']
-            (include_tags, not_found) = tag_names_to_tag_objects(include_names)
-            if not not_found:
-                (exclude_tags, not_found) = tag_names_to_tag_objects(exclude_names)
-                query = FinalItem.objects.filter(itemtype=itemtype, status='F')
-                for tag in include_tags:
-                    query = query.filter(finalitemtag__tag=tag)
-                for tag in exclude_tags:
-                    query = query.exclude(finalitemtag__tag=tag)
-    c['form'] = form
-    c['selfurl'] = request.path 
-    if query:
-        c['totalcount'] = query.count()
-        c['resultlist'] = query[:10]
-    else:
-        c['totalcount'] = 0
-    return c
+def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[]):
+    query = FinalItem.objects.filter(status='F')
+    if itemtype:
+        query = query.filter(itemtype=itemtype) 
+    (include_tags, not_found) = tag_names_to_tag_objects(include_tag_names)
+    if not not_found:
+        (exclude_tags, not_found) = tag_names_to_tag_objects(exclude_tag_names)
+        for tag in include_tags:
+            query = query.filter(finalitemtag__tag=tag)
+        for tag in exclude_tags:
+            query = query.exclude(finalitemtag__tag=tag)
+    result = [{
+               'id':   item.final_id,
+               'type': item.itemtype,
+               'tags': {
+                        'primary':   [t.name for t in item.primary_tags],
+                        'secondary': [t.name for t in item.secondary_tags]
+                        }
+               } for item in query[:20]]
+    return json.dumps(result)
