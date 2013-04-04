@@ -1,9 +1,6 @@
 from django.db import models
 from tags.helpers import normalize_tag
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 class TagManager(models.Manager):
 

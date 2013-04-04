@@ -1,14 +1,3 @@
-
-<script id="tag-list-template" type="text/x-handlebars-template">
-    <p id="{{prefix}}-tag-list"></p>
-    <div class="input-append">
-      <input id="{{prefix}}-tag-name" class="span8" type="text">
-      <button id="{{prefix}}-tag-add" class="btn" type="button">Add</button>
-    </div>
-</script>
-
-<script>
-
 (function(window){
 
     var $ = window.jQuery;
@@ -59,7 +48,6 @@
   
     teoremer.TagListView = Backbone.View.extend({
         events: {},
-        template: Handlebars.compile($('#tag-list-template').html()),
         initialize: function(){
             _.bindAll(this, 'render', 'addItem', 'appendItem');
             this.collection = new teoremer.TagList();
@@ -78,7 +66,7 @@
         },
         render: function(){
             var self = this;
-            var html = this.template({ prefix: this.options.prefix });
+            var html = Handlebars.templates.tag_list_input({ prefix: this.options.prefix });
             this.$el.html(html);
             _(this.collection.models).each(function(item){
                 self.appendItem(item);
@@ -107,35 +95,3 @@
     window.teoremer = teoremer;
 
 })(window);
-
-</script>
-
-<script>
-    
-var includeView = new teoremer.TagListView({
-    el: $('#include-tags'),
-    prefix: 'include'
-});
-
-var excludeView = new teoremer.TagListView({
-    el: $('#exclude-tags'),
-    prefix: 'exclude'
-});
-
-includeView.collection.on('add', function() {
-   console.log('include add');
-});
-
-includeView.collection.on('remove', function() {
-   console.log('include remove');
-});
-
-excludeView.collection.on('add', function() {
-   console.log('exclude add'); 
-});
-
-excludeView.collection.on('remove', function() {
-   console.log('exclude remove');
-});
-
-</script>
