@@ -14,7 +14,6 @@
       return elems.join('');
     }
 
-
     teoremer.TagItem = Backbone.Model.extend({
     });
   
@@ -28,43 +27,42 @@
         events: { 
             'click .delete-tag': 'remove'
         },    
-        initialize: function(){
+        initialize: function() {
             _.bindAll(this, 'render', 'unrender', 'remove');
             this.model.bind('change', this.render);
             this.model.bind('remove', this.unrender);
         },
-        render: function(){
+        render: function() {
             var tag_html = typeset_tag(this.model.get('name'));
             this.$el.html(tag_html + ' <i class="icon-remove delete-tag"></i>');
             return this;
         },
-        unrender: function(){
+        unrender: function() {
             this.$el.remove();
         },
-        remove: function(){
+        remove: function() {
             this.model.destroy();
         }
     });
   
     teoremer.TagListView = Backbone.View.extend({
         events: {},
-        initialize: function(){
-            _.bindAll(this, 'render', 'addItem', 'appendItem');
+        initialize: function() {
+            _.bindAll(this, 'render', 'addItem', 'appendItem', 'keyPress');
             this.collection = new teoremer.TagList();
             this.collection.bind('add', this.appendItem);
             this.events['click #' + this.options.prefix + '-tag-add'] = 'addItem';
+            this.events['keypress #' + this.options.prefix + '-tag-name'] = 'keyPress';
             this.render();
-            $('#' + this.options.prefix + '-tag-name').typeahead({
+            this.input_field = $('#' + this.options.prefix + '-tag-name');
+            this.input_field.typeahead({
                 source:
-                    function (query, process) {
-                        $.get('/api/tags/prefixed/' + query, function(data) {
-                            console.log(data);
-                            process(data);
-                        }, 'json');
+                    function(query, process) {
+                        $.get('/api/tags/prefixed/' + query, function(data) { process(data); }, 'json');
                     }
             });
         },
-        render: function(){
+        render: function() {
             var self = this;
             var html = Handlebars.templates.tag_list_input({ prefix: this.options.prefix });
             this.$el.html(html);
@@ -72,11 +70,15 @@
                 self.appendItem(item);
             }, this);
         },
-        addItem: function(){
-            var element = $('#' + this.options.prefix + '-tag-name'); 
-            var value = element.val();
+        keyPress: function(e) {
+            if (e.keyCode == 13) {
+                this.addItem();
+            }
+        },
+        addItem: function() {
+            var value = this.input_field.val();
             if (value) {
-                element.val('');
+                this.input_field.val('');
                 var item = new teoremer.TagItem({
                     name: value
                 });
@@ -84,7 +86,7 @@
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el]);
             }
         },
-        appendItem: function(item){
+        appendItem: function(item) {
             var tagItemView = new teoremer.TagItemView({
                 model: item
             });

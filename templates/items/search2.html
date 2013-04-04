@@ -31,33 +31,26 @@
 <script src="{% static 'js/teoremer.js' %}"></script>
 
 <script type="text/javascript">
-    
 var includeView = new teoremer.TagListView({
     el: $('#include-tags'),
     prefix: 'include'
 });
-
 var excludeView = new teoremer.TagListView({
     el: $('#exclude-tags'),
     prefix: 'exclude'
 });
-
 includeView.collection.on('add', function() {
    console.log('include add');
 });
-
 includeView.collection.on('remove', function() {
    console.log('include remove');
 });
-
 excludeView.collection.on('add', function() {
    console.log('exclude add'); 
 });
-
 excludeView.collection.on('remove', function() {
    console.log('exclude remove');
 });
-
 </script>
 
 {% endblock %}
