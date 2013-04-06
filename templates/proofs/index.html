@@ -6,13 +6,15 @@
 
 <h1>Proofs</h1>
 
-{% include 'items/include/fitemlist.html' with header='Latest published proofs' itemlist=finalitems only %}
+<div id="search-item-list"></div>
 
 {% endblock %}
 
 {% block sidebar %}
+{% include 'items/include/search-sidebar.html' %}
+{% endblock %}
 
-<p><a class="btn" href="{% url 'items.proofs.views.search' %}">Search proofs</a></p>
-
+{% block bodybottom %}
+{% include 'items/include/search-bottom.html' with shorttype='P' %}
 {% endblock %}
 

@@ -9,23 +9,12 @@ from main.helpers import init_context
 import logging
 logger = logging.getLogger(__name__)
 
-
 @require_GET
 def index(request):
     c = init_context('definitions')
     c['missing_defs'] = Concept.objects.exclude(refs_to_this=0).filter(defs_for_this=0).all()
-    c['finalitems'] = list(FinalItem.objects.filter(itemtype='D', status='F').order_by('-created_at')[:5])
-    return render(request, 'definitions/index.html', c) 
-
-
-@require_GET
-def search(request):
-    c = init_context('definitions')
     c['init_items'] = item_search_to_json(itemtype='D')
-    c['itemtype'] = 'definition'
-    c['shorttype'] = 'D'
-    return render(request, 'items/search.html', c) 
-
+    return render(request, 'definitions/index.html', c) 
 
 @require_GET
 def concept_search(request, primary_name):

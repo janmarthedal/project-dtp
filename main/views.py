@@ -3,7 +3,7 @@ from django.views.decorators.http import require_safe
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.conf import settings
-from items.models import DraftItem, FinalItem
+from main.helpers import init_context
 
 @require_safe
 def index(request):
@@ -13,10 +13,7 @@ def index(request):
 
 @require_safe
 def home(request):
-    c = {
-        'finalitems':  list(FinalItem.objects.filter(status='F').order_by('-created_at')),
-        'reviewitems': list(DraftItem.objects.filter(status='R').order_by('-modified_at')),
-        }
+    c = init_context('home') 
     return render(request, 'home.html', c)
 
 @require_safe

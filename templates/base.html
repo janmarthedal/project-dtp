@@ -36,6 +36,9 @@
               {% endif %}
             </p>
             <ul class="nav">
+              <li {% if active_nav == 'home' %}class="active"{% endif %}>
+                <a href="{% url 'main.views.index' %}">Home</a>
+              </li>
               <li {% if active_nav == 'definitions' %}class="active"{% endif %}>
                 <a href="{% url 'items.definitions.views.index' %}">Definitions</a>
               </li>

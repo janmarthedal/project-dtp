@@ -6,14 +6,20 @@
 
 <h1>Theorems</h1>
 
-{% include 'items/include/fitemlist.html' with header='Latest published theorems' itemlist=finalitems only %}
+<div id="search-item-list"></div>
 
 {% endblock %}
 
 {% block sidebar %}
 
+<h4>Actions</h4>
+
 <p><a class="btn" href="{% url 'items.views.new' kind='theorem' %}">Add theorem</a></p>
-<p><a class="btn" href="{% url 'items.theorems.views.search' %}">Search theorems</a></p>
+
+{% include 'items/include/search-sidebar.html' %}
 
 {% endblock %}
 
+{% block bodybottom %}
+{% include 'items/include/search-bottom.html' with shorttype='T' %}
+{% endblock %}

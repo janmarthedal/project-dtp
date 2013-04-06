@@ -7,9 +7,17 @@
 
 <div class="row-fluid">
 
-  <div class="span5">
+  <div class="span7">
   
-    <h2>Concepts without any definitions</h2>
+    <h2>Published definitions</h2>
+
+    <div id="search-item-list"></div>
+  
+  </div>
+
+  <div class="span3">
+  
+    <h2>Missing definitions</h2>
 
     <ul>
     {% spaceless %}
@@ -21,22 +29,19 @@
   
   </div>
   
-  <div class="span5">
-  
-    <h2>Latest published definitions</h2>
-    
-    {% include 'items/include/fitemlist.html' with itemlist=finalitems only %}
-  
-  </div>
-
 </div>
 
 {% endblock %}
 
 {% block sidebar %}
 
+<h4>Actions</h4>
 <p><a class="btn" href="{% url 'items.views.new' kind='definition' %}">Add definition</a></p>
-<p><a class="btn" href="{% url 'items.definitions.views.search' %}">Search definitions</a></p>
+
+{% include 'items/include/search-sidebar.html' %}
 
 {% endblock %}
 
+{% block bodybottom %}
+{% include 'items/include/search-bottom.html' with shorttype='D' %}
+{% endblock %}

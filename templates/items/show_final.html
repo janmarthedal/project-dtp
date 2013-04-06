@@ -11,22 +11,9 @@
 {% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
 {% if item.parent %} of <a href="{% url 'items.views.show_final' item.parent.final_id %}">{{ item.parent }}</a>{% endif %}</h1>
 
-<div class="itembody">
+<div class="item-body">
 {{ item.body|typeset_body }}
 </div>
-
-<div class="iteminfo">
-<p>created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ item.created_at|datetime_user:user }}</p>
-{% if item.secondary_tags %}
-<div class="taglist">
-{% for tag in item.secondary_tags %}
-  <span class="tag">{{ tag|typeset_tag }}</span>
-{% endfor %}
-</div>
-{% endif %}
-</div>
-
-<div class="clr"></div>
 
 {% if validation_list %}
 <div class="item-count">{{ validation_count }} validations (<a href="{% url 'items.views.show_final' item.final_id %}">hide</a>)</div>
@@ -57,23 +44,34 @@
 
 {% block sidebar %}
 
-<div class="actions">
+<h4>Meta</h4>
+
+<p>Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ item.created_at|datetime_user:user }}</p>
+
+<h4>Tags</h4>
+
+{% if item.secondary_tags %}
+<div class="taglist">
+{% for tag in item.secondary_tags %}
+  <span class="tag">{{ tag|typeset_tag }}</span>
+{% endfor %}
+</div>
+{% endif %}
+
+<h4>Actions</h4>
+
 {% if perm.add_proof %}
-<a class="button" href="{% url 'items.views.new' kind='proof' parent=item.final_id %}">add proof</a>
-<div class="clr"></div>
+<p><a class="btn" href="{% url 'items.views.new' kind='proof' parent=item.final_id %}">Add proof</a></p>
 {% endif %}
 {% if perm.add_source %}
-<a class="button" href="{% url 'refs.views.add_source' item.final_id %}">add validation source</a>
-<div class="clr"></div>
+<p><a class="btn" href="{% url 'refs.views.add_source' item.final_id %}">Add validation source</a></p>
 {% endif %}
 {% if user.is_admin %}
 <form method="post" action="{% url 'items.views.delete_public' %}">
   {% csrf_token %}
-  <input class="button" type="submit" value="delete" />
+  <button class="btn" type="submit">Delete</button>
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
-<div class="clr"></div>
 {% endif %}
-</div>
 
 {% endblock %}
