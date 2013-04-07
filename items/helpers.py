@@ -190,6 +190,7 @@ def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[]):
             query = query.filter(finalitemtag__tag=tag)
         for tag in exclude_tags:
             query = query.exclude(finalitemtag__tag=tag)
+    query = query.order_by('-created_at')
     result = [{
                'id':   item.final_id,
                'type': item.itemtype,

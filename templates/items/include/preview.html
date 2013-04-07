@@ -8,12 +8,13 @@ Preview {{ preview.kind|capfirst }}
 {% if preview.parent %} of {{ preview.parent }}{% endif %}
 </h1>
 
-<div class="itembody">
+<div class="item-body">
 {{ preview.body|typeset_body }}
 </div>
-<div class="iteminfo">
+
+<div class="item-info">
 {% if preview.secondarytags %}
-<div class="taglist">
+<div class="tag-list">
 {% for tag in preview.secondarytags %}
   <span class="tag">{{ tag|typeset_tag }}</span>
 {% endfor %}
@@ -22,4 +23,3 @@ Preview {{ preview.kind|capfirst }}
 </div>
 <div class="clr"></div>
 {% endif %}
-
