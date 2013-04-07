@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load item_tags %}
+
+{% block title %}Definitions{% endblock %}
+
+{% block mainbar %}
+
+<h1>Missing definitions</h1>
+
+<ul>
+{% spaceless %}
+{% for concept in missing_defs %}
+  <li>{{ concept.primary.name|typeset_tag }}{% include 'inline/taglist.html' with taglist=concept.secondaries.all only %}</li>
+{% endfor %}
+{% endspaceless %}
+</ul>
+  
+{% endblock %}

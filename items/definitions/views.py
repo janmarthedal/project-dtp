@@ -12,9 +12,14 @@ logger = logging.getLogger(__name__)
 @require_GET
 def index(request):
     c = init_context('definitions')
-    c['missing_defs'] = Concept.objects.exclude(refs_to_this=0).filter(defs_for_this=0).all()
     c['init_items'] = item_search_to_json(itemtype='D')
-    return render(request, 'definitions/index.html', c) 
+    return render(request, 'definitions/index.html', c)
+
+@require_GET
+def missing(request):
+    c = init_context('definitions')
+    c['missing_defs'] = Concept.objects.exclude(refs_to_this=0).filter(defs_for_this=0).all()
+    return render(request, 'definitions/missing.html', c)
 
 @require_GET
 def concept_search(request, primary_name):

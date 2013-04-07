@@ -5,31 +5,9 @@
 
 {% block mainbar %}
 
-<div class="row-fluid">
+<h2>Published definitions</h2>
 
-  <div class="span7">
-  
-    <h2>Published definitions</h2>
-
-    <div id="search-item-list"></div>
-  
-  </div>
-
-  <div class="span3">
-  
-    <h2>Missing definitions</h2>
-
-    <ul>
-    {% spaceless %}
-    {% for concept in missing_defs %}
-      <li>{{ concept.primary.name|typeset_tag }}{% include 'inline/taglist.html' with taglist=concept.secondaries.all only %}</li>
-    {% endfor %}
-    {% endspaceless %}
-    </ul>
-  
-  </div>
-  
-</div>
+<div id="search-item-list"></div>
 
 {% endblock %}
 
@@ -37,6 +15,9 @@
 
 <h4>Actions</h4>
 <p><a class="btn btn-primary" href="{% url 'items.views.new' kind='definition' %}">Add definition</a></p>
+
+<h4>Analysis</h4>
+<p><a class="btn btn-primary" href="{% url 'items.definitions.views.missing' %}">Missing definitions</a></p>
 
 {% include 'items/include/search-sidebar.html' %}
 
