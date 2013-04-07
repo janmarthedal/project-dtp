@@ -14,12 +14,20 @@
 </h1>
 {% endspaceless %}
 
-<div class="itembody">
+<div class="item-body">
 {{ item.body|typeset_body }}
 </div>
 
-<div class="iteminfo">
+{% endblock mainbar %}
+
+{% block sidebar %}
+
+<h4>Meta</h4>
+
 <p>{{ item.get_status_display }}, latest edit by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a> at {{ item.modified_at|datetime_user:user }}</p>
+
+<h4>Tags</h4>
+
 {% if item.secondary_tags %}
 <div class="taglist">
 {% for tag in item.secondary_tags %}
@@ -27,52 +35,43 @@
 {% endfor %}
 </div>
 {% endif %}
-</div>
 
-<div class="clr"></div>
+<h4>Actions</h4>
 
-{% endblock mainbar %}
-
-{% block sidebar %}
-
-<div class="actions">
 {% if perm.edit %}
-<a class="button" href="{% url 'items.views.edit' item.id %}">edit</a>
-<div class="clr"></div>
+<p><a class="btn btn-primary" href="{% url 'items.views.edit' item.id %}">Edit</a></p>
 <form method="post" action="{% url 'items.views.delete_draft' %}">
   {% csrf_token %}
-  <input class="button" type="submit" value="delete" />
+  <button class="btn btn-primary" type="submit">Delete</button>
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
-<div class="clr"></div>
 {% endif %}
+
 {% if perm.to_draft %}
 <form method="post" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
-  <input class="button" type="submit" value="revert to draft" />
+  <button class="btn btn-primary" type="submit">Revert to draft</button>
   <input type="hidden" name="status" value="draft" />
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
-<div class="clr"></div>
 {% endif %}
+
 {% if perm.to_review %}
 <form method="post" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
-  <input class="button" type="submit" value="submit for review" />
+  <button class="btn btn-primary" type="submit">Submit for review</button>
   <input type="hidden" name="status" value="review" />
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
-<div class="clr"></div>
 {% endif %}
+
 {% if perm.to_final %}
 <form method="post" action="{% url 'items.views.change_status' %}">
   {% csrf_token %}
-  <input class="button" type="submit" value="publish" />
+  <button class="btn btn-primary" type="submit">Publish</button>
   <input type="hidden" name="status" value="publish" />
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
-<div class="clr"></div>
 {% endif %}
-</div>
 
 {% endblock %}

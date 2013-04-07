@@ -398,5 +398,38 @@
         }, 
         "model": "refs.sourcevalidation", 
         "pk": 24
+    }, 
+    {
+        "fields": {
+            "created_at": "2013-04-07T10:49:22Z", 
+            "created_by": 2, 
+            "item": 27, 
+            "location": "Section 1.2.2, page 21", 
+            "source": 4
+        }, 
+        "model": "refs.sourcevalidation", 
+        "pk": 25
+    }, 
+    {
+        "fields": {
+            "created_at": "2013-04-07T10:53:31Z", 
+            "created_by": 2, 
+            "item": 28, 
+            "location": "Definition 2.1, page 24", 
+            "source": 2
+        }, 
+        "model": "refs.sourcevalidation", 
+        "pk": 26
+    }, 
+    {
+        "fields": {
+            "created_at": "2013-04-07T10:57:58Z", 
+            "created_by": 2, 
+            "item": 29, 
+            "location": "Theorem 5.2, page 104", 
+            "source": 2
+        }, 
+        "model": "refs.sourcevalidation", 
+        "pk": 27
     }
 ]

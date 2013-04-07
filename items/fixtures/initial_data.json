@@ -391,6 +391,81 @@
     }, 
     {
         "fields": {
+            "body": "A *real number* is a quantity $x$ that has a decimal expansion\r\n$$\r\nx = n + 0.d_1d_2d_3\\ldots \\; ,\r\n$$\r\nwhere $n$ is an [#integer], each $d_i$ is a digit between $0$ and $9$, and the [#sequence] of digits doesn't end with infinitely many $9$s. The representation above means that\r\n$$\r\nn + \\frac{d_1}{10} + \\frac{d_2}{100} + \\cdots + \\frac{d_k}{10^k} \\leq x < n + \\frac{d_1}{10} + \\frac{d_2}{100} + \\cdots + \\frac{d_k}{10^k} + \\frac{1}{10^k} \\; ,\r\n$$\r\nfor all [positive integers#positive integer] $k$.", 
+            "created_at": "2013-04-07T10:48:33Z", 
+            "created_by": 2, 
+            "final_id": "2378", 
+            "itemtype": "D", 
+            "modified_at": "2013-04-07T10:48:33Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 27
+    }, 
+    {
+        "fields": {
+            "body": "Consider two [sets#set] $A$ and $B$, whose [elements#element(set)] may be any objects whatsoever, and suppose that with each element $x$ of $A$ there is associated, in some manner, an element of $B$, which we denote by $f(x)$. Then $f$ is said to be a *function* from $A$ to $B$ (or a *mapping* of $A$ into $B$). The set $A$ is called the *domain* of $f$ (we also say $f$ is *defined on* $A$), and the elements $f(x)$ are called the *values* of $f$. The set of all values of $f$ is called the *range* of $f$.", 
+            "created_at": "2013-04-07T10:52:15Z", 
+            "created_by": 2, 
+            "final_id": "VTA6", 
+            "itemtype": "D", 
+            "modified_at": "2013-04-07T10:52:15Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 28
+    }, 
+    {
+        "fields": {
+            "body": "Let the [#function] $f$ be defined on $[a,b]$. If $f$ is [#differentiable at a point] $x \\in [a,b]$, then $f$ is [continuous at#continuous at a point] $x$.", 
+            "created_at": "2013-04-07T10:55:30Z", 
+            "created_by": 2, 
+            "final_id": "ATZc", 
+            "itemtype": "T", 
+            "modified_at": "2013-04-07T10:55:30Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 29
+    }, 
+    {
+        "fields": {
+            "body": "Suppose $E \\subset X$ (see [#subset]), a [#metric space], $p$ is a [#limit point(set)] of $E$, $f$ and $g$ are [complex functions#complex function] on $E$, and\r\n$$\r\n\\lim_{x \\rightarrow p} f(x) = A \\; , \\quad \\lim_{x \\rightarrow p} g(x) = B \\; .\r\n$$\r\n\r\nThen\r\n\r\n1. $\\lim_{x \\rightarrow p} (f + g)(x) = A + B$;\r\n2. $\\lim_{x \\rightarrow p} (f g)(x) = A B$;\r\n3. $\\lim_{x \\rightarrow p} \\left( \\frac{f}{g} \\right)(x) = \\frac{A}{B}$.", 
+            "created_at": "2013-04-07T11:08:31Z", 
+            "created_by": 2, 
+            "final_id": "NtcC", 
+            "itemtype": "T", 
+            "modified_at": "2013-04-07T11:08:31Z", 
+            "modified_by": 2, 
+            "parent": null, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 30
+    }, 
+    {
+        "fields": {
+            "body": "As $t \\rightarrow x$, we have, by Theorem [@NtcC],\r\n$$\r\nf(t) - f(x) = \\frac{f(t) - f(x)}{t - x} \\cdot (t - x) \\rightarrow f'(x) \\cdot 0 = 0 \\; .\r\n$$", 
+            "created_at": "2013-04-07T11:19:59Z", 
+            "created_by": 2, 
+            "final_id": "YkEc", 
+            "itemtype": "P", 
+            "modified_at": "2013-04-07T11:19:59Z", 
+            "modified_by": 2, 
+            "parent": 29, 
+            "status": "F"
+        }, 
+        "model": "items.finalitem", 
+        "pk": 31
+    }, 
+    {
+        "fields": {
             "body": "New def", 
             "created_by": 2, 
             "itemtype": "D", 
@@ -1159,5 +1234,158 @@
         }, 
         "model": "items.finalitemtag", 
         "pk": 83
+    }, 
+    {
+        "fields": {
+            "item": 27, 
+            "primary": true, 
+            "tag": 52
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 84
+    }, 
+    {
+        "fields": {
+            "item": 27, 
+            "primary": false, 
+            "tag": 1
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 85
+    }, 
+    {
+        "fields": {
+            "item": 27, 
+            "primary": false, 
+            "tag": 53
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 86
+    }, 
+    {
+        "fields": {
+            "item": 28, 
+            "primary": true, 
+            "tag": 22
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 87
+    }, 
+    {
+        "fields": {
+            "item": 28, 
+            "primary": true, 
+            "tag": 23
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 88
+    }, 
+    {
+        "fields": {
+            "item": 28, 
+            "primary": true, 
+            "tag": 54
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 89
+    }, 
+    {
+        "fields": {
+            "item": 28, 
+            "primary": true, 
+            "tag": 55
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 90
+    }, 
+    {
+        "fields": {
+            "item": 28, 
+            "primary": true, 
+            "tag": 56
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 91
+    }, 
+    {
+        "fields": {
+            "item": 28, 
+            "primary": true, 
+            "tag": 57
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 92
+    }, 
+    {
+        "fields": {
+            "item": 28, 
+            "primary": false, 
+            "tag": 27
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 93
+    }, 
+    {
+        "fields": {
+            "item": 28, 
+            "primary": false, 
+            "tag": 58
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 94
+    }, 
+    {
+        "fields": {
+            "item": 29, 
+            "primary": false, 
+            "tag": 22
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 95
+    }, 
+    {
+        "fields": {
+            "item": 29, 
+            "primary": false, 
+            "tag": 59
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 96
+    }, 
+    {
+        "fields": {
+            "item": 29, 
+            "primary": false, 
+            "tag": 60
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 97
+    }, 
+    {
+        "fields": {
+            "item": 30, 
+            "primary": false, 
+            "tag": 61
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 98
+    }, 
+    {
+        "fields": {
+            "item": 30, 
+            "primary": false, 
+            "tag": 62
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 99
+    }, 
+    {
+        "fields": {
+            "item": 30, 
+            "primary": false, 
+            "tag": 63
+        }, 
+        "model": "items.finalitemtag", 
+        "pk": 100
     }
 ]

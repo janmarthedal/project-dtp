@@ -5,7 +5,7 @@
             "email": "admin@thrms.net", 
             "is_active": true, 
             "is_admin": true, 
-            "last_login": "2013-03-07T20:23:05Z", 
+            "last_login": "2013-03-29T15:05:55Z", 
             "name": "Administrator", 
             "password": "pbkdf2_sha256$10000$rQFiotnyUMyy$IHQaog1kTalrskW9lzL2cPyoAe1A+Y5RRYDMz1FfLsQ="
         }, 
@@ -18,7 +18,7 @@
             "email": "jmr@kanooth.com", 
             "is_active": true, 
             "is_admin": false, 
-            "last_login": "2013-03-13T06:48:47Z", 
+            "last_login": "2013-04-06T17:16:25Z", 
             "name": "Jan Marthedal Rasmussen", 
             "password": "pbkdf2_sha256$10000$yHe3qlYmbk4z$Is4anUWDeCOMn0iet372HK322ceDdyfZUm5snCbdtIg="
         }, 
