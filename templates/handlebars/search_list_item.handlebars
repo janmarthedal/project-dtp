@@ -1,2 +1,5 @@
-<a href="/{{id}}">{{itemname}}{{#if pritags}} ({{pritags}}){{/if}}</a>
-{{#each sectags}}<span class="tag">{{this}}</span>{{/each}}
+<td>
+<div><a href="/{{id}}">{{itemname}}{{#if pritags}} ({{pritags}}){{/if}}</a></div>
+<div><small class="pull-right">by {{ author.name }} at {{ published_at }}</small>
+{{#each sectags}}<span class="tag">{{this}}</span>{{/each}}</div>
+</td>

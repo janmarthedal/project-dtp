@@ -123,7 +123,7 @@
     });
 
     teoremer.SearchItemView = Backbone.View.extend({
-        tagName: 'li',
+        tagName: 'tr',
         initialize: function() {
             _.bindAll(this, 'render');
             this.model.bind('change', this.render);
@@ -131,15 +131,17 @@
         render: function() {
             var tags = this.model.get('tags');
             var context = {
-                'id':       this.model.get('id'),
-                'itemname': capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
-                'pritags':  _.map(tags.primary, typeset_tag).join(', '),
-                'sectags':  _.map(tags.secondary, typeset_tag)
+                'id':           this.model.get('id'),
+                'itemname':     capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
+                'pritags':      _.map(tags.primary, typeset_tag).join(', '),
+                'sectags':      _.map(tags.secondary, typeset_tag),
+                'author':       { 'name': 'Jan Marthedal Rasmussen' },
+                'published_at': '2013-04-04 12:54:12'
             }
             var html = Handlebars.templates.search_list_item(context);
             this.$el.html(html);
             return this;
-        },
+        }
     });
 
     teoremer.SearchListView = Backbone.View.extend({
@@ -152,8 +154,9 @@
             this.render();
         },
         render: function() {
+            var html = Handlebars.templates.search_list_container({});
+            this.$el.html(html);
             var self = this;
-            this.$el.html('<ul></ul>')
             _(this.collection.models).each(function(item) {
                 self.appendItem(item);
             }, this);
@@ -163,7 +166,7 @@
             var searchItemView = new teoremer.SearchItemView({
                 model: item
             });
-            this.$('ul').append(searchItemView.render().el);
+            this.$('tbody').append(searchItemView.render().el);
         },
         refetch: function() {
             this.collection.fetch({
