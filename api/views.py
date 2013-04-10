@@ -1,5 +1,5 @@
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.views.decorators.http import require_GET
 from tags.models import Tag
 from items.helpers import item_search_to_json
@@ -17,9 +17,16 @@ def tags_prefixed(request, prefix):
 
 @require_GET
 def item_list(request):
-    include_tags = json.loads(request.GET.get('intags', '[]'))
-    exclude_tags = json.loads(request.GET.get('extags', '[]'))
+    try:
+        include_tags = json.loads(request.GET.get('intags', '[]'))
+        exclude_tags = json.loads(request.GET.get('extags', '[]'))
+        offset = int(request.GET.get('offset', 0))
+        limit  = int(request.GET.get('limit', 5))
+    except:
+        raise Http404
     result = item_search_to_json(itemtype=request.GET.get('type', None),
                                  include_tag_names=include_tags,
-                                 exclude_tag_names=exclude_tags)
+                                 exclude_tag_names=exclude_tags,
+                                 offset=offset,
+                                 limit=limit)
     return HttpResponse(result, content_type="application/json")

@@ -118,8 +118,16 @@
     });
 
     teoremer.SearchList = Backbone.Collection.extend({
+        has_more: false,
+        initialize: function() {
+            _.bindAll(this, 'parse');
+        },
         model: teoremer.SearchItem,
-        url: api_prefix + 'items'
+        url: api_prefix + 'items',
+        parse: function(response) {
+            this.has_more = response.meta.has_more
+            return response.items;
+        }
     });
 
     teoremer.SearchItemView = Backbone.View.extend({
@@ -147,11 +155,22 @@
     teoremer.SearchListView = Backbone.View.extend({
         includeTags: [],
         excludeTags: [],
+        events: {
+            'click .search-list-more': 'fetchMore'
+        },
         initialize: function() {
-            _.bindAll(this, 'render', 'appendItem', 'refetch', 'setIncludeTags', 'setExcludeTags');
+            _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags', 'fetchMore');
             this.collection = new teoremer.SearchList();
             this.collection.bind('reset', this.render);
+            this.collection.bind('add', this.appendItem);
             this.render();
+        },
+        showHideMoreButton: function() {
+            if (this.collection.has_more) {
+                this.$('.search-list-more').show();
+            } else {
+                this.$('.search-list-more').hide();
+            }
         },
         render: function() {
             var html = Handlebars.templates.search_list_container({});
@@ -160,6 +179,7 @@
             _(this.collection.models).each(function(item) {
                 self.appendItem(item);
             }, this);
+            this.showHideMoreButton();
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el]);
         },
         appendItem: function(item) {
@@ -168,23 +188,35 @@
             });
             this.$('tbody').append(searchItemView.render().el);
         },
-        refetch: function() {
-            this.collection.fetch({
-                reset: true,
-                data: {
-                    type:   this.options.itemtype,
-                    intags: JSON.stringify(this.includeTags),
-                    extags: JSON.stringify(this.excludeTags)
-                }
-            });
+        doFetch: function(reset) {
+            var options = {};
+            options.data = {
+                type:   this.options.itemtype,
+                intags: JSON.stringify(this.includeTags),
+                extags: JSON.stringify(this.excludeTags),
+                limit:  5
+            };
+            if (reset) {
+                options.reset = true;
+                options.data.offset = 0;
+            } else {
+                var self = this;
+                options.remove = false;
+                options.data.offset = this.collection.length;
+                options.success = function() { self.showHideMoreButton(); };
+            }
+            this.collection.fetch(options);
+        },
+        fetchMore: function() {
+            this.doFetch(false);
         },
         setIncludeTags: function(tag_list) {
             this.includeTags = tag_list;
-            this.refetch();
+            this.doFetch(true);
         },
         setExcludeTags: function(tag_list) {
             this.excludeTags = tag_list;
-            this.refetch();
+            this.doFetch(true);
         }
     });
 

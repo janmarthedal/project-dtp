@@ -178,8 +178,7 @@ def tag_names_to_tag_objects(tag_names):
             not_found.append(tag_name)
     return (found, not_found)
 
-
-def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[]):
+def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[], offset=0, limit=5):
     query = FinalItem.objects.filter(status='F')
     if itemtype:
         query = query.filter(itemtype=itemtype) 
@@ -191,12 +190,20 @@ def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[]):
         for tag in exclude_tags:
             query = query.exclude(finalitemtag__tag=tag)
     query = query.order_by('-created_at')
-    result = [{
-               'id':   item.final_id,
-               'type': item.itemtype,
-               'tags': {
-                        'primary':   [t.name for t in item.primary_tags],
-                        'secondary': [t.name for t in item.secondary_tags]
-                        }
-               } for item in query[:20]]
+    items = query[offset:(offset+limit+1)]
+    result = {
+              'meta': {
+                       'offset':   offset,
+                       'count':    min(len(items), limit),
+                       'has_more': len(items) > limit
+                       },
+              'items': [{
+                         'id':   item.final_id,
+                         'type': item.itemtype,
+                         'tags': {
+                                  'primary':   [t.name for t in item.primary_tags],
+                                  'secondary': [t.name for t in item.secondary_tags]
+                                  }
+                         } for item in items[:limit]]
+              }
     return json.dumps(result)

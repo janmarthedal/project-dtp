@@ -32,9 +32,9 @@ def get_user_item_permissions(user, item):
 
 
 class EditItemForm(forms.Form):
-    body          = forms.CharField(widget=forms.Textarea(attrs={'class': 'body'}), required=False)
-    primarytags   = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
-    secondarytags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
+    body          = forms.CharField(widget=forms.Textarea(attrs={'class': 'item-body span12'}), required=False)
+    primarytags   = TagListField(widget=forms.Textarea(attrs={'class': 'tags', 'rows': 5 }), required=False)
+    secondarytags = TagListField(widget=forms.Textarea(attrs={'class': 'tags', 'rows': 5 }), required=False)
 
     def clean_body(self):
         return self.cleaned_data['body'].strip()

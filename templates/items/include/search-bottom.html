@@ -21,7 +21,7 @@ var searchList = new teoremer.SearchListView({
     itemtype: '{{ shorttype }}'
 });
 
-searchList.collection.reset({{ init_items|safe }});
+searchList.collection.reset({{ init_items|safe }}, { parse: true });
 
 includeView.collection.on('add remove', function() {
     searchList.setIncludeTags(includeView.getTagList());

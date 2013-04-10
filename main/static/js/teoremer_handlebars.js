@@ -3,11 +3,10 @@
 templates['search_list_container'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  var buffer = "";
+  
 
 
-  buffer += "\n<table class=\"table\">\n<tbody>\n</tbody>\n</table>\n";
-  return buffer;
+  return "<p class=\"pull-right\"><span class=\"label label-info\">date</span> <a href=\"#\">points</a> | \n<span class=\"label label-info\">final</span> <a href=\"#\">review</a></p>\n\n<table class=\"table\">\n<tbody>\n</tbody>\n</table>\n\n<button class=\"btn btn-link pull-right search-list-more\" type=\"button\">Show more</button>\n";
   });
 templates['search_list_item'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
