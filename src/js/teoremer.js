@@ -165,7 +165,7 @@
             this.collection.bind('add', this.appendItem);
             this.render();
         },
-        showHideMoreButton: function() {
+        postAppend: function() {
             if (this.collection.has_more) {
                 this.$('.search-list-more').show();
             } else {
@@ -179,14 +179,15 @@
             _(this.collection.models).each(function(item) {
                 self.appendItem(item);
             }, this);
-            this.showHideMoreButton();
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el]);
+            this.postAppend();
         },
         appendItem: function(item) {
             var searchItemView = new teoremer.SearchItemView({
                 model: item
             });
-            this.$('tbody').append(searchItemView.render().el);
+            var element = searchItemView.render().el;
+            this.$('tbody').append(element);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
         },
         doFetch: function(reset) {
             var options = {};
@@ -202,7 +203,7 @@
                 var self = this;
                 options.remove = false;
                 options.data.offset = this.collection.length;
-                options.success = function() { self.showHideMoreButton(); };
+                options.success = function() { self.postAppend(); };
             }
             this.collection.fetch(options);
         },
