@@ -20,6 +20,7 @@ def item_list(request):
     try:
         include_tags = json.loads(request.GET.get('intags', '[]'))
         exclude_tags = json.loads(request.GET.get('extags', '[]'))
+        status = request.GET.get('status', 'F')
         offset = int(request.GET.get('offset', 0))
         limit  = int(request.GET.get('limit', 5))
     except:
@@ -27,6 +28,7 @@ def item_list(request):
     result = item_search_to_json(itemtype=request.GET.get('type', None),
                                  include_tag_names=include_tags,
                                  exclude_tag_names=exclude_tags,
+                                 status=status,
                                  offset=offset,
                                  limit=limit)
     return HttpResponse(result, content_type="application/json")

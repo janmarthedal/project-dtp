@@ -139,12 +139,14 @@
         render: function() {
             var tags = this.model.get('tags');
             var context = {
-                'id':           this.model.get('id'),
-                'itemname':     capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
-                'pritags':      _.map(tags.primary, typeset_tag).join(', '),
-                'sectags':      _.map(tags.secondary, typeset_tag),
-                'author':       { 'name': 'Jan Marthedal Rasmussen' },
-                'published_at': '2013-04-04 12:54:12'
+                id:          this.model.get('id'),
+                item_name:   capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
+                item_link:   this.model.get('item_link'),
+                pritags:     _.map(tags.primary, typeset_tag).join(', '),
+                sectags:     _.map(tags.secondary, typeset_tag),
+                author_name: this.model.get('author'),
+                author_link: this.model.get('author_link'),
+                timestamp:   this.model.get('timestamp')
             }
             var html = Handlebars.templates.search_list_item(context);
             this.$el.html(html);
@@ -155,11 +157,15 @@
     teoremer.SearchListView = Backbone.View.extend({
         includeTags: [],
         excludeTags: [],
+        status: 'F',
         events: {
-            'click .search-list-more': 'fetchMore'
+            'click .search-list-more': 'fetchMore',
+            'click .select-review':    'selectReview',
+            'click .select-final':    'selectFinal',
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags', 'fetchMore');
+            _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags',
+                            'fetchMore', 'selectReview', 'selectFinal');
             this.collection = new teoremer.SearchList();
             this.collection.bind('reset', this.render);
             this.collection.bind('add', this.appendItem);
@@ -173,7 +179,9 @@
             }
         },
         render: function() {
-            var html = Handlebars.templates.search_list_container({});
+            var html = Handlebars.templates.search_list_container({
+                status_final: this.status=='F'
+            });
             this.$el.html(html);
             var self = this;
             _(this.collection.models).each(function(item) {
@@ -193,6 +201,7 @@
             var options = {};
             options.data = {
                 type:   this.options.itemtype,
+                status: this.status,
                 intags: JSON.stringify(this.includeTags),
                 extags: JSON.stringify(this.excludeTags)
             };
@@ -210,6 +219,12 @@
         fetchMore: function() {
             this.doFetch(false);
         },
+        selectReview: function() {
+            this.setStatus('R');
+        },
+        selectFinal: function() {
+            this.setStatus('F');
+        },
         setIncludeTags: function(tag_list) {
             this.includeTags = tag_list;
             this.doFetch(true);
@@ -217,6 +232,12 @@
         setExcludeTags: function(tag_list) {
             this.excludeTags = tag_list;
             this.doFetch(true);
+        },
+        setStatus: function(status) {
+            if (status != this.status) {
+                this.status = status;
+                this.doFetch(true);
+            }
         }
     });
 

@@ -1,5 +1,10 @@
-<p class="pull-right"><span class="label label-info">date</span> <a href="#">points</a> | 
-<span class="label label-info">final</span> <a href="#">review</a></p>
+<p class="pull-right"><span class="label label-info">date</span> <a href="#">points</a> |
+{{#if status_final}}
+<span class="label label-info">final</span> <a class="select-review" href="#">review</a>
+{{else}}
+<a href="#" class="select-final">final</a> <span class="label label-info">review</span>
+{{/if}}
+</p>
 
 <table class="table">
 <tbody>

@@ -2,10 +2,11 @@ import re
 import json
 import markdown
 from django.utils.http import urlquote, urlencode
+from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.utils import crypto
 from django import forms
-from items.models import FinalItem
+from items.models import FinalItem, DraftItem
 from tags.models import Tag
 from tags.helpers import clean_tag, normalize_tag
 
@@ -178,8 +179,13 @@ def tag_names_to_tag_objects(tag_names):
             not_found.append(tag_name)
     return (found, not_found)
 
-def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[], offset=0, limit=5):
-    query = FinalItem.objects.filter(status='F')
+def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[], status='F', offset=0, limit=5):
+    if status == 'F':
+        query = FinalItem.objects.filter(status='F')
+    elif status == 'R':
+        query = DraftItem.objects.filter(status='R')
+    else:
+        raise Http404
     if itemtype:
         query = query.filter(itemtype=itemtype) 
     (include_tags, not_found) = tag_names_to_tag_objects(include_tag_names)
@@ -189,21 +195,43 @@ def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[], of
             query = query.filter(finalitemtag__tag=tag)
         for tag in exclude_tags:
             query = query.exclude(finalitemtag__tag=tag)
-    query = query.order_by('-created_at')
+    if status == 'F':
+        query = query.order_by('-created_at')
+    else:
+        query = query.order_by('-modified_at')
     items = query[offset:(offset+limit+1)]
+    if status == 'F':
+        result_items = [{
+                         'id':          item.final_id,
+                         'item_link':   reverse('items.views.show_final', args=[item.final_id]), 
+                         'type':        item.itemtype,
+                         'author':      item.created_by.get_full_name(),
+                         'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
+                         'timestamp':   str(item.created_at), 
+                         'tags':        {
+                                         'primary':   [t.name for t in item.primary_tags],
+                                         'secondary': [t.name for t in item.secondary_tags]
+                                         }
+                         } for item in items[:limit]]                  
+    else:
+        result_items = [{
+                         'id':          item.pk,
+                         'item_link':   reverse('items.views.show', args=[item.pk]),
+                         'type':        item.itemtype,
+                         'author':      item.created_by.get_full_name(),
+                         'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
+                         'timestamp':   str(item.modified_at), 
+                         'tags':        {
+                                         'primary':   [t.name for t in item.primary_tags],
+                                         'secondary': [t.name for t in item.secondary_tags]
+                                         }
+                         } for item in items[:limit]]
     result = {
               'meta': {
                        'offset':   offset,
                        'count':    min(len(items), limit),
                        'has_more': len(items) > limit
                        },
-              'items': [{
-                         'id':   item.final_id,
-                         'type': item.itemtype,
-                         'tags': {
-                                  'primary':   [t.name for t in item.primary_tags],
-                                  'secondary': [t.name for t in item.secondary_tags]
-                                  }
-                         } for item in items[:limit]]
+              'items': result_items
               }
     return json.dumps(result)

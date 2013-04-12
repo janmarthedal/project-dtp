@@ -1,82 +1,3 @@
-(function() {
-  var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
-templates['search_list_container'] = template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
-helpers = helpers || Handlebars.helpers; data = data || {};
-  
-
-
-  return "<p class=\"pull-right\"><span class=\"label label-info\">date</span> <a href=\"#\">points</a> | \n<span class=\"label label-info\">final</span> <a href=\"#\">review</a></p>\n\n<table class=\"table\">\n<tbody>\n</tbody>\n</table>\n\n<button class=\"btn btn-link pull-right search-list-more\" type=\"button\">Show more</button>\n";
-  });
-templates['search_list_item'] = template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
-helpers = helpers || Handlebars.helpers; data = data || {};
-  var buffer = "", stack1, stack2, functionType="function", escapeExpression=this.escapeExpression, self=this;
-
-function program1(depth0,data) {
-  
-  var buffer = "", stack1;
-  buffer += " (";
-  if (stack1 = helpers.pritags) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.pritags; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + ")";
-  return buffer;
-  }
-
-function program3(depth0,data) {
-  
-  var buffer = "";
-  buffer += "<span class=\"tag\">"
-    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
-    + "</span>";
-  return buffer;
-  }
-
-  buffer += "<td>\n<div><a href=\"/";
-  if (stack1 = helpers.id) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "\">";
-  if (stack1 = helpers.itemname) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.itemname; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1);
-  stack1 = helpers['if'].call(depth0, depth0.pritags, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
-  if(stack1 || stack1 === 0) { buffer += stack1; }
-  buffer += "</a></div>\n<div><small class=\"pull-right\">by "
-    + escapeExpression(((stack1 = ((stack1 = depth0.author),stack1 == null || stack1 === false ? stack1 : stack1.name)),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
-    + " at ";
-  if (stack2 = helpers.published_at) { stack2 = stack2.call(depth0, {hash:{},data:data}); }
-  else { stack2 = depth0.published_at; stack2 = typeof stack2 === functionType ? stack2.apply(depth0) : stack2; }
-  buffer += escapeExpression(stack2)
-    + "</small>\n";
-  stack2 = helpers.each.call(depth0, depth0.sectags, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
-  if(stack2 || stack2 === 0) { buffer += stack2; }
-  buffer += "</div>\n</td>";
-  return buffer;
-  });
-templates['tag_list_input'] = template(function (Handlebars,depth0,helpers,partials,data) {
-  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
-helpers = helpers || Handlebars.helpers; data = data || {};
-  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
-
-
-  buffer += "<p id=\"";
-  if (stack1 = helpers.prefix) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.prefix; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "-tag-list\"></p>\n<div class=\"input-append\">\n  <input id=\"";
-  if (stack1 = helpers.prefix) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.prefix; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "-tag-name\" class=\"span8\" type=\"text\">\n  <button id=\"";
-  if (stack1 = helpers.prefix) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
-  else { stack1 = depth0.prefix; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
-  buffer += escapeExpression(stack1)
-    + "-tag-add\" class=\"btn\" type=\"button\">Add</button>\n</div>\n";
-  return buffer;
-  });
-})();
 (function(window) {
 
     var $ = window.jQuery;
@@ -218,12 +139,14 @@ helpers = helpers || Handlebars.helpers; data = data || {};
         render: function() {
             var tags = this.model.get('tags');
             var context = {
-                'id':           this.model.get('id'),
-                'itemname':     capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
-                'pritags':      _.map(tags.primary, typeset_tag).join(', '),
-                'sectags':      _.map(tags.secondary, typeset_tag),
-                'author':       { 'name': 'Jan Marthedal Rasmussen' },
-                'published_at': '2013-04-04 12:54:12'
+                id:          this.model.get('id'),
+                item_name:   capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
+                item_link:   this.model.get('item_link'),
+                pritags:     _.map(tags.primary, typeset_tag).join(', '),
+                sectags:     _.map(tags.secondary, typeset_tag),
+                author_name: this.model.get('author'),
+                author_link: this.model.get('author_link'),
+                timestamp:   this.model.get('timestamp')
             }
             var html = Handlebars.templates.search_list_item(context);
             this.$el.html(html);
@@ -234,11 +157,15 @@ helpers = helpers || Handlebars.helpers; data = data || {};
     teoremer.SearchListView = Backbone.View.extend({
         includeTags: [],
         excludeTags: [],
+        status: 'F',
         events: {
-            'click .search-list-more': 'fetchMore'
+            'click .search-list-more': 'fetchMore',
+            'click .select-review':    'selectReview',
+            'click .select-final':    'selectFinal',
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags', 'fetchMore');
+            _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags',
+                            'fetchMore', 'selectReview', 'selectFinal');
             this.collection = new teoremer.SearchList();
             this.collection.bind('reset', this.render);
             this.collection.bind('add', this.appendItem);
@@ -252,7 +179,9 @@ helpers = helpers || Handlebars.helpers; data = data || {};
             }
         },
         render: function() {
-            var html = Handlebars.templates.search_list_container({});
+            var html = Handlebars.templates.search_list_container({
+                status_final: this.status=='F'
+            });
             this.$el.html(html);
             var self = this;
             _(this.collection.models).each(function(item) {
@@ -272,6 +201,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
             var options = {};
             options.data = {
                 type:   this.options.itemtype,
+                status: this.status,
                 intags: JSON.stringify(this.includeTags),
                 extags: JSON.stringify(this.excludeTags)
             };
@@ -289,6 +219,12 @@ helpers = helpers || Handlebars.helpers; data = data || {};
         fetchMore: function() {
             this.doFetch(false);
         },
+        selectReview: function() {
+            this.setStatus('R');
+        },
+        selectFinal: function() {
+            this.setStatus('F');
+        },
         setIncludeTags: function(tag_list) {
             this.includeTags = tag_list;
             this.doFetch(true);
@@ -296,9 +232,115 @@ helpers = helpers || Handlebars.helpers; data = data || {};
         setExcludeTags: function(tag_list) {
             this.excludeTags = tag_list;
             this.doFetch(true);
+        },
+        setStatus: function(status) {
+            if (status != this.status) {
+                this.status = status;
+                this.doFetch(true);
+            }
         }
     });
 
     window.teoremer = teoremer;
 
 })(window);
+(function() {
+  var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
+templates['search_list_container'] = template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  var buffer = "", stack1, self=this;
+
+function program1(depth0,data) {
+  
+  
+  return "\n<span class=\"label label-info\">final</span> <a class=\"select-review\" href=\"#\">review</a>\n";
+  }
+
+function program3(depth0,data) {
+  
+  
+  return "\n<a href=\"#\" class=\"select-final\">final</a> <span class=\"label label-info\">review</span>\n";
+  }
+
+  buffer += "<p class=\"pull-right\"><span class=\"label label-info\">date</span> <a href=\"#\">points</a> |\n";
+  stack1 = helpers['if'].call(depth0, depth0.status_final, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n</p>\n\n<table class=\"table\">\n<tbody>\n</tbody>\n</table>\n\n<button class=\"btn btn-link pull-right search-list-more\" type=\"button\">Show more</button>\n";
+  return buffer;
+  });
+templates['search_list_item'] = template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
+
+function program1(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += " (";
+  if (stack1 = helpers.pritags) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.pritags; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + ")";
+  return buffer;
+  }
+
+function program3(depth0,data) {
+  
+  var buffer = "";
+  buffer += "<span class=\"tag\">"
+    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
+    + "</span>";
+  return buffer;
+  }
+
+  buffer += "<td>\n<div><a href=\"";
+  if (stack1 = helpers.item_link) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.item_link; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">";
+  if (stack1 = helpers.item_name) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.item_name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1);
+  stack1 = helpers['if'].call(depth0, depth0.pritags, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</a></div>\n<div><small class=\"pull-right\">by <a href=\"";
+  if (stack1 = helpers.author_link) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.author_link; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">";
+  if (stack1 = helpers.author_name) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.author_name; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</a> at ";
+  if (stack1 = helpers.timestamp) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.timestamp; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</small>\n";
+  stack1 = helpers.each.call(depth0, depth0.sectags, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</div>\n</td>";
+  return buffer;
+  });
+templates['tag_list_input'] = template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<p id=\"";
+  if (stack1 = helpers.prefix) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.prefix; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "-tag-list\"></p>\n<div class=\"input-append\">\n  <input id=\"";
+  if (stack1 = helpers.prefix) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.prefix; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "-tag-name\" class=\"span8\" type=\"text\">\n  <button id=\"";
+  if (stack1 = helpers.prefix) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.prefix; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "-tag-add\" class=\"btn\" type=\"button\">Add</button>\n</div>\n";
+  return buffer;
+  });
+})();

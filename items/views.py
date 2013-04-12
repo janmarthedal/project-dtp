@@ -184,7 +184,7 @@ def change_status(request):
     else:   # to review
         if not own_item or item.status != 'D':
             raise Http404 
-        item.make_review(request.user)
+        item.make_review()
         return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
 
 @require_POST

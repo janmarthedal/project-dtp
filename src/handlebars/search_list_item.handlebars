@@ -1,5 +1,5 @@
 <td>
-<div><a href="/{{id}}">{{itemname}}{{#if pritags}} ({{pritags}}){{/if}}</a></div>
-<div><small class="pull-right">by {{ author.name }} at {{ published_at }}</small>
+<div><a href="{{item_link}}">{{item_name}}{{#if pritags}} ({{pritags}}){{/if}}</a></div>
+<div><small class="pull-right">by <a href="{{author_link}}">{{author_name}}</a> at {{timestamp}}</small>
 {{#each sectags}}<span class="tag">{{this}}</span>{{/each}}</div>
 </td>
