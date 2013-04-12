@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block mainbar %}
+
+<h2>What is it?</h2>
+
+<p><strong>teoremer</strong> is a collection of definitions, theorems and proofs.</p>
+<p>Anyone can contribute.</p>
+
+{% endblock %}
+
+{% block sidebar %}
+
+<h4>teoremer blog</h4>
+
+<ul>
+  <li><a href="http://blog.teoremer.com/2013/04/test-post-2.html">Post 2</a></li>
+  <li><a href="http://blog.teoremer.com/2013/04/test-post-1.html">Post 1</a></li>
+</ul>
+
+{% comment %}
+<a href="#" id="about-details" class="pull-right"><i class="icon-cog"></i></a>
+
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Modal header</h3>
+  </div>
+  <div class="modal-body">
+    <p>One fine body…</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn btn-primary">Save changes</button>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block bodybottom %}
+<script type="text/javascript">
+$('#about-details').click(function() {
+  $('#myModal').modal();  
+});
+</script>
+
+{% endcomment %}
+{% endblock %}

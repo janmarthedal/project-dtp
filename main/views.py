@@ -17,5 +17,10 @@ def home(request):
     return render(request, 'home.html', c)
 
 @require_safe
+def about(request):
+    c = init_context('about') 
+    return render(request, 'about.html', c)
+
+@require_safe
 def signup(request):
     return render(request, 'signup.html')
