@@ -9,6 +9,7 @@ from django.contrib import messages
 from django import forms
 from items.models import DraftItem, FinalItem
 from main.helpers import init_context
+from items.helpers import item_search_to_json
 
 import logging
 logger = logging.getLogger(__name__)
@@ -83,3 +84,12 @@ def profile(request, user_id):
         })
     return render(request, 'users/profile.html', c)
 
+
+@require_safe
+def items(request, user_id):
+    c = init_context('users')
+    pageuser = get_object_or_404(get_user_model(), pk=user_id)
+    c['init_items'] = item_search_to_json(itemtype='D', user=pageuser)
+    c['user_id'] = user_id
+    c['enable_drafts'] = request.user == pageuser
+    return render(request, 'users/items.html', c)

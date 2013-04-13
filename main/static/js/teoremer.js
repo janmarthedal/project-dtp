@@ -160,8 +160,9 @@
         status: 'F',
         events: {
             'click .search-list-more': 'fetchMore',
+            'click .select-final':     'selectFinal',
             'click .select-review':    'selectReview',
-            'click .select-final':    'selectFinal',
+            'click .select-draft':     'selectDraft'
         },
         initialize: function() {
             _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags',
@@ -180,7 +181,10 @@
         },
         render: function() {
             var html = Handlebars.templates.search_list_container({
-                status_final: this.status=='F'
+                status_final: this.status=='F',
+                status_review: this.status=='R',
+                status_draft: this.status=='D',
+                enable_drafts: !!this.options.enable_drafts
             });
             this.$el.html(html);
             var self = this;
@@ -205,6 +209,9 @@
                 intags: JSON.stringify(this.includeTags),
                 extags: JSON.stringify(this.excludeTags)
             };
+            if (this.options.user_id) {
+                options.data.user = this.options.user_id;
+            }
             if (reset) {
                 options.reset = true;
                 options.data.offset = 0;
@@ -219,11 +226,14 @@
         fetchMore: function() {
             this.doFetch(false);
         },
+        selectFinal: function() {
+            this.setStatus('F');
+        },
         selectReview: function() {
             this.setStatus('R');
         },
-        selectFinal: function() {
-            this.setStatus('F');
+        selectDraft: function() {
+            this.setStatus('D');
         },
         setIncludeTags: function(tag_list) {
             this.includeTags = tag_list;
@@ -254,17 +264,56 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 function program1(depth0,data) {
   
   
-  return "\n<span class=\"label label-info\">final</span> <a class=\"select-review\" href=\"#\">review</a>\n";
+  return "\n<span class=\"label label-info\">final</span>\n";
   }
 
 function program3(depth0,data) {
   
   
-  return "\n<a href=\"#\" class=\"select-final\">final</a> <span class=\"label label-info\">review</span>\n";
+  return "\n<a class=\"select-final\" href=\"#\">final</a>\n";
+  }
+
+function program5(depth0,data) {
+  
+  
+  return "\n<span class=\"label label-info\">review</span>\n";
+  }
+
+function program7(depth0,data) {
+  
+  
+  return "\n <a class=\"select-review\" href=\"#\">review</a>\n";
+  }
+
+function program9(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "\n";
+  stack1 = helpers['if'].call(depth0, depth0.status_draft, {hash:{},inverse:self.program(12, program12, data),fn:self.program(10, program10, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  return buffer;
+  }
+function program10(depth0,data) {
+  
+  
+  return "\n<span class=\"label label-info\">draft</span>\n";
+  }
+
+function program12(depth0,data) {
+  
+  
+  return "\n <a class=\"select-draft\" href=\"#\">draft</a>\n";
   }
 
   buffer += "<p class=\"pull-right\"><span class=\"label label-info\">date</span> <a href=\"#\">points</a> |\n";
   stack1 = helpers['if'].call(depth0, depth0.status_final, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  stack1 = helpers['if'].call(depth0, depth0.status_review, {hash:{},inverse:self.program(7, program7, data),fn:self.program(5, program5, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  stack1 = helpers['if'].call(depth0, depth0.enable_drafts, {hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n</p>\n\n<table class=\"table\">\n<tbody>\n</tbody>\n</table>\n\n<button class=\"btn btn-link pull-right search-list-more\" type=\"button\">Show more</button>\n";
   return buffer;

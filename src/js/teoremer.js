@@ -160,8 +160,9 @@
         status: 'F',
         events: {
             'click .search-list-more': 'fetchMore',
+            'click .select-final':     'selectFinal',
             'click .select-review':    'selectReview',
-            'click .select-final':    'selectFinal',
+            'click .select-draft':     'selectDraft'
         },
         initialize: function() {
             _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags',
@@ -180,7 +181,10 @@
         },
         render: function() {
             var html = Handlebars.templates.search_list_container({
-                status_final: this.status=='F'
+                status_final: this.status=='F',
+                status_review: this.status=='R',
+                status_draft: this.status=='D',
+                enable_drafts: !!this.options.enable_drafts
             });
             this.$el.html(html);
             var self = this;
@@ -205,6 +209,9 @@
                 intags: JSON.stringify(this.includeTags),
                 extags: JSON.stringify(this.excludeTags)
             };
+            if (this.options.user_id) {
+                options.data.user = this.options.user_id;
+            }
             if (reset) {
                 options.reset = true;
                 options.data.offset = 0;
@@ -219,11 +226,14 @@
         fetchMore: function() {
             this.doFetch(false);
         },
+        selectFinal: function() {
+            this.setStatus('F');
+        },
         selectReview: function() {
             this.setStatus('R');
         },
-        selectFinal: function() {
-            this.setStatus('F');
+        selectDraft: function() {
+            this.setStatus('D');
         },
         setIncludeTags: function(tag_list) {
             this.includeTags = tag_list;

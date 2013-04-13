@@ -1,8 +1,20 @@
 <p class="pull-right"><span class="label label-info">date</span> <a href="#">points</a> |
 {{#if status_final}}
-<span class="label label-info">final</span> <a class="select-review" href="#">review</a>
+<span class="label label-info">final</span>
 {{else}}
-<a href="#" class="select-final">final</a> <span class="label label-info">review</span>
+<a class="select-final" href="#">final</a>
+{{/if}}
+{{#if status_review}}
+<span class="label label-info">review</span>
+{{else}}
+ <a class="select-review" href="#">review</a>
+{{/if}}
+{{#if enable_drafts}}
+{{#if status_draft}}
+<span class="label label-info">draft</span>
+{{else}}
+ <a class="select-draft" href="#">draft</a>
+{{/if}}
 {{/if}}
 </p>
 
