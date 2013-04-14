@@ -159,12 +159,16 @@
         excludeTags: [],
         status: 'F',
         events: {
-            'click .search-list-more': 'fetchMore',
-            'click .select-final':     'selectFinal',
-            'click .select-review':    'selectReview',
-            'click .select-draft':     'selectDraft'
+            'click .search-list-more':   'fetchMore',
+            'click .select-final':       'selectFinal',
+            'click .select-review':      'selectReview',
+            'click .select-draft':       'selectDraft',
+            'click .select-definitions': 'selectDefinitions',
+            'click .select-theorems':    'selectTheorems',
+            'click .select-proofs':      'selectProofs'
         },
         initialize: function() {
+            this.itemtype = this.options.itemtypes.charAt(0);
             _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags',
                             'fetchMore', 'selectReview', 'selectFinal');
             this.collection = new teoremer.SearchList();
@@ -181,10 +185,16 @@
         },
         render: function() {
             var html = Handlebars.templates.search_list_container({
-                status_final: this.status=='F',
-                status_review: this.status=='R',
-                status_draft: this.status=='D',
-                enable_drafts: !!this.options.enable_drafts
+                enable_drafts: !!this.options.enable_drafts,
+                status_final: this.status == 'F',
+                status_review: this.status == 'R',
+                status_draft: this.status == 'D',
+                enable_definitions: this.options.itemtypes.indexOf('D') != -1,
+                enable_theorems: this.options.itemtypes.indexOf('T') != -1,
+                enable_proofs: this.options.itemtypes.indexOf('P') != -1,
+                type_definition: this.itemtype == 'D',
+                type_theorem: this.itemtype == 'T',
+                type_proof: this.itemtype == 'P'
             });
             this.$el.html(html);
             var self = this;
@@ -204,7 +214,7 @@
         doFetch: function(reset) {
             var options = {};
             options.data = {
-                type:   this.options.itemtype,
+                type:   this.itemtype,
                 status: this.status,
                 intags: JSON.stringify(this.includeTags),
                 extags: JSON.stringify(this.excludeTags)
@@ -235,6 +245,15 @@
         selectDraft: function() {
             this.setStatus('D');
         },
+        selectDefinitions: function() {
+            this.setType('D');
+        },
+        selectTheorems: function() {
+            this.setType('T');
+        },
+        selectProofs: function() {
+            this.setType('P');
+        },
         setIncludeTags: function(tag_list) {
             this.includeTags = tag_list;
             this.doFetch(true);
@@ -246,6 +265,12 @@
         setStatus: function(status) {
             if (status != this.status) {
                 this.status = status;
+                this.doFetch(true);
+            }
+        },
+        setType: function(itemtype) {
+            if (itemtype != this.itemtype) {
+                this.itemtype = itemtype;
                 this.doFetch(true);
             }
         }
@@ -263,57 +288,129 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 
 function program1(depth0,data) {
   
+  var buffer = "", stack1;
+  buffer += "\n";
+  stack1 = helpers['if'].call(depth0, depth0.type_definition, {hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  return buffer;
+  }
+function program2(depth0,data) {
+  
+  
+  return "\n<span class=\"label label-info\">definitions</span>\n";
+  }
+
+function program4(depth0,data) {
+  
+  
+  return "\n<a class=\"select-definitions\" href=\"#\">definitions</a>\n";
+  }
+
+function program6(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "\n";
+  stack1 = helpers['if'].call(depth0, depth0.type_theorem, {hash:{},inverse:self.program(9, program9, data),fn:self.program(7, program7, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  return buffer;
+  }
+function program7(depth0,data) {
+  
+  
+  return "\n<span class=\"label label-info\">theorems</span>\n";
+  }
+
+function program9(depth0,data) {
+  
+  
+  return "\n<a class=\"select-theorems\" href=\"#\">theorems</a>\n";
+  }
+
+function program11(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "\n";
+  stack1 = helpers['if'].call(depth0, depth0.type_proof, {hash:{},inverse:self.program(14, program14, data),fn:self.program(12, program12, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  return buffer;
+  }
+function program12(depth0,data) {
+  
+  
+  return "\n<span class=\"label label-info\">proofs</span>\n";
+  }
+
+function program14(depth0,data) {
+  
+  
+  return "\n<a class=\"select-proofs\" href=\"#\">proofs</a>\n";
+  }
+
+function program16(depth0,data) {
+  
   
   return "\n<span class=\"label label-info\">final</span>\n";
   }
 
-function program3(depth0,data) {
+function program18(depth0,data) {
   
   
   return "\n<a class=\"select-final\" href=\"#\">final</a>\n";
   }
 
-function program5(depth0,data) {
+function program20(depth0,data) {
   
   
   return "\n<span class=\"label label-info\">review</span>\n";
   }
 
-function program7(depth0,data) {
+function program22(depth0,data) {
   
   
   return "\n <a class=\"select-review\" href=\"#\">review</a>\n";
   }
 
-function program9(depth0,data) {
+function program24(depth0,data) {
   
   var buffer = "", stack1;
   buffer += "\n";
-  stack1 = helpers['if'].call(depth0, depth0.status_draft, {hash:{},inverse:self.program(12, program12, data),fn:self.program(10, program10, data),data:data});
+  stack1 = helpers['if'].call(depth0, depth0.status_draft, {hash:{},inverse:self.program(27, program27, data),fn:self.program(25, program25, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n";
   return buffer;
   }
-function program10(depth0,data) {
+function program25(depth0,data) {
   
   
   return "\n<span class=\"label label-info\">draft</span>\n";
   }
 
-function program12(depth0,data) {
+function program27(depth0,data) {
   
   
-  return "\n <a class=\"select-draft\" href=\"#\">draft</a>\n";
+  return "\n<a class=\"select-draft\" href=\"#\">draft</a>\n";
   }
 
-  buffer += "<p class=\"pull-right\"><span class=\"label label-info\">date</span> <a href=\"#\">points</a> |\n";
-  stack1 = helpers['if'].call(depth0, depth0.status_final, {hash:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),data:data});
+  buffer += "<p class=\"pull-right\">\n<span class=\"label label-info\">date</span> <a href=\"#\">points</a>\n</p>\n\n<p>\n";
+  stack1 = helpers['if'].call(depth0, depth0.enable_definitions, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n";
-  stack1 = helpers['if'].call(depth0, depth0.status_review, {hash:{},inverse:self.program(7, program7, data),fn:self.program(5, program5, data),data:data});
+  stack1 = helpers['if'].call(depth0, depth0.enable_theorems, {hash:{},inverse:self.noop,fn:self.program(6, program6, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n";
-  stack1 = helpers['if'].call(depth0, depth0.enable_drafts, {hash:{},inverse:self.noop,fn:self.program(9, program9, data),data:data});
+  stack1 = helpers['if'].call(depth0, depth0.enable_proofs, {hash:{},inverse:self.noop,fn:self.program(11, program11, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n|\n";
+  stack1 = helpers['if'].call(depth0, depth0.status_final, {hash:{},inverse:self.program(18, program18, data),fn:self.program(16, program16, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  stack1 = helpers['if'].call(depth0, depth0.status_review, {hash:{},inverse:self.program(22, program22, data),fn:self.program(20, program20, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
+  stack1 = helpers['if'].call(depth0, depth0.enable_drafts, {hash:{},inverse:self.noop,fn:self.program(24, program24, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "\n</p>\n\n<table class=\"table\">\n<tbody>\n</tbody>\n</table>\n\n<button class=\"btn btn-link pull-right search-list-more\" type=\"button\">Show more</button>\n";
   return buffer;

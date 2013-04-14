@@ -17,7 +17,7 @@ var excludeView = new teoremer.TagListView({
 });
 var searchList = new teoremer.SearchListView({
     el: $('#search-item-list'),
-    itemtype: '{{ shorttype }}'
+    itemtypes: '{{ itemtypes }}'
     {% if user_id %}
     ,user_id: {{ user_id }}
     {% if enable_drafts %}

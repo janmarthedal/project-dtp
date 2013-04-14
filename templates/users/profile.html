@@ -4,24 +4,23 @@
 
 {% block mainbar %}
 
-<h1>{{ pageuser.get_full_name }}</h1>
+<p>Display name: {{ pageuser.get_full_name }}</p>
 
-{% include 'items/include/fitemlist.html' with header='Published items' itemlist=finalitems only %}
-
-{% include 'items/include/ditemlist.html' with header='Submitted for review' itemlist=reviewitems only %}
-
-{% include 'items/include/ditemlist.html' with header='Draft items' itemlist=draftitems only %}
+<div id="search-item-list"></div>
 
 {% endblock %}
 
 {% block sidebar %}
 
-<div class="actions">
 {% if own_profile %}
-<a class="button" href="{% url 'users.views.logout' %}">log out</a>
-<div class="clr"></div>
+<h4>Actions</h4>
+<a class="btn btn-primary" href="{% url 'users.views.logout' %}">log out</a>
 {% endif %}
-</div>
+
+{% include 'items/include/search-sidebar.html' %}
 
 {% endblock %}
 
+{% block bodybottom %}
+{% include 'items/include/search-bottom.html' with itemtypes='DTP' %}
+{% endblock %}

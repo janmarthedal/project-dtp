@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django import forms
-from items.models import DraftItem, FinalItem
 from main.helpers import init_context
 from items.helpers import item_search_to_json
 
@@ -73,23 +72,8 @@ def profile(request, user_id):
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
     own_profile = request.user == pageuser
     c['pageuser']    = pageuser
-    c['finalitems']  = list(FinalItem.objects.filter(status='F', created_by=pageuser).order_by('-created_at'))
-    c['reviewitems'] = list(DraftItem.objects.filter(status='R', created_by=pageuser).order_by('-modified_at'))
-    if own_profile:
-        c.update({
-            'own_profile':    True,
-            'add_definition': True,
-            'add_theorem':    True,
-            'draftitems':     list(DraftItem.objects.filter(status='D', created_by=pageuser).order_by('-modified_at')),
-        })
-    return render(request, 'users/profile.html', c)
-
-
-@require_safe
-def items(request, user_id):
-    c = init_context('users')
-    pageuser = get_object_or_404(get_user_model(), pk=user_id)
     c['init_items'] = item_search_to_json(itemtype='D', user=pageuser)
     c['user_id'] = user_id
-    c['enable_drafts'] = request.user == pageuser
-    return render(request, 'users/items.html', c)
+    c['enable_drafts'] = own_profile
+    c['own_profile'] = own_profile
+    return render(request, 'users/profile.html', c)

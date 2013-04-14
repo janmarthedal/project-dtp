@@ -159,12 +159,16 @@
         excludeTags: [],
         status: 'F',
         events: {
-            'click .search-list-more': 'fetchMore',
-            'click .select-final':     'selectFinal',
-            'click .select-review':    'selectReview',
-            'click .select-draft':     'selectDraft'
+            'click .search-list-more':   'fetchMore',
+            'click .select-final':       'selectFinal',
+            'click .select-review':      'selectReview',
+            'click .select-draft':       'selectDraft',
+            'click .select-definitions': 'selectDefinitions',
+            'click .select-theorems':    'selectTheorems',
+            'click .select-proofs':      'selectProofs'
         },
         initialize: function() {
+            this.itemtype = this.options.itemtypes.charAt(0);
             _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags',
                             'fetchMore', 'selectReview', 'selectFinal');
             this.collection = new teoremer.SearchList();
@@ -181,10 +185,16 @@
         },
         render: function() {
             var html = Handlebars.templates.search_list_container({
-                status_final: this.status=='F',
-                status_review: this.status=='R',
-                status_draft: this.status=='D',
-                enable_drafts: !!this.options.enable_drafts
+                enable_drafts: !!this.options.enable_drafts,
+                status_final: this.status == 'F',
+                status_review: this.status == 'R',
+                status_draft: this.status == 'D',
+                enable_definitions: this.options.itemtypes.indexOf('D') != -1,
+                enable_theorems: this.options.itemtypes.indexOf('T') != -1,
+                enable_proofs: this.options.itemtypes.indexOf('P') != -1,
+                type_definition: this.itemtype == 'D',
+                type_theorem: this.itemtype == 'T',
+                type_proof: this.itemtype == 'P'
             });
             this.$el.html(html);
             var self = this;
@@ -204,7 +214,7 @@
         doFetch: function(reset) {
             var options = {};
             options.data = {
-                type:   this.options.itemtype,
+                type:   this.itemtype,
                 status: this.status,
                 intags: JSON.stringify(this.includeTags),
                 extags: JSON.stringify(this.excludeTags)
@@ -235,6 +245,15 @@
         selectDraft: function() {
             this.setStatus('D');
         },
+        selectDefinitions: function() {
+            this.setType('D');
+        },
+        selectTheorems: function() {
+            this.setType('T');
+        },
+        selectProofs: function() {
+            this.setType('P');
+        },
         setIncludeTags: function(tag_list) {
             this.includeTags = tag_list;
             this.doFetch(true);
@@ -246,6 +265,12 @@
         setStatus: function(status) {
             if (status != this.status) {
                 this.status = status;
+                this.doFetch(true);
+            }
+        },
+        setType: function(itemtype) {
+            if (itemtype != this.itemtype) {
+                this.itemtype = itemtype;
                 this.doFetch(true);
             }
         }

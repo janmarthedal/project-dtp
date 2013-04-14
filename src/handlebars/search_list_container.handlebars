@@ -1,4 +1,30 @@
-<p class="pull-right"><span class="label label-info">date</span> <a href="#">points</a> |
+<p class="pull-right">
+<span class="label label-info">date</span> <a href="#">points</a>
+</p>
+
+<p>
+{{#if enable_definitions}}
+{{#if type_definition}}
+<span class="label label-info">definitions</span>
+{{else}}
+<a class="select-definitions" href="#">definitions</a>
+{{/if}}
+{{/if}}
+{{#if enable_theorems}}
+{{#if type_theorem}}
+<span class="label label-info">theorems</span>
+{{else}}
+<a class="select-theorems" href="#">theorems</a>
+{{/if}}
+{{/if}}
+{{#if enable_proofs}}
+{{#if type_proof}}
+<span class="label label-info">proofs</span>
+{{else}}
+<a class="select-proofs" href="#">proofs</a>
+{{/if}}
+{{/if}}
+|
 {{#if status_final}}
 <span class="label label-info">final</span>
 {{else}}
@@ -13,7 +39,7 @@
 {{#if status_draft}}
 <span class="label label-info">draft</span>
 {{else}}
- <a class="select-draft" href="#">draft</a>
+<a class="select-draft" href="#">draft</a>
 {{/if}}
 {{/if}}
 </p>
