@@ -71,7 +71,7 @@ def profile(request, user_id):
     c = init_context('users')
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
     own_profile = request.user == pageuser
-    c['pageuser']    = pageuser
+    c['pageuser'] = pageuser
     c['init_items'] = item_search_to_json(itemtype='D', user=pageuser)
     c['user_id'] = user_id
     c['enable_drafts'] = own_profile

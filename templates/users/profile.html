@@ -4,7 +4,10 @@
 
 {% block mainbar %}
 
-<p>Display name: {{ pageuser.get_full_name }}</p>
+<table>
+  <tr><td>Display name</td><td>{{ pageuser.get_full_name }}</td></tr>
+  <tr><td>Member since</td><td>{{ pageuser.created_at|timesince }}</td></tr>
+</table>
 
 <div id="search-item-list"></div>
 
