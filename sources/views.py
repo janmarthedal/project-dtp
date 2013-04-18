@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django import forms
 from items.models import FinalItem
-from refs.models import RefNode, RefAuthor, SourceValidation
+from sources.models import RefNode, RefAuthor, SourceValidation
 from main.helpers import init_context
 
 
@@ -13,7 +13,7 @@ from main.helpers import init_context
 def index(request):
     c = init_context('sources')
     c['sourcelist'] = RefNode.objects.all()
-    return render(request, 'refs/index.html', c)
+    return render(request, 'sources/index.html', c)
 
 
 class AddSourceForm(forms.Form): 

@@ -3,35 +3,35 @@
         "fields": {
             "name": "Hardy, Godfrey Harold"
         }, 
-        "model": "refs.refauthor", 
+        "model": "sources.refauthor", 
         "pk": 1
     }, 
     {
         "fields": {
             "name": "Wright, Edward Maitland"
         }, 
-        "model": "refs.refauthor", 
+        "model": "sources.refauthor", 
         "pk": 2
     }, 
     {
         "fields": {
             "name": "Rudin, Walter"
         }, 
-        "model": "refs.refauthor", 
+        "model": "sources.refauthor", 
         "pk": 3
     }, 
     {
         "fields": {
             "name": "Knuth, Donald Ervin"
         }, 
-        "model": "refs.refauthor", 
+        "model": "sources.refauthor", 
         "pk": 4
     }, 
     {
         "fields": {
             "name": "Conway, John"
         }, 
-        "model": "refs.refauthor", 
+        "model": "sources.refauthor", 
         "pk": 5
     }, 
     {
@@ -52,7 +52,7 @@
             "volume": null, 
             "year": 1979
         }, 
-        "model": "refs.refnode", 
+        "model": "sources.refnode", 
         "pk": 1
     }, 
     {
@@ -72,7 +72,7 @@
             "volume": null, 
             "year": 1976
         }, 
-        "model": "refs.refnode", 
+        "model": "sources.refnode", 
         "pk": 2
     }, 
     {
@@ -92,7 +92,7 @@
             "volume": null, 
             "year": 1987
         }, 
-        "model": "refs.refnode", 
+        "model": "sources.refnode", 
         "pk": 3
     }, 
     {
@@ -112,7 +112,7 @@
             "volume": "1", 
             "year": 1997
         }, 
-        "model": "refs.refnode", 
+        "model": "sources.refnode", 
         "pk": 4
     }, 
     {
@@ -132,7 +132,7 @@
             "volume": null, 
             "year": 2001
         }, 
-        "model": "refs.refnode", 
+        "model": "sources.refnode", 
         "pk": 5
     }, 
     {
@@ -143,7 +143,7 @@
             "location": "Page 1", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 1
     }, 
     {
@@ -154,7 +154,7 @@
             "location": "Page 2", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 2
     }, 
     {
@@ -165,7 +165,7 @@
             "location": "Theorem 1, page 2", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 3
     }, 
     {
@@ -176,7 +176,7 @@
             "location": "Theorem 4, page 4", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 4
     }, 
     {
@@ -187,7 +187,7 @@
             "location": "Section 2.1, page 12", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 5
     }, 
     {
@@ -198,7 +198,7 @@
             "location": "Section 1.1, page 1", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 6
     }, 
     {
@@ -209,7 +209,7 @@
             "location": "Section 1.1, page 1", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 7
     }, 
     {
@@ -220,7 +220,7 @@
             "location": "Section 1.1, page 1", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 8
     }, 
     {
@@ -231,7 +231,7 @@
             "location": "Section 1.1, page 1", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 9
     }, 
     {
@@ -242,7 +242,7 @@
             "location": "Section 1.1, page 7", 
             "source": 3
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 10
     }, 
     {
@@ -253,7 +253,7 @@
             "location": "Section 1.1, page 7", 
             "source": 3
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 11
     }, 
     {
@@ -264,7 +264,7 @@
             "location": "Theorem 3, Section 1.3, page 3", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 12
     }, 
     {
@@ -275,7 +275,7 @@
             "location": "Page 1", 
             "source": 3
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 13
     }, 
     {
@@ -286,7 +286,7 @@
             "location": "Page 1", 
             "source": 3
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 14
     }, 
     {
@@ -297,7 +297,7 @@
             "location": "Page 1", 
             "source": 3
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 15
     }, 
     {
@@ -308,7 +308,7 @@
             "location": "Section 1.2.2, page 21", 
             "source": 4
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 16
     }, 
     {
@@ -319,7 +319,7 @@
             "location": "Section 1.1, page 1", 
             "source": 1
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 17
     }, 
     {
@@ -330,7 +330,7 @@
             "location": "Page 1", 
             "source": 2
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 18
     }, 
     {
@@ -341,7 +341,7 @@
             "location": "Section 1.2.2, page 21", 
             "source": 4
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 19
     }, 
     {
@@ -352,7 +352,7 @@
             "location": "Chapter 7, page 73", 
             "source": 5
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 20
     }, 
     {
@@ -363,7 +363,7 @@
             "location": "Chapter 7, page 73", 
             "source": 5
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 21
     }, 
     {
@@ -374,7 +374,7 @@
             "location": "Chapter 7, page 73", 
             "source": 5
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 22
     }, 
     {
@@ -385,7 +385,7 @@
             "location": "Chapter 7, page 73", 
             "source": 5
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 23
     }, 
     {
@@ -396,7 +396,7 @@
             "location": "Chapter 7, page 73", 
             "source": 5
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 24
     }, 
     {
@@ -407,7 +407,7 @@
             "location": "Section 1.2.2, page 21", 
             "source": 4
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 25
     }, 
     {
@@ -418,7 +418,7 @@
             "location": "Definition 2.1, page 24", 
             "source": 2
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 26
     }, 
     {
@@ -429,7 +429,7 @@
             "location": "Theorem 5.2, page 104", 
             "source": 2
         }, 
-        "model": "refs.sourcevalidation", 
+        "model": "sources.sourcevalidation", 
         "pk": 27
     }
 ]

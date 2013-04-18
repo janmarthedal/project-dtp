@@ -490,6 +490,18 @@
     }, 
     {
         "fields": {
+            "body": "Test review item", 
+            "created_by": 2, 
+            "itemtype": "T", 
+            "modified_at": "2013-04-12T09:33:43Z", 
+            "parent": null, 
+            "status": "R"
+        }, 
+        "model": "items.draftitem", 
+        "pk": 5
+    }, 
+    {
+        "fields": {
             "item": 4, 
             "primary": false, 
             "tag": 1
