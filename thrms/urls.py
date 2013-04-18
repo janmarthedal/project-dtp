@@ -2,7 +2,6 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
     url(r'^api/',         include('api.urls')),
-    url(r'^admin/',       include('admin.urls')),
     url(r'^users/',       include('users.urls')),
     url(r'^sources/',     include('refs.urls')),
     url(r'^media/',       include('media.urls')),

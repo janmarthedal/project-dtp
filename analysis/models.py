@@ -1,20 +1,9 @@
-import time
 from django.db import models
 from tags.models import Tag
 from items.models import FinalItem
-from items.helpers import BodyScanner
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-def queryset_generator(queryset):
-    items = queryset.order_by('pk')[:100]
-    while items:
-        latest_pk = items[len(items) - 1].pk
-        for item in items:
-            yield item
-        items = queryset.filter(pk__gt=latest_pk).order_by('pk')[:100]
 
 
 class ConceptManager(models.Manager):
@@ -72,66 +61,4 @@ class ConceptDefinition(models.Model):
         unique_together = ('item', 'concept')
     concept = models.ForeignKey(Concept, related_name='concept_defs')
     item    = models.ForeignKey(FinalItem, related_name='+')
-
-
-def add_final_item_dependencies(fitem):
-    bs = BodyScanner(fitem.body)
-
-    ItemDependency.objects.filter(from_item=fitem).delete()
-    for itemref_id in bs.getItemRefList():
-        try:
-            itemref_item = FinalItem.objects.get(final_id=itemref_id)
-            itemdep = ItemDependency(from_item=fitem, to_item=itemref_item)
-            itemdep.save()
-        except ValueError:
-            logger.error("add_final_item_dependencies: illegal item name '%s'" % itemref_id)
-        except FinalItem.DoesNotExist:
-            logger.error("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
-
-    ItemConceptReference.objects.filter(item=fitem).delete()    
-    for concept_struct in bs.getConceptList():
-        concept = Concept.objects.fetch(*concept_struct)
-        conceptref = ItemConceptReference(item=fitem, concept=concept)
-        conceptref.save()
-
-
-def set_concept_counters():
-    for concept in queryset_generator(Concept.objects):
-        concept.refs_to_this = concept.concept_refs.count()
-        concept.defs_for_this = concept.concept_defs.count()
-        concept.save()
-
-
-def build_concept_definitions():
-    t = time.clock()
-    ConceptDefinition.objects.all().delete()
-    for concept in queryset_generator(Concept.objects):
-        query = FinalItem.objects.filter(itemtype='D', status='F', finalitemtag__tag=concept.primary, finalitemtag__primary=True)
-        for secondary_tag in concept.secondaries.all():
-            query = query.filter(finalitemtag__tag=secondary_tag)
-        definition_list = query.all()
-        for item in definition_list:
-            cd = ConceptDefinition(concept=concept, item=item)
-            cd.save()
-    set_concept_counters()
-    t = time.clock() - t
-    c = { 'concept_count':            Concept.objects.count(),
-          'concept_definition_count': ConceptDefinition.objects.count(), 
-          'time':                     t }
-    return c
-
-
-def rebuild_dependencies():
-    t = time.clock()
-    item_count = 0
-    for fitem in queryset_generator(FinalItem.objects.filter(status='F')):
-        add_final_item_dependencies(fitem)
-        item_count += 1
-    t = time.clock() - t
-    c = { 'public_item_count':  item_count,
-          'concept_references': ItemConceptReference.objects.count(),
-          'item_dependencies':  ItemDependency.objects.count(),
-          'time':               t }
-    return c
-
 

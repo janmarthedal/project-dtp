@@ -11,7 +11,7 @@ from django.template import Context
 from django import forms
 from items.models import DraftItem, FinalItem
 from items.helpers import BodyScanner, TagListField
-from analysis.models import add_final_item_dependencies
+from analysis.management.commands.analyze import add_final_item_dependencies
 
 import logging
 logger = logging.getLogger(__name__)

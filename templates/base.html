@@ -60,11 +60,6 @@
               <li {% if active_nav == 'about' %}class="active"{% endif %}>
                 <a href="{% url 'main.views.about' %}">About</a>
               </li>
-              {% if user.is_admin %}
-              <li {% if active_nav == 'admin' %}class="active"{% endif %}>
-                <a href="{% url 'admin.views.index' %}">Admin</a>
-              </li>
-              {% endif %}
             </ul>
           </div><!--/.nav-collapse -->
         </div>
