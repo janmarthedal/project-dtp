@@ -4,21 +4,13 @@
 
 {% block mainbar %}
 
-  <div id="hero" class="hero-unit hide">
-    <h1>Welcome to teoremer!</h1>
-    <p><strong>teoremer</strong> is a collection of definitions, theorems and proofs.</p>
-    <p>Anyone can contribute.</p>
-    <button class="btn btn-primary">Read more &raquo;</button>
-    <button id="hero-close" class="btn btn-link">Don't show again</button>
-  </div>
+<h2>teoremer blog</h2>
+{% for item in blog_feed %}
+<h4><a href="{{ item.link }}">{{ item.title }}</a></h4>
+<p>{{ item.description|safe }}</p>
+{% endfor %}
 
-  <h2>teoremer blog</h2>
-  <ul>
-    <li><a href="http://blog.teoremer.com/2013/04/test-post-2.html">Post 2</a></li>
-    <li><a href="http://blog.teoremer.com/2013/04/test-post-1.html">Post 1</a></li>
-  </ul>
-
-  <h2>Latest items</h2>
+<h2>Latest items</h2>
 
 {% endblock %}
 
@@ -28,11 +20,5 @@
   <li><span class="tag">integer</span> &times; 98</li>
   <li><span class="tag">set</span> &times; 43</li>
 </ul>
-
-<h4>Statistics</h4>
-<p>Definitions: {{ def_final }}/{{ def_review }}/{{ def_draft }}</p>
-<p>Theorems: {{ thm_final }}/{{ thm_review }}/{{ thm_draft }}</p>
-<p>Proofs: {{ prf_final }}/{{ prf_review }}/{{ prf_draft }}</p>
-<p>Users: {{ user_count }}</p>
 
 {% endblock %}

@@ -14,4 +14,6 @@ for item in channel.findall('item'):
                    'description': item.find('description').text
                    })
 
-print result
+print 'def get_blog_feed():'
+print '    return ' + str(result)
+print ''

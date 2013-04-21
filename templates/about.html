@@ -13,13 +13,11 @@
 
 {% block sidebar %}
 
-<h4>teoremer blog</h4>
-
-<ul>
-  <li><a href="http://blog.teoremer.com/2013/04/test-post-2.html">Post 2</a></li>
-  <li><a href="http://blog.teoremer.com/2013/04/test-post-1.html">Post 1</a></li>
-</ul>
-
+<h4>Statistics</h4>
+<p>Definitions: {{ def_final }}/{{ def_review }}/{{ def_draft }}</p>
+<p>Theorems: {{ thm_final }}/{{ thm_review }}/{{ thm_draft }}</p>
+<p>Proofs: {{ prf_final }}/{{ prf_review }}/{{ prf_draft }}</p>
+<p>Users: {{ user_count }}</p>
 
 {% comment %}
 <a href="#" id="about-details" class="pull-right"><i class="icon-cog"></i></a>
