@@ -179,7 +179,7 @@ def tag_names_to_tag_objects(tag_names):
             not_found.append(tag_name)
     return (found, not_found)
 
-def item_search_to_json(itemtype, include_tag_names=[], exclude_tag_names=[], status='F', offset=0, limit=5, user=None):
+def item_search_to_json(itemtype=None, include_tag_names=[], exclude_tag_names=[], status='F', offset=0, limit=5, user=None):
     if status == 'F':
         query = FinalItem.objects.filter(status='F')
     elif (status == 'R') or (user and status == 'D'):

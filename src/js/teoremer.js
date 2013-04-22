@@ -114,23 +114,10 @@
         }
     });
 
-    teoremer.SearchItem = Backbone.Model.extend({
+    teoremer.MathItem = Backbone.Model.extend({
     });
 
-    teoremer.SearchList = Backbone.Collection.extend({
-        has_more: false,
-        initialize: function() {
-            _.bindAll(this, 'parse');
-        },
-        model: teoremer.SearchItem,
-        url: api_prefix + 'items',
-        parse: function(response) {
-            this.has_more = response.meta.has_more
-            return response.items;
-        }
-    });
-
-    teoremer.SearchItemView = Backbone.View.extend({
+    teoremer.MathItemView = Backbone.View.extend({
         tagName: 'tr',
         initialize: function() {
             _.bindAll(this, 'render');
@@ -151,6 +138,19 @@
             var html = Handlebars.templates.search_list_item(context);
             this.$el.html(html);
             return this;
+        }
+    });
+
+    teoremer.SearchList = Backbone.Collection.extend({
+        has_more: false,
+        initialize: function() {
+            _.bindAll(this, 'parse');
+        },
+        model: teoremer.MathItem,
+        url: api_prefix + 'items',
+        parse: function(response) {
+            this.has_more = response.meta.has_more
+            return response.items;
         }
     });
 
@@ -204,10 +204,10 @@
             this.postAppend();
         },
         appendItem: function(item) {
-            var searchItemView = new teoremer.SearchItemView({
+            var mathItemView = new teoremer.MathItemView({
                 model: item
             });
-            var element = searchItemView.render().el;
+            var element = mathItemView.render().el;
             this.$('tbody').append(element);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
         },
@@ -273,6 +273,43 @@
                 this.itemtype = itemtype;
                 this.doFetch(true);
             }
+        }
+    });
+
+    teoremer.TopList = Backbone.Collection.extend({
+        initialize: function() {
+            _.bindAll(this, 'parse');
+        },
+        model: teoremer.MathItem,
+        url: api_prefix + 'items',
+        parse: function(response) {
+            return response.items;
+        }
+    });
+
+    teoremer.TopListView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, 'render', 'appendItem');
+            this.collection = new teoremer.TopList();
+            this.collection.bind('reset', this.render);
+            this.collection.bind('add', this.appendItem);
+            this.render();
+        },
+        render: function() {
+            var html = Handlebars.templates.top_list_container();
+            this.$el.html(html);
+            var self = this;
+            _(this.collection.models).each(function(item) {
+                self.appendItem(item);
+            }, this);
+        },
+        appendItem: function(item) {
+            var mathItemView = new teoremer.MathItemView({
+                model: item
+            });
+            var element = mathItemView.render().el;
+            this.$('tbody').append(element);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
         }
     });
 

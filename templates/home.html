@@ -1,16 +1,20 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 
 {% block title %}Home{% endblock %}
 
 {% block mainbar %}
 
 <h2>teoremer blog</h2>
+
 {% for item in blog_feed %}
 <h4><a href="{{ item.link }}">{{ item.title }}</a></h4>
 <p>{{ item.description|safe }}</p>
 {% endfor %}
 
 <h2>Latest items</h2>
+
+<div id="top-item-list"></div>
 
 {% endblock %}
 
@@ -21,4 +25,19 @@
   <li><span class="tag">set</span> &times; 43</li>
 </ul>
 
+{% endblock %}
+
+{% block bodybottom %}
+<script src="http://cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+<script src="{% static 'js/teoremer.js' %}"></script>
+
+<script type="text/javascript">
+var topList = new teoremer.TopListView({
+    el: $('#top-item-list'),
+});
+topList.collection.reset({{ init_items|safe }}, { parse: true });
+</script>
 {% endblock %}
