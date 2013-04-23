@@ -62,9 +62,9 @@
     teoremer.TagListView = Backbone.View.extend({
         events: {},
         initialize: function() {
-            _.bindAll(this, 'render', 'addItem', 'appendItem', 'keyPress', 'getTagList');
+            _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList');
             this.collection = new teoremer.TagList();
-            this.collection.bind('add', this.appendItem);
+            this.collection.bind('add', this.addOne);
             this.events['click #' + this.options.prefix + '-tag-add'] = 'addItem';
             this.events['keypress #' + this.options.prefix + '-tag-name'] = 'keyPress';
             this.render();
@@ -78,14 +78,11 @@
             });
         },
         render: function() {
-            var self = this;
             var html = Handlebars.templates.tag_list_input({
                 prefix: this.options.prefix
             });
             this.$el.html(html);
-            _(this.collection.models).each(function(item) {
-                self.appendItem(item);
-            }, this);
+            this.collection.each(this.addOne);
         },
         keyPress: function(e) {
             if (e.keyCode == 13) {
@@ -103,7 +100,7 @@
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el]);
             }
         },
-        appendItem: function(item) {
+        addOne: function(item) {
             var tagItemView = new teoremer.TagItemView({
                 model: item
             });
@@ -169,11 +166,11 @@
         },
         initialize: function() {
             this.itemtype = this.options.itemtypes.charAt(0);
-            _.bindAll(this, 'render', 'appendItem', 'setIncludeTags', 'setExcludeTags',
+            _.bindAll(this, 'render', 'addOne', 'setIncludeTags', 'setExcludeTags',
                             'fetchMore', 'selectReview', 'selectFinal');
             this.collection = new teoremer.SearchList();
             this.collection.bind('reset', this.render);
-            this.collection.bind('add', this.appendItem);
+            this.collection.bind('add', this.addOne);
             this.render();
         },
         postAppend: function() {
@@ -197,13 +194,10 @@
                 type_proof: this.itemtype == 'P'
             });
             this.$el.html(html);
-            var self = this;
-            _(this.collection.models).each(function(item) {
-                self.appendItem(item);
-            }, this);
+            this.collection.each(this.addOne);
             this.postAppend();
         },
-        appendItem: function(item) {
+        addOne: function(item) {
             var mathItemView = new teoremer.MathItemView({
                 model: item
             });
@@ -277,9 +271,6 @@
     });
 
     teoremer.TopList = Backbone.Collection.extend({
-        initialize: function() {
-            _.bindAll(this, 'parse');
-        },
         model: teoremer.MathItem,
         url: api_prefix + 'items',
         parse: function(response) {
@@ -289,21 +280,18 @@
 
     teoremer.TopListView = Backbone.View.extend({
         initialize: function() {
-            _.bindAll(this, 'render', 'appendItem');
+            _.bindAll(this, 'render', 'addOne');
             this.collection = new teoremer.TopList();
             this.collection.bind('reset', this.render);
-            this.collection.bind('add', this.appendItem);
+            this.collection.bind('add', this.addOne);
             this.render();
         },
         render: function() {
             var html = Handlebars.templates.top_list_container();
             this.$el.html(html);
-            var self = this;
-            _(this.collection.models).each(function(item) {
-                self.appendItem(item);
-            }, this);
+            this.collection.each(this.addOne);
         },
-        appendItem: function(item) {
+        addOne: function(item) {
             var mathItemView = new teoremer.MathItemView({
                 model: item
             });
