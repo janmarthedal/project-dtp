@@ -1,9 +1,9 @@
 import time
 from django.core.management.base import BaseCommand, CommandError
-from analysis.models import ItemDependency, ItemConceptReference, Concept, ConceptDefinition
+from analysis.models import ItemDependency, ItemConceptReference, Concept, ConceptDefinition, TagCount
 from items.models import FinalItem
 from items.helpers import BodyScanner
-
+from tags.models import Tag
 
 def queryset_generator(queryset):
     items = queryset.order_by('pk')[:100]
@@ -12,7 +12,6 @@ def queryset_generator(queryset):
         for item in items:
             yield item
         items = queryset.filter(pk__gt=latest_pk).order_by('pk')[:100]
-
 
 def add_final_item_dependencies(fitem):
     bs = BodyScanner(fitem.body)
@@ -34,13 +33,11 @@ def add_final_item_dependencies(fitem):
         conceptref = ItemConceptReference(item=fitem, concept=concept)
         conceptref.save()
 
-
 def set_concept_counters():
     for concept in queryset_generator(Concept.objects):
         concept.refs_to_this = concept.concept_refs.count()
         concept.defs_for_this = concept.concept_defs.count()
         concept.save()
-
 
 class Command(BaseCommand):
     help = 'Builds (redundant) analysis information'
@@ -48,6 +45,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self._rebuild_dependencies()
         self._build_concept_definitions()
+        self._build_tag_counts()
 
     def _rebuild_dependencies(self):
         self.stdout.write('Rebuild dependencies')
@@ -78,4 +76,16 @@ class Command(BaseCommand):
         t = time.clock() - t
         self.stdout.write('  Processed %d concepts' % Concept.objects.count())
         self.stdout.write('  Created %d concept definition links' % ConceptDefinition.objects.count())
+        self.stdout.write('  Took %g seconds' % t)
+
+    def _build_tag_counts(self):
+        self.stdout.write('Build tag count')
+        t = time.clock()
+        TagCount.objects.all().delete()
+        for tag in queryset_generator(Tag.objects):
+            count = FinalItem.objects.filter(status='F', finalitemtag__tag=tag).count()
+            tag_count = TagCount(tag=tag, count=count)
+            tag_count.save()
+        t = time.clock() - t
+        self.stdout.write('  Processed %d tags' % TagCount.objects.count())
         self.stdout.write('  Took %g seconds' % t)

@@ -5,7 +5,6 @@ from items.models import FinalItem
 import logging
 logger = logging.getLogger(__name__)
 
-
 class ConceptManager(models.Manager):
     
     def fetch(self, primary, secondaries):
@@ -26,7 +25,6 @@ class ConceptManager(models.Manager):
             logger.warn('Identical concepts: ' + str([c.id for c in concepts]))
         return concepts[0]
 
-
 class Concept(models.Model):
     class Meta:
         db_table = 'concepts'
@@ -38,14 +36,12 @@ class Concept(models.Model):
     def __unicode__(self):
         return self.primary.name
 
-
 class ItemDependency(models.Model):
     class Meta:
         db_table = 'item_deps'
         unique_together = ('from_item', 'to_item')
     from_item = models.ForeignKey(FinalItem, related_name='+', db_index=True)
     to_item   = models.ForeignKey(FinalItem, related_name='+')
-
 
 class ItemConceptReference(models.Model):
     class Meta:
@@ -54,7 +50,6 @@ class ItemConceptReference(models.Model):
     item    = models.ForeignKey(FinalItem, related_name='+', db_index=True)
     concept = models.ForeignKey(Concept, related_name='concept_refs')
 
-
 class ConceptDefinition(models.Model):
     class Meta:
         db_table = 'concept_definition'
@@ -62,3 +57,8 @@ class ConceptDefinition(models.Model):
     concept = models.ForeignKey(Concept, related_name='concept_defs')
     item    = models.ForeignKey(FinalItem, related_name='+')
 
+class TagCount(models.Model):
+    class Meta:
+        db_table = 'tag_count'
+    tag = models.OneToOneField(Tag, primary_key=True)
+    count = models.IntegerField(db_index=True)

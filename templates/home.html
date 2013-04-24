@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load item_tags %}
 
 {% block title %}Home{% endblock %}
 
@@ -21,10 +22,10 @@
 {% block sidebar %}
 <h4>Tags</h4>
 <ul>
-  <li><span class="tag">integer</span> &times; 98</li>
-  <li><span class="tag">set</span> &times; 43</li>
+{% for tc in top_tags %}
+  <li><span class="tag">{{ tc.name|typeset_tag }}</span> &times; {{ tc.count }}</li>
+{% endfor %}
 </ul>
-
 {% endblock %}
 
 {% block bodybottom %}

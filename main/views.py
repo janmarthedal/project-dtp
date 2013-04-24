@@ -8,6 +8,7 @@ from main.blog_feed import get_blog_feed
 from items.models import FinalItem, DraftItem
 from users.models import User
 from items.helpers import item_search_to_json
+from analysis.models import TagCount
 
 @require_safe
 def index(request):
@@ -20,6 +21,8 @@ def home(request):
     c = init_context('home')
     c['blog_feed']  = get_blog_feed()
     c['init_items'] = item_search_to_json()
+    c['top_tags'] = [{ 'name': tc.tag.name, 'count': tc.count }
+                     for tc in TagCount.objects.exclude(count=0).order_by('-count')[:20]]
     return render(request, 'home.html', c)
 
 @require_safe
