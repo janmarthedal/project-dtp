@@ -21,7 +21,7 @@
 
 {% block sidebar %}
 <h4>Tags</h4>
-<ul>
+<ul class="tag-counts">
 {% for tc in top_tags %}
   <li><span class="tag">{{ tc.name|typeset_tag }}</span> &times; {{ tc.count }}</li>
 {% endfor %}
