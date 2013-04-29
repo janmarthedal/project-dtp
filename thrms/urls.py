@@ -9,10 +9,10 @@ urlpatterns = patterns('',
     url(r'^theorems/',    include('items.theorems.urls')),
     url(r'^definitions/', include('items.definitions.urls')),
     url(r'^proofs/',      include('items.proofs.urls')),
+    url(r'^categories/',  include('tags.urls')),
     url(r'^signup$',      'main.views.signup'),
     url(r'^about$',       'main.views.about'),
     url(r'^home$',        'main.views.home'),
     url(r'^(\w+)$',       'items.views.show_final'),
     url(r'^$',            'main.views.index'),
 )
-

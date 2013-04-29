@@ -48,6 +48,9 @@
               <li {% if active_nav == 'proofs' %}class="active"{% endif %}>
                 <a href="{% url 'items.proofs.views.index' %}">Proofs</a>
               </li>
+              <li {% if active_nav == 'categories' %}class="active"{% endif %}>
+                <a href="{% url 'tags.views.index' %}">Categories</a>
+              </li>
               <li {% if active_nav == 'sources' %}class="active"{% endif %}>
                 <a href="{% url 'sources.views.index' %}">Sources</a>
               </li>
@@ -57,11 +60,8 @@
               <li {% if active_nav == 'users' %}class="active"{% endif %}>
                 <a href="{% url 'users.views.index' %}">Users</a>
               </li>
-              <li {% if active_nav == 'about' %}class="active"{% endif %}>
-                <a href="{% url 'main.views.about' %}">About</a>
-              </li>
             </ul>
-          </div><!--/.nav-collapse -->
+          </div>
         </div>
       </div>
     </div>
@@ -82,8 +82,9 @@
       <hr>
 
       <footer>
+        <a href="{% url 'main.views.about' %}">about</a> | <a href="//blog.teoremer.com">blog</a> | <a href="mailto:info@teoremer.com">contact</a><br/>
         <a class="pull-right" rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a>
-        site design &copy; sputsoft 2013<br>
+        site design &copy; sputsoft 2013<br/>
         user contributions are licensed under <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">cc-by-sa-3.0</a>
       </footer>
 
