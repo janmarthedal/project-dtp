@@ -1,6 +1,6 @@
 import time
 from django.core.management.base import BaseCommand, CommandError
-from analysis.models import ItemDependency, TagCount
+from analysis.models import ItemDependency, TagCount, ItemTag
 from items.models import FinalItem
 from items.helpers import BodyScanner
 from tags.models import Tag
@@ -32,6 +32,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self._rebuild_dependencies()
+        self._build_item_tags()
         self._build_tag_counts()
 
     def _rebuild_dependencies(self):
@@ -42,8 +43,26 @@ class Command(BaseCommand):
             add_final_item_dependencies(fitem)
             item_count += 1
         t = time.clock() - t
-        self.stdout.write('  Processed %d published items' % item_count)
+        self.stdout.write('  Processed %d final items' % item_count)
         self.stdout.write('  A total of %d item dependencies' % ItemDependency.objects.count())
+        self.stdout.write('  Took %g seconds' % t)
+
+    def _build_item_tags(self):
+        self.stdout.write('Build item tags')
+        t = time.clock()
+        item_count = 0
+        tag_count = 0
+        for item in queryset_generator(FinalItem.objects.filter(status='F')):
+            tags = set([tag for itemtag in item.finalitemcategory_set.all()
+                            for tag in itemtag.category.get_tag_list()])
+            for tag in tags:
+                it = ItemTag(item=item, tag=tag)
+                it.save()
+                tag_count += 1
+            item_count += 1
+        t = time.clock() - t
+        self.stdout.write('  Processed %d final items' % item_count)
+        self.stdout.write('  A total of %d item tags' % tag_count)
         self.stdout.write('  Took %g seconds' % t)
 
     def _build_tag_counts(self):
@@ -51,7 +70,7 @@ class Command(BaseCommand):
         t = time.clock()
         TagCount.objects.all().delete()
         for tag in queryset_generator(Tag.objects):
-            count = FinalItem.objects.filter(status='F', finalitemtag__tag=tag).count()
+            count = ItemTag.objects.filter(tag=tag).count()
             tag_count = TagCount(tag=tag, count=count)
             tag_count.save()
         t = time.clock() - t

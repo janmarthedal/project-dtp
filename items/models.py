@@ -23,15 +23,15 @@ class BaseItem(models.Model):
         super(BaseItem, self).__init__(*args, **kwargs)
         self._cache = {}
     @property
-    def primary_tags(self):
-        if 'primary_tags' not in self._cache:
+    def primary_categories(self):
+        if 'primary_categories' not in self._cache:
             self._set_tag_cache()
-        return self._cache['primary_tags']
+        return self._cache['primary_categories']
     @property
-    def secondary_tags(self):
-        if 'secondary_tags' not in self._cache:
+    def secondary_categories(self):
+        if 'secondary_categories' not in self._cache:
             self._set_tag_cache()
-        return self._cache['secondary_tags']
+        return self._cache['secondary_categories']
     itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
     parent   = models.ForeignKey('FinalItem', null=True)
     body     = models.TextField(null=True)
@@ -73,14 +73,14 @@ class FinalItem(BaseItem):
     created_at   = models.DateTimeField(default=timezone.now)
     modified_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     modified_at  = models.DateTimeField(default=timezone.now)
-    tags         = models.ManyToManyField(Category, through='FinalItemCategory')
+    categories   = models.ManyToManyField(Category, through='FinalItemCategory')
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
     def _set_tag_cache(self):
-        tags = [(itemtag.category, itemtag.primary)
+        categories = [(itemtag.category, itemtag.primary)
                 for itemtag in self.finalitemcategory_set.all()]
-        self._cache['primary_tags']   = [t[0] for t in tags if t[1]]
-        self._cache['secondary_tags'] = [t[0] for t in tags if not t[1]]
+        self._cache['primary_categories']   = [t[0] for t in categories if t[1]]
+        self._cache['secondary_categories'] = [t[0] for t in categories if not t[1]]
 
 class DraftItemManager(models.Manager):
     def _add_tags(self, item, primary_tags, secondary_tags):
@@ -116,14 +116,14 @@ class DraftItem(BaseItem):
     status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
     created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     modified_at = models.DateTimeField(default=timezone.now)
-    tags        = models.ManyToManyField(Category, through='DraftItemCategory')
+    categories  = models.ManyToManyField(Category, through='DraftItemCategory')
     def __unicode__(self):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
     def _set_tag_cache(self):
-        tags = [(itemtag.tag, itemtag.primary)
+        categories = [(itemtag.tag, itemtag.primary)
                 for itemtag in self.draftitemtag_set.all()]
-        self._cache['primary_tags']   = [t[0] for t in tags if t[1]]
-        self._cache['secondary_tags'] = [t[0] for t in tags if not t[1]]
+        self._cache['primary_categories']   = [t[0] for t in categories if t[1]]
+        self._cache['secondary_categories'] = [t[0] for t in categories if not t[1]]
     def make_review(self):
         if self.status != 'R':
             self.status      = 'R'

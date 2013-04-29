@@ -9,9 +9,7 @@
 
 <h1>{{ item }}
 {% if item.parent %} of <a href="{% url 'items.views.show_final' item.parent.final_id %}">{{ item.parent }}</a>{% endif %}</h1>
-{% if item.primary_tags %}
-{% include 'items/include/categories.html' with categories=item.primary_tags only %}
-{% endif %}
+{% include 'items/include/categories.html' with categories=item.primary_categories only %}
 
 <div class="item-body">
 {{ item.body|typeset_body }}
@@ -52,7 +50,7 @@
 
 <h4>Tags</h4>
 
-{% include 'items/include/categories.html' with categories=item.secondary_tags only %}
+{% include 'items/include/categories.html' with categories=item.secondary_categories only %}
 
 <h4>Actions</h4>
 

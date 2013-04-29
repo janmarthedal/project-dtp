@@ -63,10 +63,8 @@ class BodyScanner:
                         parts2[j] = self._add_inline_maths(parts2[j])
                 parts[i] = ''.join(parts2)
         body = ''.join(parts)
-        body = re.sub(r'\[([0-9a-zA-Z -]*)#([0-9a-zA-Z -]+)(?:\(([0-9a-zA-Z -]+(?:,[0-9a-zA-Z -]+)*)\))?\]',
-                      self._conceptMatch, body)
-        body = re.sub(r'\[@(\w+)\]',
-                      self._itemRefMatch, body)
+        body = re.sub(r'\[([0-9a-zA-Z -]*)#([0-9a-zA-Z -]+)\]', self._conceptMatch, body)
+        body = re.sub(r'\[@(\w+)\]', self._itemRefMatch, body)
         self.body = body
         self._imaths = self._imaths.items()
 
@@ -93,8 +91,7 @@ class BodyScanner:
         key = self._make_key()
         name        = match.group(1)
         primary     = self._prepare_tag(match.group(2))
-        secondaries = map(self._prepare_tag, match.group(3).split(',')) if match.group(3) else []
-        self._conceptRefs.append((key, '', name, primary, secondaries))
+        self._conceptRefs.append((key, '', name, primary))
         return key
     
     def _itemRefMatch(self, match):
@@ -109,7 +106,7 @@ class BodyScanner:
         self._imaths = map(lambda p: (p[0], func(p[1])), self._imaths)
 
     def transformConcepts(self, func):
-        self._conceptRefs = map(lambda p: (p[0], func(p[2], p[3], p[4]), p[2], p[3], p[4]), self._conceptRefs)
+        self._conceptRefs = map(lambda p: (p[0], func(p[2], p[3]), p[2], p[3]), self._conceptRefs)
 
     def transformItemRefs(self, func):
         self._itemRefs = map(lambda p: (p[0], func(p[2]), p[2]), self._itemRefs)
@@ -126,16 +123,16 @@ class BodyScanner:
             st = st.replace(key, value)
         for (key, value) in self._imaths:
             st = st.replace(key, value)
-        for (key, value, _1, _2, _3) in self._conceptRefs:
+        for (key, value, _1, _2) in self._conceptRefs:
             st = st.replace(key, value)
         for (key, value, _1) in self._itemRefs:
             st = st.replace(key, value)
         return st
 
 
-def typesetConcept(name, primary, secondaries):
+def typesetConcept(name, primary):
     name = name or primary
-    return typeset_tag(name)
+    return '<a href="/definitions/#categorized/%s">%s</a>' % (primary, typeset_tag(name))
 
 def typesetItemRef(final_id):
     url = reverse('items.views.show_final', args=[final_id])
@@ -182,8 +179,8 @@ def _extract_draft_item_attributes(item):
             'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
             'timestamp':   str(item.modified_at), 
             'categories':  {
-                            'primary':   [c.get_tag_names() for c in item.primary_tags],
-                            'secondary': [c.get_tag_names() for c in item.secondary_tags]
+                            'primary':   [c.get_tag_names() for c in item.primary_categories],
+                            'secondary': [c.get_tag_names() for c in item.secondary_categories]
                             }
             }
 
@@ -196,8 +193,8 @@ def _extract_final_item_attributes(item):
             'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
             'timestamp':   str(item.created_at), 
             'categories':  {
-                            'primary':   [c.get_tag_names() for c in item.primary_tags],
-                            'secondary': [c.get_tag_names() for c in item.secondary_tags]
+                            'primary':   [c.get_tag_names() for c in item.primary_categories],
+                            'secondary': [c.get_tag_names() for c in item.secondary_categories]
                             }
             }
 
@@ -216,21 +213,17 @@ def item_search_to_json(itemtype=None, include_tag_names=[], exclude_tag_names=[
     if not not_found:
         (exclude_tags, not_found) = tag_names_to_tag_objects(exclude_tag_names)
         for tag in include_tags:
-            query = query.filter(finalitemtag__tag=tag)
+            query = query.filter(itemtag__tag=tag)
         for tag in exclude_tags:
-            query = query.exclude(finalitemtag__tag=tag)
+            query = query.exclude(itemtag__tag=tag)
     if status == 'F':
         query = query.order_by('-created_at')
     else:
         query = query.order_by('-modified_at')
     items = query[offset:(offset+limit+1)]
-    result = {
-              'meta': {
-                       'offset':   offset,
-                       'count':    min(len(items), limit),
-                       'has_more': len(items) > limit
-                       }
-              }
+    result = { 'meta': { 'offset':   offset,
+                         'count':    min(len(items), limit),
+                         'has_more': len(items) > limit }}
     if status == 'F':
         result['items'] = [_extract_final_item_attributes(item) for item in items[:limit]]
     else:
