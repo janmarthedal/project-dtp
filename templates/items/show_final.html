@@ -8,8 +8,10 @@
 {% block mainbar %}
 
 <h1>{{ item }}
-{% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
 {% if item.parent %} of <a href="{% url 'items.views.show_final' item.parent.final_id %}">{{ item.parent }}</a>{% endif %}</h1>
+{% if item.primary_tags %}
+{% include 'items/include/categories.html' with categories=item.primary_tags only %}
+{% endif %}
 
 <div class="item-body">
 {{ item.body|typeset_body }}
@@ -20,7 +22,7 @@
 <ul class="validation-list">
 {% for val in validation_list %}
 <li><p>{{ val.source|typeset_refnode }}</p>
-	<p>{{ val.location }}</p></li>
+    <p>{{ val.location }}</p></li>
 {% endfor %}
 </ul>
 {% elif validation_count %}
@@ -50,13 +52,7 @@
 
 <h4>Tags</h4>
 
-{% if item.secondary_tags %}
-<div class="taglist">
-{% for tag in item.secondary_tags %}
-  <span class="tag">{{ tag|typeset_tag }}</span>
-{% endfor %}
-</div>
-{% endif %}
+{% include 'items/include/categories.html' with categories=item.secondary_tags only %}
 
 <h4>Actions</h4>
 

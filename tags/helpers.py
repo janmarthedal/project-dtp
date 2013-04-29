@@ -7,4 +7,3 @@ def clean_tag(name):
 
 def normalize_tag(name):
     return clean_tag(name).lower()
-

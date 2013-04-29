@@ -16,6 +16,10 @@
         return elems.join('');
     }
 
+    function typeset_tag_list(tag_list) {
+        return _.map(tag_list, typeset_tag)
+    }
+
     function type_short_to_long(st) {
         switch (st.toUpperCase()) {
             case 'D': return 'definition';
@@ -28,8 +32,7 @@
         return st.charAt(0).toUpperCase() + st.slice(1);
     }
 
-    teoremer.TagItem = Backbone.Model.extend({
-    });
+    teoremer.TagItem = Backbone.Model;
 
     teoremer.TagList = Backbone.Collection.extend({
         model : teoremer.TagItem
@@ -111,8 +114,7 @@
         }
     });
 
-    teoremer.MathItem = Backbone.Model.extend({
-    });
+    teoremer.MathItem = Backbone.Model;
 
     teoremer.MathItemView = Backbone.View.extend({
         tagName: 'tr',
@@ -121,13 +123,13 @@
             this.model.bind('change', this.render);
         },
         render: function() {
-            var tags = this.model.get('tags');
+            var categories = this.model.get('categories');
             var context = {
                 id:          this.model.get('id'),
                 item_name:   capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
                 item_link:   this.model.get('item_link'),
-                pritags:     _.map(tags.primary, typeset_tag).join(', '),
-                sectags:     _.map(tags.secondary, typeset_tag),
+                pritags:     _.map(_.map(categories.primary, _.last), typeset_tag).join(', '),
+                sectags:     _.map(categories.secondary, typeset_tag_list),
                 author_name: this.model.get('author'),
                 author_link: this.model.get('author_link'),
                 timestamp:   this.model.get('timestamp')

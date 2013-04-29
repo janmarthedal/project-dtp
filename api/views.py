@@ -9,18 +9,16 @@ from items.helpers import item_search_to_json
 import logging
 logger = logging.getLogger(__name__)
 
-
 @require_GET
 def tags_prefixed(request, prefix):
     tags = Tag.objects.filter(normalized__startswith=prefix).order_by('normalized')[:20]
     response_data = [t.name for t in tags]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-
 @require_GET
 def item_list(request):
     try:
-        itemtype = request.GET['type']
+        itemtype = request.GET.get('type')
         status = request.GET.get('status', 'F')
         list_user = None
         user_id = request.GET.get('user')

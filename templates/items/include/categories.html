@@ -1,0 +1,11 @@
+{% load item_tags %}
+
+<div class="categories">
+{% for category in categories %}
+  <span class="category">
+  {% for tag in category.get_tag_list %}
+    <span class="tag">{{ tag|typeset_tag }}</span>
+  {% endfor %}
+  </span>
+{% endfor %}
+</div>

@@ -1,7 +1,6 @@
 import re
 import json
 import markdown
-from django.utils.http import urlquote, urlencode
 from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.utils import crypto
@@ -132,14 +131,11 @@ class BodyScanner:
         for (key, value, _1) in self._itemRefs:
             st = st.replace(key, value)
         return st
-        
+
 
 def typesetConcept(name, primary, secondaries):
     name = name or primary
-    url = reverse('items.definitions.views.concept_search', args=[urlquote(primary)])
-    if secondaries:
-        url += '?' + urlencode(dict(tags=','.join(secondaries)))
-    return '<a href="%s">%s</a>' % (url, typeset_tag(name))
+    return typeset_tag(name)
 
 def typesetItemRef(final_id):
     url = reverse('items.views.show_final', args=[final_id])
@@ -161,11 +157,9 @@ def typeset_tag(st):
             parts[i] = '\(' + parts[i] + '\)'
     return make_html_safe(''.join(parts))
 
-
 class TagSearchForm(forms.Form):
     includetags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
     excludetags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
-
 
 def tag_names_to_tag_objects(tag_names):
     found = []
@@ -178,6 +172,34 @@ def tag_names_to_tag_objects(tag_names):
         except Tag.DoesNotExist:
             not_found.append(tag_name)
     return (found, not_found)
+
+def _extract_draft_item_attributes(item):
+    return {
+            'id':          item.pk,
+            'item_link':   reverse('items.views.show', args=[item.pk]),
+            'type':        item.itemtype,
+            'author':      item.created_by.get_full_name(),
+            'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
+            'timestamp':   str(item.modified_at), 
+            'categories':  {
+                            'primary':   [c.get_tag_names() for c in item.primary_tags],
+                            'secondary': [c.get_tag_names() for c in item.secondary_tags]
+                            }
+            }
+
+def _extract_final_item_attributes(item):
+    return {
+            'id':          item.final_id,
+            'item_link':   reverse('items.views.show_final', args=[item.final_id]), 
+            'type':        item.itemtype,
+            'author':      item.created_by.get_full_name(),
+            'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
+            'timestamp':   str(item.created_at), 
+            'categories':  {
+                            'primary':   [c.get_tag_names() for c in item.primary_tags],
+                            'secondary': [c.get_tag_names() for c in item.secondary_tags]
+                            }
+            }
 
 def item_search_to_json(itemtype=None, include_tag_names=[], exclude_tag_names=[], status='F', offset=0, limit=5, user=None):
     if status == 'F':
@@ -202,38 +224,15 @@ def item_search_to_json(itemtype=None, include_tag_names=[], exclude_tag_names=[
     else:
         query = query.order_by('-modified_at')
     items = query[offset:(offset+limit+1)]
-    if status == 'F':
-        result_items = [{
-                         'id':          item.final_id,
-                         'item_link':   reverse('items.views.show_final', args=[item.final_id]), 
-                         'type':        item.itemtype,
-                         'author':      item.created_by.get_full_name(),
-                         'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
-                         'timestamp':   str(item.created_at), 
-                         'tags':        {
-                                         'primary':   [t.name for t in item.primary_tags],
-                                         'secondary': [t.name for t in item.secondary_tags]
-                                         }
-                         } for item in items[:limit]]                  
-    else:
-        result_items = [{
-                         'id':          item.pk,
-                         'item_link':   reverse('items.views.show', args=[item.pk]),
-                         'type':        item.itemtype,
-                         'author':      item.created_by.get_full_name(),
-                         'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
-                         'timestamp':   str(item.modified_at), 
-                         'tags':        {
-                                         'primary':   [t.name for t in item.primary_tags],
-                                         'secondary': [t.name for t in item.secondary_tags]
-                                         }
-                         } for item in items[:limit]]
     result = {
               'meta': {
                        'offset':   offset,
                        'count':    min(len(items), limit),
                        'has_more': len(items) > limit
-                       },
-              'items': result_items
+                       }
               }
+    if status == 'F':
+        result['items'] = [_extract_final_item_attributes(item) for item in items[:limit]]
+    else:
+        result['items'] = [_extract_draft_item_attributes(item) for item in items[:limit]]
     return json.dumps(result)
