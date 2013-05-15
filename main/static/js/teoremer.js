@@ -303,6 +303,29 @@
         }
     });
 
+    teoremer.BodyPreview = function(el) {
+        this.el = el;
+        this.converter = new Showdown.converter();
+        this.setSource = function(source) {
+            var insertsCounter = 0, inserts = {}, key;
+            var pars = source.split('$$');
+            for (var i=0; i < pars.length; i++) {
+                if (i % 2) {
+                    insertsCounter++;
+                    key = 'zZ' + insertsCounter + 'Zz';
+                    inserts[key] = '\\[' + pars[i] + '\\]';
+                    pars[i] = key;
+                }
+            }
+            var html = this.converter.makeHtml(pars.join(''));
+            for (key in inserts) {
+                html = html.replace(key, inserts[key]);
+            }
+            this.el.html(html);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el.get()]);
+        }
+    }
+
     window.teoremer = teoremer;
 
 })(window);

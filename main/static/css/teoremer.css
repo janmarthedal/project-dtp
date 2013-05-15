@@ -13,7 +13,7 @@
 .categories {
   line-height: 30px;
 }
-.item-body {
+div.item-body {
   min-height: 20px;
   padding: 19px;
   margin-bottom: 20px;
@@ -24,6 +24,9 @@
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+textarea.item-body {
+  height: 20em;
 }
 .tag-counts {
   list-style: none;

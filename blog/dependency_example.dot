@@ -1,24 +1,24 @@
 digraph G {
   T1 [shape=ellipse];
+  T2 [shape=ellipse];
+  T3 [shape=ellipse];
+  T4 [shape=ellipse];
   P1 [shape=box];
   P2 [shape=box];
-  P3 [shape=box];
-  D1 [shape=hexagon];
   D2 [shape=hexagon];
   D3 [shape=hexagon];
-  AC1 [shape=octagon];
+  D4 [shape=hexagon];
+  AD1 [shape=octagon];
 
   T1 -> P1 [style=dotted];
   T1 -> P2 [style=dotted];
-  T1 -> P3 [style=dotted];
-  T1 -> D1;
-  T1 -> AC1;
+  T1 -> AD1;
+  T1 -> D4;
   P1 -> T2;
   P1 -> T3;
   P2 -> T3;
   P2 -> T4;
-  P3 -> T5;
-  AC1 -> D2 [style=dotted];
-  AC1 -> D3 [style=dotted]; 
+  AD1 -> D2 [style=dotted];
+  AD1 -> D3 [style=dotted]; 
+  D4 -> D3;
 }
-

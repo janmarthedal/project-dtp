@@ -100,7 +100,7 @@
                     name: value
                 });
                 this.collection.add(item);
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el]);
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el.get()]);
             }
         },
         addOne: function(item) {
@@ -203,9 +203,9 @@
             var mathItemView = new teoremer.MathItemView({
                 model: item
             });
-            var element = mathItemView.render().el;
-            this.$('tbody').append(element);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
+            var mathItem = mathItemView.render();
+            this.$('tbody').append(mathItem.el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItem.$el.get()]);
         },
         doFetch: function(reset) {
             var options = {};
@@ -302,6 +302,29 @@
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
         }
     });
+
+    teoremer.BodyPreview = function(el) {
+        this.el = el;
+        this.converter = new Showdown.converter();
+        this.setSource = function(source) {
+            var insertsCounter = 0, inserts = {}, key;
+            var pars = source.split('$$');
+            for (var i=0; i < pars.length; i++) {
+                if (i % 2) {
+                    insertsCounter++;
+                    key = 'zZ' + insertsCounter + 'Zz';
+                    inserts[key] = '\\[' + pars[i] + '\\]';
+                    pars[i] = key;
+                }
+            }
+            var html = this.converter.makeHtml(pars.join(''));
+            for (key in inserts) {
+                html = html.replace(key, inserts[key]);
+            }
+            this.el.html(html);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el.get()]);
+        }
+    }
 
     window.teoremer = teoremer;
 

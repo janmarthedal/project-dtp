@@ -14,6 +14,7 @@ from items.helpers import BodyScanner, TagListField
 from analysis.management.commands.analyze import add_final_item_dependencies
 
 import logging
+from main.helpers import init_context
 logger = logging.getLogger(__name__)
 
 
@@ -65,7 +66,7 @@ class EditItemForm(forms.Form):
 
 
 @require_http_methods(["GET", "POST"])
-def new(request, kind, parent=None):
+def new2(request, kind, parent=None):
     if not request.user.is_authenticated():
         messages.info(request, 'You must log in to create a %s' % kind)
         return HttpResponseRedirect('%s?next=%s' % (reverse('users.views.login'), request.path))
@@ -97,6 +98,23 @@ def new(request, kind, parent=None):
             messages.success(request, message)
             return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
     c.update(dict(kind=kind, form=form))
+    if kind == 'definition':
+        c['primary_text'] = 'Terms defined'
+    elif kind == 'theorem':
+        c['primary_text'] = 'Name(s) of theorem'
+    return render(request, 'items/new.html', c)
+
+@require_GET
+def new(request, kind, parent=None):
+    if not request.user.is_authenticated():
+        messages.info(request, 'You must log in to create a %s' % kind)
+        return HttpResponseRedirect('%s?next=%s' % (reverse('users.views.login'), request.path))
+    c = init_context(kind)
+    if parent:
+        if kind != 'proof':
+            raise Http404
+        c['parent'] = get_object_or_404(FinalItem, final_id=parent, itemtype='T')
+    c['kind'] = kind
     if kind == 'definition':
         c['primary_text'] = 'Terms defined'
     elif kind == 'theorem':

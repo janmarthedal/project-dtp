@@ -1,27 +1,37 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 
 {% block title %}
-Add {{ kind }}{% if preview %} preview{% endif %}
+Add {{ kind }}
 {% endblock %}
 
 {% block mainbar %}
 
-{% include "items/include/preview.html" %}
+<h1>Add {{ kind }}{% if parent %} of {{ parent }}{% endif %}</h1>
 
-<h1>Add {{ kind }}
-{% if parent %} of {{ parent }}{% endif %}
-</h1>
+<textarea id="body-input" class="item-body span12">
+</textarea>
 
-<form method="post" action="{% if parent %}{% url 'items.views.new' kind=kind parent=parent.final_id %}{% else %}{% url 'items.views.new' kind=kind %}{% endif %}">{% csrf_token %}
-
-  {% include "items/include/edit_fields.html" %}
-
-  <div>
-    <input class="button" type="submit" name="submit" value="preview" />
-    <input class="button" type="submit" name="submit" value="save draft" />
-  </div>
-
-</form>
+<div id="body-preview" class="item-body">
+</div>
 
 {% endblock mainbar %}
 
+{% block bodybottom %}
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+<script src="{% static 'js/teoremer.js' %}"></script>
+
+<script type="text/javascript">
+var bodyPreview = new teoremer.BodyPreview($('#body-preview'));
+
+$('#body-input').on('input propertychange', function() {
+  bodyPreview.setSource(this.value);
+});
+
+</script>
+
+{% endblock %}
