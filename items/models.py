@@ -2,7 +2,7 @@ from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from tags.models import Tag, Category
+from tags.models import Category
 
 import logging
 logger = logging.getLogger(__name__)
@@ -52,10 +52,10 @@ class FinalItemManager(models.Manager):
                 break
             except IntegrityError:
                 length += 1
-        for draftitemtag in draft_item.draftitemtag_set.all():
-            finalitemtag = FinalItemTag(item=item, tag=draftitemtag.tag,
-                                        primary=draftitemtag.primary)
-            finalitemtag.save()
+        #for draftitemtag in draft_item.draftitemtag_set.all():
+        #    finalitemtag = FinalItemTag(item=item, tag=draftitemtag.tag,
+        #                                primary=draftitemtag.primary)
+        #    finalitemtag.save()
         return item
 
 class FinalItem(BaseItem):
@@ -83,12 +83,7 @@ class FinalItem(BaseItem):
         self._cache['secondary_categories'] = [t[0] for t in categories if not t[1]]
 
 class DraftItemManager(models.Manager):
-    def _add_tags(self, item, primary_tags, secondary_tags):
-        for name in primary_tags:
-            DraftItemTag(item=item, tag=Tag.objects.fetch(name), primary=True).save()
-        for name in secondary_tags:
-            DraftItemTag(item=item, tag=Tag.objects.fetch(name), primary=False).save()
-    def add_item(self, user, itemtype, body, primary_tags, secondary_tags, parent):
+    def add_item(self, user, itemtype, body, parent):
         type_key = filter(lambda kc: kc[1] == itemtype, DraftItem.TYPE_CHOICES)[0][0]
         item = DraftItem(itemtype   = type_key,
                          status     = 'D',
@@ -96,7 +91,6 @@ class DraftItemManager(models.Manager):
                          body       = body,
                          parent     = parent)
         item.save()
-        self._add_tags(item, primary_tags, secondary_tags)
         return item
     def update_item(self, item, user, body, primary_tags, secondary_tags):
         item.modified_at = timezone.now()

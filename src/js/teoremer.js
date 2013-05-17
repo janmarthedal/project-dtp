@@ -311,10 +311,19 @@
             var pars = source.split('$$');
             for (var i=0; i < pars.length; i++) {
                 if (i % 2) {
-                    insertsCounter++;
-                    key = 'zZ' + insertsCounter + 'Zz';
+                    key = 'zZ' + (++insertsCounter) + 'Zz';
                     inserts[key] = '\\[' + pars[i] + '\\]';
                     pars[i] = key;
+                } else {
+                    pars2 = pars[i].split('$');
+                    for (var j=0; j < pars2.length; j++) {
+                        if (j % 2) {
+                            key = 'zZ' + (++insertsCounter) + 'Zz';
+                            inserts[key] = '\\(' + pars2[j] + '\\)';
+                            pars2[j] = key;
+                        }
+                    }
+                    pars[i] = pars2.join('');
                 }
             }
             var html = this.converter.makeHtml(pars.join(''));

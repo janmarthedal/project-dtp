@@ -100,7 +100,7 @@
                     name: value
                 });
                 this.collection.add(item);
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el]);
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el.get()]);
             }
         },
         addOne: function(item) {
@@ -203,9 +203,9 @@
             var mathItemView = new teoremer.MathItemView({
                 model: item
             });
-            var element = mathItemView.render().el;
-            this.$('tbody').append(element);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
+            var mathItem = mathItemView.render();
+            this.$('tbody').append(mathItem.el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItem.$el.get()]);
         },
         doFetch: function(reset) {
             var options = {};
@@ -311,10 +311,19 @@
             var pars = source.split('$$');
             for (var i=0; i < pars.length; i++) {
                 if (i % 2) {
-                    insertsCounter++;
-                    key = 'zZ' + insertsCounter + 'Zz';
+                    key = 'zZ' + (++insertsCounter) + 'Zz';
                     inserts[key] = '\\[' + pars[i] + '\\]';
                     pars[i] = key;
+                } else {
+                    pars2 = pars[i].split('$');
+                    for (var j=0; j < pars2.length; j++) {
+                        if (j % 2) {
+                            key = 'zZ' + (++insertsCounter) + 'Zz';
+                            inserts[key] = '\\(' + pars2[j] + '\\)';
+                            pars2[j] = key;
+                        }
+                    }
+                    pars[i] = pars2.join('');
                 }
             }
             var html = this.converter.makeHtml(pars.join(''));

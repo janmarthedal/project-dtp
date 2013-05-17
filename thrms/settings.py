@@ -1,4 +1,5 @@
 import os
+from django.contrib.messages import constants as message_constants
 
 ############ Site specific settings ############
 
@@ -26,6 +27,8 @@ if os.uname()[1].endswith('webfaction.com'):
     DEFAULT_FROM_EMAIL = 'jmr@thrms.net'
     SERVER_EMAIL = 'jmr@thrms.net'
     ALLOWED_HOSTS = ['thrms.net', 'teoremer.com']
+    
+    MESSAGE_LEVEL = message_constants.INFO
 
 else:
 
@@ -44,6 +47,8 @@ else:
 
     STATIC_ROOT = '/home/jmr/www/static/'
     PROJECT_BASE = '/home/jmr/projects/thrms/'
+    
+    MESSAGE_LEVEL = message_constants.DEBUG
 
 ############ Common settings ############
 
@@ -126,6 +131,14 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
 )
+
+MESSAGE_TAGS = {
+    message_constants.DEBUG:   'label',
+    message_constants.INFO:    'label label-info',
+    message_constants.SUCCESS: 'label label-success',
+    message_constants.WARNING: 'label label-warning',
+    message_constants.ERROR:   'label label-important'
+}
 
 ROOT_URLCONF = 'thrms.urls'
 

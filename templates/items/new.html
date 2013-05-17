@@ -17,6 +17,18 @@ Add {{ kind }}
 
 {% endblock mainbar %}
 
+{% block sidebar %}
+
+<h4>Actions</h4>
+<form id="save-form" action="{% url 'items.views.save' %}" method="post">
+  {% csrf_token %}
+  <input type="submit" class="btn btn-primary" value="Save draft" />
+  <input type="hidden" name="kind" value="{{ kind }}" />
+  <input type="hidden" name="body" value="" />  
+</form>
+
+{% endblock %}
+
 {% block bodybottom %}
 
 <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
@@ -30,6 +42,10 @@ var bodyPreview = new teoremer.BodyPreview($('#body-preview'));
 
 $('#body-input').on('input propertychange', function() {
   bodyPreview.setSource(this.value);
+});
+
+$('#save-form').submit(function() {
+  $("#save-form>input[name='body']").prop('value', $('#body-input').val());
 });
 
 </script>

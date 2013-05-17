@@ -11,10 +11,10 @@ from django.template import Context
 from django import forms
 from items.models import DraftItem, FinalItem
 from items.helpers import BodyScanner, TagListField
+from main.helpers import init_context
 from analysis.management.commands.analyze import add_final_item_dependencies
 
 import logging
-from main.helpers import init_context
 logger = logging.getLogger(__name__)
 
 
@@ -120,6 +120,18 @@ def new(request, kind, parent=None):
     elif kind == 'theorem':
         c['primary_text'] = 'Name(s) of theorem'
     return render(request, 'items/new.html', c)
+
+@login_required
+@require_POST
+def save(request):
+    kind = request.POST.get('kind')
+    body = request.POST.get('body')
+    item = DraftItem.objects.add_item(request.user, kind, body, None)
+    message = u'%s successfully created' % item
+    logger.debug(message)
+    messages.set_level(request, messages.DEBUG)
+    messages.success(request, message)
+    return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
 
 @login_required
 @require_http_methods(["GET", "POST"])
