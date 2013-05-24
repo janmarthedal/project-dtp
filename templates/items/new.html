@@ -15,17 +15,34 @@ Add {{ kind }}
 <div id="body-preview" class="item-body">
 </div>
 
+{% if primary_text %}
+<h4>{{ primary_text }}</h4>
+<button id="add-primary-category" class="btn">Add category</button>
+{% endif %}
+
+<h4>Categories</h4>
+<button id="add-secondary-category" class="btn">Add category</button>
+
+<div id="categoryModal" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="categoryModalLabel">Add category</h3>
+  </div>
+  <div class="modal-body">
+    <p><input type="text"/></p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    <button class="btn btn-primary">Add</button>
+  </div>
+</div>
+
 {% endblock mainbar %}
 
 {% block sidebar %}
 
 <h4>Actions</h4>
-<form id="save-form" action="{% url 'items.views.save' %}" method="post">
-  {% csrf_token %}
-  <input type="submit" class="btn btn-primary" value="Save draft" />
-  <input type="hidden" name="kind" value="{{ kind }}" />
-  <input type="hidden" name="body" value="" />  
-</form>
+<button id="save-draft" class="btn btn-primary">Save draft</button>
 
 {% endblock %}
 
@@ -35,17 +52,40 @@ Add {{ kind }}
 <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
 <script src="{% static 'js/teoremer.js' %}"></script>
 
 <script type="text/javascript">
-var bodyPreview = new teoremer.BodyPreview($('#body-preview'));
 
-$('#body-input').on('input propertychange', function() {
-  bodyPreview.setSource(this.value);
+$('#categoryModal').modal({
+  'backdrop': false,
+  'show': false
 });
 
-$('#save-form').submit(function() {
-  $("#save-form>input[name='body']").prop('value', $('#body-input').val());
+$('#add-secondary-category').click(function() {
+  $('#categoryModal').modal('toggle');
+});
+
+teoremer.setupCsrf();
+
+var item = new teoremer.DraftItem({
+  kind: "{{ kind }}",
+  body: ''
+});
+
+var bodyEdit = new teoremer.BodyEditView({
+  el: $('#body-input'),
+  model: item
+});
+
+var bodyPreview = new teoremer.BodyPreviewView({
+  el: $('#body-preview'),
+  model: item
+});
+
+var saveDraft = new teoremer.SaveDraftView({
+  el: $('#save-draft'),
+  model: item
 });
 
 </script>

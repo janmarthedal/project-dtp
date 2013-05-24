@@ -118,20 +118,8 @@ def new(request, kind, parent=None):
     if kind == 'definition':
         c['primary_text'] = 'Terms defined'
     elif kind == 'theorem':
-        c['primary_text'] = 'Name(s) of theorem'
+        c['primary_text'] = 'Name(s) for theorem'
     return render(request, 'items/new.html', c)
-
-@login_required
-@require_POST
-def save(request):
-    kind = request.POST.get('kind')
-    body = request.POST.get('body')
-    item = DraftItem.objects.add_item(request.user, kind, body, None)
-    message = u'%s successfully created' % item
-    logger.debug(message)
-    messages.set_level(request, messages.DEBUG)
-    messages.success(request, message)
-    return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
 
 @login_required
 @require_http_methods(["GET", "POST"])

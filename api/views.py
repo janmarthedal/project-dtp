@@ -1,10 +1,12 @@
 import json
+from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
-from django.contrib.auth import get_user_model
-from tags.models import Tag
 from items.helpers import item_search_to_json
+from items.models import DraftItem
+from tags.models import Tag
 
 import logging
 logger = logging.getLogger(__name__)
@@ -15,7 +17,6 @@ def tags_prefixed(request, prefix):
     response_data = [t.name for t in tags]
     return HttpResponse(json.dumps(response_data), content_type="application/json")
 
-@require_GET
 def item_list(request):
     try:
         itemtype = request.GET.get('type')
@@ -40,3 +41,32 @@ def item_list(request):
                                  limit=limit,
                                  user=list_user)
     return HttpResponse(result, content_type="application/json")
+
+def items(request):
+    if request.method == 'GET':
+        return item_list(request)
+    else:
+        raise Http404
+
+def drafts_new(request):
+    user = request.user
+    data = json.loads(request.body)
+    if not (user.is_authenticated() and all([key in data for key in ['body', 'kind']])):
+        raise Http404
+    item = DraftItem.objects.add_item(user, data['kind'], data['body'], None)
+    message = u'%s successfully created' % item
+    logger.debug(message)
+    messages.set_level(request, messages.DEBUG)
+    messages.success(request, message)
+    result = {
+        'id':   item.pk,
+        'body': item.body,
+        'kind': item.itemtype
+    }
+    return HttpResponse(json.dumps(result), content_type="application/json")
+
+def drafts(request):
+    if request.method == 'POST':
+        return drafts_new(request)
+    else:
+        raise Http404

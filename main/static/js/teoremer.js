@@ -6,6 +6,23 @@
 
     var teoremer = {}
 
+    teoremer.setupCsrf = function() {
+        var csrftoken = $.cookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+        $.ajaxSetup({
+            crossDomain: false, // obviates need for sameOrigin test
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    }
+
     function typeset_tag(st) {
         var elems = st.split('$');
         for (var n = 0; n < elems.length; n++) {
@@ -46,8 +63,8 @@
         },
         initialize : function() {
             _.bindAll(this, 'render', 'unrender', 'remove');
-            this.model.bind('change', this.render);
-            this.model.bind('remove', this.unrender);
+            this.model.on('change', this.render);
+            this.model.on('remove', this.unrender);
         },
         render : function() {
             var tag_html = typeset_tag(this.model.get('name'));
@@ -284,8 +301,8 @@
         initialize: function() {
             _.bindAll(this, 'render', 'addOne');
             this.collection = new teoremer.TopList();
-            this.collection.bind('reset', this.render);
-            this.collection.bind('add', this.addOne);
+            this.collection.on('reset', this.render);
+            this.collection.on('add', this.addOne);
             this.render();
         },
         render: function() {
@@ -303,10 +320,33 @@
         }
     });
 
-    teoremer.BodyPreview = function(el) {
-        this.el = el;
-        this.converter = new Showdown.converter();
-        this.setSource = function(source) {
+    teoremer.DraftItem = Backbone.Model.extend({
+        urlRoot: '/api/drafts'
+    });
+
+    teoremer.BodyEditView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, 'render');
+            var self = this;
+            this.$el.on('input propertychange', function() {
+                self.model.set('body', this.value);
+            });
+            this.render();
+        },
+        render: function() {
+            this.$el.val(this.model.get('body'));
+            return this;
+        }
+    });
+
+    teoremer.BodyPreviewView = Backbone.View.extend({
+        initialize: function() {
+            this.converter = new Showdown.converter();
+            this.model.on('change:body', this.render, this);
+            this.render.call(this);
+        },
+        render: function() {
+            var source = this.model.get('body');
             var insertsCounter = 0, inserts = {}, key;
             var pars = source.split('$$');
             for (var i=0; i < pars.length; i++) {
@@ -330,10 +370,42 @@
             for (key in inserts) {
                 html = html.replace(key, inserts[key]);
             }
-            this.el.html(html);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.el.get()]);
+            this.$el.html(html);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
         }
+    });
+
+    function reverse_view_redirect(view, arg1) {
+        var url;
+        if (view == 'items.views.show') {
+            url = '/item/' + arg1;
+        } else {
+            console.log('Cannot do reverse lookup for view ' + view);
+            return;
+        }
+        window.location.href = url;
     }
+
+    teoremer.SaveDraftView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, 'save');
+        },
+        events: {
+            'click': 'save'
+        },
+        save: function() {
+            item.save(null, {
+                wait: true,
+                success: function(model, response) {
+                    reverse_view_redirect('items.views.show', model.get('id'));
+                },
+                error: function(model, error) {
+                    console.log(model.toJSON());
+                    console.log('error saving');
+                }
+            });
+        }
+    });
 
     window.teoremer = teoremer;
 
