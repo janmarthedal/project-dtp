@@ -7,6 +7,7 @@ from django.views.decorators.http import require_GET
 from items.helpers import item_search_to_json
 from items.models import DraftItem
 from tags.models import Tag
+from api.helpers import api_view, api_user, api_key, json_response
 
 import logging
 logger = logging.getLogger(__name__)
@@ -48,22 +49,21 @@ def items(request):
     else:
         raise Http404
 
+@api_view
 def drafts_new(request):
-    user = request.user
-    data = json.loads(request.body)
-    if not (user.is_authenticated() and all([key in data for key in ['body', 'kind']])):
-        raise Http404
-    item = DraftItem.objects.add_item(user, data['kind'], data['body'], None)
+    user = api_user(request)
+    kind = api_key(request, 'kin')
+    body = api_key(request, 'body')
+    item = DraftItem.objects.add_item(user, kind, body, None)
     message = u'%s successfully created' % item
     logger.debug(message)
-    messages.set_level(request, messages.DEBUG)
     messages.success(request, message)
     result = {
         'id':   item.pk,
         'body': item.body,
         'kind': item.itemtype
     }
-    return HttpResponse(json.dumps(result), content_type="application/json")
+    return json_response(result)
 
 def drafts(request):
     if request.method == 'POST':
