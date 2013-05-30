@@ -52,41 +52,44 @@
     teoremer.TagItem = Backbone.Model;
 
     teoremer.TagList = Backbone.Collection.extend({
-        model : teoremer.TagItem
+        model: teoremer.TagItem
     });
 
     teoremer.TagItemView = Backbone.View.extend({
-        tagName : 'span',
-        className : 'tag',
-        events : {
+        tagName: 'span',
+        className: 'tag',
+        events: {
             'click .delete-tag' : 'remove'
         },
-        initialize : function() {
+        initialize: function() {
             _.bindAll(this, 'render', 'unrender', 'remove');
             this.model.on('change', this.render);
             this.model.on('remove', this.unrender);
         },
-        render : function() {
+        render: function() {
             var tag_html = typeset_tag(this.model.get('name'));
             this.$el.html(tag_html + ' <i class="icon-remove delete-tag"></i>');
             return this;
         },
-        unrender : function() {
+        unrender: function() {
             this.$el.remove();
         },
-        remove : function() {
+        remove: function() {
             this.model.destroy();
         }
     });
 
     teoremer.TagListView = Backbone.View.extend({
-        events: {},
+        events: function() {
+            var e = {};
+            e['click #' + this.options.prefix + '-tag-add'] = 'addItem';
+            e['keypress #' + this.options.prefix + '-tag-name'] = 'keyPress';
+            return e;
+        },
         initialize: function() {
-            _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList');
+            _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList', 'events');
             this.collection = new teoremer.TagList();
             this.collection.bind('add', this.addOne);
-            this.events['click #' + this.options.prefix + '-tag-add'] = 'addItem';
-            this.events['keypress #' + this.options.prefix + '-tag-name'] = 'keyPress';
             this.render();
             this.input_field = this.$('#' + this.options.prefix + '-tag-name');
             this.input_field.typeahead({
@@ -406,6 +409,60 @@
             });
         }
     });
+
+    var AddCategoryView = Backbone.View.extend({
+        el: $('#modal-container'),
+        events: {
+            'click .cancel': 'remove',
+            'click .btn-primary': 'addAction',
+            'click #category-minus-btn': 'minusAction',
+            'click #category-plus-btn': 'plusAction'
+        },
+        initialize: function() {
+            _.bindAll(this, 'render', 'addAction', 'renderTags', 'minusAction');
+            this.collection = new teoremer.TagList();
+            this.collection.on('add remove', this.renderTags);
+            this.render();
+            this.setElement(this.$('.modal'));  // so 'this.remove' functions correctly
+            this.$el.modal({
+              'backdrop': false,
+              'show': true
+            });
+        },
+        render: function() {
+            var html = Handlebars.templates.add_category();
+            this.$el.html(html);
+        },
+        renderTags: function() {
+            console.log('renderTags');
+            var html = Handlebars.templates.tag_list({
+                tags: this.collection.toJSON()
+            });
+            this.$('div.category').html(html);
+        },
+        addAction: function() {
+            this.options.add();
+            this.remove();
+        },
+        minusAction: function() {
+            this.collection.pop();
+        },
+        plusAction: function() {
+            var value = this.$('input').val();
+            if (value) {
+                this.collection.push(new teoremer.TagItem({ name: value }));
+                this.$('input').val('');
+            }
+        }
+    });
+
+    teoremer.categoryAdder = function(selector, add_callback) {
+        $(selector).click(function() {
+            new AddCategoryView({
+                add: add_callback
+            });
+        });
+    }
 
     window.teoremer = teoremer;
 

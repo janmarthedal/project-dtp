@@ -1,10 +1,13 @@
 #mainbar {
   margin-top: 10px;
 }
-.category {
+span.category {
   padding: 0.1em 0.2em;
   margin: 0.1em;
   border: 2px solid #888;
+}
+div.category {
+  margin-bottom: 1em;
 }
 .tag:before {
   content: ' / ';

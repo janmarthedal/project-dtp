@@ -52,41 +52,44 @@
     teoremer.TagItem = Backbone.Model;
 
     teoremer.TagList = Backbone.Collection.extend({
-        model : teoremer.TagItem
+        model: teoremer.TagItem
     });
 
     teoremer.TagItemView = Backbone.View.extend({
-        tagName : 'span',
-        className : 'tag',
-        events : {
+        tagName: 'span',
+        className: 'tag',
+        events: {
             'click .delete-tag' : 'remove'
         },
-        initialize : function() {
+        initialize: function() {
             _.bindAll(this, 'render', 'unrender', 'remove');
             this.model.on('change', this.render);
             this.model.on('remove', this.unrender);
         },
-        render : function() {
+        render: function() {
             var tag_html = typeset_tag(this.model.get('name'));
             this.$el.html(tag_html + ' <i class="icon-remove delete-tag"></i>');
             return this;
         },
-        unrender : function() {
+        unrender: function() {
             this.$el.remove();
         },
-        remove : function() {
+        remove: function() {
             this.model.destroy();
         }
     });
 
     teoremer.TagListView = Backbone.View.extend({
-        events: {},
+        events: function() {
+            var e = {};
+            e['click #' + this.options.prefix + '-tag-add'] = 'addItem';
+            e['keypress #' + this.options.prefix + '-tag-name'] = 'keyPress';
+            return e;
+        },
         initialize: function() {
-            _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList');
+            _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList', 'events');
             this.collection = new teoremer.TagList();
             this.collection.bind('add', this.addOne);
-            this.events['click #' + this.options.prefix + '-tag-add'] = 'addItem';
-            this.events['keypress #' + this.options.prefix + '-tag-name'] = 'keyPress';
             this.render();
             this.input_field = this.$('#' + this.options.prefix + '-tag-name');
             this.input_field.typeahead({
@@ -407,11 +410,76 @@
         }
     });
 
+    var AddCategoryView = Backbone.View.extend({
+        el: $('#modal-container'),
+        events: {
+            'click .cancel': 'remove',
+            'click .btn-primary': 'addAction',
+            'click #category-minus-btn': 'minusAction',
+            'click #category-plus-btn': 'plusAction'
+        },
+        initialize: function() {
+            _.bindAll(this, 'render', 'addAction', 'renderTags', 'minusAction');
+            this.collection = new teoremer.TagList();
+            this.collection.on('add remove', this.renderTags);
+            this.render();
+            this.setElement(this.$('.modal'));  // so 'remove' functions correctly
+            this.$el.modal({
+              'backdrop': false,
+              'show': true
+            });
+            //this.model.push(new teoremer.TagItem({ name: 'top' }));
+            //this.model.push(new teoremer.TagItem({ name: 'sub1' }));
+            //this.model.push(new teoremer.TagItem({ name: 'sub2' }));
+        },
+        render: function() {
+            var html = Handlebars.templates.add_category();
+            this.$el.html(html);
+        },
+        renderTags: function() {
+            console.log('renderTags');
+            var html = Handlebars.templates.tag_list({
+                tags: this.collection.toJSON()
+            });
+            this.$('div.category').html(html);
+        },
+        addAction: function() {
+            this.options.add();
+            this.remove();
+        },
+        minusAction: function() {
+            this.collection.pop();
+        },
+        plusAction: function() {
+            var value = this.$('input').val();
+            if (value) {
+                this.$('input').val('');
+                this.collection.push(new teoremer.TagItem({ name: value }));
+            }
+        }
+    });
+
+    teoremer.categoryAdder = function(selector, add_callback) {
+        $(selector).click(function() {
+            new AddCategoryView({
+                add: add_callback
+            });
+        });
+    }
+
     window.teoremer = teoremer;
 
 })(window);
 (function() {
   var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
+templates['add_category'] = template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  
+
+
+  return "<div class=\"modal hide\">\n    <div class=\"modal-header\">\n        <button type=\"button\" class=\"close cancel\">&times;</button>\n        <h3>Add category</h3>\n    </div>\n    <div class=\"modal-body\">\n        <div class=\"category\">\n        </div>\n        <div class=\"input-append\">\n          <input class=\"span12\" type=\"text\">\n          <button id=\"category-plus-btn\" class=\"btn\"><i class=\"icon-plus\"></i></button>\n          <button id=\"category-minus-btn\" class=\"btn\"><i class=\"icon-minus\"></i></button>\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary\">Add category</button>\n        <button class=\"btn cancel\">Cancel</button>\n    </div>\n</div>";
+  });
 templates['search_list_container'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
@@ -606,6 +674,25 @@ function program4(depth0,data) {
   stack1 = helpers.each.call(depth0, depth0.sectags, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "</div>\n</td>";
+  return buffer;
+  });
+templates['tag_list'] = template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
+
+function program1(depth0,data) {
+  
+  var buffer = "", stack1;
+  buffer += "<span class=\"tag\">"
+    + escapeExpression(((stack1 = depth0.name),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + "</span>";
+  return buffer;
+  }
+
+  stack1 = helpers.each.call(depth0, depth0.tags, {hash:{},inverse:self.noop,fn:self.program(1, program1, data),data:data});
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "\n";
   return buffer;
   });
 templates['tag_list_input'] = template(function (Handlebars,depth0,helpers,partials,data) {

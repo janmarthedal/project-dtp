@@ -23,19 +23,7 @@ Add {{ kind }}
 <h4>Categories</h4>
 <button id="add-secondary-category" class="btn">Add category</button>
 
-<div id="categoryModal" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    <h3 id="categoryModalLabel">Add category</h3>
-  </div>
-  <div class="modal-body">
-    <p><input type="text"/></p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-    <button class="btn btn-primary">Add</button>
-  </div>
-</div>
+<div id="modal-container"></div>
 
 {% endblock mainbar %}
 
@@ -57,15 +45,6 @@ Add {{ kind }}
 
 <script type="text/javascript">
 
-$('#categoryModal').modal({
-  'backdrop': false,
-  'show': false
-});
-
-$('#add-secondary-category').click(function() {
-  $('#categoryModal').modal('toggle');
-});
-
 teoremer.setupCsrf();
 
 var item = new teoremer.DraftItem({
@@ -86,6 +65,16 @@ var bodyPreview = new teoremer.BodyPreviewView({
 var saveDraft = new teoremer.SaveDraftView({
   el: $('#save-draft'),
   model: item
+});
+
+{% if primary_text %}
+teoremer.categoryAdder('#add-primary-category', function() {
+  console.log('Add primary category');
+});
+{% endif %}
+
+teoremer.categoryAdder('#add-secondary-category', function() {
+  console.log('Add secondary category');
 });
 
 </script>
