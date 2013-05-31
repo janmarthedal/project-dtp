@@ -49,7 +49,11 @@
         return st.charAt(0).toUpperCase() + st.slice(1);
     }
 
-    teoremer.TagItem = Backbone.Model;
+    teoremer.TagItem = Backbone.Model.extend({
+       typeset: function() {
+           return typeset_tag(this.get('name'));
+       } 
+    });
 
     teoremer.TagList = Backbone.Collection.extend({
         model: teoremer.TagItem
@@ -67,7 +71,7 @@
             this.model.on('remove', this.unrender);
         },
         render: function() {
-            var tag_html = typeset_tag(this.model.get('name'));
+            var tag_html = this.model.typeset();
             this.$el.html(tag_html + ' <i class="icon-remove delete-tag"></i>');
             return this;
         },
@@ -116,9 +120,7 @@
             var value = this.input_field.val();
             if (value) {
                 this.input_field.val('');
-                var item = new teoremer.TagItem({
-                    name: value
-                });
+                var item = new teoremer.TagItem({ name: value });
                 this.collection.add(item);
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el.get()]);
             }
@@ -413,46 +415,58 @@
     var AddCategoryView = Backbone.View.extend({
         el: $('#modal-container'),
         events: {
-            'click .cancel': 'remove',
-            'click .btn-primary': 'addAction',
-            'click #category-minus-btn': 'minusAction',
-            'click #category-plus-btn': 'plusAction'
+            'click    .cancel':             'remove',
+            'click    .btn-primary':        'addAction',
+            'click    #category-minus-btn': 'minusAction',
+            'click    #category-plus-btn':  'plusAction',
+            'keypress input':               'keyPress'
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'addAction', 'renderTags', 'minusAction');
+            _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction');
             this.collection = new teoremer.TagList();
             this.collection.on('add remove', this.renderTags);
             this.render();
             this.setElement(this.$('.modal'));  // so 'this.remove' functions correctly
-            this.$el.modal({
-              'backdrop': false,
-              'show': true
-            });
+            this.$el.modal({ 'backdrop': false, 'show': true });
+            this.input_element = this.$('input');
+            this.input_element.focus();
         },
         render: function() {
             var html = Handlebars.templates.add_category();
             this.$el.html(html);
         },
         renderTags: function() {
-            console.log('renderTags');
             var html = Handlebars.templates.tag_list({
-                tags: this.collection.toJSON()
+                tags: this.collection.map(function(model) { return model.typeset(); })
             });
             this.$('div.category').html(html);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
+        },
+        keyPress: function(e) {
+            if (e.keyCode == 13) {
+                if (this.input_element.val()) {
+                    this.plusAction();
+                } else {
+                    this.addAction();
+                }
+            }
         },
         addAction: function() {
             this.options.add();
             this.remove();
         },
         minusAction: function() {
-            this.collection.pop();
+            if (!this.input_element.val()) {
+                this.collection.pop();
+            }
+            this.input_element.val('').focus();
         },
         plusAction: function() {
-            var value = this.$('input').val();
+            var value = this.input_element.val();
             if (value) {
-                this.collection.push(new teoremer.TagItem({ name: value }));
-                this.$('input').val('');
+                this.collection.push({ name: value });
             }
+            this.input_element.val('').focus();
         }
     });
 

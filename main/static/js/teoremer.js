@@ -49,7 +49,11 @@
         return st.charAt(0).toUpperCase() + st.slice(1);
     }
 
-    teoremer.TagItem = Backbone.Model;
+    teoremer.TagItem = Backbone.Model.extend({
+       typeset: function() {
+           return typeset_tag(this.get('name'));
+       } 
+    });
 
     teoremer.TagList = Backbone.Collection.extend({
         model: teoremer.TagItem
@@ -116,9 +120,7 @@
             var value = this.input_field.val();
             if (value) {
                 this.input_field.val('');
-                var item = new teoremer.TagItem({
-                    name: value
-                });
+                var item = new teoremer.TagItem({ name: value });
                 this.collection.add(item);
                 MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el.get()]);
             }
@@ -413,49 +415,59 @@
     var AddCategoryView = Backbone.View.extend({
         el: $('#modal-container'),
         events: {
-            'click .cancel': 'remove',
-            'click .btn-primary': 'addAction',
-            'click #category-minus-btn': 'minusAction',
-            'click #category-plus-btn': 'plusAction'
+            'click    .cancel':             'remove',
+            'click    .btn-primary':        'addAction',
+            'click    #category-minus-btn': 'minusAction',
+            'click    #category-plus-btn':  'plusAction',
+            'keypress input':               'keyPress'
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'addAction', 'renderTags', 'minusAction');
+            _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction');
             this.collection = new teoremer.TagList();
             this.collection.on('add remove', this.renderTags);
             this.render();
-            this.setElement(this.$('.modal'));  // so 'remove' functions correctly
-            this.$el.modal({
-              'backdrop': false,
-              'show': true
-            });
-            //this.model.push(new teoremer.TagItem({ name: 'top' }));
-            //this.model.push(new teoremer.TagItem({ name: 'sub1' }));
-            //this.model.push(new teoremer.TagItem({ name: 'sub2' }));
+            this.setElement(this.$('.modal'));  // so 'this.remove' functions correctly
+            this.$el.modal({ 'backdrop': false, 'show': true });
+            this.input_element = this.$('input');
+            this.input_element.focus();
         },
         render: function() {
             var html = Handlebars.templates.add_category();
             this.$el.html(html);
         },
         renderTags: function() {
-            console.log('renderTags');
             var html = Handlebars.templates.tag_list({
-                tags: this.collection.toJSON()
+                //tags: this.collection.map(function(model) { return typeset_tag(model.get('name')); })
+                tags: this.collection.map(function(model) { return model.typeset(); })
             });
             this.$('div.category').html(html);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
+        },
+        keyPress: function(e) {
+            if (e.keyCode == 13) {
+                if (this.input_element.val()) {
+                    this.plusAction();
+                } else {
+                    this.addAction();
+                }
+            }
         },
         addAction: function() {
             this.options.add();
             this.remove();
         },
         minusAction: function() {
-            this.collection.pop();
+            if (!this.input_element.val()) {
+                this.collection.pop();
+            }
+            this.input_element.val('').focus();
         },
         plusAction: function() {
-            var value = this.$('input').val();
+            var value = this.input_element.val();
             if (value) {
-                this.$('input').val('');
-                this.collection.push(new teoremer.TagItem({ name: value }));
+                this.collection.push({ name: value });
             }
+            this.input_element.val('').focus();
         }
     });
 
@@ -683,9 +695,9 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 
 function program1(depth0,data) {
   
-  var buffer = "", stack1;
+  var buffer = "";
   buffer += "<span class=\"tag\">"
-    + escapeExpression(((stack1 = depth0.name),typeof stack1 === functionType ? stack1.apply(depth0) : stack1))
+    + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
     + "</span>";
   return buffer;
   }
