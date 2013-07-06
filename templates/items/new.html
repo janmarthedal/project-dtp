@@ -17,10 +17,12 @@ Add {{ kind }}
 
 {% if primary_text %}
 <h4>{{ primary_text }}</h4>
+<div id="primary-categories"></div>
 <button id="add-primary-category" class="btn">Add category</button>
 {% endif %}
 
 <h4>Categories</h4>
+<div id="secondary-categories"></div>
 <button id="add-secondary-category" class="btn">Add category</button>
 
 <div id="modal-container"></div>
@@ -68,13 +70,27 @@ var saveDraft = new teoremer.SaveDraftView({
 });
 
 {% if primary_text %}
-teoremer.categoryAdder('#add-primary-category', function() {
-  console.log('Add primary category');
+var primaryCategoryList = new teoremer.CategoryListView({
+  el: $('#primary-categories')
+});
+$('#add-primary-category').click(function() {
+  new teoremer.AddCategoryView({
+    add : function(category) {
+      primaryCategoryList.collection.add(category);
+    }
+  })
 });
 {% endif %}
 
-teoremer.categoryAdder('#add-secondary-category', function() {
-  console.log('Add secondary category');
+var secondaryCategoryList = new teoremer.CategoryListView({
+  el: $('#secondary-categories')
+});
+$('#add-secondary-category').click(function() {
+  new teoremer.AddCategoryView({
+    add : function(category) {
+      secondaryCategoryList.collection.add(category);
+    }
+  })
 });
 
 </script>

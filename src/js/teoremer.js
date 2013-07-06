@@ -13,6 +13,8 @@
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
+
+
         $.ajaxSetup({
             crossDomain: false, // obviates need for sameOrigin test
             beforeSend: function(xhr, settings) {
@@ -22,7 +24,6 @@
             }
         });
     }
-
     function typeset_tag(st) {
         var elems = st.split('$');
         for (var n = 0; n < elems.length; n++) {
@@ -39,9 +40,12 @@
 
     function type_short_to_long(st) {
         switch (st.toUpperCase()) {
-            case 'D': return 'definition';
-            case 'T': return 'theorem';
-            case 'P': return 'proof';
+            case 'D':
+                return 'definition';
+            case 'T':
+                return 'theorem';
+            case 'P':
+                return 'proof';
         }
     }
 
@@ -65,9 +69,10 @@
      ***************************/
 
     teoremer.TagItem = Backbone.Model.extend({
-       typeset: function() {
-           return typeset_tag(this.get('name'));
-       } 
+        // name
+        typeset: function() {
+            return typeset_tag(this.get('name'));
+        }
     });
 
     teoremer.TagList = Backbone.Collection.extend({
@@ -75,8 +80,16 @@
     });
 
     teoremer.Category = Backbone.Model.extend({
+        // tag_list
+        typeset: function() {
+            return Handlebars.templates.tag_list({
+                tags: this.get('tag_list').map(function(model) {
+                    return model.typeset();
+                })
+            });
+        }
     });
-    
+
     teoremer.CategoryList = Backbone.Collection.extend({
         model: teoremer.Category
     });
@@ -114,6 +127,7 @@
     });
 
     teoremer.TagListView = Backbone.View.extend({
+        // standard
         events: function() {
             var e = {};
             e['click #tag-add-' + this.uid] = 'addItem';
@@ -128,7 +142,7 @@
             this.render();
             this.input_field = this.$('#tag-name-' + this.uid);
             this.input_field.typeahead({
-                source : function(query, process) {
+                source: function(query, process) {
                     $.get(api_prefix + 'tags/prefixed/' + query, function(data) {
                         process(data);
                     }, 'json');
@@ -142,6 +156,7 @@
             this.$el.html(html);
             this.collection.each(this.addOne);
         },
+        // helpers
         keyPress: function(e) {
             if (e.keyCode == 13) {
                 this.addItem();
@@ -151,9 +166,10 @@
             var value = this.input_field.val();
             if (value) {
                 this.input_field.val('');
-                var item = new teoremer.TagItem({ name: value });
+                var item = new teoremer.TagItem({
+                    name: value
+                });
                 this.collection.add(item);
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, item.$el.get()]);
             }
         },
         addOne: function(item) {
@@ -161,9 +177,13 @@
                 model: item
             });
             this.$('#tag-list-' + this.uid).append(removableTagView.render().el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, removableTagView.$el.get()]);
         },
+        // public methods
         getTagList: function() {
-            return this.collection.map(function(item) { return item.get('name'); });
+            return this.collection.map(function(item) {
+                return item.get('name');
+            });
         }
     });
 
@@ -178,14 +198,14 @@
         render: function() {
             var categories = this.model.get('categories');
             var context = {
-                id:          this.model.get('id'),
-                item_name:   capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
-                item_link:   this.model.get('item_link'),
-                pritags:     _.map(_.map(categories.primary, _.last), typeset_tag).join(', '),
-                sectags:     _.map(categories.secondary, typeset_tag_list),
+                id: this.model.get('id'),
+                item_name: capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
+                item_link: this.model.get('item_link'),
+                pritags: _.map(_.map(categories.primary, _.last), typeset_tag).join(', '),
+                sectags: _.map(categories.secondary, typeset_tag_list),
                 author_name: this.model.get('author'),
                 author_link: this.model.get('author_link'),
-                timestamp:   this.model.get('timestamp')
+                timestamp: this.model.get('timestamp')
             }
             var html = Handlebars.templates.search_list_item(context);
             this.$el.html(html);
@@ -211,18 +231,17 @@
         excludeTags: [],
         status: 'F',
         events: {
-            'click .search-list-more':   'fetchMore',
-            'click .select-final':       'selectFinal',
-            'click .select-review':      'selectReview',
-            'click .select-draft':       'selectDraft',
+            'click .search-list-more': 'fetchMore',
+            'click .select-final': 'selectFinal',
+            'click .select-review': 'selectReview',
+            'click .select-draft': 'selectDraft',
             'click .select-definitions': 'selectDefinitions',
-            'click .select-theorems':    'selectTheorems',
-            'click .select-proofs':      'selectProofs'
+            'click .select-theorems': 'selectTheorems',
+            'click .select-proofs': 'selectProofs'
         },
         initialize: function() {
             this.itemtype = this.options.itemtypes.charAt(0);
-            _.bindAll(this, 'render', 'addOne', 'setIncludeTags', 'setExcludeTags',
-                            'fetchMore', 'selectReview', 'selectFinal');
+            _.bindAll(this, 'render', 'addOne', 'setIncludeTags', 'setExcludeTags', 'fetchMore', 'selectReview', 'selectFinal');
             this.collection = new teoremer.SearchList();
             this.collection.bind('reset', this.render);
             this.collection.bind('add', this.addOne);
@@ -263,7 +282,7 @@
         doFetch: function(reset) {
             var options = {};
             options.data = {
-                type:   this.itemtype,
+                type: this.itemtype,
                 status: this.status,
                 intags: JSON.stringify(this.includeTags),
                 extags: JSON.stringify(this.excludeTags)
@@ -278,7 +297,9 @@
                 var self = this;
                 options.remove = false;
                 options.data.offset = this.collection.length;
-                options.success = function() { self.postAppend(); };
+                options.success = function() {
+                    self.postAppend();
+                };
             }
             this.collection.fetch(options);
         },
@@ -381,14 +402,14 @@
             var source = this.model.get('body');
             var insertsCounter = 0, inserts = {}, key;
             var pars = source.split('$$');
-            for (var i=0; i < pars.length; i++) {
+            for (var i = 0; i < pars.length; i++) {
                 if (i % 2) {
                     key = 'zZ' + (++insertsCounter) + 'Zz';
                     inserts[key] = '\\[' + pars[i] + '\\]';
                     pars[i] = key;
                 } else {
                     pars2 = pars[i].split('$');
-                    for (var j=0; j < pars2.length; j++) {
+                    for (var j = 0; j < pars2.length; j++) {
                         if (j % 2) {
                             key = 'zZ' + (++insertsCounter) + 'Zz';
                             inserts[key] = '\\(' + pars2[j] + '\\)';
@@ -428,22 +449,27 @@
         }
     });
 
-    var AddCategoryView = Backbone.View.extend({
+    teoremer.AddCategoryView = Backbone.View.extend({
+        // standard
         el: $('#modal-container'),
         events: {
-            'click    .cancel':             'remove',
-            'click    .btn-primary':        'addAction',
+            'click    .cancel': 'remove',
+            'click    .btn-primary': 'addAction',
             'click    #category-minus-btn': 'minusAction',
-            'click    #category-plus-btn':  'plusAction',
-            'keypress input':               'keyPress'
+            'click    #category-plus-btn': 'plusAction',
+            'keypress input': 'keyPress'
         },
         initialize: function() {
             _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction');
             this.collection = new teoremer.TagList();
             this.collection.on('add remove', this.renderTags);
             this.render();
-            this.setElement(this.$('.modal'));  // so 'this.remove' functions correctly
-            this.$el.modal({ 'backdrop': false, 'show': true });
+            this.setElement(this.$('.modal'));
+            // so 'this.remove' functions correctly
+            this.$el.modal({
+                'backdrop': false,
+                'show': true
+            });
             this.input_element = this.$('input');
             this.input_element.focus();
         },
@@ -451,9 +477,12 @@
             var html = Handlebars.templates.add_category();
             this.$el.html(html);
         },
+        // helpers
         renderTags: function() {
             var html = Handlebars.templates.tag_list({
-                tags: this.collection.map(function(model) { return model.typeset(); })
+                tags: this.collection.map(function(model) {
+                    return model.typeset();
+                })
             });
             this.$('div.category').html(html);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
@@ -468,7 +497,9 @@
             }
         },
         addAction: function() {
-            this.options.add();
+            this.options.add(new teoremer.Category({
+                tag_list: this.collection
+            }));
             this.remove();
         },
         minusAction: function() {
@@ -480,19 +511,60 @@
         plusAction: function() {
             var value = this.input_element.val();
             if (value) {
-                this.collection.push({ name: value });
+                this.collection.push({
+                    name: value
+                });
             }
             this.input_element.val('').focus();
         }
     });
 
-    teoremer.categoryAdder = function(selector, add_callback) {
-        $(selector).click(function() {
-            new AddCategoryView({
-                add: add_callback
+    teoremer.RemovableCategoryView = Backbone.View.extend({
+        tagName: 'span',
+        className: 'category',
+        events: {
+            'click .delete-category': 'remove'
+        },
+        initialize: function() {
+            _.bindAll(this, 'render', 'unrender', 'remove');
+            this.model.on('change', this.render);
+            this.model.on('remove', this.unrender);
+        },
+        render: function() {
+            var tag_html = this.model.typeset();
+            this.$el.html(tag_html + ' <i class="icon-remove delete-category"></i>');
+            return this;
+        },
+        unrender: function() {
+            this.$el.remove();
+        },
+        remove: function() {
+            this.model.destroy();
+        }
+    });
+
+    teoremer.CategoryListView = Backbone.View.extend({
+        // standard
+        initialize: function() {
+            _.bindAll(this, 'render', '_addOne', 'addCategory');
+            //this.uid = _.uniqueId();
+            this.collection = new teoremer.CategoryList();
+            this.collection.bind('add', this._addOne);
+            this.render();
+        },
+        render: function() {
+            this.$el.html("");
+            this.collection.each(this._addOne);
+        },
+        // helpers
+        _addOne: function(item) {
+            var removableCategoryView = new teoremer.RemovableCategoryView({
+                model: item
             });
-        });
-    }
+            this.$el.append(removableCategoryView.render().el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, removableCategoryView.$el.get()]);
+        }
+    });
 
     window.teoremer = teoremer;
 
