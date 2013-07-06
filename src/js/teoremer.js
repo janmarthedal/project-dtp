@@ -49,6 +49,21 @@
         return st.charAt(0).toUpperCase() + st.slice(1);
     }
 
+    function reverse_view_redirect(view, arg1) {
+        var url;
+        if (view == 'items.views.show') {
+            url = '/item/' + arg1;
+        } else {
+            console.log('Cannot do reverse lookup for view ' + view);
+            return;
+        }
+        window.location.href = url;
+    }
+
+    /***************************
+     * Models and collections
+     ***************************/
+
     teoremer.TagItem = Backbone.Model.extend({
        typeset: function() {
            return typeset_tag(this.get('name'));
@@ -59,11 +74,26 @@
         model: teoremer.TagItem
     });
 
-    teoremer.TagItemView = Backbone.View.extend({
+    teoremer.Category = Backbone.Model.extend({
+    });
+    
+    teoremer.CategoryList = Backbone.Collection.extend({
+        model: teoremer.Category
+    });
+
+    teoremer.DraftItem = Backbone.Model.extend({
+        urlRoot: '/api/drafts'
+    });
+
+    /***************************
+     * Views
+     ***************************/
+
+    teoremer.RemovableTagView = Backbone.View.extend({
         tagName: 'span',
         className: 'tag',
         events: {
-            'click .delete-tag' : 'remove'
+            'click .delete-tag': 'remove'
         },
         initialize: function() {
             _.bindAll(this, 'render', 'unrender', 'remove');
@@ -86,16 +116,17 @@
     teoremer.TagListView = Backbone.View.extend({
         events: function() {
             var e = {};
-            e['click #' + this.options.prefix + '-tag-add'] = 'addItem';
-            e['keypress #' + this.options.prefix + '-tag-name'] = 'keyPress';
+            e['click #tag-add-' + this.uid] = 'addItem';
+            e['keypress #tag-name-' + this.uid] = 'keyPress';
             return e;
         },
         initialize: function() {
             _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList', 'events');
+            this.uid = _.uniqueId();
             this.collection = new teoremer.TagList();
             this.collection.bind('add', this.addOne);
             this.render();
-            this.input_field = this.$('#' + this.options.prefix + '-tag-name');
+            this.input_field = this.$('#tag-name-' + this.uid);
             this.input_field.typeahead({
                 source : function(query, process) {
                     $.get(api_prefix + 'tags/prefixed/' + query, function(data) {
@@ -106,7 +137,7 @@
         },
         render: function() {
             var html = Handlebars.templates.tag_list_input({
-                prefix: this.options.prefix
+                uid: this.uid
             });
             this.$el.html(html);
             this.collection.each(this.addOne);
@@ -126,10 +157,10 @@
             }
         },
         addOne: function(item) {
-            var tagItemView = new teoremer.TagItemView({
+            var removableTagView = new teoremer.RemovableTagView({
                 model: item
             });
-            this.$('#' + this.options.prefix + '-tag-list').append(tagItemView.render().el);
+            this.$('#tag-list-' + this.uid).append(removableTagView.render().el);
         },
         getTagList: function() {
             return this.collection.map(function(item) { return item.get('name'); });
@@ -325,10 +356,6 @@
         }
     });
 
-    teoremer.DraftItem = Backbone.Model.extend({
-        urlRoot: '/api/drafts'
-    });
-
     teoremer.BodyEditView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render');
@@ -379,17 +406,6 @@
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
         }
     });
-
-    function reverse_view_redirect(view, arg1) {
-        var url;
-        if (view == 'items.views.show') {
-            url = '/item/' + arg1;
-        } else {
-            console.log('Cannot do reverse lookup for view ' + view);
-            return;
-        }
-        window.location.href = url;
-    }
 
     teoremer.SaveDraftView = Backbone.View.extend({
         initialize: function() {

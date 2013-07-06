@@ -19,15 +19,15 @@ if os.uname()[1].endswith('webfaction.com'):
         }
 
     STATIC_ROOT = '/home/jmr/webapps/thrms_static/'
-    PROJECT_BASE = '/home/jmr/webapps/thrms_django/thrms/'
+    PROJECT_BASE = '/home/jmr/webapps/thrms_django/teoremer/'
 
     EMAIL_HOST = 'smtp.webfaction.com'
     EMAIL_HOST_USER = 'jmr'
     EMAIL_HOST_PASSWORD = 'Knuth316'
-    DEFAULT_FROM_EMAIL = 'jmr@thrms.net'
-    SERVER_EMAIL = 'jmr@thrms.net'
-    ALLOWED_HOSTS = ['thrms.net', 'teoremer.com']
-    
+    DEFAULT_FROM_EMAIL = 'jmr@teoremer.com'
+    SERVER_EMAIL = 'jmr@teoremer.com'
+    ALLOWED_HOSTS = ['teoremer.com']
+
     MESSAGE_LEVEL = message_constants.INFO
 
 else:
@@ -46,7 +46,7 @@ else:
         }
 
     STATIC_ROOT = '/home/jmr/www/static/'
-    PROJECT_BASE = '/home/jmr/projects/thrms/'
+    PROJECT_BASE = '/home/jmr/projects/teoremer/'
     
     MESSAGE_LEVEL = message_constants.DEBUG
 
