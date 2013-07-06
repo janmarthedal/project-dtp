@@ -14,7 +14,6 @@
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
 
-
         $.ajaxSetup({
             crossDomain: false, // obviates need for sameOrigin test
             beforeSend: function(xhr, settings) {
@@ -68,18 +67,20 @@
      * Models and collections
      ***************************/
 
-    teoremer.TagItem = Backbone.Model.extend({
+    // private
+
+    var TagItem = Backbone.Model.extend({
         // name
         typeset: function() {
             return typeset_tag(this.get('name'));
         }
     });
 
-    teoremer.TagList = Backbone.Collection.extend({
-        model: teoremer.TagItem
+    var TagList = Backbone.Collection.extend({
+        model: TagItem
     });
 
-    teoremer.Category = Backbone.Model.extend({
+    var Category = Backbone.Model.extend({
         // tag_list
         typeset: function() {
             return Handlebars.templates.tag_list({
@@ -90,9 +91,34 @@
         }
     });
 
-    teoremer.CategoryList = Backbone.Collection.extend({
-        model: teoremer.Category
+    var CategoryList = Backbone.Collection.extend({
+        model: Category
     });
+
+    var MathItem = Backbone.Model;
+
+    var TopList = Backbone.Collection.extend({
+        model: MathItem,
+        url: api_prefix + 'items',
+        parse: function(response) {
+            return response.items;
+        }
+    });
+
+    var SearchList = Backbone.Collection.extend({
+        has_more: false,
+        initialize: function() {
+            _.bindAll(this, 'parse');
+        },
+        model: MathItem,
+        url: api_prefix + 'items',
+        parse: function(response) {
+            this.has_more = response.meta.has_more
+            return response.items;
+        }
+    });
+
+    // public
 
     teoremer.DraftItem = Backbone.Model.extend({
         urlRoot: '/api/drafts'
@@ -102,7 +128,7 @@
      * Views
      ***************************/
 
-    teoremer.RemovableTagView = Backbone.View.extend({
+    var RemovableTagView = Backbone.View.extend({
         tagName: 'span',
         className: 'tag',
         events: {
@@ -137,7 +163,7 @@
         initialize: function() {
             _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList', 'events');
             this.uid = _.uniqueId();
-            this.collection = new teoremer.TagList();
+            this.collection = new TagList();
             this.collection.bind('add', this.addOne);
             this.render();
             this.input_field = this.$('#tag-name-' + this.uid);
@@ -166,14 +192,14 @@
             var value = this.input_field.val();
             if (value) {
                 this.input_field.val('');
-                var item = new teoremer.TagItem({
+                var item = new TagItem({
                     name: value
                 });
                 this.collection.add(item);
             }
         },
         addOne: function(item) {
-            var removableTagView = new teoremer.RemovableTagView({
+            var removableTagView = new RemovableTagView({
                 model: item
             });
             this.$('#tag-list-' + this.uid).append(removableTagView.render().el);
@@ -186,8 +212,6 @@
             });
         }
     });
-
-    teoremer.MathItem = Backbone.Model;
 
     teoremer.MathItemView = Backbone.View.extend({
         tagName: 'tr',
@@ -213,19 +237,6 @@
         }
     });
 
-    teoremer.SearchList = Backbone.Collection.extend({
-        has_more: false,
-        initialize: function() {
-            _.bindAll(this, 'parse');
-        },
-        model: teoremer.MathItem,
-        url: api_prefix + 'items',
-        parse: function(response) {
-            this.has_more = response.meta.has_more
-            return response.items;
-        }
-    });
-
     teoremer.SearchListView = Backbone.View.extend({
         includeTags: [],
         excludeTags: [],
@@ -242,7 +253,7 @@
         initialize: function() {
             this.itemtype = this.options.itemtypes.charAt(0);
             _.bindAll(this, 'render', 'addOne', 'setIncludeTags', 'setExcludeTags', 'fetchMore', 'selectReview', 'selectFinal');
-            this.collection = new teoremer.SearchList();
+            this.collection = new SearchList();
             this.collection.bind('reset', this.render);
             this.collection.bind('add', this.addOne);
             this.render();
@@ -346,18 +357,10 @@
         }
     });
 
-    teoremer.TopList = Backbone.Collection.extend({
-        model: teoremer.MathItem,
-        url: api_prefix + 'items',
-        parse: function(response) {
-            return response.items;
-        }
-    });
-
     teoremer.TopListView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render', 'addOne');
-            this.collection = new teoremer.TopList();
+            this.collection = new TopList();
             this.collection.on('reset', this.render);
             this.collection.on('add', this.addOne);
             this.render();
@@ -461,7 +464,7 @@
         },
         initialize: function() {
             _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction');
-            this.collection = new teoremer.TagList();
+            this.collection = new TagList();
             this.collection.on('add remove', this.renderTags);
             this.render();
             this.setElement(this.$('.modal'));
@@ -497,7 +500,7 @@
             }
         },
         addAction: function() {
-            this.options.add(new teoremer.Category({
+            this.options.add(new Category({
                 tag_list: this.collection
             }));
             this.remove();
@@ -543,26 +546,42 @@
         }
     });
 
-    teoremer.CategoryListView = Backbone.View.extend({
+    teoremer.EditableCategoryListView = Backbone.View.extend({
         // standard
+        events: function() {
+            var e = {};
+            e['click #category-add-' + this.uid] = '_promptCategory';
+            return e;            
+        },
         initialize: function() {
-            _.bindAll(this, 'render', '_addOne', 'addCategory');
-            //this.uid = _.uniqueId();
-            this.collection = new teoremer.CategoryList();
+            _.bindAll(this, 'render', '_addOne', '_promptCategory');
+            this.uid = _.uniqueId();
+            this.collection = new CategoryList();
             this.collection.bind('add', this._addOne);
-            this.render();
+            this.render();            
         },
         render: function() {
-            this.$el.html("");
+            var html = Handlebars.templates.editable_category_list({
+                uid: this.uid
+            });
+            this.$el.html(html);
             this.collection.each(this._addOne);
         },
         // helpers
         _addOne: function(item) {
-            var removableCategoryView = new teoremer.RemovableCategoryView({
+            var categoryView = new teoremer.RemovableCategoryView({
                 model: item
             });
-            this.$el.append(removableCategoryView.render().el);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, removableCategoryView.$el.get()]);
+            this.$('#category-list-' + this.uid).append(categoryView.render().el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, categoryView.$el.get()]);
+        },
+        _promptCategory: function() {
+            var self = this;
+            new teoremer.AddCategoryView({
+                add: function(category) {
+                    self.collection.add(category);
+                }
+            });
         }
     });
 
@@ -578,6 +597,23 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 
 
   return "<div class=\"modal hide\">\n    <div class=\"modal-header\">\n        <button type=\"button\" class=\"close cancel\">&times;</button>\n        <h3>Add category</h3>\n    </div>\n    <div class=\"modal-body\">\n        <div class=\"category\"></div>\n        <div class=\"input-append\">\n          <input class=\"span12\" type=\"text\">\n          <button id=\"category-plus-btn\" class=\"btn\"><i class=\"icon-plus\"></i></button>\n          <button id=\"category-minus-btn\" class=\"btn\"><i class=\"icon-minus\"></i></button>\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary\">Add category</button>\n        <button class=\"btn cancel\">Cancel</button>\n    </div>\n</div>";
+  });
+templates['editable_category_list'] = template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<p id=\"category-list-";
+  if (stack1 = helpers.uid) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.uid; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\" class=\"category-list\"></p>\n<button id=\"category-add-";
+  if (stack1 = helpers.uid) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.uid; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\" class=\"btn\">Add category</button>";
+  return buffer;
   });
 templates['search_list_container'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
