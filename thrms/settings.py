@@ -26,7 +26,7 @@ if os.uname()[1].endswith('webfaction.com'):
     EMAIL_HOST_PASSWORD = 'Knuth316'
     DEFAULT_FROM_EMAIL = 'jmr@teoremer.com'
     SERVER_EMAIL = 'jmr@teoremer.com'
-    ALLOWED_HOSTS = ['teoremer.com']
+    ALLOWED_HOSTS = ['teoremer.janmr.com', 'teoremer.com']
 
     MESSAGE_LEVEL = message_constants.INFO
 

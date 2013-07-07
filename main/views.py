@@ -12,12 +12,6 @@ from analysis.models import TagCount
 
 @require_safe
 def index(request):
-    if not settings.DEBUG:
-        return HttpResponseRedirect(reverse('main.views.signup'))
-    return home(request)
-
-@require_safe
-def home(request):
     c = init_context('home')
     c['blog_feed']  = get_blog_feed()
     c['init_items'] = item_search_to_json()
@@ -39,7 +33,3 @@ def about(request):
     c['prf_draft']  = DraftItem.objects.filter(itemtype='P', status='D').count()
     c['user_count'] = User.objects.filter(is_active=True).count()
     return render(request, 'about.html', c)
-
-@require_safe
-def signup(request):
-    return render(request, 'signup.html')
