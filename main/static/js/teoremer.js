@@ -73,6 +73,9 @@
         // name
         typeset: function() {
             return typeset_tag(this.get('name'));
+        },
+        toJSON: function() {
+            return this.get('name');
         }
     });
 
@@ -84,15 +87,16 @@
         // tag_list
         typeset: function() {
             return Handlebars.templates.tag_list({
-                tags: this.get('tag_list').map(function(model) {
-                    return model.typeset();
+                tags: this.get('tag_list').map(function(tag_item) {
+                    return tag_item.typeset();
                 })
             });
-        }
-    });
-
-    var CategoryList = Backbone.Collection.extend({
-        model: Category
+        },
+        toJSON: function() {
+            return this.get('tag_list').map(function(tag_item) {
+                return tag_item.toJSON();
+            });
+        }        
     });
 
     var MathItem = Backbone.Model;
@@ -119,6 +123,10 @@
     });
 
     // public
+
+    teoremer.CategoryList = Backbone.Collection.extend({
+        model: Category
+    });
 
     teoremer.DraftItem = Backbone.Model.extend({
         urlRoot: '/api/drafts'
@@ -432,16 +440,17 @@
     });
 
     teoremer.SaveDraftView = Backbone.View.extend({
-        initialize: function() {
-            _.bindAll(this, 'save');
-        },
         events: {
             'click': 'save'
         },
+        initialize: function() {
+            _.bindAll(this, 'save');
+        },
         save: function() {
-            item.save(null, {
+            this.model.save(null, {
                 wait: true,
                 success: function(model, response) {
+                    console.log(model.toJSON());
                     reverse_view_redirect('items.views.show', model.get('id'));
                 },
                 error: function(model, error) {
@@ -556,7 +565,7 @@
         initialize: function() {
             _.bindAll(this, 'render', '_addOne', '_promptCategory');
             this.uid = _.uniqueId();
-            this.collection = new CategoryList();
+            //this.collection = new teoremer.CategoryList();
             this.collection.bind('add', this._addOne);
             this.render();            
         },

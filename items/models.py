@@ -52,10 +52,9 @@ class FinalItemManager(models.Manager):
                 break
             except IntegrityError:
                 length += 1
-        #for draftitemtag in draft_item.draftitemtag_set.all():
-        #    finalitemtag = FinalItemTag(item=item, tag=draftitemtag.tag,
-        #                                primary=draftitemtag.primary)
-        #    finalitemtag.save()
+        for itemcat in draft_item.draftitemcategory_set.all():
+            FinalItemCategory.objects.create(item=item, category=itemcat.category,
+                                             primary=itemcat.primary)
         return item
 
 class FinalItem(BaseItem):
@@ -67,37 +66,46 @@ class FinalItem(BaseItem):
         ('S', 'suspended'),
         ('B', 'broken')
     )
-    final_id     = models.CharField(max_length=10, unique=True, db_index=True)
-    status       = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
-    created_by   = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
-    created_at   = models.DateTimeField(default=timezone.now)
-    modified_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
-    modified_at  = models.DateTimeField(default=timezone.now)
-    categories   = models.ManyToManyField(Category, through='FinalItemCategory')
+    final_id    = models.CharField(max_length=10, unique=True, db_index=True)
+    status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    created_at  = models.DateTimeField(default=timezone.now)
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified_at = models.DateTimeField(default=timezone.now)
+    categories  = models.ManyToManyField(Category, through='FinalItemCategory')
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
     def _set_tag_cache(self):
-        categories = [(itemtag.category, itemtag.primary)
-                for itemtag in self.finalitemcategory_set.all()]
+        categories = [(itemcat.category, itemcat.primary)
+                      for itemcat in self.finalitemcategory_set.all()]
         self._cache['primary_categories']   = [t[0] for t in categories if t[1]]
         self._cache['secondary_categories'] = [t[0] for t in categories if not t[1]]
 
 class DraftItemManager(models.Manager):
-    def add_item(self, user, itemtype, body, parent):
+    def _add_categories(self, item, primary_categories, secondary_categories):
+        for tag_list in primary_categories:
+            category = Category.objects.fetch(tag_list)
+            DraftItemCategory.objects.create(item=item, category=category, primary=True)
+        for tag_list in secondary_categories:
+            category = Category.objects.fetch(tag_list)
+            DraftItemCategory.objects.create(item=item, category=category, primary=False)
+    
+    def add_item(self, user, itemtype, body, primary_categories, secondary_categories, parent):
         type_key = filter(lambda kc: kc[1] == itemtype, DraftItem.TYPE_CHOICES)[0][0]
-        item = DraftItem(itemtype   = type_key,
-                         status     = 'D',
-                         created_by = user,
-                         body       = body,
-                         parent     = parent)
-        item.save()
+        item = DraftItem.objects.create(itemtype   = type_key,
+                                        status     = 'D',
+                                        created_by = user,
+                                        body       = body,
+                                        parent     = parent)
+        self._add_categories(item, primary_categories, secondary_categories)
         return item
-    def update_item(self, item, user, body, primary_tags, secondary_tags):
+
+    def update_item(self, item, user, body, primary_categories, secondary_categories):
         item.modified_at = timezone.now()
         item.body        = body
         item.save()
-        item.draftitemtag_set.all().delete()
-        self._add_tags(item, primary_tags, secondary_tags)
+        item.draftitemcategory_set.all().delete()
+        self._add_categories(item, primary_categories, secondary_categories)
 
 class DraftItem(BaseItem):
     class Meta:
@@ -114,8 +122,8 @@ class DraftItem(BaseItem):
     def __unicode__(self):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
     def _set_tag_cache(self):
-        categories = [(itemtag.tag, itemtag.primary)
-                for itemtag in self.draftitemtag_set.all()]
+        categories = [(itemcat.tag, itemcat.primary)
+                      for itemcat in self.draftitemcategory_set.all()]
         self._cache['primary_categories']   = [t[0] for t in categories if t[1]]
         self._cache['secondary_categories'] = [t[0] for t in categories if not t[1]]
     def make_review(self):

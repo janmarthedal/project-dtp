@@ -51,18 +51,29 @@ def items(request):
 
 @api_view
 def drafts_new(request):
-    user = api_user(request)
-    kind = api_key(request, 'kin')
-    body = api_key(request, 'body')
-    item = DraftItem.objects.add_item(user, kind, body, None)
+    logger.info(request.data)
+    user                 = api_request_user(request)
+    kind                 = api_request_string_option(request, 'kind', ['definition', 'theorem', 'proof'])
+    body                 = api_request_string(request, 'body')
+    primary_categories   = api_request_category_list(request, 'pricats')
+    secondary_categories = api_request_category_list(request, 'seccats')
+    try:
+        parent = api_request_string(request, 'parent')
+    except KeyError:
+        parent = None 
+    item = DraftItem.objects.add_item(user, kind, body, primary_categories, secondary_categories, parent)
     message = u'%s successfully created' % item
     logger.debug(message)
     messages.success(request, message)
     result = {
-        'id':   item.pk,
-        'body': item.body,
-        'kind': item.itemtype
+        'id':      item.pk,
+        'kind':    kind,
+        'body':    body,
+        'pricats': primary_categories,
+        'seccats': secondary_categories
     }
+    if parent:
+        result['parent'] = parent
     return json_response(result)
 
 def drafts(request):
