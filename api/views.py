@@ -5,9 +5,9 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from items.helpers import item_search_to_json
-from items.models import DraftItem
+from items.models import DraftItem, FinalItem
 from tags.models import Tag
-from api.helpers import api_view, api_user, api_key, json_response
+from api.helpers import api_view, api_request_user, api_request_string, api_request_string_list_list
 
 import logging
 logger = logging.getLogger(__name__)
@@ -49,32 +49,47 @@ def items(request):
     else:
         raise Http404
 
+def itemtype_supported(itemtype):
+    return itemtype in ['definition', 'theorem', 'proof']
+
+def itemtype_requires_parent(itemtype):
+    return itemtype in ['proof']
+
 @api_view
 def drafts_new(request):
-    logger.info(request.data)
-    user                 = api_request_user(request)
-    kind                 = api_request_string_option(request, 'kind', ['definition', 'theorem', 'proof'])
-    body                 = api_request_string(request, 'body')
-    primary_categories   = api_request_category_list(request, 'pricats')
-    secondary_categories = api_request_category_list(request, 'seccats')
-    try:
-        parent = api_request_string(request, 'parent')
-    except KeyError:
-        parent = None 
-    item = DraftItem.objects.add_item(user, kind, body, primary_categories, secondary_categories, parent)
+    user = api_request_user(request)
+    itemtype = api_request_string(request, 'type')
+    if not itemtype_supported(itemtype):
+        raise ValueError('type')
+    body = api_request_string(request, 'body')
+    primary_categories = api_request_string_list_list(request, 'pricats')
+    secondary_categories = api_request_string_list_list(request, 'seccats')
+    if itemtype_requires_parent(itemtype):
+        parent_id = api_request_string(request, 'parent')
+        try:
+            parent = FinalItem.objects.get(final_id=parent_id)
+        except FinalItem.DoesNotExist:
+            raise ValueError('parent')
+    else:
+        parent = None
+
+    item = DraftItem.objects.add_item(user, itemtype, body, primary_categories, secondary_categories, parent)
+    
     message = u'%s successfully created' % item
     logger.debug(message)
     messages.success(request, message)
+
     result = {
         'id':      item.pk,
-        'kind':    kind,
+        'type':    itemtype,
         'body':    body,
         'pricats': primary_categories,
         'seccats': secondary_categories
     }
     if parent:
         result['parent'] = parent
-    return json_response(result)
+    
+    return result
 
 def drafts(request):
     if request.method == 'POST':

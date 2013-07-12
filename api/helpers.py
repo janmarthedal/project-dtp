@@ -14,7 +14,8 @@ def api_view(f):
     def wrapper(request, *args, **kwds):
         request.data = json.loads(request.body)
         try:
-            return f(request, *args, **kwds)
+            result = f(request, *args, **kwds)
+            return HttpResponse(json.dumps(result), content_type="application/json")
         except KeyError as e:
             msg = "Key '%s' missing" % e
         except ValueError as e:
@@ -26,42 +27,37 @@ def api_view(f):
         return HttpResponseBadRequest()
     return wrapper
 
-def check_string(value):
+
+def is_string(value):
     return isinstance(value, basestring)
 
-def check_in(value, allowed):
-    return value in allowed
+def is_string_list(value):
+    try:
+        return isinstance(value, list) and all(is_string(tag_name) for tag_name in value)
+    except TypeError:
+        return false
 
-def check_category(value):
-    return all(check_string(tag_name) for tag_name in value)
+def is_string_list_list(value):
+    try:
+        return isinstance(value, list) and all(is_string_list(c) for c in value)
+    except TypeError:
+        return false
 
-def check_category_list(value):
-    return all(check_category(c) for c in value)
 
-def api_user(request):
+def api_request_user(request):
     user = request.user
     if not user.is_authenticated():
         raise ApiAuthenticationError('User not authenticated')
     return user
 
 def api_request_value(request, key, validator):
-    try:
-        value = request.data[key]
-        if validator(value):
-            return value
-    except (ValueError, TypeError):
-        pass
-    raise ValueError(key)
+    value = request.data[key]
+    if not validator(value):
+        raise ValueError(key)
+    return value
 
 def api_request_string(request, key):
-    return api_request_value(request, key, check_string)
+    return api_request_value(request, key, is_string)
 
-def api_request_string_option(request, key, allowed):
-    return api_request_value(request, key, lambda v: check_string(v) and check_in(v, allowed))
-
-def api_request_category_list(request, key):
-    return api_request_value(request, key, check_category_list)
-    
-
-def json_response(result):
-    return HttpResponse(json.dumps(result), content_type="application/json")
+def api_request_string_list_list(request, key):
+    return api_request_value(request, key, is_string_list_list)

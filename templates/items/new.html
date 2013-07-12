@@ -49,19 +49,12 @@ teoremer.setupCsrf();
 
 (function(){
 
-{% if primary_text %}
-  var prim_cats = new teoremer.CategoryList();
-{% endif %}
-  var sec_cats  = new teoremer.CategoryList();
-  
   var item = new teoremer.DraftItem({
-    kind: "{{kind}}",
+    type: "{{kind}}",
     body: '',
-{% if primary_text %}
-    pricats: prim_cats,
-{% endif %}
-    seccats: sec_cats 
-  });
+    pricats: [],
+    seccats: []
+  }, { parse: true });
   
   var bodyEdit = new teoremer.BodyEditView({
     el: $('#body-input'),
@@ -81,13 +74,13 @@ teoremer.setupCsrf();
 {% if primary_text %}
   var primaryCategoryList = new teoremer.EditableCategoryListView({
     el: $('#primary-categories'),
-    collection: prim_cats
+    collection: item.get('pricats')
   });
 {% endif %}
   
   var secondaryCategoryList = new teoremer.EditableCategoryListView({
     el: $('#secondary-categories'),
-    collection: sec_cats
+    collection: item.get('seccats')
   });
   
 })();
