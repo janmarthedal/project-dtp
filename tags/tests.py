@@ -18,4 +18,4 @@ class TagTestCase(TestCase):
 
     def test_get_names(self):
         cat1 = Category.objects.fetch(['test_root', 'foo', 'bar'])
-        self.assertEqual(cat1.get_tag_names(), ['test_root', 'foo', 'bar'], "a01")
+        self.assertEqual(unicode(cat1), [u'test_root', u'foo', u'bar'], "a01")

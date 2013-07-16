@@ -52,7 +52,7 @@ def items(request):
 def itemtype_supported(itemtype):
     return itemtype in ['definition', 'theorem', 'proof']
 
-def itemtype_requires_parent(itemtype):
+def itemtype_has_parent(itemtype):
     return itemtype in ['proof']
 
 @api_view
@@ -64,7 +64,7 @@ def drafts_new(request):
     body = api_request_string(request, 'body')
     primary_categories = api_request_string_list_list(request, 'pricats')
     secondary_categories = api_request_string_list_list(request, 'seccats')
-    if itemtype_requires_parent(itemtype):
+    if itemtype_has_parent(itemtype):
         parent_id = api_request_string(request, 'parent')
         try:
             parent = FinalItem.objects.get(final_id=parent_id)

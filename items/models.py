@@ -25,12 +25,12 @@ class BaseItem(models.Model):
     @property
     def primary_categories(self):
         if 'primary_categories' not in self._cache:
-            self._set_tag_cache()
+            self._set_category_cache()
         return self._cache['primary_categories']
     @property
     def secondary_categories(self):
         if 'secondary_categories' not in self._cache:
-            self._set_tag_cache()
+            self._set_category_cache()
         return self._cache['secondary_categories']
     itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
     parent   = models.ForeignKey('FinalItem', null=True)
@@ -75,7 +75,7 @@ class FinalItem(BaseItem):
     categories  = models.ManyToManyField(Category, through='FinalItemCategory')
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
-    def _set_tag_cache(self):
+    def _set_category_cache(self):
         categories = [(itemcat.category, itemcat.primary)
                       for itemcat in self.finalitemcategory_set.all()]
         self._cache['primary_categories']   = [t[0] for t in categories if t[1]]
@@ -121,8 +121,8 @@ class DraftItem(BaseItem):
     categories  = models.ManyToManyField(Category, through='DraftItemCategory')
     def __unicode__(self):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
-    def _set_tag_cache(self):
-        categories = [(itemcat.tag, itemcat.primary)
+    def _set_category_cache(self):
+        categories = [(itemcat.category, itemcat.primary)
                       for itemcat in self.draftitemcategory_set.all()]
         self._cache['primary_categories']   = [t[0] for t in categories if t[1]]
         self._cache['secondary_categories'] = [t[0] for t in categories if not t[1]]

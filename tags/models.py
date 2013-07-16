@@ -17,6 +17,9 @@ class Tag(models.Model):
 
     def __unicode__(self):
         return self.name
+    
+    def toJSON(self):
+        return '"%s"' % self.name
 
 class CategoryManager(models.Manager):
     def fetch(self, tag_list):
@@ -43,10 +46,9 @@ class Category(models.Model):
             category = category.parent
         tag_list.reverse()
         return tag_list
-    
-    def get_tag_names(self):
-        return [tag.name for tag in self.get_tag_list()]
-    
+
     def __unicode__(self):
-        return unicode(self.get_tag_names())
-                             
+        return u'%d:[%s]' % (self.pk, u','.join([unicode(tag) for tag in self.get_tag_list()]))
+
+    def toJSON(self):
+        return u'[%s]' % u','.join([tag.toJSON() for tag in self.get_tag_list()])

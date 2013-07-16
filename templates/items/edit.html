@@ -1,27 +1,90 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 
 {% block title %}
-Edit {{ item }}{% if preview %} preview{% endif %}
+Edit {{ item }}
 {% endblock %}
 
 {% block mainbar %}
 
-{% include "items/include/preview.html" %}
+<h1>Edit {{ item }}{% if item.parent %} of {{ item }}{% endif %}</h1>
 
-<h1>Edit {{ item }}
-{% if item.parent %} of {{ item }}{% endif %}
-</h1>
+<textarea id="body-input" class="item-body span12">
+</textarea>
 
-<form method="post" action="{% url 'items.views.edit' item.id %}">
-{% csrf_token %}
+<div id="body-preview" class="item-body">
+</div>
 
-  {% include "items/include/edit_fields.html" %}
+{% if primary_text %}
+<h4>{{ primary_text }}</h4>
+<div id="primary-categories"></div>
+{% endif %}
 
-  <div class="item-actions">
-    <input class="button" type="submit" name="submit" value="preview" />
-    <input class="button" type="submit" name="submit" value="update draft" />
-  </div>
-</form>
+<h4>Categories</h4>
+<div id="secondary-categories"></div>
+
+<div id="modal-container"></div>
 
 {% endblock mainbar %}
 
+{% block sidebar %}
+
+<h4>Actions</h4>
+<button id="save-draft" class="btn btn-primary">Save draft</button>
+
+{% endblock %}
+
+{% block bodybottom %}
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+<script src="{% static 'js/teoremer.js' %}"></script>
+
+<script type="text/javascript">
+
+teoremer.setupCsrf();
+
+(function(){
+
+  var item = new teoremer.DraftItem({
+    type: "{{item.get_itemtype_display}}",
+    body: '{{item.body}}',
+    pricats: {{pricats}},
+    seccats: {{seccats}}
+  }, { parse: true });
+
+  var bodyEdit = new teoremer.BodyEditView({
+    el: $('#body-input'),
+    model: item
+  });
+  
+  var bodyPreview = new teoremer.BodyPreviewView({
+    el: $('#body-preview'),
+    model: item
+  });
+  
+  var saveDraft = new teoremer.SaveDraftView({
+    el: $('#save-draft'),
+    model: item
+  });
+  
+{% if primary_text %}
+  var primaryCategoryList = new teoremer.EditableCategoryListView({
+    el: $('#primary-categories'),
+    collection: item.get('pricats')
+  });
+{% endif %}
+  
+  var secondaryCategoryList = new teoremer.EditableCategoryListView({
+    el: $('#secondary-categories'),
+    collection: item.get('seccats')
+  });
+  
+})();
+
+</script>
+
+{% endblock %}

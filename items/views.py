@@ -122,38 +122,16 @@ def new(request, kind, parent=None):
     return render(request, 'items/new.html', c)
 
 @login_required
-@require_http_methods(["GET", "POST"])
+@require_GET
 def edit(request, item_id):
-    c = {}
     item = get_object_or_404(DraftItem, pk=item_id)
     item_perms = get_user_item_permissions(request.user, item)
     if not item_perms['edit']:
         raise Http404
-    if request.method == 'GET':
-        form = EditItemForm({ 'body':          item.body,
-                              'primarytags':   '\n'.join(item.primary_tags),
-                              'secondarytags': '\n'.join(item.secondary_tags) })
-    else:
-        form = EditItemForm(request.POST)
-        is_valid = form.is_valid()
-        primarytags   = form.pre_validate['primarytags']
-        secondarytags = form.pre_validate['secondarytags']
-        body          = form.pre_validate['body']
-        if request.POST['submit'].lower() == 'preview':
-            c['preview'] = { 'id':            item.id,
-                             'kind':          item.get_itemtype_display(),
-                             'body':          body,
-                             'parent':        item.parent,
-                             'primarytags':   primarytags,
-                             'secondarytags': secondarytags }
-        elif is_valid:                 # update draft
-            DraftItem.objects.update_item(item, request.user, body,
-                                          primarytags, secondarytags)
-            message = u'%s successfully updated' % item
-            logger.debug(message)
-            messages.success(request, message)
-            return HttpResponseRedirect(reverse('items.views.show', args=[item_id]))
-    c.update(dict(item=item, form=form))
+    c = init_context(item.itemtype)
+    c['item'] = item
+    c['pricats'] = str([cat.get_tag_names() for cat in item.primary_categories])
+    c['seccats'] = str([cat.get_tag_names() for cat in item.secondary_categories])
     if item.itemtype == 'D':
         c['primary_text'] = 'Terms defined'
     elif item.itemtype == 'T':
