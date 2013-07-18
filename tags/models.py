@@ -1,4 +1,5 @@
 from django.db import models
+from main.helpers import ListWrapper
 from tags.helpers import normalize_tag
 
 class TagManager(models.Manager):
@@ -18,8 +19,8 @@ class Tag(models.Model):
     def __unicode__(self):
         return self.name
     
-    def toJSON(self):
-        return '"%s"' % self.name
+    def json_serializable(self):
+        return self.name
 
 class CategoryManager(models.Manager):
     def fetch(self, tag_list):
@@ -50,5 +51,5 @@ class Category(models.Model):
     def __unicode__(self):
         return u'%d:[%s]' % (self.pk, u','.join([unicode(tag) for tag in self.get_tag_list()]))
 
-    def toJSON(self):
-        return u'[%s]' % u','.join([tag.toJSON() for tag in self.get_tag_list()])
+    def json_serializable(self):
+        return self.get_tag_list()

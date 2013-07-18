@@ -6,13 +6,17 @@
 
 {% block mainbar %}
 
-{% spaceless %}
-<h1>
-{{ item }}
-{% if item.primary_tags %} ({{ item.primary_tags|typeset_tag_list|join:", " }}){% endif %}
-{% if item.parent %} of {{ item.parent }}{% endif %}
-</h1>
-{% endspaceless %}
+<h1>{{ item }}{% if item.parent %} of {{ item.parent }}{% endif %}</h1>
+
+<div class="categories">
+{% for category in item.primary_categories %}
+<span class="category">
+  {% for tag in category.get_tag_list %}
+  <span class="tag">{{ tag|typeset_tag }}</span>
+  {% endfor %}
+</span>
+{% endfor %}
+</div>
 
 <div class="item-body">
 {{ item.body|typeset_body }}
@@ -26,20 +30,21 @@
 
 <p>{{ item.get_status_display }}, latest edit by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a> at {{ item.modified_at|datetime_user:user }}</p>
 
-<h4>Tags</h4>
+<h4>Categories</h4>
 
-{% if item.secondary_tags %}
-<div class="taglist">
-{% for tag in item.secondary_tags %}
+{% for category in item.secondary_categories %}
+<span class="category">
+  {% for tag in category.get_tag_list %}
   <span class="tag">{{ tag|typeset_tag }}</span>
+  {% endfor %}
+</span>
 {% endfor %}
-</div>
-{% endif %}
 
 <h4>Actions</h4>
 
 {% if perm.edit %}
 <p><a class="btn btn-primary" href="{% url 'items.views.edit' item.id %}">Edit</a></p>
+
 <form method="post" action="{% url 'items.views.delete_draft' %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Delete</button>

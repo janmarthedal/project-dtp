@@ -31,6 +31,9 @@ def api_view(f):
 def is_string(value):
     return isinstance(value, basestring)
 
+def is_int(value):
+    return isinstance(value, int)
+
 def is_string_list(value):
     try:
         return isinstance(value, list) and all(is_string(tag_name) for tag_name in value)
@@ -58,6 +61,9 @@ def api_request_value(request, key, validator):
 
 def api_request_string(request, key):
     return api_request_value(request, key, is_string)
+
+def api_request_int(request, key):
+    return api_request_value(request, key, is_int)
 
 def api_request_string_list_list(request, key):
     return api_request_value(request, key, is_string_list_list)

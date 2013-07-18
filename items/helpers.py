@@ -1,11 +1,11 @@
 import re
-import json
 import markdown
 from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.utils import crypto
 from django import forms
 from items.models import FinalItem, DraftItem
+from main.helpers import json_encode
 from tags.models import Tag
 from tags.helpers import clean_tag, normalize_tag
 
@@ -179,8 +179,8 @@ def _extract_draft_item_attributes(item):
             'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
             'timestamp':   str(item.modified_at), 
             'categories':  {
-                            'primary':   [c.get_tag_names() for c in item.primary_categories],
-                            'secondary': [c.get_tag_names() for c in item.secondary_categories]
+                            'primary':   item.primary_categories,
+                            'secondary': item.secondary_categories
                             }
             }
 
@@ -193,8 +193,8 @@ def _extract_final_item_attributes(item):
             'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
             'timestamp':   str(item.created_at), 
             'categories':  {
-                            'primary':   [c.get_tag_names() for c in item.primary_categories],
-                            'secondary': [c.get_tag_names() for c in item.secondary_categories]
+                            'primary':   item.primary_categories,
+                            'secondary': item.secondary_categories
                             }
             }
 
@@ -228,4 +228,4 @@ def item_search_to_json(itemtype=None, include_tag_names=[], exclude_tag_names=[
         result['items'] = [_extract_final_item_attributes(item) for item in items[:limit]]
     else:
         result['items'] = [_extract_draft_item_attributes(item) for item in items[:limit]]
-    return json.dumps(result)
+    return json_encode(result)

@@ -130,8 +130,6 @@ def edit(request, item_id):
         raise Http404
     c = init_context(item.itemtype)
     c['item'] = item
-    c['pricats'] = str([cat.get_tag_names() for cat in item.primary_categories])
-    c['seccats'] = str([cat.get_tag_names() for cat in item.secondary_categories])
     if item.itemtype == 'D':
         c['primary_text'] = 'Terms defined'
     elif item.itemtype == 'T':

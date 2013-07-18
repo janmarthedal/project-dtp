@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from tags.models import Category
+from tags.helpers import CategoryCollection
 
 import logging
 logger = logging.getLogger(__name__)
@@ -11,32 +12,45 @@ FINAL_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 FINAL_NAME_MIN_LENGTH = 4
 
 class BaseItem(models.Model):
+    
     class Meta:
         abstract = True
+        
     TYPE_CHOICES = (
         ('D', 'definition'),
         ('T', 'theorem'),
         ('P', 'proof'),
         ('I', 'info')
     )
+    
+    itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
+    parent   = models.ForeignKey('FinalItem', null=True)
+    body     = models.TextField(null=True)
+    
     def __init__(self, *args, **kwargs):
         super(BaseItem, self).__init__(*args, **kwargs)
         self._cache = {}
+    
+    def _set_category_cache(self):
+        categories = [(itemcat.category, itemcat.primary)
+                      for itemcat in self._get_item_category_set()]
+        self._cache['primary_categories']   = CategoryCollection([t[0] for t in categories if t[1]])
+        self._cache['secondary_categories'] = CategoryCollection([t[0] for t in categories if not t[1]])
+    
     @property
     def primary_categories(self):
         if 'primary_categories' not in self._cache:
             self._set_category_cache()
         return self._cache['primary_categories']
+    
     @property
     def secondary_categories(self):
         if 'secondary_categories' not in self._cache:
             self._set_category_cache()
         return self._cache['secondary_categories']
-    itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
-    parent   = models.ForeignKey('FinalItem', null=True)
-    body     = models.TextField(null=True)
 
 class FinalItemManager(models.Manager):
+    
     def add_item(self, draft_item):
         item = FinalItem(itemtype    = draft_item.itemtype,
                          status      = 'F',
@@ -58,14 +72,18 @@ class FinalItemManager(models.Manager):
         return item
 
 class FinalItem(BaseItem):
+    
     class Meta:
         db_table = 'final_items'
+    
     objects = FinalItemManager()
+    
     STATUS_CHOICES = (
         ('F', 'published'),
         ('S', 'suspended'),
         ('B', 'broken')
     )
+    
     final_id    = models.CharField(max_length=10, unique=True, db_index=True)
     status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
     created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
@@ -73,13 +91,12 @@ class FinalItem(BaseItem):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     modified_at = models.DateTimeField(default=timezone.now)
     categories  = models.ManyToManyField(Category, through='FinalItemCategory')
+    
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
-    def _set_category_cache(self):
-        categories = [(itemcat.category, itemcat.primary)
-                      for itemcat in self.finalitemcategory_set.all()]
-        self._cache['primary_categories']   = [t[0] for t in categories if t[1]]
-        self._cache['secondary_categories'] = [t[0] for t in categories if not t[1]]
+    
+    def _get_item_category_set(self):
+        return self.finalitemcategory_set.all()
 
 class DraftItemManager(models.Manager):
     def _add_categories(self, item, primary_categories, secondary_categories):
@@ -100,9 +117,9 @@ class DraftItemManager(models.Manager):
         self._add_categories(item, primary_categories, secondary_categories)
         return item
 
-    def update_item(self, item, user, body, primary_categories, secondary_categories):
+    def update_item(self, item, body, primary_categories, secondary_categories):
         item.modified_at = timezone.now()
-        item.body        = body
+        item.body = body
         item.save()
         item.draftitemcategory_set.all().delete()
         self._add_categories(item, primary_categories, secondary_categories)
@@ -121,14 +138,11 @@ class DraftItem(BaseItem):
     categories  = models.ManyToManyField(Category, through='DraftItemCategory')
     def __unicode__(self):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
-    def _set_category_cache(self):
-        categories = [(itemcat.category, itemcat.primary)
-                      for itemcat in self.draftitemcategory_set.all()]
-        self._cache['primary_categories']   = [t[0] for t in categories if t[1]]
-        self._cache['secondary_categories'] = [t[0] for t in categories if not t[1]]
+    def _get_item_category_set(self):
+        return self.draftitemcategory_set.all()
     def make_review(self):
         if self.status != 'R':
-            self.status      = 'R'
+            self.status = 'R'
             self.modified_at = timezone.now()
             self.save()
             logger.debug("%d to review successful" % self.id)
@@ -148,4 +162,3 @@ class FinalItemCategory(models.Model):
     item     = models.ForeignKey(FinalItem)
     category = models.ForeignKey(Category)
     primary  = models.BooleanField()
-

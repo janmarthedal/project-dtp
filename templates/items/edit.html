@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load utils_tags %}
 {% load staticfiles %}
 
 {% block title %}
@@ -50,10 +51,10 @@ teoremer.setupCsrf();
 (function(){
 
   var item = new teoremer.DraftItem({
-    type: "{{item.get_itemtype_display}}",
-    body: '{{item.body}}',
-    pricats: {{pricats}},
-    seccats: {{seccats}}
+    id: {{item.pk}},
+    body: "{{item.body}}",
+    pricats: {{item.primary_categories|to_json}},
+    seccats: {{item.secondary_categories|to_json}}
   }, { parse: true });
 
   var bodyEdit = new teoremer.BodyEditView({
