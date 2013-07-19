@@ -48,7 +48,7 @@
 
 <p>Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ item.created_at|datetime_user:user }}</p>
 
-<h4>Tags</h4>
+<h4>Categories</h4>
 
 {% include 'items/include/categories.html' with categories=item.secondary_categories only %}
 

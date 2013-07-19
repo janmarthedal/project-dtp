@@ -40,12 +40,8 @@ class Category(models.Model):
     parent  = models.ForeignKey('self', null=True, related_name='+')
     
     def get_tag_list(self):
-        tag_list = []
-        category = self
-        while category:
-            tag_list.append(category.tag)
-            category = category.parent
-        tag_list.reverse()
+        tag_list = self.parent.get_tag_list()[:] if self.parent else []
+        tag_list.append(self.tag)
         return tag_list
 
     def __unicode__(self):

@@ -101,6 +101,8 @@ def drafts_save(request, item_id):
     
     if user != item.created_by:
         raise ApiError('Access error')
+    if item.status != 'D':
+        raise ApiError('Wrong status')
     
     DraftItem.objects.update_item(item, body, primary_categories, secondary_categories)
     
@@ -126,4 +128,6 @@ def drafts(request):
 def drafts_id(request, item_id):
     if request.method == 'PUT':
         return drafts_save(request, item_id)
+    else:
+        raise Http404
  

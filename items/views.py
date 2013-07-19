@@ -169,17 +169,16 @@ def change_status(request):
     item = get_object_or_404(DraftItem, pk=item_id)
     own_item = request.user == item.created_by
     if request.POST['status'] == 'publish':
-        if not own_item or item.status not in ['D', 'R']:
-            raise Http404
-        fitem = FinalItem.objects.add_item(item)
-        add_final_item_dependencies(fitem)
-        item.delete()
-        return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
-    else:   # to review
-        if not own_item or item.status != 'D':
-            raise Http404 
-        item.make_review()
-        return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
+        if own_item and item.status in ['D', 'R']:
+            fitem = FinalItem.objects.add_item(item)
+            add_final_item_dependencies(fitem)
+            item.delete()
+            return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
+    elif request.POST['status'] == 'review':
+        if own_item and item.status == 'D':
+            item.make_review()
+            return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
+    raise Http404
 
 @require_POST
 def delete_public(request):
