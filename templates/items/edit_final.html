@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load item_tags %}
+{% load user_tags %}
+{% load utils_tags %}
+{% load staticfiles %}
+
+{% block title %}{{ item }}{% endblock %}
+
+{% block mainbar %}
+
+<h1>{{ item }}{% if item.parent %} of {{ item.parent }}{% endif %}</h1>
+
+<div class="item-body">
+{{ item.body|typeset_body }}
+</div>
+
+{% if primary_text %}
+<h4>{{ primary_text }}</h4>
+<div id="primary-categories"></div>
+{% endif %}
+
+<h4>Categories</h4>
+<div id="secondary-categories"></div>
+
+<div id="modal-container"></div>
+
+{% endblock mainbar %}
+
+{% block sidebar %}
+
+<h4>Meta</h4>
+
+<p>
+Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, 
+published at {{ item.created_at|datetime_user:user }}
+{% if item.created_at == item.modified_at %} (not modified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
+</p>
+
+<h4>Actions</h4>
+<button id="save" class="btn btn-primary">Save</button>
+
+{% endblock %}
+
+{% block bodybottom %}
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
+<script src="{% static 'js/teoremer.js' %}"></script>
+
+<script type="text/javascript">
+
+teoremer.setupCsrf();
+
+(function(){
+
+  var item = new teoremer.FinalItem({
+    id: "{{item.final_id}}",
+    pricats: {{item.primary_categories|to_json}},
+    seccats: {{item.secondary_categories|to_json}}
+  }, { parse: true });
+
+  var saveItem = new teoremer.SaveFinalView({
+    el: $('#save'),
+    model: item
+  });
+  
+{% if primary_text %}
+  var primaryCategoryList = new teoremer.EditableCategoryListView({
+    el: $('#primary-categories'),
+    collection: item.get('pricats')
+  });
+{% endif %}
+  
+  var secondaryCategoryList = new teoremer.EditableCategoryListView({
+    el: $('#secondary-categories'),
+    collection: item.get('seccats')
+  });
+  
+})();
+
+</script>
+
+{% endblock %}

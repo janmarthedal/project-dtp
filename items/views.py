@@ -29,80 +29,9 @@ def get_user_item_permissions(user, item):
         'to_final':   item.status in ['D', 'R'] and own_item,
         'add_proof':  item.status == 'F' and item.itemtype == 'T' and logged_in,
         'add_source': item.status == 'F' and logged_in,
+        'edit_final': item.status == 'F' and logged_in,
         }    
 
-
-class EditItemForm(forms.Form):
-    body          = forms.CharField(widget=forms.Textarea(attrs={'class': 'item-body span12'}), required=False)
-    primarytags   = TagListField(widget=forms.Textarea(attrs={'class': 'tags', 'rows': 5 }), required=False)
-    secondarytags = TagListField(widget=forms.Textarea(attrs={'class': 'tags', 'rows': 5 }), required=False)
-
-    def clean_body(self):
-        return self.cleaned_data['body'].strip()
-
-    def clean(self):
-        self.pre_validate = super(EditItemForm, self).clean()
-        errors = []
-        # check tags
-        primarytags   = self.pre_validate['primarytags']
-        secondarytags = self.pre_validate['secondarytags']
-        tag_counter = Counter(primarytags) + Counter(secondarytags)
-        duplicates = [p[0] for p in tag_counter.iteritems() if p[1] > 1]
-        if duplicates:
-            t = get_template('inline/taglist.html')
-            c = Context({ 'header':  'Tag duplicates:',
-                          'taglist': duplicates })
-            errors.append(t.render(c))
-        # check body
-        self.bodyscan = BodyScanner(self.pre_validate['body'])
-        for final_id in set(self.bodyscan.getItemRefList()):
-            try:
-                FinalItem.objects.get(final_id=final_id, status='F')
-            except FinalItem.DoesNotExist:
-                errors.append('Reference %s does not exist' % final_id)
-        if errors:
-            raise ValidationError(errors)
-        return self.pre_validate
-
-
-@require_http_methods(["GET", "POST"])
-def new2(request, kind, parent=None):
-    if not request.user.is_authenticated():
-        messages.info(request, 'You must log in to create a %s' % kind)
-        return HttpResponseRedirect('%s?next=%s' % (reverse('users.views.login'), request.path))
-    c = {}
-    if parent:
-        if kind != 'proof':
-            raise Http404
-        c['parent'] = get_object_or_404(FinalItem, final_id=parent, itemtype='T')
-    if request.method == 'GET':
-        form = EditItemForm()
-    else:
-        form = EditItemForm(request.POST)
-        is_valid = form.is_valid()
-        primarytags   = form.pre_validate['primarytags']
-        secondarytags = form.pre_validate['secondarytags']
-        body          = form.pre_validate['body']
-        if request.POST['submit'].lower() == 'preview':
-            c['preview'] = { 'kind':          kind,
-                             'body':          body,
-                             'parent':        c.get('parent'),
-                             'primarytags':   primarytags,
-                             'secondarytags': secondarytags }
-        elif is_valid:                 # save draft
-            item = DraftItem.objects.add_item(request.user, kind, body,
-                                              primarytags, secondarytags,
-                                              c.get('parent'))
-            message = u'%s successfully created' % item
-            logger.debug(message)
-            messages.success(request, message)
-            return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
-    c.update(dict(kind=kind, form=form))
-    if kind == 'definition':
-        c['primary_text'] = 'Terms defined'
-    elif kind == 'theorem':
-        c['primary_text'] = 'Name(s) of theorem'
-    return render(request, 'items/new.html', c)
 
 @require_GET
 def new(request, kind, parent=None):
@@ -146,13 +75,29 @@ def show(request, item_id):
           'perm': permissions }
     return render(request, 'items/show.html', c)
 
+@login_required
+@require_GET
+def edit_final(request, final_id):
+    item = get_object_or_404(FinalItem, final_id=final_id)
+    item_perms = get_user_item_permissions(request.user, item)
+    if not item_perms['edit_final']:
+        raise Http404
+    c = init_context(item.itemtype)
+    c['item'] = item
+    if item.itemtype == 'D':
+        c['primary_text'] = 'Terms defined'
+    elif item.itemtype == 'T':
+        c['primary_text'] = 'Name(s) of theorem'
+    return render(request, 'items/edit_final.html', c)
+
 @require_GET
 def show_final(request, final_id):
     item = get_object_or_404(FinalItem, final_id=final_id)
+    item_perms = get_user_item_permissions(request.user, item)
     validation_count = item.sourcevalidation_set.count()
     proof_count = item.finalitem_set.filter(itemtype='P', status='F').count() if item.itemtype == 'T' else 0
     c = { 'item':             item,
-          'perm':             get_user_item_permissions(request.user, item),
+          'perm':             item_perms,
           'validation_count': validation_count,
           'proof_count':      proof_count }
     if validation_count and 'vals' in request.GET:
@@ -162,10 +107,9 @@ def show_final(request, final_id):
     return render(request, 'items/show_final.html', c)
 
 @require_POST
-def change_status(request):
+def change_status(request, item_id):
     if not request.user.is_authenticated():
         raise Http404
-    item_id = request.POST['item']
     item = get_object_or_404(DraftItem, pk=item_id)
     own_item = request.user == item.created_by
     if request.POST['status'] == 'publish':
@@ -190,10 +134,9 @@ def delete_public(request):
     return HttpResponseRedirect(reverse('main.views.index'))
 
 @require_POST
-def delete_draft(request):
+def delete_draft(request, item_id):
     if not request.user.is_authenticated():
         raise Http404
-    item_id = request.POST['item']
     item = get_object_or_404(DraftItem, pk=item_id)
     if request.user != item.created_by:
         raise Http404

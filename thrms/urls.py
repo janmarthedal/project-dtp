@@ -12,5 +12,6 @@ urlpatterns = patterns('',
     url(r'^categories/',  include('tags.urls')),
     url(r'^about$',       'main.views.about'),
     url(r'^(\w+)$',       'items.views.show_final'),
+    url(r'^(\w+)/edit$',  'items.views.edit_final'),
     url(r'^$',            'main.views.index'),
 )

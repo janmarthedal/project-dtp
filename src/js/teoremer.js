@@ -153,6 +153,15 @@
         }
     });
 
+    teoremer.FinalItem = Backbone.Model.extend({
+        urlRoot: '/api/final',
+        parse: function(resp) {
+            resp.pricats = new CategoryList(resp.pricats, { parse: true });
+            resp.seccats = new CategoryList(resp.seccats, { parse: true });
+            return resp;
+        }
+    });
+
     /***************************
      * Views
      ***************************/
@@ -472,6 +481,27 @@
                 wait: true,
                 success: function(model, response) {
                     reverse_view_redirect('items.views.show', model.get('id'));
+                },
+                error: function(model, error) {
+                    console.log(model.toJSON());
+                    console.log('error saving');
+                }
+            });
+        }
+    });
+
+    teoremer.SaveFinalView = Backbone.View.extend({
+        events: {
+            'click': 'save'
+        },
+        initialize: function() {
+            _.bindAll(this, 'save');
+        },
+        save: function() {
+            this.model.save(null, {
+                wait: true,
+                success: function(model, response) {
+                    reverse_view_redirect('items.views.show_final', model.get('id'));
                 },
                 error: function(model, error) {
                     console.log(model.toJSON());

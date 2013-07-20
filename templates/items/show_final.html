@@ -46,7 +46,11 @@
 
 <h4>Meta</h4>
 
-<p>Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, published at {{ item.created_at|datetime_user:user }}</p>
+<p>
+Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, 
+published at {{ item.created_at|datetime_user:user }}
+{% if item.created_at == item.modified_at %} (not modified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
+</p>
 
 <h4>Categories</h4>
 
@@ -59,6 +63,9 @@
 {% endif %}
 {% if perm.add_source %}
 <p><a class="btn btn-primary" href="{% url 'sources.views.add_source' item.final_id %}">Add validation source</a></p>
+{% endif %}
+{% if perm.edit_final %}
+<p><a class="btn btn-primary" href="{% url 'items.views.edit_final' item.final_id %}">Edit</a></p>
 {% endif %}
 {% if user.is_admin %}
 <form method="post" action="{% url 'items.views.delete_public' %}">

@@ -31,37 +31,33 @@
 {% if perm.edit %}
 <p><a class="btn btn-primary" href="{% url 'items.views.edit' item.id %}">Edit</a></p>
 
-<form method="post" action="{% url 'items.views.delete_draft' %}">
+<form method="post" action="{% url 'items.views.delete_draft' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Delete</button>
-  <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
 {% endif %}
 
 {% if perm.to_draft %}
-<form method="post" action="{% url 'items.views.change_status' %}">
+<form method="post" action="{% url 'items.views.change_status' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Revert to draft</button>
   <input type="hidden" name="status" value="draft" />
-  <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
 {% endif %}
 
 {% if perm.to_review %}
-<form method="post" action="{% url 'items.views.change_status' %}">
+<form method="post" action="{% url 'items.views.change_status' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Submit for review</button>
   <input type="hidden" name="status" value="review" />
-  <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
 {% endif %}
 
 {% if perm.to_final %}
-<form method="post" action="{% url 'items.views.change_status' %}">
+<form method="post" action="{% url 'items.views.change_status' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Publish</button>
   <input type="hidden" name="status" value="publish" />
-  <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
 {% endif %}
 
