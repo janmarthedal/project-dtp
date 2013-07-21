@@ -31,14 +31,16 @@ class CategoryManager(models.Manager):
         return category
 
 class Category(models.Model):
+
     class Meta:
         db_table = 'categories'
         unique_together = ('tag', 'parent')
 
     objects = CategoryManager()
-    tag     = models.ForeignKey(Tag, related_name='+')
-    parent  = models.ForeignKey('self', null=True, related_name='+')
-    
+
+    tag     = models.ForeignKey(Tag, related_name='+', db_index=False)
+    parent  = models.ForeignKey('self', null=True, related_name='+', db_index=False)
+
     def get_tag_list(self):
         tag_list = self.parent.get_tag_list()[:] if self.parent else []
         tag_list.append(self.tag)

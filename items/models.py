@@ -1,8 +1,10 @@
-from django.db import models, IntegrityError
 from django.conf import settings
+from django.core.urlresolvers import resolve
+from django.db import models, IntegrityError
+from django.http import Http404
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from tags.models import Category
+from tags.models import Category, Tag
 from tags.helpers import CategoryCollection
 
 import logging
@@ -10,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 FINAL_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 FINAL_NAME_MIN_LENGTH = 4
+FINAL_NAME_MAX_LENGTH = 10
 
 class BaseItem(models.Model):
     
@@ -24,7 +27,7 @@ class BaseItem(models.Model):
     )
     
     itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
-    parent   = models.ForeignKey('FinalItem', null=True)
+    parent   = models.ForeignKey('FinalItem', null=True, db_index=False)
     body     = models.TextField(null=True)
     
     def __init__(self, *args, **kwargs):
@@ -58,18 +61,20 @@ class FinalItemManager(models.Manager):
                          modified_by = draft_item.created_by,
                          body        = draft_item.body,
                          parent      = draft_item.parent)
-        length = FINAL_NAME_MIN_LENGTH
-        while True:
+        for length in range(FINAL_NAME_MIN_LENGTH, FINAL_NAME_MAX_LENGTH + 1):
             item.final_id = get_random_string(length, FINAL_NAME_CHARS)
             try:
-                item.save()
-                break
-            except IntegrityError:
-                length += 1
-        for itemcat in draft_item.draftitemcategory_set.all():
-            FinalItemCategory.objects.create(item=item, category=itemcat.category,
-                                             primary=itemcat.primary)
-        return item
+                # check if we have hit a url used for other purposes
+                resolve('/%s' % item.final_id)
+            except Http404:
+                try:
+                    item.save()
+                    for itemcat in draft_item.draftitemcategory_set.all():
+                        FinalItemCategory.objects.create(item=item, category=itemcat.category,
+                                                         primary=itemcat.primary)
+                    return item
+                except IntegrityError:
+                    pass
 
 class FinalItem(BaseItem):
     
@@ -84,11 +89,11 @@ class FinalItem(BaseItem):
         ('B', 'broken')
     )
     
-    final_id    = models.CharField(max_length=10, unique=True, db_index=True)
+    final_id    = models.CharField(max_length=FINAL_NAME_MAX_LENGTH, unique=True, db_index=True)
     status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
-    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     created_at  = models.DateTimeField(default=timezone.now)
-    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     modified_at = models.DateTimeField(default=timezone.now)
     categories  = models.ManyToManyField(Category, through='FinalItemCategory')
     
@@ -125,21 +130,28 @@ class DraftItemManager(models.Manager):
         self._add_categories(item, primary_categories, secondary_categories)
 
 class DraftItem(BaseItem):
+
     class Meta:
         db_table = 'draft_items'
+
     objects = DraftItemManager()
+
     STATUS_CHOICES = (
         ('D', 'draft'),
         ('R', 'under review'),
     )
+
     status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
-    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     modified_at = models.DateTimeField(default=timezone.now)
     categories  = models.ManyToManyField(Category, through='DraftItemCategory')
+
     def __unicode__(self):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
+
     def _get_item_category_set(self):
         return self.draftitemcategory_set.all()
+
     def make_review(self):
         if self.status != 'R':
             self.status = 'R'
@@ -151,14 +163,22 @@ class DraftItemCategory(models.Model):
     class Meta:
         db_table = 'draft_item_category'
         unique_together = ('item', 'category')
-    item     = models.ForeignKey(DraftItem)
-    category = models.ForeignKey(Category)
+    item     = models.ForeignKey(DraftItem, db_index=True)
+    category = models.ForeignKey(Category, db_index=False)
     primary  = models.BooleanField()
 
 class FinalItemCategory(models.Model):
     class Meta:
         db_table = 'final_item_category'
         unique_together = ('item', 'category')
-    item     = models.ForeignKey(FinalItem)
-    category = models.ForeignKey(Category)
+    item     = models.ForeignKey(FinalItem, db_index=True)
+    category = models.ForeignKey(Category, db_index=False)
     primary  = models.BooleanField()
+
+class ItemTagCategory(models.Model):
+    class Meta:
+        db_table = 'item_tag_category'
+        unique_together = ('item', 'tag')
+    item     = models.ForeignKey(FinalItem, db_index=True)
+    tag      = models.ForeignKey(Tag, db_index=False)
+    category = models.ForeignKey(Category, db_index=False)
