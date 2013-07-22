@@ -8,14 +8,12 @@ Exclude
     Media component
 
   JS Components
-    Tooltips
     Popovers
     Carousel
     
   jQuery plugins
     Scrollspy
     Togglable tabs
-    Tooltips
     Popovers
     Affix
     Carousel

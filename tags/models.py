@@ -38,8 +38,8 @@ class Category(models.Model):
 
     objects = CategoryManager()
 
-    tag     = models.ForeignKey(Tag, related_name='+', db_index=False)
-    parent  = models.ForeignKey('self', null=True, related_name='+', db_index=False)
+    tag    = models.ForeignKey(Tag, related_name='+', db_index=False)
+    parent = models.ForeignKey('self', null=True, related_name='+', db_index=False)
 
     def get_tag_list(self):
         tag_list = self.parent.get_tag_list()[:] if self.parent else []

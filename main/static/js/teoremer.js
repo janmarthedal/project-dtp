@@ -460,11 +460,28 @@
                     pars[i] = pars2.join('');
                 }
             }
-            var html = this.converter.makeHtml(pars.join(''));
+            source = pars.join('');
+            // [text#tag] or [#tag]
+            source = source.replace(/\[([^#\]]*)#([a-zA-Z0-9_-]+)\]/g, function(full_match, text, tag) {
+                text = text || tag;
+                key = 'zZ' + (++insertsCounter) + 'Zz';
+                inserts[key] = '<a href="#" rel="tooltip" data-original-title="tag: ' + tag + '"><i>' + text + '</i></a>';
+                return key;
+            });
+            // [@q25tY]
+            source = source.replace(/\[@([a-zA-Z0-9]+)\]/g, function(full_match, item_id) {
+                key = 'zZ' + (++insertsCounter) + 'Zz';
+                inserts[key] = '<a href="#" rel="tooltip" data-original-title="item: ' + item_id + '"><b>' + item_id + '</b></a>';
+                return key;
+            });
+            var html = this.converter.makeHtml(source);
             for (key in inserts) {
                 html = html.replace(key, inserts[key]);
             }
             this.$el.html(html);
+            this.$el.tooltip({
+                selector: "a[rel=tooltip]"
+            });
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
         }
     });
