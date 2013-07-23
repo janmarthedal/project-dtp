@@ -1,20 +1,15 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_safe
 from django import forms
-from items.helpers import TagListField
 from main.helpers import init_context
-
 
 @require_safe
 def index(request):
     c = init_context('media')
     return render(request, 'media/index.html', c)    
 
-
 class UploadFileForm(forms.Form):
     file = forms.FileField()
-    tags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
-    
     
 @require_safe
 def add(request):

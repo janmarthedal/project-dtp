@@ -469,7 +469,7 @@
                 return key;
             });
             // [@q25tY]
-            source = source.replace(/\[@([a-zA-Z0-9]+)\]/g, function(full_match, item_id) {
+            source = source.replace(/\[@(\w+)\]/g, function(full_match, item_id) {
                 key = 'zZ' + (++insertsCounter) + 'Zz';
                 inserts[key] = '<a href="#" rel="tooltip" data-original-title="item: ' + item_id + '"><b>' + item_id + '</b></a>';
                 return key;

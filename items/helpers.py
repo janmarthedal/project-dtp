@@ -12,25 +12,13 @@ from tags.helpers import clean_tag, normalize_tag
 import logging
 logger = logging.getLogger(__name__)
 
-
-class TagListField(forms.CharField):
-
-    def __init__(self, *args, **kwargs):
-        super(TagListField, self).__init__(*args, **kwargs)
-
-    def clean(self, value):
-        value = super(TagListField, self).clean(value)
-        tag_list = filter(None, map(clean_tag, value.splitlines()))
-        return tag_list
-
-
 def make_html_safe(st):
     st = st.replace('<', '%lt;')
     st = st.replace('>', '%gt;')
     return st
 
 test_body = """
-First [#non-negative integer] paragraf
+First [#non-negative-integer] paragraf
 is started [@2222] here
 
 We have
@@ -38,9 +26,8 @@ $$
 \sum_{k=1}^n k
 $$
 
-and [number#positive integer(number $e^x$ theory,abc)] then we get $e^x$ the
+and [number#positive-integer] then we get $e^x$ the
 [@ab2c] result.
-
 """
 
 class BodyScanner:
@@ -63,7 +50,7 @@ class BodyScanner:
                         parts2[j] = self._add_inline_maths(parts2[j])
                 parts[i] = ''.join(parts2)
         body = ''.join(parts)
-        body = re.sub(r'\[([0-9a-zA-Z -]*)#([0-9a-zA-Z -]+)\]', self._conceptMatch, body)
+        body = re.sub(r'\[([^#\]]*)#([a-zA-Z0-9_-]+)\]', self._conceptMatch, body)
         body = re.sub(r'\[@(\w+)\]', self._itemRefMatch, body)
         self.body = body
         self._imaths = self._imaths.items()
@@ -82,16 +69,11 @@ class BodyScanner:
         self._imaths[key] = st;
         return key
 
-    def _prepare_tag(self, st):
-        return re.sub('Z' + self._secret + r'\d+Z',
-                      lambda m: '$' + self._imaths.get(m.group(0), '!') + '$',
-                      clean_tag(st))
-    
     def _conceptMatch(self, match):
         key = self._make_key()
-        name        = match.group(1)
-        primary     = self._prepare_tag(match.group(2))
-        self._conceptRefs.append((key, '', name, primary))
+        name = match.group(1)
+        tag = match.group(2)
+        self._conceptRefs.append((key, '', name, tag))
         return key
     
     def _itemRefMatch(self, match):
@@ -115,7 +97,7 @@ class BodyScanner:
         return [p[2] for p in self._itemRefs]
 
     def getConceptList(self):
-        return [(p[3], p[4]) for p in self._conceptRefs]
+        return [p[3] for p in self._conceptRefs]
 
     def assemble(self):
         st = self.body
@@ -153,10 +135,6 @@ def typeset_tag(st):
         if i % 2 == 1:
             parts[i] = '\(' + parts[i] + '\)'
     return make_html_safe(''.join(parts))
-
-class TagSearchForm(forms.Form):
-    includetags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
-    excludetags = TagListField(widget=forms.Textarea(attrs={'class': 'tags'}), required=False)
 
 def tag_names_to_tag_objects(tag_names):
     found = []

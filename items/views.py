@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django import forms
 from items.models import DraftItem, FinalItem
-from items.helpers import BodyScanner, TagListField
+from items.helpers import BodyScanner
 from main.helpers import init_context
 from analysis.management.commands.analyze import add_final_item_dependencies
 
@@ -50,6 +50,16 @@ def new(request, kind, parent=None):
         c['primary_text'] = 'Name(s) for theorem'
     return render(request, 'items/new.html', c)
 
+@require_GET
+def show(request, item_id):
+    item = get_object_or_404(DraftItem, pk=item_id)
+    permissions = get_user_item_permissions(request.user, item)
+    if not permissions['view']:
+        raise Http404 
+    c = { 'item': item,
+          'perm': permissions }
+    return render(request, 'items/show.html', c)
+
 @login_required
 @require_GET
 def edit(request, item_id):
@@ -65,30 +75,37 @@ def edit(request, item_id):
         c['primary_text'] = 'Name(s) of theorem'
     return render(request, 'items/edit.html', c)
 
-@require_GET
-def show(request, item_id):
-    item = get_object_or_404(DraftItem, pk=item_id)
-    permissions = get_user_item_permissions(request.user, item)
-    if not permissions['view']:
-        raise Http404 
-    c = { 'item': item,
-          'perm': permissions }
-    return render(request, 'items/show.html', c)
-
-@login_required
-@require_GET
-def edit_final(request, final_id):
-    item = get_object_or_404(FinalItem, final_id=final_id)
-    item_perms = get_user_item_permissions(request.user, item)
-    if not item_perms['edit_final']:
+@require_POST
+def delete_draft(request, item_id):
+    if not request.user.is_authenticated():
         raise Http404
-    c = init_context(item.itemtype)
-    c['item'] = item
-    if item.itemtype == 'D':
-        c['primary_text'] = 'Terms defined'
-    elif item.itemtype == 'T':
-        c['primary_text'] = 'Name(s) of theorem'
-    return render(request, 'items/edit_final.html', c)
+    item = get_object_or_404(DraftItem, pk=item_id)
+    if request.user != item.created_by:
+        raise Http404
+    item.delete()
+    return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.get_username()]))
+
+@require_POST
+def to_review(request, item_id):
+    if not request.user.is_authenticated():
+        raise Http404
+    item = get_object_or_404(DraftItem, pk=item_id)
+    if request.user == item.created_by and item.status == 'D':
+        item.make_review()
+        return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
+    raise Http404
+
+@require_POST
+def to_final(request, item_id):
+    if not request.user.is_authenticated():
+        raise Http404
+    item = get_object_or_404(DraftItem, pk=item_id)
+    if request.user == item.created_by and item.status in ['D', 'R']:
+        fitem = FinalItem.objects.add_item(item)
+        add_final_item_dependencies(fitem)
+        item.delete()
+        return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
+    raise Http404
 
 @require_GET
 def show_final(request, final_id):
@@ -106,39 +123,25 @@ def show_final(request, final_id):
         c['proof_list'] = item.finalitem_set.filter(itemtype='P', status='F').all()
     return render(request, 'items/show_final.html', c)
 
-@require_POST
-def change_status(request, item_id):
-    if not request.user.is_authenticated():
+@login_required
+@require_GET
+def edit_final(request, final_id):
+    item = get_object_or_404(FinalItem, final_id=final_id)
+    item_perms = get_user_item_permissions(request.user, item)
+    if not item_perms['edit_final']:
         raise Http404
-    item = get_object_or_404(DraftItem, pk=item_id)
-    own_item = request.user == item.created_by
-    if request.POST['status'] == 'publish':
-        if own_item and item.status in ['D', 'R']:
-            fitem = FinalItem.objects.add_item(item)
-            add_final_item_dependencies(fitem)
-            item.delete()
-            return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
-    elif request.POST['status'] == 'review':
-        if own_item and item.status == 'D':
-            item.make_review()
-            return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
-    raise Http404
+    c = init_context(item.itemtype)
+    c['item'] = item
+    if item.itemtype == 'D':
+        c['primary_text'] = 'Terms defined'
+    elif item.itemtype == 'T':
+        c['primary_text'] = 'Name(s) of theorem'
+    return render(request, 'items/edit_final.html', c)
 
 @require_POST
-def delete_public(request):
+def delete_final(request, item_id):
     if not (request.user.is_authenticated() and request.user.is_admin):
         raise Http404
-    item_id = request.POST['item']
     item = get_object_or_404(FinalItem, pk=item_id)
     item.delete()
     return HttpResponseRedirect(reverse('main.views.index'))
-
-@require_POST
-def delete_draft(request, item_id):
-    if not request.user.is_authenticated():
-        raise Http404
-    item = get_object_or_404(DraftItem, pk=item_id)
-    if request.user != item.created_by:
-        raise Http404
-    item.delete()
-    return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.get_username()]))
