@@ -106,7 +106,9 @@
             });
         },
         parse: function(resp) {
-            return { tag_list: new TagList(resp, { parse: true }) };
+            return {
+                tag_list: new TagList(resp, { parse: true })
+            };
         }
     });
 
@@ -117,6 +119,30 @@
                 return new Category(item, { parse: true });
             });
         }
+    });
+
+    var TagAssociation = Backbone.Model.extend({
+        toJSON: function() {
+            return {
+                tag: this.get('tag').toJSON(),
+                category: this.get('category').toJSON()
+            };
+        },
+        parse: function(resp) {
+            return {
+                tag: new TagItem(resp.tag, { parse: true }),
+                category: new Category(resp.category, { parse: true })
+            };
+        }
+    });
+
+    var TagAssociationList = Backbone.Collection.extend({
+       model: TagAssociation,
+       parse: function(resp) {
+            return _.map(resp, function(item) {
+                return new TagAssociation(item, { parse: true });
+            });           
+       } 
     });
 
     var MathItem = Backbone.Model;
@@ -158,6 +184,7 @@
         parse: function(resp) {
             resp.pricats = new CategoryList(resp.pricats, { parse: true });
             resp.seccats = new CategoryList(resp.seccats, { parse: true });
+            resp.tagcatmap = new TagAssociationList(resp.tagcatmap, { parse: true });
             return resp;
         }
     });
@@ -462,18 +489,20 @@
             }
             source = pars.join('');
             // [text#tag] or [#tag]
-            source = source.replace(/\[([^#\]]*)#([a-zA-Z0-9_-]+)\]/g, function(full_match, text, tag) {
+            source = source.replace(/\[([^#\]]*)#([\w-]+)\]/g, function(full_match, text, tag) {
                 text = text || tag;
                 key = 'zZ' + (++insertsCounter) + 'Zz';
                 inserts[key] = '<a href="#" rel="tooltip" data-original-title="tag: ' + tag + '"><i>' + text + '</i></a>';
                 return key;
             });
             // [@q25tY]
-            source = source.replace(/\[@([a-zA-Z0-9]+)\]/g, function(full_match, item_id) {
+            source = source.replace(/\[@(\w+)\]/g, function(full_match, item_id) {
                 key = 'zZ' + (++insertsCounter) + 'Zz';
                 inserts[key] = '<a href="#" rel="tooltip" data-original-title="item: ' + item_id + '"><b>' + item_id + '</b></a>';
                 return key;
             });
+            // disable markdown links and images
+            source = source.replace("[", "&#91;").replace("]", "&#93;").replace("<", "&lt;").replace(">", "&gt;");
             var html = this.converter.makeHtml(source);
             for (key in inserts) {
                 html = html.replace(key, inserts[key]);
@@ -598,7 +627,7 @@
         }
     });
 
-    teoremer.RemovableCategoryView = Backbone.View.extend({
+    var RemovableCategoryView = Backbone.View.extend({
         tagName: 'span',
         className: 'category',
         events: {
@@ -644,7 +673,7 @@
         },
         // helpers
         _addOne: function(item) {
-            var categoryView = new teoremer.RemovableCategoryView({
+            var categoryView = new RemovableCategoryView({
                 model: item
             });
             this.$('#category-list-' + this.uid).append(categoryView.render().el);
@@ -657,6 +686,46 @@
                     self.collection.add(category);
                 }
             });
+        }
+    });
+
+    var ChangableTagAssociation = Backbone.View.extend({
+        tagName: 'tr',
+        events: {
+            //'click .delete-category': 'remove'
+        },
+        initialize: function() {
+            _.bindAll(this, 'render');
+            this.model.on('change', this.render);
+        },
+        render: function() {
+            var html = Handlebars.templates.tag_association({
+                tag: this.model.get('tag').typeset(),
+                category: this.model.get('category').typeset()
+            });
+            this.$el.html(html);
+            return this;
+        }
+    });
+
+    teoremer.ChangableTagAssociationListView = Backbone.View.extend({
+        // standard
+        initialize: function() {
+            _.bindAll(this, 'render', '_addOne');
+            this.collection.bind('add', this._addOne);
+            this.render();
+        },
+        render: function() {
+            this.$el.html('<table><tbody></tbody></table>');
+            this.collection.each(this._addOne);
+        },
+        // helpers
+        _addOne: function(item) {
+            var tagAssociation = new ChangableTagAssociation({
+                model: item
+            });
+            this.$('tbody').append(tagAssociation.render().el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, tagAssociation.$el.get()]);
         }
     });
 
@@ -884,6 +953,23 @@ function program4(depth0,data) {
   stack1 = helpers.each.call(depth0, depth0.sectags, {hash:{},inverse:self.noop,fn:self.program(3, program3, data),data:data});
   if(stack1 || stack1 === 0) { buffer += stack1; }
   buffer += "</div>\n</td>";
+  return buffer;
+  });
+templates['tag_association'] = template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [2,'>= 1.0.0-rc.3'];
+helpers = helpers || Handlebars.helpers; data = data || {};
+  var buffer = "", stack1, functionType="function";
+
+
+  buffer += "<td><span class=\"tag\">";
+  if (stack1 = helpers.tag) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.tag; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</span></td>\n<td><span class=\"category\">";
+  if (stack1 = helpers.category) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.category; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  if(stack1 || stack1 === 0) { buffer += stack1; }
+  buffer += "</span></td>\n<td><button class=\"btn\"><i class=\"icon-pencil\"></i></button></td>";
   return buffer;
   });
 templates['tag_list'] = template(function (Handlebars,depth0,helpers,partials,data) {

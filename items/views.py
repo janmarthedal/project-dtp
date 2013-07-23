@@ -1,16 +1,10 @@
-from collections import Counter
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.core.exceptions import ValidationError
 from django.contrib import messages
-from django.template.loader import get_template
-from django.template import Context
-from django import forms
 from items.models import DraftItem, FinalItem
-from items.helpers import BodyScanner
 from main.helpers import init_context
 from analysis.management.commands.analyze import add_final_item_dependencies
 

@@ -17,19 +17,6 @@ def make_html_safe(st):
     st = st.replace('>', '%gt;')
     return st
 
-test_body = """
-First [#non-negative-integer] paragraf
-is started [@2222] here
-
-We have
-$$
-\sum_{k=1}^n k
-$$
-
-and [number#positive-integer] then we get $e^x$ the
-[@ab2c] result.
-"""
-
 class BodyScanner:
 
     def __init__(self, body):
@@ -50,8 +37,9 @@ class BodyScanner:
                         parts2[j] = self._add_inline_maths(parts2[j])
                 parts[i] = ''.join(parts2)
         body = ''.join(parts)
-        body = re.sub(r'\[([^#\]]*)#([a-zA-Z0-9_-]+)\]', self._conceptMatch, body)
+        body = re.sub(r'\[([^#\]]*)#([\w-]+)\]', self._conceptMatch, body)
         body = re.sub(r'\[@(\w+)\]', self._itemRefMatch, body)
+        body = body.replace("[", "&#91;").replace("]", "&#93;").replace("<", "&lt;").replace(">", "&gt;");
         self.body = body
         self._imaths = self._imaths.items()
 

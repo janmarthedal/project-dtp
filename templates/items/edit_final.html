@@ -22,6 +22,9 @@
 <h4>Categories</h4>
 <div id="secondary-categories"></div>
 
+<h4>Tag to Category Map</h4>
+<div id="tag-to-category-map"></div>
+
 <div id="modal-container"></div>
 
 {% endblock mainbar %}
@@ -59,7 +62,8 @@ teoremer.setupCsrf();
   var item = new teoremer.FinalItem({
     id: "{{item.final_id}}",
     pricats: {{item.primary_categories|to_json}},
-    seccats: {{item.secondary_categories|to_json}}
+    seccats: {{item.secondary_categories|to_json}},
+    tagcatmap: {{item.get_tag_category_associations|to_json}}
   }, { parse: true });
 
   var saveItem = new teoremer.SaveFinalView({
@@ -79,6 +83,11 @@ teoremer.setupCsrf();
     collection: item.get('seccats')
   });
   
+  var tagAssocationList = new teoremer.ChangableTagAssociationListView({
+    el: $('#tag-to-category-map'),
+    collection: item.get('tagcatmap')
+  });
+
 })();
 
 </script>

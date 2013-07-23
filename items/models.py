@@ -103,6 +103,9 @@ class FinalItem(BaseItem):
     def _get_item_category_set(self):
         return self.finalitemcategory_set.all()
 
+    def get_tag_category_associations(self):
+        return list(self.itemtagcategory_set.all())
+
 class DraftItemManager(models.Manager):
     def _add_categories(self, item, primary_categories, secondary_categories):
         for tag_list in primary_categories:
@@ -176,9 +179,18 @@ class FinalItemCategory(models.Model):
     primary  = models.BooleanField()
 
 class ItemTagCategory(models.Model):
+
     class Meta:
         db_table = 'item_tag_category'
         unique_together = ('item', 'tag')
+    
     item     = models.ForeignKey(FinalItem, db_index=True)
     tag      = models.ForeignKey(Tag, db_index=False)
     category = models.ForeignKey(Category, db_index=False)
+
+    def __unicode__(self):
+        return u'%s | %s | %s' % (self.item, self.tag, self.category)
+
+    def json_serializable(self):
+        return { 'tag':      self.tag,
+                 'category': self.category }
