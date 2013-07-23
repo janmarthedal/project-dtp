@@ -5,4 +5,5 @@ urlpatterns = patterns('api.views',
     url(r'^items$',              'items'),
     url(r'^drafts$',             'drafts'),
     url(r'^drafts/(\d+)$',       'drafts_id'),
+    url(r'^final/(\w+)$',        'final_id'),
 )

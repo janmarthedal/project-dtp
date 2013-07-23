@@ -54,6 +54,15 @@ class BaseItem(models.Model):
 
 class FinalItemManager(models.Manager):
     
+    def _add_category_list(self, item, categories, is_primary):
+        for tag_list in categories:
+            category = Category.objects.fetch(tag_list)
+            FinalItemCategory.objects.create(item=item, category=category, primary=is_primary)
+
+    def _add_category_lists(self, item, primary_categories, secondary_categories):
+        self._add_category_list(item, primary_categories, True)
+        self._add_category_list(item, secondary_categories, False)
+    
     def add_item(self, draft_item):
         item = FinalItem(itemtype    = draft_item.itemtype,
                          status      = 'F',
@@ -75,6 +84,21 @@ class FinalItemManager(models.Manager):
                     return item
                 except IntegrityError:
                     pass
+
+    
+    def update_item(self, item, user, primary_categories, secondary_categories, tag_category_list):
+        item.modified_by = user
+        item.modified_at = timezone.now()
+        item.save()
+        item.finalitemcategory_set.all().delete()
+        self._add_category_lists(item, primary_categories, secondary_categories)
+        for tag_category in tag_category_list:
+            tag = Tag.objects.get(name=tag_category['tag'])
+            category = Category.objects.fetch(tag_category['category'])
+            item_tag_category = ItemTagCategory.objects.get(item=item, tag=tag)
+            item_tag_category.category = category
+            item_tag_category.save()
+        
 
 class FinalItem(BaseItem):
     
@@ -107,14 +131,16 @@ class FinalItem(BaseItem):
         return list(self.itemtagcategory_set.all())
 
 class DraftItemManager(models.Manager):
-    def _add_categories(self, item, primary_categories, secondary_categories):
-        for tag_list in primary_categories:
+
+    def _add_category_list(self, item, categories, is_primary):
+        for tag_list in categories:
             category = Category.objects.fetch(tag_list)
-            DraftItemCategory.objects.create(item=item, category=category, primary=True)
-        for tag_list in secondary_categories:
-            category = Category.objects.fetch(tag_list)
-            DraftItemCategory.objects.create(item=item, category=category, primary=False)
-    
+            DraftItemCategory.objects.create(item=item, category=category, primary=is_primary)
+
+    def _add_category_lists(self, item, primary_categories, secondary_categories):
+        self._add_category_list(item, primary_categories, True)
+        self._add_category_list(item, secondary_categories, False)
+
     def add_item(self, user, itemtype, body, primary_categories, secondary_categories, parent):
         type_key = filter(lambda kc: kc[1] == itemtype, DraftItem.TYPE_CHOICES)[0][0]
         item = DraftItem.objects.create(itemtype   = type_key,
@@ -122,7 +148,7 @@ class DraftItemManager(models.Manager):
                                         created_by = user,
                                         body       = body,
                                         parent     = parent)
-        self._add_categories(item, primary_categories, secondary_categories)
+        self._add_category_lists(item, primary_categories, secondary_categories)
         return item
 
     def update_item(self, item, body, primary_categories, secondary_categories):
@@ -130,7 +156,7 @@ class DraftItemManager(models.Manager):
         item.body = body
         item.save()
         item.draftitemcategory_set.all().delete()
-        self._add_categories(item, primary_categories, secondary_categories)
+        self._add_category_lists(item, primary_categories, secondary_categories)
 
 class DraftItem(BaseItem):
 

@@ -35,16 +35,19 @@ def is_int(value):
     return isinstance(value, int)
 
 def is_string_list(value):
-    try:
-        return isinstance(value, list) and all(is_string(tag_name) for tag_name in value)
-    except TypeError:
-        return false
+    return isinstance(value, list) and all(is_string(tag_name) for tag_name in value)
 
 def is_string_list_list(value):
+    return isinstance(value, list) and all(is_string_list(c) for c in value)
+    
+def is_tag_category(value):
     try:
-        return isinstance(value, list) and all(is_string_list(c) for c in value)
-    except TypeError:
+        return len(value) == 2 and is_string(value['tag']) and is_string_list(value['category'])
+    except KeyError:
         return false
+
+def is_tag_category_list(value):
+    return isinstance(value, list) and all(is_tag_category(c) for c in value)
 
 
 def api_request_user(request):
@@ -67,3 +70,6 @@ def api_request_int(request, key):
 
 def api_request_string_list_list(request, key):
     return api_request_value(request, key, is_string_list_list)
+
+def api_request_tag_category_list(request, key):
+    return api_request_value(request, key, is_tag_category_list)

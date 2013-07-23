@@ -1,9 +1,9 @@
 import time
 from django.core.management.base import BaseCommand, CommandError
 from analysis.models import ItemDependency, TagCount, ItemTag
-from items.models import FinalItem, ItemTagCategory
+from items.models import FinalItem
 from items.helpers import BodyScanner
-from tags.models import Tag, Category
+from tags.models import Tag
 
 def queryset_generator(queryset):
     items = queryset.order_by('pk')[:100]
@@ -26,12 +26,6 @@ def add_final_item_dependencies(fitem):
         except FinalItem.DoesNotExist:
             raise CommandError("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
 
-    ItemTagCategory.objects.filter(item=fitem).delete()
-    for tag_name in set(bs.getConceptList()):
-        tag = Tag.objects.fetch(tag_name)
-        category = Category.objects.fetch(['general', tag_name])
-        ItemTagCategory.objects.create(item=fitem, tag=tag, category=category)
-
 class Command(BaseCommand):
     help = 'Builds (redundant) analysis information'
 
@@ -50,7 +44,6 @@ class Command(BaseCommand):
         t = time.clock() - t
         self.stdout.write('  Processed %d final items' % item_count)
         self.stdout.write('  A total of %d item dependencies' % ItemDependency.objects.count())
-        self.stdout.write('  A total of %d item tag categories' % ItemTagCategory.objects.count())
         self.stdout.write('  Took %g seconds' % t)
 
     def _build_item_tags(self):

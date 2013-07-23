@@ -56,6 +56,8 @@
         var url;
         if (view == 'items.views.show') {
             url = '/item/' + arg1;
+        } else if (view == 'items.views.show_final') {
+            url = '/' + arg1;
         } else {
             console.log('Cannot do reverse lookup for view ' + view);
             return;
@@ -173,19 +175,24 @@
     teoremer.DraftItem = Backbone.Model.extend({
         urlRoot: '/api/drafts',
         parse: function(resp) {
-            resp.pricats = new CategoryList(resp.pricats, { parse: true });
-            resp.seccats = new CategoryList(resp.seccats, { parse: true });
-            return resp;
+            return {
+                id:      resp.id,
+                body:    resp.body,
+                pricats: new CategoryList(resp.pricats, { parse: true }),
+                seccats: new CategoryList(resp.seccats, { parse: true })
+            };
         }
     });
 
     teoremer.FinalItem = Backbone.Model.extend({
         urlRoot: '/api/final',
         parse: function(resp) {
-            resp.pricats = new CategoryList(resp.pricats, { parse: true });
-            resp.seccats = new CategoryList(resp.seccats, { parse: true });
-            resp.tagcatmap = new TagAssociationList(resp.tagcatmap, { parse: true });
-            return resp;
+            return {
+                id:        resp.id,
+                pricats:   new CategoryList(resp.pricats, { parse: true }),
+                seccats:   new CategoryList(resp.seccats, { parse: true }),
+                tagcatmap: new TagAssociationList(resp.tagcatmap, { parse: true })
+            };
         }
     });
 
@@ -536,27 +543,6 @@
         }
     });
 
-    teoremer.SaveFinalView = Backbone.View.extend({
-        events: {
-            'click': 'save'
-        },
-        initialize: function() {
-            _.bindAll(this, 'save');
-        },
-        save: function() {
-            this.model.save(null, {
-                wait: true,
-                success: function(model, response) {
-                    reverse_view_redirect('items.views.show_final', model.get('id'));
-                },
-                error: function(model, error) {
-                    console.log(model.toJSON());
-                    console.log('error saving');
-                }
-            });
-        }
-    });
-
     teoremer.AddCategoryView = Backbone.View.extend({
         // standard
         el: $('#modal-container'),
@@ -690,12 +676,13 @@
     });
 
     var ChangableTagAssociation = Backbone.View.extend({
+        // standard
         tagName: 'tr',
         events: {
-            //'click .delete-category': 'remove'
+            'click button': '_change'
         },
         initialize: function() {
-            _.bindAll(this, 'render');
+            _.bindAll(this, 'render', '_change');
             this.model.on('change', this.render);
         },
         render: function() {
@@ -705,6 +692,15 @@
             });
             this.$el.html(html);
             return this;
+        },
+        // helpers
+        _change: function() {
+            var self = this;
+            new teoremer.AddCategoryView({
+                add: function(category) {
+                    self.model.set('category', category);
+                }
+            });
         }
     });
 
@@ -716,7 +712,8 @@
             this.render();
         },
         render: function() {
-            this.$el.html('<table><tbody></tbody></table>');
+            var html = Handlebars.templates.tag_association_list();
+            this.$el.html(html);
             this.collection.each(this._addOne);
         },
         // helpers
@@ -726,6 +723,27 @@
             });
             this.$('tbody').append(tagAssociation.render().el);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, tagAssociation.$el.get()]);
+        }
+    });
+
+    teoremer.SaveFinalView = Backbone.View.extend({
+        events: {
+            'click': 'save'
+        },
+        initialize: function() {
+            _.bindAll(this, 'save');
+        },
+        save: function() {
+            this.model.save(null, {
+                wait: true,
+                success: function(model, response) {
+                    reverse_view_redirect('items.views.show_final', model.get('id'));
+                },
+                error: function(model, error) {
+                    console.log(model.toJSON());
+                    console.log('error saving');
+                }
+            });
         }
     });
 

@@ -41,3 +41,6 @@ textarea.item-body {
 .tag-counts>li {
   line-height: 30px;
 }
+.table-nonfluid {
+  width: auto;
+}

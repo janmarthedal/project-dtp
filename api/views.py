@@ -7,7 +7,8 @@ from items.helpers import item_search_to_json
 from items.models import DraftItem, FinalItem
 from main.helpers import json_decode, json_encode
 from tags.models import Tag
-from api.helpers import api_view, api_request_user, api_request_string, api_request_string_list_list, ApiError
+from api.helpers import (ApiError, api_view, api_request_user, api_request_string,
+                         api_request_string_list_list, api_request_tag_category_list)
 
 import logging
 logger = logging.getLogger(__name__)
@@ -130,4 +131,33 @@ def drafts_id(request, item_id):
         return drafts_save(request, item_id)
     else:
         raise Http404
- 
+
+@api_view
+def final_save(request, item_id):
+    user = api_request_user(request)
+    # TODO: Check user has permission to update final item
+    
+    primary_categories = api_request_string_list_list(request, 'pricats')
+    secondary_categories = api_request_string_list_list(request, 'seccats')
+    tag_category_map = api_request_tag_category_list(request, 'tagcatmap')
+    
+    item = FinalItem.objects.get(final_id=item_id)
+    
+    if item.status != 'F':
+        raise ApiError('Wrong status')
+
+    FinalItem.objects.update_item(item, user, primary_categories, secondary_categories, tag_category_map)
+
+    result = {
+        'id':        item.final_id,
+        'pricats':   primary_categories,
+        'seccats':   secondary_categories,
+        'tagcatmap': tag_category_map
+    }
+    return result
+
+def final_id(request, item_id):
+    if request.method == 'PUT':
+        return final_save(request, item_id)
+    else:
+        raise Http404
