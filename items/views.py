@@ -5,9 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from items.models import DraftItem, FinalItem
-from items.helpers import BodyScanner
 from main.helpers import init_context
-from analysis.management.commands.analyze import add_final_item_dependencies
+from analysis.management.commands.analyze import add_final_item_dependencies, check_final_item_tag_categories
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,7 +24,7 @@ def get_user_item_permissions(user, item):
         'add_proof':  item.status == 'F' and item.itemtype == 'T' and logged_in,
         'add_source': item.status == 'F' and logged_in,
         'edit_final': item.status == 'F' and logged_in,
-        }    
+    }
 
 
 @require_GET
@@ -102,11 +101,7 @@ def to_final(request, item_id):
     fitem = FinalItem.objects.add_item(item)
 
     add_final_item_dependencies(fitem)
-
-    bs = BodyScanner(fitem.body)
-    tag_category_list = [{ 'tag': tag_name, 'category': ['general', tag_name] }
-                         for tag_name in set(bs.getConceptList())]
-    fitem.set_item_tag_categories(tag_category_list)
+    check_final_item_tag_categories(fitem)
 
     item.delete()
     return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))

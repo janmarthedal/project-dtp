@@ -1,9 +1,9 @@
 import time
 from django.core.management.base import BaseCommand, CommandError
 from analysis.models import ItemDependency, TagCount, ItemTag
-from items.models import FinalItem
+from items.models import FinalItem, ItemTagCategory
 from items.helpers import BodyScanner
-from tags.models import Tag
+from tags.models import Tag, Category
 
 def queryset_generator(queryset):
     items = queryset.order_by('pk')[:100]
@@ -17,7 +17,7 @@ def add_final_item_dependencies(fitem):
     bs = BodyScanner(fitem.body)
 
     ItemDependency.objects.filter(from_item=fitem).delete()
-    for itemref_id in bs.getItemRefList():
+    for itemref_id in bs.getItemRefSet():
         try:
             itemref_item = FinalItem.objects.get(final_id=itemref_id)
             ItemDependency.objects.create(from_item=fitem, to_item=itemref_item)
@@ -26,11 +26,29 @@ def add_final_item_dependencies(fitem):
         except FinalItem.DoesNotExist:
             raise CommandError("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
 
+def check_final_item_tag_categories(fitem):
+    bs = BodyScanner(fitem.body)
+
+    tags_in_item = set([Tag.objects.fetch(tag_name) for tag_name in bs.getConceptSet()])
+    tags_in_db = set([itc.tag for itc in fitem.itemtagcategory_set.all()])
+    tags_to_remove = tags_in_db - tags_in_item
+    tags_to_add = tags_in_item - tags_in_db 
+
+    for tag in tags_to_remove:
+        ItemTagCategory.objects.filter(item=fitem, tag=tag).delete()
+
+    for tag in tags_to_add:
+        category = Category.objects.default_category_for_tag(tag)
+        ItemTagCategory.objects.create(item=fitem, tag=tag, category=category)
+    
+    return len(tags_to_add), len(tags_to_remove)
+
 class Command(BaseCommand):
     help = 'Builds (redundant) analysis information'
 
     def handle(self, *args, **options):
         self._rebuild_dependencies()
+        self._check_item_tag_categories()
         self._build_item_tags()
         self._build_tag_counts()
 
@@ -44,6 +62,23 @@ class Command(BaseCommand):
         t = time.clock() - t
         self.stdout.write('  Processed %d final items' % item_count)
         self.stdout.write('  A total of %d item dependencies' % ItemDependency.objects.count())
+        self.stdout.write('  Took %g seconds' % t)
+
+    def _check_item_tag_categories(self):
+        self.stdout.write('Check item tag categories')
+        t = time.clock()
+        item_count = 0
+        added = 0
+        removed = 0
+        for fitem in queryset_generator(FinalItem.objects.filter(status='F')):
+            changes = check_final_item_tag_categories(fitem)
+            added += changes[0]
+            removed += changes[1]
+            item_count += 1
+        t = time.clock() - t
+        self.stdout.write('  Processed %d final items' % item_count)
+        self.stdout.write('  Added %d item tag categories' % added)
+        self.stdout.write('  Removed %d item tag categories' % removed)
         self.stdout.write('  Took %g seconds' % t)
 
     def _build_item_tags(self):

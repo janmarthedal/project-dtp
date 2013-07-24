@@ -82,10 +82,10 @@ class BodyScanner:
     def transformItemRefs(self, func):
         self._itemRefs = map(lambda p: (p[0], func(p[2]), p[2]), self._itemRefs)
 
-    def getItemRefList(self):
+    def getItemRefSet(self):
         return [p[2] for p in self._itemRefs]
 
-    def getConceptList(self):
+    def getConceptSet(self):
         return [p[3] for p in self._conceptRefs]
 
     def assemble(self):

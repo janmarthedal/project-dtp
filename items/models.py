@@ -126,7 +126,9 @@ class FinalItem(BaseItem):
     def set_item_tag_categories(self, tag_category_list):
         for tag_category in tag_category_list:
             tag = Tag.objects.fetch(tag_category['tag'])
-            category = Category.objects.from_tag_list(tag_category['category'])
+            category = tag_category['category']
+            if not isinstance(category, Category):
+                category = Category.objects.from_tag_list(category)
             ItemTagCategory.objects.create(item=self, tag=tag, category=category)
 
     def update(self, user, primary_categories, secondary_categories, tag_category_list):

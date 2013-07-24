@@ -30,10 +30,14 @@ class CategoryManager(models.Manager):
 
     def from_tag_list(self, tag_list):
         category = None
-        for tag_name in tag_list:
-            tag = Tag.objects.fetch(tag_name)
+        for tag in tag_list:
+            if not isinstance(tag, Tag):
+                tag = Tag.objects.fetch(tag)
             category = self.get_or_create(tag=tag, parent=category)[0]
         return category
+
+    def default_category_for_tag(self, tag):
+        return self.from_tag_list(['general', tag])
 
 
 class Category(models.Model):

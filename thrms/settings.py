@@ -142,7 +142,7 @@ MESSAGE_TAGS = {
 
 ROOT_URLCONF = 'thrms.urls'
 
-LOGIN_URL = '/user/login'
+LOGIN_URL = '/users/login'
 
 AUTH_USER_MODEL = 'users.User'
 
