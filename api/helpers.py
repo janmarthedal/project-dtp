@@ -17,7 +17,7 @@ def api_view(f):
             result = f(request, *args, **kwds)
             return HttpResponse(json.dumps(result), content_type="application/json")
         except KeyError as e:
-            msg = "Key '%s' missing" % e
+            msg = "Key %s missing" % e
         except ValueError as e:
             msg = "Value for '%s' is of wrong type or value" % e
         except ApiError as e:
@@ -44,7 +44,7 @@ def is_tag_category(value):
     try:
         return len(value) == 2 and is_string(value['tag']) and is_string_list(value['category'])
     except KeyError:
-        return false
+        return False
 
 def is_tag_category_list(value):
     return isinstance(value, list) and all(is_tag_category(c) for c in value)

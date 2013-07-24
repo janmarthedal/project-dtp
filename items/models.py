@@ -150,7 +150,7 @@ class DraftItemManager(models.Manager):
                                         created_by = user,
                                         body       = body,
                                         parent     = parent)
-        self._add_category_lists(primary_categories, secondary_categories)
+        item._add_category_lists(primary_categories, secondary_categories)
         return item
 
 

@@ -175,12 +175,20 @@
     teoremer.DraftItem = Backbone.Model.extend({
         urlRoot: '/api/drafts',
         parse: function(resp) {
-            return {
-                id:      resp.id,
+            var parsed = {
                 body:    resp.body,
                 pricats: new CategoryList(resp.pricats, { parse: true }),
                 seccats: new CategoryList(resp.seccats, { parse: true })
             };
+            if ('id' in resp) {                // updating
+                parsed.id = resp.id;
+            } else {                           // new
+                parsed.type = resp.type;
+                if ('parent' in resp) {
+                    parsed.parent = resp.parent;
+                }
+            }
+            return parsed;
         }
     });
 

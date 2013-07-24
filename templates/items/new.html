@@ -47,11 +47,12 @@ Add {{ kind }}
 
 teoremer.setupCsrf();
 
-(function(){
+(function() {
 
   var item = new teoremer.DraftItem({
     type: "{{kind}}",
     body: '',
+    {% if parent %}parent: "{{parent.final_id}}",{% endif %}
     pricats: [],
     seccats: []
   }, { parse: true });

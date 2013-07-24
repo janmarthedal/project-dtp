@@ -87,7 +87,7 @@ def drafts_new(request):
         'seccats': secondary_categories
     }
     if parent:
-        result['parent'] = parent
+        result['parent'] = parent.final_id
     
     return result
 
