@@ -26,7 +26,7 @@ class BodyScanner:
         self._dmaths = []
         self._imaths = {}
         self._conceptRefs = []
-        self._itemRefs = [] 
+        self._itemRefs = []
         parts = body.split('$$')
         for i in range(len(parts)):
             if i % 2 == 1:
@@ -47,7 +47,7 @@ class BodyScanner:
     def _make_key(self):
         self._counter += 1
         return 'Z%s%dZ' % (self._secret, self._counter)
-    
+
     def _add_display_maths(self, st):
         key = self._make_key()
         self._dmaths.append((key, st))
@@ -64,12 +64,12 @@ class BodyScanner:
         tag = match.group(2)
         self._conceptRefs.append((key, '', name, tag))
         return key
-    
+
     def _itemRefMatch(self, match):
         key = self._make_key()
         self._itemRefs.append((key, '', match.group(1)))
         return key
-    
+
     def transformDisplayMath(self, func):
         self._dmaths = map(lambda p: (p[0], func(p[1])), self._dmaths)
 
@@ -105,7 +105,8 @@ def typesetConcept(text, tag_name, tag_to_category_map):
     link_text = typeset_tag(text or tag_name)
     try:
         tag_list = tag_to_category_map[tag_name]
-        href = urlquote('/category/' + '/'.join(tag_list)) + '?type=d'
+        path = '/'.join(map(lambda tag: urlquote(tag, safe=''), tag_list))
+        href = reverse('tags.views.show', args=[path]) + '?type=d'
         return '<a href="%s"><i>%s</i></a>' % (href, link_text)
     except KeyError:
         return '<a href="#" rel="tooltip" data-original-title="tag: %s"><i>%s</i></a>' % (tag_name, link_text)
@@ -154,7 +155,7 @@ def _extract_draft_item_attributes(item):
             'type':        item.itemtype,
             'author':      item.created_by.get_full_name(),
             'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
-            'timestamp':   str(item.modified_at), 
+            'timestamp':   str(item.modified_at),
             'categories':  {
                             'primary':   item.primary_categories,
                             'secondary': item.secondary_categories
@@ -165,11 +166,11 @@ def _extract_draft_item_attributes(item):
 def _extract_final_item_attributes(item):
     return {
             'id':          item.final_id,
-            'item_link':   reverse('items.views.show_final', args=[item.final_id]), 
+            'item_link':   reverse('items.views.show_final', args=[item.final_id]),
             'type':        item.itemtype,
             'author':      item.created_by.get_full_name(),
             'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
-            'timestamp':   str(item.created_at), 
+            'timestamp':   str(item.created_at),
             'categories':  {
                             'primary':   item.primary_categories,
                             'secondary': item.secondary_categories
