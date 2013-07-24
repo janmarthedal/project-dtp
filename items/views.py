@@ -49,7 +49,7 @@ def show(request, item_id):
     item = get_object_or_404(DraftItem, pk=item_id)
     permissions = get_user_item_permissions(request.user, item)
     if not permissions['view']:
-        raise Http404 
+        raise Http404
     c = { 'item': item,
           'perm': permissions }
     return render(request, 'items/show.html', c)

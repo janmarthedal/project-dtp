@@ -14,14 +14,14 @@ class Tag(models.Model):
 
     class Meta:
         db_table = 'tags'
-    
+
     objects    = TagManager()
     name       = models.CharField(max_length=255, db_index=True, unique=True)
     normalized = models.CharField(max_length=255, db_index=True, unique=False)
 
     def __unicode__(self):
         return self.name
-    
+
     def json_serializable(self):
         return self.name
 

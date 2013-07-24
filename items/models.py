@@ -15,17 +15,17 @@ FINAL_NAME_MIN_LENGTH = 4
 FINAL_NAME_MAX_LENGTH = 10
 
 class BaseItem(models.Model):
-    
+
     class Meta:
         abstract = True
-        
+
     TYPE_CHOICES = (
         ('D', 'definition'),
         ('T', 'theorem'),
         ('P', 'proof'),
         ('I', 'info')
     )
-    
+
     itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
     parent   = models.ForeignKey('FinalItem', null=True, db_index=False)
     body     = models.TextField(null=True)
@@ -49,7 +49,7 @@ class BaseItem(models.Model):
         if 'primary_categories' not in self._cache:
             self._set_category_cache()
         return self._cache['primary_categories']
-    
+
     @property
     def secondary_categories(self):
         if 'secondary_categories' not in self._cache:
@@ -66,7 +66,7 @@ def ok_as_final_id(final_id):
 
 
 class FinalItemManager(models.Manager):
-    
+
     def add_item(self, draft_item):
         item = FinalItem(itemtype    = draft_item.itemtype,
                          status      = 'F',
@@ -86,21 +86,21 @@ class FinalItemManager(models.Manager):
                 except IntegrityError:
                     pass
         raise Exception('FinalItemManager.add_item')
-        
+
 
 class FinalItem(BaseItem):
-    
+
     class Meta:
         db_table = 'final_items'
-    
+
     objects = FinalItemManager()
-    
+
     STATUS_CHOICES = (
         ('F', 'published'),
         ('S', 'suspended'),
         ('B', 'broken')
     )
-    
+
     final_id    = models.CharField(max_length=FINAL_NAME_MAX_LENGTH, unique=True, db_index=True)
     status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
     created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
@@ -108,10 +108,10 @@ class FinalItem(BaseItem):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     modified_at = models.DateTimeField(default=timezone.now)
     categories  = models.ManyToManyField(Category, through='FinalItemCategory')
-    
+
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
-    
+
     def _get_item_category_set(self):
         return self.finalitemcategory_set.all()
 
@@ -204,7 +204,7 @@ class DraftItemCategory(models.Model):
     class Meta:
         db_table = 'draft_item_category'
         unique_together = ('item', 'category')
-    
+
     item     = models.ForeignKey(DraftItem, db_index=True)
     category = models.ForeignKey(Category, db_index=False)
     primary  = models.BooleanField()
@@ -226,7 +226,7 @@ class ItemTagCategory(models.Model):
     class Meta:
         db_table = 'item_tag_category'
         unique_together = ('item', 'tag')
-    
+
     item     = models.ForeignKey(FinalItem, db_index=True)
     tag      = models.ForeignKey(Tag, db_index=False)
     category = models.ForeignKey(Category, db_index=False)

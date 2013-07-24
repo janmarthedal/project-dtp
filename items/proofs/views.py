@@ -7,4 +7,4 @@ from main.helpers import init_context
 def index(request):
     c = init_context('proofs')
     c['init_items'] = item_search_to_json(itemtype='P')
-    return render(request, 'proofs/index.html', c) 
+    return render(request, 'proofs/index.html', c)

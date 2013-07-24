@@ -13,7 +13,7 @@ def typeset_body(item):
         for item_tag_category in item.itemtagcategory_set.all():
             tag_name = item_tag_category.tag.name
             catogory_tag_names = map(unicode, item_tag_category.category.get_tag_list())
-            tag_to_category_map[tag_name] = catogory_tag_names 
+            tag_to_category_map[tag_name] = catogory_tag_names
     return mark_safe(items.helpers.typeset_body(item.body, tag_to_category_map))
 
 @register.filter

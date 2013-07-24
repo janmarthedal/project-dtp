@@ -10,16 +10,16 @@ def init_context(active_nav):
     return { 'active_nav': active_nav }
 
 class ListWrapper(object):
-    
+
     def __init__(self, iterable):
         self._list = list(iterable)
 
     def __len__(self):
         return len(self._list)
-    
+
     def __getitem__(self, key):
         return self._list[key]
-    
+
     def __iter__(self):
         return self._list.__iter__()
 

@@ -21,7 +21,7 @@ def index(request):
 
 @require_safe
 def about(request):
-    c = init_context('about') 
+    c = init_context('about')
     c['def_final']  = FinalItem.objects.filter(itemtype='D', status='F').count()
     c['thm_final']  = FinalItem.objects.filter(itemtype='T', status='F').count()
     c['prf_final']  = FinalItem.objects.filter(itemtype='P', status='F').count()

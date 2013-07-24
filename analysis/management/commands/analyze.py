@@ -32,7 +32,7 @@ def check_final_item_tag_categories(fitem):
     tags_in_item = set([Tag.objects.fetch(tag_name) for tag_name in bs.getConceptSet()])
     tags_in_db = set([itc.tag for itc in fitem.itemtagcategory_set.all()])
     tags_to_remove = tags_in_db - tags_in_item
-    tags_to_add = tags_in_item - tags_in_db 
+    tags_to_add = tags_in_item - tags_in_db
 
     for tag in tags_to_remove:
         ItemTagCategory.objects.filter(item=fitem, tag=tag).delete()
@@ -40,7 +40,7 @@ def check_final_item_tag_categories(fitem):
     for tag in tags_to_add:
         category = Category.objects.default_category_for_tag(tag)
         ItemTagCategory.objects.create(item=fitem, tag=tag, category=category)
-    
+
     return len(tags_to_add), len(tags_to_remove)
 
 class Command(BaseCommand):

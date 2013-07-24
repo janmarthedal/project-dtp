@@ -39,7 +39,7 @@ def is_string_list(value):
 
 def is_string_list_list(value):
     return isinstance(value, list) and all(is_string_list(c) for c in value)
-    
+
 def is_tag_category(value):
     try:
         return len(value) == 2 and is_string(value['tag']) and is_string_list(value['category'])

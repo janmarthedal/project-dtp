@@ -33,7 +33,7 @@ if os.uname()[1].endswith('webfaction.com'):
 else:
 
     DEBUG = True
-    
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -47,7 +47,7 @@ else:
 
     STATIC_ROOT = '/home/jmr/www/static/'
     PROJECT_BASE = '/home/jmr/projects/teoremer/'
-    
+
     MESSAGE_LEVEL = message_constants.DEBUG
 
 ############ Common settings ############

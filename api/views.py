@@ -74,7 +74,7 @@ def drafts_new(request):
         parent = None
 
     item = DraftItem.objects.add_item(user, itemtype, body, primary_categories, secondary_categories, parent)
-    
+
     message = u'%s successfully created' % item
     logger.debug(message)
     messages.success(request, message)
@@ -88,7 +88,7 @@ def drafts_new(request):
     }
     if parent:
         result['parent'] = parent.final_id
-    
+
     return result
 
 @api_view
@@ -99,14 +99,14 @@ def drafts_save(request, item_id):
     secondary_categories = api_request_string_list_list(request, 'seccats')
 
     item = DraftItem.objects.get(pk=item_id)
-    
+
     if user != item.created_by:
         raise ApiError('Access error')
     if item.status != 'D':
         raise ApiError('Wrong status')
-    
+
     item.update(body, primary_categories, secondary_categories)
-    
+
     message = u'%s successfully updated' % item
     logger.debug(message)
     messages.success(request, message)
@@ -117,7 +117,7 @@ def drafts_save(request, item_id):
         'pricats': primary_categories,
         'seccats': secondary_categories
     }
-    
+
     return result
 
 def drafts(request):
@@ -136,13 +136,13 @@ def drafts_id(request, item_id):
 def final_save(request, item_id):
     user = api_request_user(request)
     # TODO: Check user has permission to update final item
-    
+
     primary_categories = api_request_string_list_list(request, 'pricats')
     secondary_categories = api_request_string_list_list(request, 'seccats')
     tag_category_map = api_request_tag_category_list(request, 'tagcatmap')
-    
+
     item = FinalItem.objects.get(final_id=item_id)
-    
+
     if item.status != 'F':
         raise ApiError('Wrong status')
 

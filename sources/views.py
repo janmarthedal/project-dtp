@@ -16,7 +16,7 @@ def index(request):
     return render(request, 'sources/index.html', c)
 
 
-class AddSourceForm(forms.Form): 
+class AddSourceForm(forms.Form):
     title     = forms.CharField(max_length=256, required=False)
     author1   = forms.CharField(max_length=64, required=False)
     author2   = forms.CharField(max_length=64, required=False)

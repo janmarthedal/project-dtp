@@ -61,29 +61,29 @@ teoremer.setupCsrf();
     el: $('#body-input'),
     model: item
   });
-  
+
   var bodyPreview = new teoremer.BodyPreviewView({
     el: $('#body-preview'),
     model: item
   });
-  
+
   var saveDraft = new teoremer.SaveDraftView({
     el: $('#save-draft'),
     model: item
   });
-  
+
 {% if primary_text %}
   var primaryCategoryList = new teoremer.EditableCategoryListView({
     el: $('#primary-categories'),
     collection: item.get('pricats')
   });
 {% endif %}
-  
+
   var secondaryCategoryList = new teoremer.EditableCategoryListView({
     el: $('#secondary-categories'),
     collection: item.get('seccats')
   });
-  
+
 })();
 
 </script>
