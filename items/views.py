@@ -95,21 +95,20 @@ def to_final(request, item_id):
     if not request.user.is_authenticated():
         raise Http404
     item = get_object_or_404(DraftItem, pk=item_id)
-    if request.user == item.created_by and item.status in ['D', 'R']:
-        fitem = FinalItem.objects.add_item(item)
 
-        add_final_item_dependencies(fitem)
-        
-        bs = BodyScanner(fitem.body)
-        ItemTagCategory.objects.filter(item=fitem).delete()
-        for tag_name in set(bs.getConceptList()):
-            tag = Tag.objects.fetch(tag_name)
-            category = Category.objects.fetch(['general', tag_name])
-            ItemTagCategory.objects.create(item=fitem, tag=tag, category=category)
-        
-        item.delete()
-        return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
-    raise Http404
+    if request.user != item.created_by or item.status not in ['D', 'R']:
+        raise Http404
+
+    fitem = FinalItem.objects.add_item(item)
+
+    add_final_item_dependencies(fitem)
+
+    bs = BodyScanner(fitem.body)
+    tag_category_list = [{ 'tag': tag_name, 'category': ['general', tag_name] }
+                         for tag_name in set(bs.getConceptList())]
+
+    item.delete()
+    return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
 
 @require_GET
 def show_final(request, final_id):

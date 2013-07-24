@@ -2,13 +2,17 @@ from django.db import models
 from main.helpers import ListWrapper
 from tags.helpers import normalize_tag
 
+
 class TagManager(models.Manager):
+
     def fetch(self, name):
         normalized = normalize_tag(name)
         tag = self.get_or_create(name=name, defaults={'normalized':normalized})[0]
         return tag
 
+
 class Tag(models.Model):
+
     class Meta:
         db_table = 'tags'
     
@@ -22,13 +26,16 @@ class Tag(models.Model):
     def json_serializable(self):
         return self.name
 
+
 class CategoryManager(models.Manager):
-    def fetch(self, tag_list):
+
+    def from_tag_list(self, tag_list):
         category = None
         for tag_name in tag_list:
             tag = Tag.objects.fetch(tag_name)
             category = self.get_or_create(tag=tag, parent=category)[0]
         return category
+
 
 class Category(models.Model):
 

@@ -29,17 +29,21 @@ class BaseItem(models.Model):
     itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
     parent   = models.ForeignKey('FinalItem', null=True, db_index=False)
     body     = models.TextField(null=True)
-    
+
     def __init__(self, *args, **kwargs):
         super(BaseItem, self).__init__(*args, **kwargs)
         self._cache = {}
-    
+
+    def _add_category_lists(self, primary_categories, secondary_categories):
+        self._add_category_list(primary_categories, True)
+        self._add_category_list(secondary_categories, False)
+
     def _set_category_cache(self):
         categories = [(itemcat.category, itemcat.primary)
                       for itemcat in self._get_item_category_set()]
         self._cache['primary_categories']   = CategoryCollection([t[0] for t in categories if t[1]])
         self._cache['secondary_categories'] = CategoryCollection([t[0] for t in categories if not t[1]])
-    
+
     @property
     def primary_categories(self):
         if 'primary_categories' not in self._cache:
@@ -53,15 +57,6 @@ class BaseItem(models.Model):
         return self._cache['secondary_categories']
 
 class FinalItemManager(models.Manager):
-    
-    def _add_category_list(self, item, categories, is_primary):
-        for tag_list in categories:
-            category = Category.objects.fetch(tag_list)
-            FinalItemCategory.objects.create(item=item, category=category, primary=is_primary)
-
-    def _add_category_lists(self, item, primary_categories, secondary_categories):
-        self._add_category_list(item, primary_categories, True)
-        self._add_category_list(item, secondary_categories, False)
     
     def add_item(self, draft_item):
         item = FinalItem(itemtype    = draft_item.itemtype,
@@ -84,20 +79,6 @@ class FinalItemManager(models.Manager):
                     return item
                 except IntegrityError:
                     pass
-
-    
-    def update_item(self, item, user, primary_categories, secondary_categories, tag_category_list):
-        item.modified_by = user
-        item.modified_at = timezone.now()
-        item.save()
-        item.finalitemcategory_set.all().delete()
-        self._add_category_lists(item, primary_categories, secondary_categories)
-        for tag_category in tag_category_list:
-            tag = Tag.objects.get(name=tag_category['tag'])
-            category = Category.objects.fetch(tag_category['category'])
-            item_tag_category = ItemTagCategory.objects.get(item=item, tag=tag)
-            item_tag_category.category = category
-            item_tag_category.save()
         
 
 class FinalItem(BaseItem):
@@ -130,16 +111,30 @@ class FinalItem(BaseItem):
     def get_tag_category_associations(self):
         return list(self.itemtagcategory_set.all())
 
-class DraftItemManager(models.Manager):
-
-    def _add_category_list(self, item, categories, is_primary):
+    def _add_category_list(self, categories, is_primary):
         for tag_list in categories:
-            category = Category.objects.fetch(tag_list)
-            DraftItemCategory.objects.create(item=item, category=category, primary=is_primary)
+            category = Category.objects.from_tag_list(tag_list)
+            FinalItemCategory.objects.create(item=self, category=category, primary=is_primary)
 
-    def _add_category_lists(self, item, primary_categories, secondary_categories):
-        self._add_category_list(item, primary_categories, True)
-        self._add_category_list(item, secondary_categories, False)
+    def set_item_tag_categories(self, tag_category_list):
+        for tag_category in tag_category_list:
+            tag = Tag.objects.fetch(tag_category['tag'])
+            category = Category.objects.from_tag_list(tag_category['category'])
+            ItemTagCategory.objects.create(item=self, tag=tag, category=category)
+
+    def update(self, user, primary_categories, secondary_categories, tag_category_list):
+        self.modified_by = user
+        self.modified_at = timezone.now()
+        self.save()
+
+        self.finalitemcategory_set.all().delete()
+        self._add_category_lists(primary_categories, secondary_categories)
+
+        self.itemtagcategory_set.all().delete()
+        self.set_item_tag_categories(tag_category_list)
+
+
+class DraftItemManager(models.Manager):
 
     def add_item(self, user, itemtype, body, primary_categories, secondary_categories, parent):
         type_key = filter(lambda kc: kc[1] == itemtype, DraftItem.TYPE_CHOICES)[0][0]
@@ -148,15 +143,9 @@ class DraftItemManager(models.Manager):
                                         created_by = user,
                                         body       = body,
                                         parent     = parent)
-        self._add_category_lists(item, primary_categories, secondary_categories)
+        self._add_category_lists(primary_categories, secondary_categories)
         return item
 
-    def update_item(self, item, body, primary_categories, secondary_categories):
-        item.modified_at = timezone.now()
-        item.body = body
-        item.save()
-        item.draftitemcategory_set.all().delete()
-        self._add_category_lists(item, primary_categories, secondary_categories)
 
 class DraftItem(BaseItem):
 
@@ -188,21 +177,40 @@ class DraftItem(BaseItem):
             self.save()
             logger.debug("%d to review successful" % self.id)
 
+    def _add_category_list(self, categories, is_primary):
+        for tag_list in categories:
+            category = Category.objects.from_tag_list(tag_list)
+            DraftItemCategory.objects.create(item=self, category=category, primary=is_primary)
+
+    def update(self, body, primary_categories, secondary_categories):
+        self.modified_at = timezone.now()
+        self.body = body
+        self.save()
+        self.draftitemcategory_set.all().delete()
+        self._add_category_lists(primary_categories, secondary_categories)
+
+
 class DraftItemCategory(models.Model):
+
     class Meta:
         db_table = 'draft_item_category'
         unique_together = ('item', 'category')
+    
     item     = models.ForeignKey(DraftItem, db_index=True)
     category = models.ForeignKey(Category, db_index=False)
     primary  = models.BooleanField()
 
+
 class FinalItemCategory(models.Model):
+
     class Meta:
         db_table = 'final_item_category'
         unique_together = ('item', 'category')
+
     item     = models.ForeignKey(FinalItem, db_index=True)
     category = models.ForeignKey(Category, db_index=False)
     primary  = models.BooleanField()
+
 
 class ItemTagCategory(models.Model):
 

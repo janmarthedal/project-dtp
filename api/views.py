@@ -105,7 +105,7 @@ def drafts_save(request, item_id):
     if item.status != 'D':
         raise ApiError('Wrong status')
     
-    DraftItem.objects.update_item(item, body, primary_categories, secondary_categories)
+    item.update(body, primary_categories, secondary_categories)
     
     message = u'%s successfully updated' % item
     logger.debug(message)
@@ -146,7 +146,7 @@ def final_save(request, item_id):
     if item.status != 'F':
         raise ApiError('Wrong status')
 
-    FinalItem.objects.update_item(item, user, primary_categories, secondary_categories, tag_category_map)
+    item.update(user, primary_categories, secondary_categories, tag_category_map)
 
     result = {
         'id':        item.final_id,
