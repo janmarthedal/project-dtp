@@ -56,6 +56,15 @@ class BaseItem(models.Model):
             self._set_category_cache()
         return self._cache['secondary_categories']
 
+
+def ok_as_final_id(final_id):
+    try:
+        match = resolve('/%s' % final_id)
+        return match.url_name == 'items.views.show_final'
+    except Http404:
+        return True
+
+
 class FinalItemManager(models.Manager):
     
     def add_item(self, draft_item):
@@ -67,10 +76,7 @@ class FinalItemManager(models.Manager):
                          parent      = draft_item.parent)
         for length in range(FINAL_NAME_MIN_LENGTH, FINAL_NAME_MAX_LENGTH + 1):
             item.final_id = get_random_string(length, FINAL_NAME_CHARS)
-            try:
-                # check if we have hit a url used for other purposes
-                resolve('/%s' % item.final_id)
-            except Http404:
+            if ok_as_final_id(item.final_id):
                 try:
                     item.save()
                     for itemcat in draft_item.draftitemcategory_set.all():
@@ -79,6 +85,7 @@ class FinalItemManager(models.Manager):
                     return item
                 except IntegrityError:
                     pass
+        raise Exception('FinalItemManager.add_item')
         
 
 class FinalItem(BaseItem):

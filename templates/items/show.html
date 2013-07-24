@@ -11,7 +11,7 @@
 {% include 'items/include/categories.html' with categories=item.primary_categories only %}
 
 <div class="item-body">
-{{ item.body|typeset_body }}
+{{ item|typeset_body }}
 </div>
 
 {% endblock mainbar %}
@@ -57,5 +57,17 @@
   <button class="btn btn-primary" type="submit">Publish</button>
 </form>
 {% endif %}
+
+{% endblock %}
+
+{% block bodybottom %}
+
+<script type="text/javascript">
+
+$('div.item-body').tooltip({
+  selector: "a[rel=tooltip]"
+});
+
+</script>
 
 {% endblock %}

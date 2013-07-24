@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.http import require_POST, require_GET, require_http_methods
+from django.views.decorators.http import require_POST, require_GET
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from items.models import DraftItem, FinalItem, ItemTagCategory
-from tags.models import Tag, Category
+from items.models import DraftItem, FinalItem
+from items.helpers import BodyScanner
 from main.helpers import init_context
 from analysis.management.commands.analyze import add_final_item_dependencies
 
@@ -106,9 +106,11 @@ def to_final(request, item_id):
     bs = BodyScanner(fitem.body)
     tag_category_list = [{ 'tag': tag_name, 'category': ['general', tag_name] }
                          for tag_name in set(bs.getConceptList())]
+    fitem.set_item_tag_categories(tag_category_list)
 
     item.delete()
     return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
+
 
 @require_GET
 def show_final(request, final_id):

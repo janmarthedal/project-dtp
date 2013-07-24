@@ -1,5 +1,4 @@
 from django.db import models
-from main.helpers import ListWrapper
 from tags.helpers import normalize_tag
 
 
@@ -54,7 +53,7 @@ class Category(models.Model):
         return tag_list
 
     def __unicode__(self):
-        return u'%d:[%s]' % (self.pk, u','.join([unicode(tag) for tag in self.get_tag_list()]))
+        return u'%d:[%s]' % (self.pk, u','.join(map(unicode, self.get_tag_list())))
 
     def json_serializable(self):
         return self.get_tag_list()

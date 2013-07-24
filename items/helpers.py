@@ -3,11 +3,11 @@ import markdown
 from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.utils import crypto
-from django import forms
+from django.utils.http import urlquote
 from items.models import FinalItem, DraftItem
 from main.helpers import json_encode
 from tags.models import Tag
-from tags.helpers import clean_tag, normalize_tag
+from tags.helpers import normalize_tag
 
 import logging
 logger = logging.getLogger(__name__)
@@ -16,6 +16,7 @@ def make_html_safe(st):
     st = st.replace('<', '%lt;')
     st = st.replace('>', '%gt;')
     return st
+
 
 class BodyScanner:
 
@@ -100,22 +101,30 @@ class BodyScanner:
         return st
 
 
-def typesetConcept(name, primary):
-    name = name or primary
-    return '<a href="/definitions/#categorized/%s">%s</a>' % (primary, typeset_tag(name))
+def typesetConcept(text, tag_name, tag_to_category_map):
+    link_text = typeset_tag(text or tag_name)
+    try:
+        tag_list = tag_to_category_map[tag_name]
+        href = urlquote('/category/' + '/'.join(tag_list)) + '?type=d'
+        return '<a href="%s"><i>%s</i></a>' % (href, link_text)
+    except KeyError:
+        return '<a href="#" rel="tooltip" data-original-title="tag: %s"><i>%s</i></a>' % (tag_name, link_text)
+
 
 def typesetItemRef(final_id):
     url = reverse('items.views.show_final', args=[final_id])
-    return '<a href="%s">%s</a>' % (url, final_id)
+    return '<a href="%s"><b>%s</b></a>' % (url, final_id)
 
-def typeset_body(st):
+
+def typeset_body(st, tag_to_category_map):
     bs = BodyScanner(st)
     bs.body = markdown.markdown(bs.body)
     bs.transformDisplayMath(lambda st: '\\[' + st + '\\]')
     bs.transformInlineMath(lambda st: '\\(' + st + '\\)')
-    bs.transformConcepts(typesetConcept)
+    bs.transformConcepts(lambda text, tag_name: typesetConcept(text, tag_name, tag_to_category_map))
     bs.transformItemRefs(typesetItemRef)
     return bs.assemble()
+
 
 def typeset_tag(st):
     parts = st.split('$')
@@ -123,6 +132,7 @@ def typeset_tag(st):
         if i % 2 == 1:
             parts[i] = '\(' + parts[i] + '\)'
     return make_html_safe(''.join(parts))
+
 
 def tag_names_to_tag_objects(tag_names):
     found = []
@@ -135,6 +145,7 @@ def tag_names_to_tag_objects(tag_names):
         except Tag.DoesNotExist:
             not_found.append(tag_name)
     return (found, not_found)
+
 
 def _extract_draft_item_attributes(item):
     return {
@@ -150,6 +161,7 @@ def _extract_draft_item_attributes(item):
                             }
             }
 
+
 def _extract_final_item_attributes(item):
     return {
             'id':          item.final_id,
@@ -163,6 +175,7 @@ def _extract_final_item_attributes(item):
                             'secondary': item.secondary_categories
                             }
             }
+
 
 def item_search_to_json(itemtype=None, include_tag_names=[], exclude_tag_names=[], status='F', offset=0, limit=5, user=None):
     if status == 'F':

@@ -691,6 +691,7 @@
                 category: this.model.get('category').typeset()
             });
             this.$el.html(html);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
             return this;
         },
         // helpers

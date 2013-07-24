@@ -11,7 +11,7 @@
 <h1>{{ item }}{% if item.parent %} of {{ item.parent }}{% endif %}</h1>
 
 <div class="item-body">
-{{ item.body|typeset_body }}
+{{ item|typeset_body }}
 </div>
 
 {% if primary_text %}
@@ -36,7 +36,7 @@
 <p>
 Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, 
 published at {{ item.created_at|datetime_user:user }}
-{% if item.created_at == item.modified_at %} (not modified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
+{% if item.created_at == item.modified_at %} (unmodified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
 </p>
 
 <h4>Actions</h4>

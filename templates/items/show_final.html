@@ -12,7 +12,7 @@
 {% include 'items/include/categories.html' with categories=item.primary_categories only %}
 
 <div class="item-body">
-{{ item.body|typeset_body }}
+{{ item|typeset_body }}
 </div>
 
 {% if validation_list %}
@@ -32,7 +32,11 @@
 {% if item.itemtype == 'T' %}
 {% if proof_list %}
 <div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.final_id %}">hide</a>)</div>
-{% include 'items/include/fitemlist.html' with itemlist=proof_list only %}
+{% for proof in proof_list %}
+<p>
+    <a href="{% url 'items.views.show_final' proof.final_id %}">{{ proof }}</a>
+</p>
+{% endfor %}
 {% elif proof_count %}
 <div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.final_id %}?prfs=1">show</a>)</div>
 {% else %}
@@ -49,7 +53,7 @@
 <p>
 Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>, 
 published at {{ item.created_at|datetime_user:user }}
-{% if item.created_at == item.modified_at %} (not modified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
+{% if item.created_at == item.modified_at %} (unmodified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
 </p>
 
 <h4>Categories</h4>
