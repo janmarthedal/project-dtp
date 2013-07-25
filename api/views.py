@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 @require_GET
 def tags_prefixed(request, prefix):
-    tags = Tag.objects.filter(normalized__startswith=prefix).order_by('normalized')[:20]
+    tags = list(Tag.objects.filter(normalized__startswith=prefix).order_by('normalized')[:20])
     return HttpResponse(json_encode(tags), content_type="application/json")
 
 def item_list(request):

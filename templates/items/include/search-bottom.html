@@ -13,25 +13,32 @@ var includeView = new teoremer.TagListView({
 var excludeView = new teoremer.TagListView({
     el: $('#exclude-tags')
 });
+var searchTerms = new teoremer.SearchTerms({
+{% if user_id %}
+    user: {{ user_id }},
+{% endif %}
+    includeTags: [],
+    excludeTags: []
+});
 var searchList = new teoremer.SearchListView({
     el: $('#search-item-list'),
-    itemtypes: '{{ itemtypes }}'
-    {% if user_id %}
-    ,user_id: {{ user_id }}
-    {% if enable_drafts %}
+    itemtypes: '{{ itemtypes }}',
+    parameters: searchTerms
+{% if enable_drafts %}
     ,enable_drafts: true
-    {% endif %}
-    {% endif %}
+{% endif %}
 });
 
 searchList.collection.reset({{ init_items|safe }}, { parse: true });
 
 includeView.collection.on('add remove', function() {
-    searchList.setIncludeTags(includeView.getTagList());
+  searchTerms.set('includeTags', includeView.getTagList());
+    //searchList.setIncludeTags(includeView.getTagList());
 });
 
 excludeView.collection.on('add remove', function() {
-    searchList.setExcludeTags(excludeView.getTagList());
+  searchTerms.set('excludeTags', excludeView.getTagList());
+    //searchList.setExcludeTags(excludeView.getTagList());
 });
 
 </script>

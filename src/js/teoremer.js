@@ -90,7 +90,7 @@
             return _.map(resp, function(item) {
                 return new TagItem(item, { parse: true });
             });
-        }        
+        }
     });
 
     var Category = Backbone.Model.extend({
@@ -143,8 +143,8 @@
        parse: function(resp) {
             return _.map(resp, function(item) {
                 return new TagAssociation(item, { parse: true });
-            });           
-       } 
+            });
+       }
     });
 
     var MathItem = Backbone.Model;
@@ -201,6 +201,20 @@
                 seccats:   new CategoryList(resp.seccats, { parse: true }),
                 tagcatmap: new TagAssociationList(resp.tagcatmap, { parse: true })
             };
+        }
+    });
+
+    teoremer.SearchTerms = Backbone.Model.extend({
+        defaults: {
+            status: 'F'
+        },
+        toJSON: function() {
+            var data = _.clone(this.attributes);
+            data.intags = JSON.stringify(data.includeTags);
+            data.extags = JSON.stringify(data.excludeTags);
+            delete data.includeTags;
+            delete data.excludeTags;
+            return data;
         }
     });
 
@@ -301,41 +315,38 @@
         },
         render: function() {
             var categories = this.model.get('categories');
-            var context = {
-                id: this.model.get('id'),
-                item_name: capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
-                item_link: this.model.get('item_link'),
-                pritags: _.map(_.map(categories.primary, _.last), typeset_tag).join(', '),
-                sectags: _.map(categories.secondary, typeset_tag_list),
+            var html = Handlebars.templates.search_list_item({
+                id:          this.model.get('id'),
+                item_name:   capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
+                item_link:   this.model.get('item_link'),
+                pritags:     _.map(_.map(categories.primary, _.last), typeset_tag).join(', '),
+                sectags:     _.map(categories.secondary, typeset_tag_list),
                 author_name: this.model.get('author'),
                 author_link: this.model.get('author_link'),
-                timestamp: this.model.get('timestamp')
-            }
-            var html = Handlebars.templates.search_list_item(context);
+                timestamp:   this.model.get('timestamp')
+            });
             this.$el.html(html);
             return this;
         }
     });
 
     teoremer.SearchListView = Backbone.View.extend({
-        includeTags: [],
-        excludeTags: [],
-        status: 'F',
         events: {
-            'click .search-list-more': 'fetchMore',
-            'click .select-final': 'selectFinal',
-            'click .select-review': 'selectReview',
-            'click .select-draft': 'selectDraft',
-            'click .select-definitions': 'selectDefinitions',
-            'click .select-theorems': 'selectTheorems',
-            'click .select-proofs': 'selectProofs'
+            'click .search-list-more':   function() { this.doFetch(true); },
+            'click .select-final':       function() { this.options.parameters.set('status', 'F'); },
+            'click .select-review':      function() { this.options.parameters.set('status', 'R'); },
+            'click .select-draft':       function() { this.options.parameters.set('status', 'D'); },
+            'click .select-definitions': function() { this.options.parameters.set('type', 'D'); },
+            'click .select-theorems':    function() { this.options.parameters.set('type', 'T'); },
+            'click .select-proofs':      function() { this.options.parameters.set('type', 'P'); }
         },
         initialize: function() {
-            this.itemtype = this.options.itemtypes.charAt(0);
-            _.bindAll(this, 'render', 'addOne', 'setIncludeTags', 'setExcludeTags', 'fetchMore', 'selectReview', 'selectFinal');
+            _.bindAll(this, 'render', 'addOne', 'fetchMore');
             this.collection = new SearchList();
-            this.collection.bind('reset', this.render);
-            this.collection.bind('add', this.addOne);
+            this.collection.on('reset', this.render);
+            this.collection.on('add', this.addOne);
+            this.options.parameters.set('type', this.options.itemtypes.charAt(0));
+            this.options.parameters.on('change', this.fetchReset, this);
             this.render();
         },
         postAppend: function() {
@@ -346,17 +357,19 @@
             }
         },
         render: function() {
+            var status = this.options.parameters.get('status');
+            var type = this.options.parameters.get('type');
             var html = Handlebars.templates.search_list_container({
-                enable_drafts: !!this.options.enable_drafts,
-                status_final: this.status == 'F',
-                status_review: this.status == 'R',
-                status_draft: this.status == 'D',
+                enable_drafts:      !!this.options.enable_drafts,
+                status_final:       status == 'F',
+                status_review:      status == 'R',
+                status_draft:       status == 'D',
                 enable_definitions: this.options.itemtypes.indexOf('D') != -1,
-                enable_theorems: this.options.itemtypes.indexOf('T') != -1,
-                enable_proofs: this.options.itemtypes.indexOf('P') != -1,
-                type_definition: this.itemtype == 'D',
-                type_theorem: this.itemtype == 'T',
-                type_proof: this.itemtype == 'P'
+                enable_theorems:    this.options.itemtypes.indexOf('T') != -1,
+                enable_proofs:      this.options.itemtypes.indexOf('P') != -1,
+                type_definition:    type == 'D',
+                type_theorem:       type == 'T',
+                type_proof:         type == 'P'
             });
             this.$el.html(html);
             this.collection.each(this.addOne);
@@ -366,74 +379,27 @@
             var mathItemView = new teoremer.MathItemView({
                 model: item
             });
-            var mathItem = mathItemView.render();
-            this.$('tbody').append(mathItem.el);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItem.$el.get()]);
+            this.$('tbody').append(mathItemView.render().el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItemView.$el.get()]);
         },
-        doFetch: function(reset) {
+        doFetch: function(append) {
             var options = {};
-            options.data = {
-                type: this.itemtype,
-                status: this.status,
-                intags: JSON.stringify(this.includeTags),
-                extags: JSON.stringify(this.excludeTags)
-            };
-            if (this.options.user_id) {
-                options.data.user = this.options.user_id;
-            }
-            if (reset) {
-                options.reset = true;
-                options.data.offset = 0;
-            } else {
+            options.data = this.options.parameters.toJSON();
+            if (append) {
                 var self = this;
                 options.remove = false;
                 options.data.offset = this.collection.length;
                 options.success = function() {
                     self.postAppend();
                 };
+            } else {
+                options.reset = true;
+                options.data.offset = 0;
             }
             this.collection.fetch(options);
         },
-        fetchMore: function() {
+        fetchReset: function() {
             this.doFetch(false);
-        },
-        selectFinal: function() {
-            this.setStatus('F');
-        },
-        selectReview: function() {
-            this.setStatus('R');
-        },
-        selectDraft: function() {
-            this.setStatus('D');
-        },
-        selectDefinitions: function() {
-            this.setType('D');
-        },
-        selectTheorems: function() {
-            this.setType('T');
-        },
-        selectProofs: function() {
-            this.setType('P');
-        },
-        setIncludeTags: function(tag_list) {
-            this.includeTags = tag_list;
-            this.doFetch(true);
-        },
-        setExcludeTags: function(tag_list) {
-            this.excludeTags = tag_list;
-            this.doFetch(true);
-        },
-        setStatus: function(status) {
-            if (status != this.status) {
-                this.status = status;
-                this.doFetch(true);
-            }
-        },
-        setType: function(itemtype) {
-            if (itemtype != this.itemtype) {
-                this.itemtype = itemtype;
-                this.doFetch(true);
-            }
         }
     });
 
@@ -454,9 +420,8 @@
             var mathItemView = new teoremer.MathItemView({
                 model: item
             });
-            var element = mathItemView.render().el;
-            this.$('tbody').append(element);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, element]);
+            this.$('tbody').append(mathItemView.render().el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItemView.$el.get()]);
         }
     });
 
@@ -650,13 +615,13 @@
         events: function() {
             var e = {};
             e['click #category-add-' + this.uid] = '_promptCategory';
-            return e;            
+            return e;
         },
         initialize: function() {
             _.bindAll(this, 'render', '_addOne', '_promptCategory');
             this.uid = _.uniqueId();
             this.collection.bind('add', this._addOne);
-            this.render();            
+            this.render();
         },
         render: function() {
             var html = Handlebars.templates.editable_category_list({
