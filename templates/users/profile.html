@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load browserid %}
 
 {% block title %}{{ pageuser.get_full_name }}{% endblock %}
 
@@ -21,7 +22,7 @@
 
 {% if own_profile %}
 <h4>Actions</h4>
-<a class="btn btn-primary" href="{% url 'users.views.logout' %}">log out</a>
+{% browserid_logout text="log out" link_class="btn btn-primary" %}
 {% endif %}
 
 {% include 'items/include/search-sidebar.html' %}

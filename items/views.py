@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from django.http import HttpResponseRedirect, Http404
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from items.models import DraftItem, FinalItem
@@ -54,9 +53,10 @@ def show(request, item_id):
           'perm': permissions }
     return render(request, 'items/show.html', c)
 
-@login_required
 @require_GET
 def edit(request, item_id):
+    if not request.user.is_authenticated():
+        raise Http404
     item = get_object_or_404(DraftItem, pk=item_id)
     item_perms = get_user_item_permissions(request.user, item)
     if not item_perms['edit']:
@@ -123,9 +123,10 @@ def show_final(request, final_id):
         c['proof_list'] = item.finalitem_set.filter(itemtype='P', status='F').all()
     return render(request, 'items/show_final.html', c)
 
-@login_required
 @require_GET
 def edit_final(request, final_id):
+    if not request.user.is_authenticated():
+        raise Http404
     item = get_object_or_404(FinalItem, final_id=final_id)
     item_perms = get_user_item_permissions(request.user, item)
     if not item_perms['edit_final']:

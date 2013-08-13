@@ -26,9 +26,11 @@ if os.uname()[1].endswith('webfaction.com'):
     EMAIL_HOST_PASSWORD = 'Knuth316'
     DEFAULT_FROM_EMAIL = 'jmr@teoremer.com'
     SERVER_EMAIL = 'jmr@teoremer.com'
-    ALLOWED_HOSTS = ['teoremer.janmr.com', 'teoremer.com']
+    ALLOWED_HOSTS = ['hilbert.janmr.com', 'teoremer.com']
 
     MESSAGE_LEVEL = message_constants.INFO
+
+    SITE_URL = 'hilbert.janmr.com'
 
 else:
 
@@ -49,6 +51,8 @@ else:
     PROJECT_BASE = '/home/jmr/projects/teoremer/'
 
     MESSAGE_LEVEL = message_constants.DEBUG
+
+    SITE_URL = 'http://localhost:8000'
 
 ############ Common settings ############
 
@@ -121,7 +125,6 @@ SECRET_KEY = 'iw55d!*)!nw06xb1f-u@0c-nqga$6q1wm27_k^zo*a5^klyrq@'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -130,6 +133,22 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.contrib.messages.context_processors.messages',
+    'django_browserid.context_processors.browserid',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'django_browserid.auth.BrowserIDBackend',
 )
 
 MESSAGE_TAGS = {
@@ -142,7 +161,13 @@ MESSAGE_TAGS = {
 
 ROOT_URLCONF = 'thrms.urls'
 
-LOGIN_URL = '/users/login'
+BROWSERID_CREATE_USER = False
+# Path to redirect to on successful login.
+LOGIN_REDIRECT_URL = '/users/current'
+# Path to redirect to on unsuccessful login attempt.
+LOGIN_REDIRECT_URL_FAILURE = '/'
+# Path to redirect to on logout.
+LOGOUT_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -151,13 +176,11 @@ WSGI_APPLICATION = 'thrms.wsgi.application'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
+    'django_browserid',                # load after auth
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-#    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-#    'django.contrib.admin',
-#    'south',
     'main',
     'items',
     'users',
