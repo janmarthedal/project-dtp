@@ -22,7 +22,7 @@ def login(request):
     return render(request, 'users/login.html', c)
 
 @require_safe
-def profile_id(request, user_id):
+def profile(request, user_id):
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
     c = init_context('users')
     own_profile = request.user == pageuser
@@ -36,4 +36,4 @@ def profile_id(request, user_id):
 @logged_in_or_404
 @require_safe
 def profile_current(request):
-    return HttpResponseRedirect(reverse('users.views.profile_id', args=[request.user.id]))
+    return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.id]))

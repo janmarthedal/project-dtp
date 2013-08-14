@@ -52,7 +52,7 @@ teoremer.setupCsrf();
 
   var item = new teoremer.DraftItem({
     id: {{item.pk}},
-    body: "{{item.body}}",
+    body: {{item.body|to_json}},
     pricats: {{item.primary_categories|to_json}},
     seccats: {{item.secondary_categories|to_json}}
   }, { parse: true });

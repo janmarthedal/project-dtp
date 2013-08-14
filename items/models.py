@@ -10,7 +10,7 @@ from tags.helpers import CategoryCollection
 import logging
 logger = logging.getLogger(__name__)
 
-FINAL_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
+FINAL_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyz'
 FINAL_NAME_MIN_LENGTH = 4
 FINAL_NAME_MAX_LENGTH = 10
 
@@ -75,7 +75,7 @@ class FinalItemManager(models.Manager):
                          body        = draft_item.body,
                          parent      = draft_item.parent)
         for length in range(FINAL_NAME_MIN_LENGTH, FINAL_NAME_MAX_LENGTH + 1):
-            item.final_id = get_random_string(length, FINAL_NAME_CHARS)
+            item.final_id = item.itemtype + get_random_string(length, FINAL_NAME_CHARS)
             if ok_as_final_id(item.final_id):
                 try:
                     item.save()

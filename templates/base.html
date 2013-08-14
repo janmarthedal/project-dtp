@@ -32,7 +32,7 @@
           <div class="nav-collapse collapse">
             <p class="navbar-text pull-right">
               {% if user.is_authenticated %}
-              <a href="{% url 'users.views.profile_id' user.get_username %}">{{ user.get_full_name }}</a>
+              <a href="{% url 'users.views.profile' user.get_username %}">{{ user.get_full_name }}</a>
               {% else %}
               {% browserid_login text="log in" %}
               {% endif %}
