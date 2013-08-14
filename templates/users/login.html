@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Log in{% endblock %}
+
+{% block mainbar %}
+
+<p>Logging in using Persona</p>
+
+{% endblock %}
+
+{% block bodybottom %}
+<script type="text/javascript">
+$(function() {
+    var $loginForm = $('#browserid-form'); // Form used to submit login.
+    var $browseridInfo = $('#browserid-info'); // Useful info from backend.
+  
+    var requestArgs = $browseridInfo.data('requestArgs') || {};
+    var loginFailed = location.search.indexOf('bid_login_failed=1') !== -1;
+  
+    navigator.id.watch({
+        loggedInUser: $browseridInfo.data('userEmail') || null,
+        onlogin: function(assertion) {
+            // Avoid auto-login on failure.
+            if (loginFailed) {
+                loginFailed = false;
+                return;
+            }
+  
+            if (assertion) {
+                $loginForm.find('input[name="next"]').val("{{ next }}");
+                $loginForm.find('input[name="assertion"]').val(assertion);
+                $loginForm.submit();
+            }
+        },
+        onlogout: function() {}
+    });
+  
+    navigator.id.request(requestArgs);
+});
+</script>
+{% endblock %}

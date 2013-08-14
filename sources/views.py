@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django import forms
 from items.models import FinalItem
 from sources.models import RefNode, RefAuthor, SourceValidation
-from main.helpers import init_context
+from main.helpers import init_context, logged_in_or_404
 
 
 @require_safe
@@ -33,10 +33,9 @@ class AddLocation(forms.Form):
     location = forms.CharField(max_length=256)
 
 
+@logged_in_or_404
 @require_http_methods(["GET", "POST"])
 def add_source(request, final_id):
-    if not request.user.is_authenticated():
-        raise Http404    
     c = init_context('sources')
     item = get_object_or_404(FinalItem, final_id=final_id)
     c['item'] = item

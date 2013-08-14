@@ -1,15 +1,14 @@
+from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
-from django.http import HttpResponseRedirect, Http404
-from django.core.urlresolvers import reverse
-from django.contrib import messages
 from items.models import DraftItem, FinalItem
-from main.helpers import init_context
+from main.helpers import init_context, logged_in_or_404
 from analysis.management.commands.analyze import add_final_item_dependencies, check_final_item_tag_categories
 
 import logging
 logger = logging.getLogger(__name__)
-
 
 def get_user_item_permissions(user, item):
     own_item = user == item.created_by
@@ -25,12 +24,11 @@ def get_user_item_permissions(user, item):
         'edit_final': item.status == 'F' and logged_in,
     }
 
-
 @require_GET
 def new(request, kind, parent=None):
     if not request.user.is_authenticated():
-        messages.info(request, 'You must log in to create a %s' % kind)
-        return HttpResponseRedirect('%s?next=%s' % (reverse('users.views.login'), request.path))
+        messages.info(request, "You must be logged in to create a " + kind)
+        return HttpResponseRedirect(reverse('users.views.login') + '?next=' + request.path)
     c = init_context(kind)
     if parent:
         if kind != 'proof':
@@ -53,10 +51,9 @@ def show(request, item_id):
           'perm': permissions }
     return render(request, 'items/show.html', c)
 
+@logged_in_or_404
 @require_GET
 def edit(request, item_id):
-    if not request.user.is_authenticated():
-        raise Http404
     item = get_object_or_404(DraftItem, pk=item_id)
     item_perms = get_user_item_permissions(request.user, item)
     if not item_perms['edit']:
@@ -69,30 +66,27 @@ def edit(request, item_id):
         c['primary_text'] = 'Name(s) of theorem'
     return render(request, 'items/edit.html', c)
 
+@logged_in_or_404
 @require_POST
 def delete_draft(request, item_id):
-    if not request.user.is_authenticated():
-        raise Http404
     item = get_object_or_404(DraftItem, pk=item_id)
     if request.user != item.created_by:
         raise Http404
     item.delete()
     return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.get_username()]))
 
+@logged_in_or_404
 @require_POST
 def to_review(request, item_id):
-    if not request.user.is_authenticated():
-        raise Http404
     item = get_object_or_404(DraftItem, pk=item_id)
     if request.user == item.created_by and item.status == 'D':
         item.make_review()
         return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
     raise Http404
 
+@logged_in_or_404
 @require_POST
 def to_final(request, item_id):
-    if not request.user.is_authenticated():
-        raise Http404
     item = get_object_or_404(DraftItem, pk=item_id)
 
     if request.user != item.created_by or item.status not in ['D', 'R']:
@@ -105,7 +99,6 @@ def to_final(request, item_id):
 
     item.delete()
     return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
-
 
 @require_GET
 def show_final(request, final_id):
@@ -123,10 +116,9 @@ def show_final(request, final_id):
         c['proof_list'] = item.finalitem_set.filter(itemtype='P', status='F').all()
     return render(request, 'items/show_final.html', c)
 
+@logged_in_or_404
 @require_GET
 def edit_final(request, final_id):
-    if not request.user.is_authenticated():
-        raise Http404
     item = get_object_or_404(FinalItem, final_id=final_id)
     item_perms = get_user_item_permissions(request.user, item)
     if not item_perms['edit_final']:
@@ -139,9 +131,10 @@ def edit_final(request, final_id):
         c['primary_text'] = 'Name(s) of theorem'
     return render(request, 'items/edit_final.html', c)
 
+@logged_in_or_404
 @require_POST
 def delete_final(request, item_id):
-    if not (request.user.is_authenticated() and request.user.is_admin):
+    if not request.user.is_admin:
         raise Http404
     item = get_object_or_404(FinalItem, pk=item_id)
     item.delete()

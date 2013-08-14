@@ -2,6 +2,6 @@
 *.swp
 .project
 .pydevproject
-env.sh
 misc
 *~
+virtualenv

@@ -1,9 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django.views.decorators.http import require_safe
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
-from main.helpers import init_context
+from main.helpers import init_context, logged_in_or_404
 from items.helpers import item_search_to_json
 
 import logging
@@ -33,8 +33,7 @@ def profile_id(request, user_id):
     c['own_profile'] = own_profile
     return render(request, 'users/profile.html', c)
 
+@logged_in_or_404
 @require_safe
 def profile_current(request):
-    if not request.user.is_authenticated():
-        raise Http404
     return HttpResponseRedirect(reverse('users.views.profile_id', args=[request.user.id]))

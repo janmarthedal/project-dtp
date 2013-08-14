@@ -1,4 +1,28 @@
 import json
+from functools import wraps
+from django.http import Http404
+
+def logged_in_or_404(view):
+    @wraps(view)
+    def wrapper(request, *args, **kwds):
+        if not request.user.is_authenticated():
+            raise Http404
+        return view(request, *args, **kwds)
+    return wrapper
+
+"""
+def logged_in_or_prompt(message=None):
+    def real_decorator(view):
+        @wraps(view)
+        def wrapper(request, *args, **kwds):
+            if not request.user.is_authenticated():
+                if message:
+                    messages.info(request, message)
+                return HttpResponseRedirect(reverse('users.views.login') + '?next=' + request.path)
+            return view(request, *args, **kwds)
+        return wrapper
+    return real_decorator
+"""
 
 def init_context(active_nav):
     if active_nav.upper() == 'D':
