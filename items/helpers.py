@@ -169,7 +169,7 @@ def _extract_final_item_attributes(item):
             'item_link':   reverse('items.views.show_final', args=[item.final_id]),
             'type':        item.itemtype,
             'author':      item.created_by.get_full_name(),
-            'author_link': reverse('users.views.profile_id', args=[item.created_by.get_username()]),
+            'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
             'timestamp':   str(item.created_at),
             'categories':  {
                             'primary':   item.primary_categories,

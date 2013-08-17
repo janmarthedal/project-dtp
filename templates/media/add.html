@@ -7,12 +7,11 @@
 <h1>Add media</h1>
 
 <form enctype="multipart/form-data" action="" method="post">
+{% csrf_token %}
 
 {{ form.file }}
-
-<label for="id_tags">Tags:</label>
-{{ form.tags }}<br/>
-
+<br/>
+<input type="submit" value="Upload">
 </form>
 
 {% endblock %}

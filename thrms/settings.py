@@ -19,6 +19,7 @@ if os.uname()[1].endswith('webfaction.com'):
         }
 
     STATIC_ROOT = '/home/jmr/webapps/thrms_static/'
+    MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
     PROJECT_BASE = '/home/jmr/webapps/thrms_django/teoremer/'
 
     EMAIL_HOST = 'smtp.webfaction.com'
@@ -48,6 +49,7 @@ else:
         }
 
     STATIC_ROOT = '/home/jmr/www/static/'
+    MEDIA_ROOT = '/home/jmr/www/media/'
     PROJECT_BASE = '/home/jmr/projects/teoremer/'
 
     MESSAGE_LEVEL = message_constants.DEBUG
@@ -94,9 +96,6 @@ USE_L10N = False
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
