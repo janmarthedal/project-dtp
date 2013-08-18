@@ -4,7 +4,8 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET
 from items.helpers import item_search_to_json
-from items.models import DraftItem, FinalItem
+from drafts.models import DraftItem
+from items.models import FinalItem
 from main.helpers import json_decode, json_encode
 from tags.models import Tag
 from api.helpers import (ApiError, api_view, api_request_user, api_request_string,

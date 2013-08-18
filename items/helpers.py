@@ -4,7 +4,8 @@ from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.utils import crypto
 from django.utils.http import urlquote
-from items.models import FinalItem, DraftItem
+from drafts.models import DraftItem
+from items.models import FinalItem
 from main.helpers import json_encode
 from tags.models import Tag
 from tags.helpers import normalize_tag
@@ -151,7 +152,7 @@ def tag_names_to_tag_objects(tag_names):
 def _extract_draft_item_attributes(item):
     return {
             'id':          item.pk,
-            'item_link':   reverse('items.views.show', args=[item.pk]),
+            'item_link':   reverse('drafts.views.show', args=[item.pk]),
             'type':        item.itemtype,
             'author':      item.created_by.get_full_name(),
             'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),

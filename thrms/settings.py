@@ -48,8 +48,8 @@ else:
             }
         }
 
-    STATIC_ROOT = '/home/jmr/www/static/'
-    MEDIA_ROOT = '/home/jmr/www/media/'
+    #STATIC_ROOT = '/home/jmr/www/static/'
+    #MEDIA_ROOT = '/home/jmr/www/media/'
     PROJECT_BASE = '/home/jmr/projects/teoremer/'
 
     MESSAGE_LEVEL = message_constants.DEBUG
@@ -74,6 +74,7 @@ TEMPLATE_DIRS = (
 )
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/files/'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -95,12 +96,6 @@ USE_L10N = False
 
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
-
-
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -139,10 +134,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
-    'django.core.context_processors.static',
+#    'django.core.context_processors.static',
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
-    'django_browserid.context_processors.browserid',
+    'django_browserid.context_processors.browserid'
 )
 
 AUTHENTICATION_BACKENDS = (

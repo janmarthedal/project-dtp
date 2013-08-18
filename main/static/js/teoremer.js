@@ -54,10 +54,11 @@
 
     function reverse_view_redirect(view, arg1) {
         var url;
-        if (view == 'items.views.show') {
-            url = '/item/' + arg1;
+        console.log('Reverse lookup for ' + view)
+        if (view == 'drafts.views.show') {
+            url = '/draft/' + arg1;
         } else if (view == 'items.views.show_final') {
-            url = '/' + arg1;
+            url = '/item/' + arg1;
         } else {
             console.log('Cannot do reverse lookup for view ' + view);
             return;
@@ -90,7 +91,7 @@
             return _.map(resp, function(item) {
                 return new TagItem(item, { parse: true });
             });
-        }        
+        }
     });
 
     var Category = Backbone.Model.extend({
@@ -143,8 +144,8 @@
        parse: function(resp) {
             return _.map(resp, function(item) {
                 return new TagAssociation(item, { parse: true });
-            });           
-       } 
+            });
+       }
     });
 
     var MathItem = Backbone.Model;
@@ -201,6 +202,20 @@
                 seccats:   new CategoryList(resp.seccats, { parse: true }),
                 tagcatmap: new TagAssociationList(resp.tagcatmap, { parse: true })
             };
+        }
+    });
+
+    teoremer.SearchTerms = Backbone.Model.extend({
+        defaults: {
+            status: 'F'
+        },
+        toJSON: function() {
+            var data = _.clone(this.attributes);
+            data.intags = JSON.stringify(data.includeTags);
+            data.extags = JSON.stringify(data.excludeTags);
+            delete data.includeTags;
+            delete data.excludeTags;
+            return data;
         }
     });
 
@@ -316,35 +331,15 @@
         }
     });
 
-    teoremer.SearchTerms = Backbone.Model.extend({
-        defaults: {
-            status: 'F'
-        },
-        toJSON: function() {
-            var data = _.clone(this.attributes);
-            data.intags = JSON.stringify(data.includeTags);
-            data.extags = JSON.stringify(data.excludeTags);
-            delete data.includeTags;
-            delete data.excludeTags;
-            return data;
-        }
-    });
-
     teoremer.SearchListView = Backbone.View.extend({
         events: {
-            'click .search-list-more': 'fetchMore',
-            'click .select-final':
-                function() { this.options.parameters.set('status', 'F'); },
-            'click .select-review':
-                function() { this.options.parameters.set('status', 'R'); },
-            'click .select-draft':
-                function() { this.options.parameters.set('status', 'D'); },
-            'click .select-definitions':
-                function() { this.options.parameters.set('type', 'D'); },
-            'click .select-theorems':
-                function() { this.options.parameters.set('type', 'T'); },
-            'click .select-proofs':
-                function() { this.options.parameters.set('type', 'P'); }
+            'click .search-list-more':   function() { this.doFetch(true); },
+            'click .select-final':       function() { this.options.parameters.set('status', 'F'); },
+            'click .select-review':      function() { this.options.parameters.set('status', 'R'); },
+            'click .select-draft':       function() { this.options.parameters.set('status', 'D'); },
+            'click .select-definitions': function() { this.options.parameters.set('type', 'D'); },
+            'click .select-theorems':    function() { this.options.parameters.set('type', 'T'); },
+            'click .select-proofs':      function() { this.options.parameters.set('type', 'P'); }
         },
         initialize: function() {
             _.bindAll(this, 'render', 'addOne', 'fetchMore');
@@ -391,8 +386,6 @@
         doFetch: function(append) {
             var options = {};
             options.data = this.options.parameters.toJSON();
-            //options.data.intags = JSON.stringify(this.includeTags);
-            //options.data.extags = JSON.stringify(this.excludeTags);
             if (append) {
                 var self = this;
                 options.remove = false;
@@ -404,14 +397,10 @@
                 options.reset = true;
                 options.data.offset = 0;
             }
-            console.log(options);
             this.collection.fetch(options);
         },
-        fetchMore: function() {
-            this.doFetch(true);
-        },
         fetchReset: function() {
-            this.doFetch(false);            
+            this.doFetch(false);
         }
     });
 
@@ -518,7 +507,7 @@
             this.model.save(null, {
                 wait: true,
                 success: function(model, response) {
-                    reverse_view_redirect('items.views.show', model.get('id'));
+                    reverse_view_redirect('drafts.views.show', model.get('id'));
                 },
                 error: function(model, error) {
                     console.log(model.toJSON());
@@ -627,13 +616,13 @@
         events: function() {
             var e = {};
             e['click #category-add-' + this.uid] = '_promptCategory';
-            return e;            
+            return e;
         },
         initialize: function() {
             _.bindAll(this, 'render', '_addOne', '_promptCategory');
             this.uid = _.uniqueId();
             this.collection.bind('add', this._addOne);
-            this.render();            
+            this.render();
         },
         render: function() {
             var html = Handlebars.templates.editable_category_list({
@@ -741,7 +730,7 @@
 templates['add_category'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "<div class=\"modal hide\">\n    <div class=\"modal-header\">\n        <button type=\"button\" class=\"close cancel\">&times;</button>\n        <h3>Add category</h3>\n    </div>\n    <div class=\"modal-body\">\n        <div class=\"category\"></div>\n        <div class=\"input-append\">\n          <input class=\"span12\" type=\"text\">\n          <button id=\"category-plus-btn\" class=\"btn\"><i class=\"icon-plus\"></i></button>\n          <button id=\"category-minus-btn\" class=\"btn\"><i class=\"icon-minus\"></i></button>\n        </div>\n    </div>\n    <div class=\"modal-footer\">\n        <button class=\"btn btn-primary\">Add category</button>\n        <button class=\"btn cancel\">Cancel</button>\n    </div>\n</div>";
@@ -769,7 +758,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
   var buffer = "", stack1, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n";
   stack1 = helpers['if'].call(depth0, depth0.type_definition, {hash:{},inverse:self.program(4, program4, data),fn:self.program(2, program2, data),data:data});
@@ -778,19 +767,19 @@ function program1(depth0,data) {
   return buffer;
   }
 function program2(depth0,data) {
-  
-  
+
+
   return "\n<span class=\"label label-info\">definitions</span>\n";
   }
 
 function program4(depth0,data) {
-  
-  
+
+
   return "\n<a class=\"select-definitions\" href=\"#\">definitions</a>\n";
   }
 
 function program6(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n";
   stack1 = helpers['if'].call(depth0, depth0.type_theorem, {hash:{},inverse:self.program(9, program9, data),fn:self.program(7, program7, data),data:data});
@@ -799,19 +788,19 @@ function program6(depth0,data) {
   return buffer;
   }
 function program7(depth0,data) {
-  
-  
+
+
   return "\n<span class=\"label label-info\">theorems</span>\n";
   }
 
 function program9(depth0,data) {
-  
-  
+
+
   return "\n<a class=\"select-theorems\" href=\"#\">theorems</a>\n";
   }
 
 function program11(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n";
   stack1 = helpers['if'].call(depth0, depth0.type_proof, {hash:{},inverse:self.program(14, program14, data),fn:self.program(12, program12, data),data:data});
@@ -820,43 +809,43 @@ function program11(depth0,data) {
   return buffer;
   }
 function program12(depth0,data) {
-  
-  
+
+
   return "\n<span class=\"label label-info\">proofs</span>\n";
   }
 
 function program14(depth0,data) {
-  
-  
+
+
   return "\n<a class=\"select-proofs\" href=\"#\">proofs</a>\n";
   }
 
 function program16(depth0,data) {
-  
-  
+
+
   return "\n<span class=\"label label-info\">final</span>\n";
   }
 
 function program18(depth0,data) {
-  
-  
+
+
   return "\n<a class=\"select-final\" href=\"#\">final</a>\n";
   }
 
 function program20(depth0,data) {
-  
-  
+
+
   return "\n<span class=\"label label-info\">review</span>\n";
   }
 
 function program22(depth0,data) {
-  
-  
+
+
   return "\n <a class=\"select-review\" href=\"#\">review</a>\n";
   }
 
 function program24(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "\n";
   stack1 = helpers['if'].call(depth0, depth0.status_draft, {hash:{},inverse:self.program(27, program27, data),fn:self.program(25, program25, data),data:data});
@@ -865,14 +854,14 @@ function program24(depth0,data) {
   return buffer;
   }
 function program25(depth0,data) {
-  
-  
+
+
   return "\n<span class=\"label label-info\">draft</span>\n";
   }
 
 function program27(depth0,data) {
-  
-  
+
+
   return "\n<a class=\"select-draft\" href=\"#\">draft</a>\n";
   }
 
@@ -903,7 +892,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += " (";
   if (stack1 = helpers.pritags) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
@@ -914,7 +903,7 @@ function program1(depth0,data) {
   }
 
 function program3(depth0,data) {
-  
+
   var buffer = "", stack1;
   buffer += "<span class=\"category\">";
   stack1 = helpers.each.call(depth0, depth0, {hash:{},inverse:self.noop,fn:self.program(4, program4, data),data:data});
@@ -923,7 +912,7 @@ function program3(depth0,data) {
   return buffer;
   }
 function program4(depth0,data) {
-  
+
   var buffer = "";
   buffer += "<span class=\"tag\">"
     + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
@@ -979,7 +968,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['tag_association_list'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "<table class=\"table table-hover table-condensed table-nonfluid\">\n  <!--thead>\n    <tr><th>Tag</th><th>Category</th><th></th></tr>\n  </thead-->\n  <tbody>\n  </tbody>\n</table>";
@@ -990,7 +979,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
   var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
-  
+
   var buffer = "";
   buffer += "<span class=\"tag\">"
     + escapeExpression((typeof depth0 === functionType ? depth0.apply(depth0) : depth0))
@@ -1027,7 +1016,7 @@ helpers = helpers || Handlebars.helpers; data = data || {};
 templates['top_list_container'] = template(function (Handlebars,depth0,helpers,partials,data) {
   this.compilerInfo = [2,'>= 1.0.0-rc.3'];
 helpers = helpers || Handlebars.helpers; data = data || {};
-  
+
 
 
   return "<table class=\"table\">\n<tbody>\n</tbody>\n</table>\n";

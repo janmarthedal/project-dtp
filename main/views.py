@@ -1,11 +1,9 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_safe
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
-from django.conf import settings
 from main.helpers import init_context
 from main.blog_feed import get_blog_feed
-from items.models import FinalItem, DraftItem
+from drafts.models import DraftItem
+from items.models import FinalItem
 from users.models import User
 from items.helpers import item_search_to_json
 from analysis.models import TagCount

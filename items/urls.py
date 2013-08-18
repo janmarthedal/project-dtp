@@ -1,9 +1,7 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns('items.views',
-    url(r'^(\d+)$',         'show'),
-    url(r'^(\d+)/edit$',    'edit'),
-    url(r'^(\d+)/delete$',  'delete_draft'),
-    url(r'^(\d+)/publish$', 'to_final'),
-    url(r'^(\d+)/review$',  'to_review'),
+    url(r'^(\w+)$',        'show_final'),
+    url(r'^(\w+)/edit$',   'edit_final'),
+    url(r'^(\w+)/delete$', 'delete_final'),
 )

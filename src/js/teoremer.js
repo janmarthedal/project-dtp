@@ -54,15 +54,16 @@
 
     function reverse_view_redirect(view, arg1) {
         var url;
-        if (view == 'items.views.show') {
-            url = '/item/' + arg1;
+        console.log('Reverse lookup for ' + view)
+        if (view == 'drafts.views.show') {
+            url = '/draft/' + arg1;
         } else if (view == 'items.views.show_final') {
-            url = '/' + arg1;
+            url = '/item/' + arg1;
         } else {
             console.log('Cannot do reverse lookup for view ' + view);
             return;
         }
-        window.location.href = url;
+        //window.location.href = url;
     }
 
     /***************************
@@ -506,7 +507,7 @@
             this.model.save(null, {
                 wait: true,
                 success: function(model, response) {
-                    reverse_view_redirect('items.views.show', model.get('id'));
+                    reverse_view_redirect('drafts.views.show', model.get('id'));
                 },
                 error: function(model, error) {
                     console.log(model.toJSON());

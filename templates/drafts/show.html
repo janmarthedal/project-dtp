@@ -29,9 +29,9 @@
 <h4>Actions</h4>
 
 {% if perm.edit %}
-<p><a class="btn btn-primary" href="{% url 'items.views.edit' item.id %}">Edit</a></p>
+<p><a class="btn btn-primary" href="{% url 'drafts.views.edit' item.id %}">Edit</a></p>
 
-<form method="post" action="{% url 'items.views.delete_draft' item.id %}">
+<form method="post" action="{% url 'drafts.views.delete_draft' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Delete</button>
 </form>
@@ -45,14 +45,14 @@
 {% endif %} -->
 
 {% if perm.to_review %}
-<form method="post" action="{% url 'items.views.to_review' item.id %}">
+<form method="post" action="{% url 'drafts.views.to_review' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Submit for review</button>
 </form>
 {% endif %}
 
 {% if perm.to_final %}
-<form method="post" action="{% url 'items.views.to_final' item.id %}">
+<form method="post" action="{% url 'drafts.views.to_final' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Publish</button>
 </form>
