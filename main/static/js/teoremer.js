@@ -54,7 +54,6 @@
 
     function reverse_view_redirect(view, arg1) {
         var url;
-        console.log('Reverse lookup for ' + view)
         if (view == 'drafts.views.show') {
             url = '/draft/' + arg1;
         } else if (view == 'items.views.show_final') {
@@ -342,7 +341,7 @@
             'click .select-proofs':      function() { this.options.parameters.set('type', 'P'); }
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'addOne', 'fetchMore');
+            _.bindAll(this, 'render', 'addOne', 'doFetch', 'fetchReset');
             this.collection = new SearchList();
             this.collection.on('reset', this.render);
             this.collection.on('add', this.addOne);
