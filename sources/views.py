@@ -103,4 +103,4 @@ def add_source(request, final_id):
         form = AddSourceForm()
 
     c.update({ 'form': form, 'source': source })
-    return render(request, 'items/add_source.html', c)
+    return render(request, 'sources/add_source.html', c)

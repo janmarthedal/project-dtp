@@ -36,7 +36,7 @@ def new(request, kind, parent=None):
         c['primary_text'] = 'Terms defined'
     elif kind == 'theorem':
         c['primary_text'] = 'Name(s) for theorem'
-    return render(request, 'drafts/new.html', c)
+    return render(request, 'drafts/new_draft.html', c)
 
 @require_GET
 def show(request, item_id):
@@ -46,7 +46,7 @@ def show(request, item_id):
         raise Http404
     c = { 'item': item,
           'perm': permissions }
-    return render(request, 'drafts/show.html', c)
+    return render(request, 'drafts/show_draft.html', c)
 
 @logged_in_or_404
 @require_GET
@@ -61,7 +61,7 @@ def edit(request, item_id):
         c['primary_text'] = 'Terms defined'
     elif item.itemtype == 'T':
         c['primary_text'] = 'Name(s) of theorem'
-    return render(request, 'drafts/edit.html', c)
+    return render(request, 'drafts/edit_draft.html', c)
 
 @logged_in_or_404
 @require_POST
