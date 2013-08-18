@@ -9,10 +9,11 @@
 {% endblock %}
 
 {% block bodybottom %}
+<script type="text/javascript" src="https://login.persona.org/include.js"></script>
 <script type="text/javascript">
 // adapted from browserid.js
 $(function() {
-    var $loginForm = $('#browserid-form'); // Form used to submit login.
+    var $loginForm = $('#browserid-form');     // Form used to submit login.
     var $browseridInfo = $('#browserid-info'); // Useful info from backend.
   
     var requestArgs = $browseridInfo.data('requestArgs') || {};
