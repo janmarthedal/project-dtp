@@ -469,7 +469,7 @@
             }
             source = pars.join('');
             // [text#tag] or [#tag]
-            source = source.replace(/\[([^#\]]*)#([\w- ]+)\]/g, function(full_match, text, tag) {
+            source = source.replace(/\[([^#\]]*)#([\w -]+)\]/g, function(full_match, text, tag) {
                 text = text || tag;
                 key = 'zZ' + (++insertsCounter) + 'Zz';
                 inserts[key] = '<a href="#" rel="tooltip" data-original-title="tag: ' + tag + '"><i>' + text + '</i></a>';

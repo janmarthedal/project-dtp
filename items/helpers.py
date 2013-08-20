@@ -39,7 +39,7 @@ class BodyScanner:
                         parts2[j] = self._add_inline_maths(parts2[j])
                 parts[i] = ''.join(parts2)
         body = ''.join(parts)
-        body = re.sub(r'\[([^#\]]*)#([\w- ]+)\]', self._conceptMatch, body)
+        body = re.sub(r'\[([^#\]]*)#([\w -]+)\]', self._conceptMatch, body)
         body = re.sub(r'\[([^@\]]*)@(\w+)\]', self._itemRefMatch, body)
         body = body.replace("[", "&#91;").replace("]", "&#93;").replace("<", "&lt;").replace(">", "&gt;");
         self.body = body

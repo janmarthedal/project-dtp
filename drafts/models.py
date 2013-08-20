@@ -20,7 +20,7 @@ class BaseItem(models.Model):
     )
 
     itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
-    parent   = models.ForeignKey('FinalItem', null=True, db_index=False)
+    parent   = models.ForeignKey('items.FinalItem', null=True, db_index=False)
     body     = models.TextField(null=True)
 
     def __init__(self, *args, **kwargs):
