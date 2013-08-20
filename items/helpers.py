@@ -39,8 +39,8 @@ class BodyScanner:
                         parts2[j] = self._add_inline_maths(parts2[j])
                 parts[i] = ''.join(parts2)
         body = ''.join(parts)
-        body = re.sub(r'\[([^#\]]*)#([\w-]+)\]', self._conceptMatch, body)
-        body = re.sub(r'\[@(\w+)\]', self._itemRefMatch, body)
+        body = re.sub(r'\[([^#\]]*)#([\w- ]+)\]', self._conceptMatch, body)
+        body = re.sub(r'\[([^@\]]*)@(\w+)\]', self._itemRefMatch, body)
         body = body.replace("[", "&#91;").replace("]", "&#93;").replace("<", "&lt;").replace(">", "&gt;");
         self.body = body
         self._imaths = self._imaths.items()
@@ -68,7 +68,9 @@ class BodyScanner:
 
     def _itemRefMatch(self, match):
         key = self._make_key()
-        self._itemRefs.append((key, '', match.group(1)))
+        name = match.group(1)
+        item_id = match.group(2)
+        self._itemRefs.append((key, '', name, item_id))
         return key
 
     def transformDisplayMath(self, func):
@@ -81,7 +83,7 @@ class BodyScanner:
         self._conceptRefs = map(lambda p: (p[0], func(p[2], p[3]), p[2], p[3]), self._conceptRefs)
 
     def transformItemRefs(self, func):
-        self._itemRefs = map(lambda p: (p[0], func(p[2]), p[2]), self._itemRefs)
+        self._itemRefs = map(lambda p: (p[0], func(p[2], p[3]), p[2], p[3]), self._itemRefs)
 
     def getItemRefSet(self):
         return [p[2] for p in self._itemRefs]
@@ -97,7 +99,7 @@ class BodyScanner:
             st = st.replace(key, value)
         for (key, value, _1, _2) in self._conceptRefs:
             st = st.replace(key, value)
-        for (key, value, _1) in self._itemRefs:
+        for (key, value, _1, _2) in self._itemRefs:
             st = st.replace(key, value)
         return st
 
@@ -113,9 +115,10 @@ def typesetConcept(text, tag_name, tag_to_category_map):
         return '<a href="#" rel="tooltip" data-original-title="tag: %s"><i>%s</i></a>' % (tag_name, link_text)
 
 
-def typesetItemRef(final_id):
-    url = reverse('items.views.show_final', args=[final_id])
-    return '<a href="%s"><b>%s</b></a>' % (url, final_id)
+def typesetItemRef(text, item_id):
+    link_text = make_html_safe(text or item_id)
+    url = reverse('items.views.show_final', args=[item_id])
+    return '<a href="%s"><b>%s</b></a>' % (url, link_text)
 
 
 def typeset_body(st, tag_to_category_map):

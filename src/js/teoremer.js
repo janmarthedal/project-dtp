@@ -165,7 +165,7 @@
         model: MathItem,
         url: api_prefix + 'items',
         parse: function(response) {
-            this.has_more = response.meta.has_more
+            this.has_more = response.meta.has_more;
             return response.items;
         }
     });
@@ -469,16 +469,17 @@
             }
             source = pars.join('');
             // [text#tag] or [#tag]
-            source = source.replace(/\[([^#\]]*)#([\w-]+)\]/g, function(full_match, text, tag) {
+            source = source.replace(/\[([^#\]]*)#([\w- ]+)\]/g, function(full_match, text, tag) {
                 text = text || tag;
                 key = 'zZ' + (++insertsCounter) + 'Zz';
                 inserts[key] = '<a href="#" rel="tooltip" data-original-title="tag: ' + tag + '"><i>' + text + '</i></a>';
                 return key;
             });
             // [@q25tY]
-            source = source.replace(/\[@(\w+)\]/g, function(full_match, item_id) {
+            source = source.replace(/\[([^@\]]*)@(\w+)\]/g, function(full_match, text, item_id) {
+                text = text || item_id;
                 key = 'zZ' + (++insertsCounter) + 'Zz';
-                inserts[key] = '<a href="#" rel="tooltip" data-original-title="item: ' + item_id + '"><b>' + item_id + '</b></a>';
+                inserts[key] = '<a href="#" rel="tooltip" data-original-title="item: ' + item_id + '"><b>' + text + '</b></a>';
                 return key;
             });
             // disable markdown links and images
