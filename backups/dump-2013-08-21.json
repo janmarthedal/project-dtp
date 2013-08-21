@@ -234,6 +234,70 @@
   }
 },
 {
+  "pk": 27, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "ordered set", 
+    "normalized": "ordered set"
+  }
+},
+{
+  "pk": 28, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "bounded above", 
+    "normalized": "bounded above"
+  }
+},
+{
+  "pk": 29, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "upper bound", 
+    "normalized": "upper bound"
+  }
+},
+{
+  "pk": 30, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "least upper bound", 
+    "normalized": "least upper bound"
+  }
+},
+{
+  "pk": 31, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "supremum", 
+    "normalized": "supremum"
+  }
+},
+{
+  "pk": 32, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "greatest lower bound", 
+    "normalized": "greatest lower bound"
+  }
+},
+{
+  "pk": 33, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "infimum", 
+    "normalized": "infimum"
+  }
+},
+{
+  "pk": 34, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "least-upper-bound property", 
+    "normalized": "least-upper-bound property"
+  }
+},
+{
   "pk": 1, 
   "model": "tags.category", 
   "fields": {
@@ -482,6 +546,70 @@
   }
 },
 {
+  "pk": 32, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 27, 
+    "parent": 1
+  }
+},
+{
+  "pk": 33, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 28, 
+    "parent": 1
+  }
+},
+{
+  "pk": 34, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 29, 
+    "parent": 1
+  }
+},
+{
+  "pk": 35, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 30, 
+    "parent": 1
+  }
+},
+{
+  "pk": 36, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 31, 
+    "parent": 1
+  }
+},
+{
+  "pk": 37, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 32, 
+    "parent": 1
+  }
+},
+{
+  "pk": 38, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 33, 
+    "parent": 1
+  }
+},
+{
+  "pk": 39, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 34, 
+    "parent": 1
+  }
+},
+{
   "pk": 1, 
   "model": "drafts.draftitem", 
   "fields": {
@@ -550,6 +678,66 @@
     "itemtype": "D", 
     "parent": null, 
     "modified_at": "2013-08-21T05:54:08Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 7, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "An _ordered set_ is a [#set] $S$ in which an [#order] is defined.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T11:00:00Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 8, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "Suppose $S$ is an ordered, and $E \\subset S$. If there exists a $\\beta \\in S$ such that $x \\leq \\beta$ for every $x \\in E$, we say that $E$ is _bounded above_, and call $\\beta$ and _upper bound_ of $E$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T11:02:31Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 9, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "Suppose $S$ is an [#ordered set], $E \\subset S$, and $E$ is [#bounded above]. Suppose there exists an $\\alpha \\in S$ with the following properties:\n\n   1. $\\alpha$ is an [#upper bound] of $E$.\n   2. If $\\gamma < \\alpha$ then $\\gamma$ is not an [#upper bound] of $E$.\n\nThen $\\alpha$ is called the _least upper bound of $E$_ or the _supremum of $E$_, and we write\n$$\n\\alpha = \\sup E.\n$$\n\nThe _greatest lower bound_, or _infimum_, of a [#set] $E$ which is [#bounded below] is defined in the same manner: The statement\n$$\n\\alpha = \\inf E\n$$\nmeans that $\\alpha$ is a [#lower bound] of $E$ and that no $\\beta$ with $\\beta > \\alpha$ is a lower bound of $E$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T13:33:56Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 10, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "An [#ordered set] $S$ is said to have the [#least-upper-bound property] if the following is true: If $E \\subset S$, $E$ is not empty, and $E$ is [#bounded above], then $\\sup E$ exists in $S$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T13:41:33Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 11, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "Suppose $S$ is an [#ordered set] with the [#least-upper-bound property], $B \\subset S$, $B$ is not empty, and $B$ is [#bounded below]. Let $L$ be the [#set] of all [lower bounds#lower bound] of $B$. Then\n$$\n\\alpha = \\sup L\n$$\nexists in $S$, and $\\alpha = \\inf B$.\n\nIn particular, $\\inf B$ exists in $S$.", 
+    "status": "D", 
+    "itemtype": "T", 
+    "parent": null, 
+    "modified_at": "2013-08-21T13:44:52Z", 
     "created_by": 2
   }
 },
@@ -785,6 +973,78 @@
     "category": 9, 
     "item": 6, 
     "primary": false
+  }
+},
+{
+  "pk": 32, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 32, 
+    "item": 7, 
+    "primary": true
+  }
+},
+{
+  "pk": 33, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 33, 
+    "item": 8, 
+    "primary": true
+  }
+},
+{
+  "pk": 34, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 34, 
+    "item": 8, 
+    "primary": true
+  }
+},
+{
+  "pk": 35, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 35, 
+    "item": 9, 
+    "primary": true
+  }
+},
+{
+  "pk": 36, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 36, 
+    "item": 9, 
+    "primary": true
+  }
+},
+{
+  "pk": 37, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 37, 
+    "item": 9, 
+    "primary": true
+  }
+},
+{
+  "pk": 38, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 38, 
+    "item": 9, 
+    "primary": true
+  }
+},
+{
+  "pk": 39, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 39, 
+    "item": 10, 
+    "primary": true
   }
 }
 ]
