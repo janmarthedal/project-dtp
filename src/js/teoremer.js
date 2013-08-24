@@ -222,8 +222,8 @@
     teoremer.SourceItem = Backbone.Model.extend({
         defaults: {
             type: 'book',
-            authors: [''],
-            editors: [''],
+            author: [''],
+            editor: [''],
             publisher: 'Some publisher'
         }
     });
@@ -749,6 +749,23 @@
             var changed = evt.currentTarget;
             var key = changed.id.slice(5).toLowerCase();
             var value = $(changed).val();
+            if (key.length > 6 && (key.slice(0, 6) == 'author' || key.slice(0, 6) == 'editor')) {
+                key = key.slice(0, 6);
+                value = [];
+                var idBase = '#input' + capitalize(key);
+                for (var i=0;; i++) {
+                    var elem = $(idBase + i);
+                    if (elem.length) {
+                        var val = elem.val();
+                        if (val) {
+                            value.push(val);
+                        }
+                    } else
+                        break;
+                }
+            }
+            console.log(key);
+            console.log(value);
             this.model.set(key, value);
         }
     });

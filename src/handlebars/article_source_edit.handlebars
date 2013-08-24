@@ -1,11 +1,5 @@
-<div class="form-horizontal">
-  <div class="control-group">
-    <label class="control-label" for="inputTitle">Title</label>
-    <div class="controls">
-      <input type="text" class="input-xxlarge" id="inputTitle" value="{{title}}">
-    </div>
-  </div>
-{{#authors authors id="inputAuthor" text="Author(s)"}}{{this}}{{/authors}}
+{{#sourceinput title text="Title"}}{{this}}{{/sourceinput}}
+{{#authors author id="inputAuthor" text="Author(s)"}}{{this}}{{/authors}}
 {{#sourceinput journal text="Journal"}}{{this}}{{/sourceinput}}
 {{#sourceinput year text="Year"}}{{this}}{{/sourceinput}}
 {{#sourceinput volume text="Volume"}}{{this}}{{/sourceinput}}

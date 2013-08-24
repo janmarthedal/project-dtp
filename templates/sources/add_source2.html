@@ -32,13 +32,12 @@
 
 (function() {
 
-  var source = new teoremer.SourceItem({ 'authors': ['foo', 'bar', ''] });
+  var source = new teoremer.SourceItem({ 'author': ['foo', 'bar', ''] });
   var viewOptions = { model: source }; 
   var sourceEdit;
 
   $('#select-source').change(function() {
     var type = $(this).find('option:selected').attr('value');
-    console.log(type);
     if (sourceEdit) {
       sourceEdit.remove();
     }
