@@ -93,13 +93,13 @@ class BodyScanner:
 
     def assemble(self):
         st = self.body
-        for (key, value) in self._dmaths:
-            st = st.replace(key, value)
-        for (key, value) in self._imaths:
-            st = st.replace(key, value)
         for (key, value, _1, _2) in self._conceptRefs:
             st = st.replace(key, value)
         for (key, value, _1, _2) in self._itemRefs:
+            st = st.replace(key, value)
+        for (key, value) in self._dmaths:
+            st = st.replace(key, value)
+        for (key, value) in self._imaths:
             st = st.replace(key, value)
         return st
 

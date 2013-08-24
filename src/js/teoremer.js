@@ -4,7 +4,7 @@
 
     var api_prefix = '/api/';
 
-    var teoremer = {}
+    var teoremer = {};
 
     teoremer.setupCsrf = function() {
         var csrftoken = $.cookie('csrftoken');
@@ -22,7 +22,8 @@
                 }
             }
         });
-    }
+    };
+
     function typeset_tag(st) {
         var elems = st.split('$');
         for (var n = 0; n < elems.length; n++) {
@@ -34,7 +35,7 @@
     }
 
     function typeset_tag_list(tag_list) {
-        return _.map(tag_list, typeset_tag)
+        return _.map(tag_list, typeset_tag);
     }
 
     function type_short_to_long(st) {
@@ -215,6 +216,15 @@
             delete data.includeTags;
             delete data.excludeTags;
             return data;
+        }
+    });
+
+    teoremer.SourceItem = Backbone.Model.extend({
+        defaults: {
+            type: 'book',
+            authors: [''],
+            editors: [''],
+            publisher: 'Some publisher'
         }
     });
 
@@ -448,19 +458,19 @@
         },
         render: function() {
             var source = this.model.get('body');
-            var insertsCounter = 0, inserts = {}, key;
+            var insertsCounter = 0, mathInserts = {}, inserts = {}, key;
             var pars = source.split('$$');
             for (var i = 0; i < pars.length; i++) {
                 if (i % 2) {
                     key = 'zZ' + (++insertsCounter) + 'Zz';
-                    inserts[key] = '\\[' + pars[i] + '\\]';
+                    mathInserts[key] = '\\[' + pars[i] + '\\]';
                     pars[i] = key;
                 } else {
                     pars2 = pars[i].split('$');
                     for (var j = 0; j < pars2.length; j++) {
                         if (j % 2) {
                             key = 'zZ' + (++insertsCounter) + 'Zz';
-                            inserts[key] = '\\(' + pars2[j] + '\\)';
+                            mathInserts[key] = '\\(' + pars2[j] + '\\)';
                             pars2[j] = key;
                         }
                     }
@@ -487,6 +497,9 @@
             var html = this.converter.makeHtml(source);
             for (key in inserts) {
                 html = html.replace(key, inserts[key]);
+            }
+            for (key in mathInserts) {
+                html = html.replace(key, mathInserts[key]);
             }
             this.$el.html(html);
             this.$el.tooltip({
@@ -719,6 +732,38 @@
                     console.log('error saving');
                 }
             });
+        }
+    });
+
+    var SourceEditView = Backbone.View.extend({
+        tagName: 'div',
+        className: 'form-horizontal',
+        events: {
+            'change input': '_changed'
+        },
+        initialize: function() {
+            _.bindAll(this, 'render', '_changed');
+            this.render();
+        },
+        _changed: function(evt) {
+            var changed = evt.currentTarget;
+            var key = changed.id.slice(5).toLowerCase();
+            var value = $(changed).val();
+            this.model.set(key, value);
+        }
+    });
+
+    teoremer.BookSourceEditView = SourceEditView.extend({
+        render: function() {
+            var html = Handlebars.templates.book_source_edit(this.model.attributes);
+            this.$el.html(html);
+        }
+    });
+
+    teoremer.ArticleSourceEditView = SourceEditView.extend({
+        render: function() {
+            var html = Handlebars.templates.article_source_edit(this.model.attributes);
+            this.$el.html(html);
         }
     });
 

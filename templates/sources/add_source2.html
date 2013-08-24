@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Add Source{% endblock %}
+
+{% block mainbar %}
+
+<h1>Add source</h1>
+
+<div class="form-horizontal" style="margin-bottom:2em;">
+  <div class="controls">
+    <select id="select-source">
+      <option value="book">Book</option>
+      <option value="art">Article</option>
+      <option value="url">Online</option>
+    </select>
+  </div>
+</div>
+
+<div id="source-edit"></div>
+
+{% endblock %}
+
+{% block bodybottom %}
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+<script src="{% static 'js/teoremer.js' %}"></script>
+
+<script type="text/javascript">
+
+(function() {
+
+  var source = new teoremer.SourceItem({ 'authors': ['foo', 'bar', ''] });
+  var viewOptions = { model: source }; 
+  var sourceEdit;
+
+  $('#select-source').change(function() {
+    var type = $(this).find('option:selected').attr('value');
+    console.log(type);
+    if (sourceEdit) {
+      sourceEdit.remove();
+    }
+    if (type === 'book') {
+      sourceEdit = new teoremer.BookSourceEditView({ model: source });
+    } else if (type === 'art') {
+      sourceEdit = new teoremer.ArticleSourceEditView({ model: source });
+    } else {
+      sourceEdit = null;
+    }
+    if (sourceEdit) {
+      $('#source-edit').append(sourceEdit.$el);
+    }
+  }).change();
+
+})();
+
+</script>
+
+{% endblock %}

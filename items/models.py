@@ -10,16 +10,9 @@ from drafts.models import BaseItem
 import logging
 logger = logging.getLogger(__name__)
 
-FINAL_NAME_CHARS = '23456789abcdefghjkmnpqrstuvwxyz'
+FINAL_NAME_CHARS = '0123456789'
 FINAL_NAME_MIN_LENGTH = 4
 FINAL_NAME_MAX_LENGTH = 10
-
-def ok_as_final_id(final_id):
-    try:
-        match = resolve('/%s' % final_id)
-        return match.url_name == 'items.views.show_final'
-    except Http404:
-        return True
 
 class FinalItemManager(models.Manager):
 
@@ -32,15 +25,14 @@ class FinalItemManager(models.Manager):
                          parent      = draft_item.parent)
         for length in range(FINAL_NAME_MIN_LENGTH, FINAL_NAME_MAX_LENGTH + 1):
             item.final_id = item.itemtype + get_random_string(length, FINAL_NAME_CHARS)
-            if ok_as_final_id(item.final_id):
-                try:
-                    item.save()
-                    for itemcat in draft_item.draftitemcategory_set.all():
-                        FinalItemCategory.objects.create(item=item, category=itemcat.category,
-                                                         primary=itemcat.primary)
-                    return item
-                except IntegrityError:
-                    pass
+            try:
+                item.save()
+                for itemcat in draft_item.draftitemcategory_set.all():
+                    FinalItemCategory.objects.create(item=item, category=itemcat.category,
+                                                     primary=itemcat.primary)
+                return item
+            except IntegrityError:
+                pass
         raise Exception('FinalItemManager.add_item')
 
 
