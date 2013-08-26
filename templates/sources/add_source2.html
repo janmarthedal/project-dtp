@@ -19,6 +19,8 @@
 
 <div id="source-edit"></div>
 
+<div id="source-preview"></div>
+
 {% endblock %}
 
 {% block bodybottom %}
@@ -52,6 +54,11 @@
       $('#source-edit').append(sourceEdit.$el);
     }
   }).change();
+
+  new teoremer.SourceRenderView({
+    el: $('#source-preview'),
+    model: source
+  });
 
 })();
 

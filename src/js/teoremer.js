@@ -738,35 +738,33 @@
     var SourceEditView = Backbone.View.extend({
         tagName: 'div',
         className: 'form-horizontal',
-        events: {
-            'change input': '_changed'
-        },
         initialize: function() {
-            _.bindAll(this, 'render', '_changed');
+            _.bindAll(this, 'render', '_updateModel');
+            this.$el.on('input propertychange', this._updateModel);
             this.render();
         },
-        _changed: function(evt) {
-            var changed = evt.currentTarget;
-            var key = changed.id.slice(5).toLowerCase();
-            var value = $(changed).val();
-            if (key.length > 6 && (key.slice(0, 6) == 'author' || key.slice(0, 6) == 'editor')) {
-                key = key.slice(0, 6);
-                value = [];
-                var idBase = '#input' + capitalize(key);
-                for (var i=0;; i++) {
-                    var elem = $(idBase + i);
-                    if (elem.length) {
-                        var val = elem.val();
-                        if (val) {
-                            value.push(val);
-                        }
-                    } else
-                        break;
-                }
-            }
-            console.log(key);
-            console.log(value);
-            this.model.set(key, value);
+        _updateModel: function() {
+            var view = this, key, value;
+            view.$('input').each(function() {
+                key = $(this).attr('id').slice(5).toLowerCase();
+                if (key.match(/^[a-z]+$/)) {
+                    value = $(this).val();
+                    value ? view.model.set(key, value) : view.model.unset(key);
+                } else if (key.match(/^[a-z]+0$/)) {
+                    key = key.slice(0, -1);
+                    var idBase = '#input' + capitalize(key);
+                    value = [];
+                    for (var j=0;; j++) {
+                        var elem = $(idBase + j), v;
+                        if (!elem.length)
+                            break;
+                        v = elem.val();
+                        if (v)
+                            value.push(v);
+                    }
+                    value.length ? view.model.set(key, value) : view.model.unset(key);
+                } 
+            });
         }
     });
 
@@ -780,6 +778,18 @@
     teoremer.ArticleSourceEditView = SourceEditView.extend({
         render: function() {
             var html = Handlebars.templates.article_source_edit(this.model.attributes);
+            this.$el.html(html);
+        }
+    });
+
+    teoremer.SourceRenderView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, 'render');
+            this.model.on('change', this.render);
+            this.render();
+        },
+        render: function() {
+            var html = Handlebars.templates.render_source({'data': this.model.attributes});
             this.$el.html(html);
         }
     });
