@@ -221,10 +221,7 @@
 
     teoremer.SourceItem = Backbone.Model.extend({
         defaults: {
-            type: 'book',
-            author: [''],
-            editor: [''],
-            publisher: 'Some publisher'
+            type: 'book'
         }
     });
 
@@ -735,24 +732,105 @@
         }
     });
 
-    var SourceEditView = Backbone.View.extend({
-        tagName: 'div',
-        className: 'form-horizontal',
+    var sourceFields = {
+        'author':    ['array', ['string', 'input-xlarge', 256]],
+        'title':     ['string', 'input-xxlarge', 1024],
+        'publisher': ['string', 'input-xlarge', 1024],
+        'year':      ['string', 'input-medium', 32],
+        'editor':    ['array', ['string', 'input-xlarge', 256]],
+        'volume':    ['string', 'input-medium', 256],
+        'number':    ['string', 'input-medium', 256],
+        'series':    ['string', 'input-xlarge', 1024],
+        'address':   ['string', 'input-xlarge', 1024],
+        'edition':   ['string', 'input-medium', 256],
+        'month':     ['string', 'input-medium', 256],
+        'note':      ['string', 'input-xlarge', 1024],
+        'journal':   ['string', 'input-xlarge', 1024],
+        'pages':     ['string', 'input-medium', 256],
+        'isbn-10':   ['string', 'input-medium', 32],
+        'isbn-13':   ['string', 'input-medium', 32]
+    };
+
+    var sourceTypes = {
+        'book': {
+            'name':  'Book',
+            'show':  ['author', 'title', 'publisher', 'year'],
+            'extra': ['isbn-10', 'isbn-13', 'editor', 'volume', 'number', 'series', 'address', 'edition', 'month', 'note']
+        },
+        'article': {
+            'name':  'Article in journal',
+            'show':  ['author', 'title', 'journal', 'year'],
+            'extra': ['volume', 'number', 'pages', 'month', 'note']
+        },
+        'foo': {
+            'name':  'foo bar',
+            'show':  ['author', 'title'],
+            'extra': ['note']
+        }
+    };
+
+    teoremer.SourceEditView = Backbone.View.extend({
+        events: {
+            'change #select-source':
+                function() {
+                    this._setType(this.$('#select-source').val());
+                }
+        },
         initialize: function() {
-            _.bindAll(this, 'render', '_updateModel');
+            _.bindAll(this, 'render', '_renderFields', '_setType', '_updateModel');
             this.$el.on('input propertychange', this._updateModel);
             this.render();
+        },
+        render: function() {
+            var html = Handlebars.templates.source_edit({
+                'types': _.map(sourceTypes, function(value, key) { return {'key': key, 'name': value.name}; })
+            });
+            this.$el.html(html);
+            var type = this.model.get('type');
+            this.$('#select-source').val(type);
+            this._setType(type);
+        },
+        _setType: function(type) {
+            this.model.set('type', type);
+            this._renderFields();
+        },
+        _renderFields: function() {
+            var source_fields_element = this.$('#source-fields');
+            source_fields_element.html('');
+            var model = this.model;
+            var type_data = sourceTypes[model.get('type')];
+            _.each(type_data.show, function(field_key) {
+                var field_config = sourceFields[field_key], html;
+                if (field_config[0] == 'string') {
+                    html = Handlebars.templates.source_string_field({
+                       'id':      'input-' + field_key,
+                       'name':    capitalize(field_key),
+                       'classes': field_config[1],
+                       'max':     field_config[2],
+                       'value':   model.has(field_key) ? model.get(field_key) : ''
+                    });
+                } else if (field_config[0] == 'array') {
+                    html = Handlebars.templates.source_array_field({
+                       'id':      'input-' + field_key,
+                       'name':    capitalize(field_key),
+                       'classes': field_config[1][1],
+                       'max':     field_config[1][2],
+                       'values':  model.has(field_key) ? model.get(field_key) : ['']
+                    });
+                }
+                source_fields_element.append(html);
+            });
         },
         _updateModel: function() {
             var view = this, key, value;
             view.$('input').each(function() {
-                key = $(this).attr('id').slice(5).toLowerCase();
+                key = $(this).attr('id').slice(6);
                 if (key.match(/^[a-z]+$/)) {
                     value = $(this).val();
                     value ? view.model.set(key, value) : view.model.unset(key);
                 } else if (key.match(/^[a-z]+0$/)) {
                     key = key.slice(0, -1);
-                    var idBase = '#input' + capitalize(key);
+                    var idBase = '#input-' + key;
                     value = [];
                     for (var j=0;; j++) {
                         var elem = $(idBase + j), v;
@@ -765,20 +843,7 @@
                     value.length ? view.model.set(key, value) : view.model.unset(key);
                 } 
             });
-        }
-    });
-
-    teoremer.BookSourceEditView = SourceEditView.extend({
-        render: function() {
-            var html = Handlebars.templates.book_source_edit(this.model.attributes);
-            this.$el.html(html);
-        }
-    });
-
-    teoremer.ArticleSourceEditView = SourceEditView.extend({
-        render: function() {
-            var html = Handlebars.templates.article_source_edit(this.model.attributes);
-            this.$el.html(html);
+            console.log(this.model.attributes);
         }
     });
 
@@ -792,6 +857,34 @@
             var html = Handlebars.templates.render_source({'data': this.model.attributes});
             this.$el.html(html);
         }
+    });
+
+    teoremer.LiveSourceSearchView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, 'render', '_search', '_check', '_cancelTimer');
+            this.model.on('change', this._check);
+            this.counter = 0;
+            this.render();
+            this._search();
+        },
+        render: function() {
+            this.$el.html('Counter: ' + this.counter);
+        },
+        _search: function() {
+            this._cancelTimer();
+            this.counter++;
+            this.render();
+        },
+        _check: function() {
+            this._cancelTimer();
+            this.timeoutID = window.setTimeout(this._search, 1000);
+        },
+        _cancelTimer: function() {
+            if (typeof this.timeoutID == "number") {
+                window.clearTimeout(this.timeoutID);
+                delete this.timeoutID;
+            }
+        }      
     });
 
     window.teoremer = teoremer;

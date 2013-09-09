@@ -7,19 +7,9 @@
 
 <h1>Add source</h1>
 
-<div class="form-horizontal" style="margin-bottom:2em;">
-  <div class="controls">
-    <select id="select-source">
-      <option value="book">Book</option>
-      <option value="art">Article</option>
-      <option value="url">Online</option>
-    </select>
-  </div>
-</div>
-
 <div id="source-edit"></div>
-
 <div id="source-preview"></div>
+<div id="source-search"></div>
 
 {% endblock %}
 
@@ -34,29 +24,20 @@
 
 (function() {
 
-  var source = new teoremer.SourceItem({ 'author': ['foo', 'bar', ''] });
-  var viewOptions = { model: source }; 
-  var sourceEdit;
+  var source = new teoremer.SourceItem({ 'type': 'article', 'author': ['foo', 'bar', ''], 'year': '2013' });
 
-  $('#select-source').change(function() {
-    var type = $(this).find('option:selected').attr('value');
-    if (sourceEdit) {
-      sourceEdit.remove();
-    }
-    if (type === 'book') {
-      sourceEdit = new teoremer.BookSourceEditView({ model: source });
-    } else if (type === 'art') {
-      sourceEdit = new teoremer.ArticleSourceEditView({ model: source });
-    } else {
-      sourceEdit = null;
-    }
-    if (sourceEdit) {
-      $('#source-edit').append(sourceEdit.$el);
-    }
-  }).change();
+  new teoremer.SourceEditView({
+    el: $('#source-edit'),
+    model: source
+  });
 
   new teoremer.SourceRenderView({
     el: $('#source-preview'),
+    model: source
+  });
+
+  new teoremer.LiveSourceSearchView({
+    el: $('#source-search'),
     model: source
   });
 
