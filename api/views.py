@@ -8,7 +8,8 @@ from drafts.models import DraftItem
 from items.models import FinalItem
 from main.helpers import json_decode, json_encode
 from tags.models import Tag
-from api.helpers import (ApiError, api_view, api_request_user, api_request_string,
+from sources.models import RefNode, RefAuthor
+from api.helpers import (ApiError, api_view, api_request_user, api_request_string, api_request_string_list,
                          api_request_string_list_list, api_request_tag_category_list)
 
 import logging
@@ -55,6 +56,10 @@ def itemtype_supported(itemtype):
 
 def itemtype_has_parent(itemtype):
     return itemtype in ['proof']
+
+###########################################################
+# Drafts
+###########################################################
 
 @api_view
 def drafts_new(request):
@@ -133,6 +138,10 @@ def drafts_id(request, item_id):
     else:
         raise Http404
 
+###########################################################
+# Final
+###########################################################
+
 @api_view
 def final_save(request, item_id):
     user = api_request_user(request)
@@ -162,3 +171,59 @@ def final_id(request, item_id):
         return final_save(request, item_id)
     else:
         raise Http404
+
+###########################################################
+# Source
+###########################################################
+
+def api_string_clean(request, key):
+    try:
+        return api_request_string(request, key).strip() or None
+    except KeyError:
+        return None
+
+def api_string_list_clean(request, key):
+    try:
+        return filter(None, map(lambda st: st.strip(), api_request_string_list(request, key)))
+    except KeyError:
+        return []
+
+@api_view
+def source_new(request):
+    user = api_request_user(request)
+    sourcetype = api_request_string(request, 'type')
+
+    item = RefNode(created_by=user, sourcetype=sourcetype)
+    for key in ['title', 'publisher', 'year', 'volume', 'number', 'series', 'address', 'edition',
+                'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']:
+        item.__dict__[key] = api_string_clean(request, key)
+    item.save()
+
+    author_names = api_string_list_clean(request, 'author')
+    editor_names = api_string_list_clean(request, 'editor')
+    item.authors = map(lambda name: RefAuthor.objects.get_or_create(name=name)[0], author_names)
+    item.editors = map(lambda name: RefAuthor.objects.get_or_create(name=name)[0], editor_names)
+    item.save()
+
+    message = u'%s successfully created' % item
+    logger.debug(message)
+    messages.success(request, message)
+
+    result = { 'id': item.pk, 'type': item.sourcetype }
+    for key in ['title', 'publisher', 'year', 'volume', 'number', 'series', 'address', 'edition',
+                'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']:
+        if item.__dict__[key]:
+            result[key] = item.__dict__[key]
+    if author_names:
+        result['author'] = author_names
+    if editor_names:
+        result['editor'] = editor_names
+
+    return result
+
+def source(request):
+    if request.method == 'POST':
+        return source_new(request)
+    else:
+        raise Http404
+

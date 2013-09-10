@@ -59,11 +59,68 @@
             url = '/draft/' + arg1;
         } else if (view == 'items.views.show_final') {
             url = '/item/' + arg1;
+        } else if (view == 'sources.views.index') {
+            url = '/sources/';
         } else {
             console.log('Cannot do reverse lookup for view ' + view);
             return;
         }
         window.location.href = url;
+    }
+
+    function sourceRenderer(attrs) {
+        // make a trimmed copy
+        var data = {};
+        _.each(attrs, function(value, key) {
+            if (_.isArray(value)) {
+                var v = _.compact(_.map(value, $.trim));
+                if (v.length) data[key] = v;
+            } else if (_.isString(value)) {
+                var v = $.trim(value);
+                if (v) data[key] = v;
+            }
+        });
+    
+        var ret = '', type = data.type, items;
+        // author
+        if (data.author) {
+            if (data.author.length === 1) {
+                ret += _.first(data.author);
+            } else if (data.author.length === 2) {
+                ret += _.first(data.author) + ' and ' + _.last(data.author);
+            } else {
+                ret += _.initial(data.author).join(', ') + ', and ' + _.last(data.author); 
+            }
+            ret += '. ';
+        }
+        // title
+        if (data.title) {
+            ret += '<i>' + data.title + '</i>. ';
+        }
+        if (type == 'book') {
+            // edition
+            if (data.edition) {
+                ret += data.edition + ' edition. ';
+            }
+            // series, volume, number
+            items = [];
+            if (data.series) items.push(data.series);
+            if (data.volume) items.push('Volume ' + data.volume);
+            if (data.number) items.push('Number ' + data.number);
+            if (items.length) {
+                ret += items.join(', ') + '. ';                
+            }
+            // publisher, address, month, year
+            items = _.compact([data.publisher, data.address, data.month, data.year]);
+            if (items.length) {
+                ret += items.join(', ') + '. ';
+            }
+        }
+        // note
+        if (data.note) {
+            ret += data.note + '.';
+        }
+        return ret;
     }
 
     /***************************
@@ -220,6 +277,7 @@
     });
 
     teoremer.SourceItem = Backbone.Model.extend({
+        urlRoot: '/api/source',
         defaults: {
             type: 'book'
         },
@@ -753,39 +811,34 @@
     });
 
     var sourceFields = {
-        'author':    { 'type': 'array',  'classes': 'input-xlarge',  'maxlen': 256,  'name': 'Author' },
-        'title':     { 'type': 'string', 'classes': 'input-xxlarge', 'maxlen': 1024, 'name': 'Title'  },
-        'publisher': { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Publisher' },
-        'year':      { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,   'name': 'Year' },
-        'editor':    { 'type': 'array',  'classes': 'input-xlarge',  'maxlen': 256,  'name': 'Editor' },
-        'volume':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Volume' },
-        'number':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Number' },
-        'series':    { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Series' },
-        'address':   { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Address' },
-        'edition':   { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Edition' },
-        'month':     { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Month' },
-        'note':      { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Note' },
-        'journal':   { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Journal' },
-        'pages':     { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Pages' },
-        'isbn-10':   { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,   'name': '10-digit ISBN' },
-        'isbn-13':   { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,   'name': '13-digit ISBN' }
+        'author':    { 'type': 'array',  'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Author' },
+        'editor':    { 'type': 'array',  'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Editor' },
+        'title':     { 'type': 'string', 'classes': 'input-xxlarge', 'maxlen': 255, 'name': 'Title'  },
+        'publisher': { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Publisher' },
+        'year':      { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,  'name': 'Year' },
+        'volume':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Volume' },
+        'number':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Number' },
+        'series':    { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Series' },
+        'address':   { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Address' },
+        'edition':   { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Edition' },
+        'month':     { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Month' },
+        'journal':   { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Journal' },
+        'pages':     { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Pages' },
+        'isbn10':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,  'name': '10-digit ISBN' },
+        'isbn13':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,  'name': '13-digit ISBN' },
+        'note':      { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Note' }
     };
 
     var sourceTypes = {
         'book': {
             'name':  'Book',
             'show':  ['author', 'title', 'publisher', 'year'],
-            'extra': ['isbn-10', 'isbn-13', 'editor', 'volume', 'number', 'series', 'address', 'edition', 'month', 'note']
+            'extra': ['isbn10', 'isbn13', 'editor', 'volume', 'number', 'series', 'address', 'edition', 'month', 'note']
         },
         'article': {
             'name':  'Article',
             'show':  ['author', 'title', 'journal', 'year'],
             'extra': ['volume', 'number', 'pages', 'month', 'note']
-        },
-        'foo': {
-            'name':  'Foo Bar',
-            'show':  ['author', 'title'],
-            'extra': ['note']
         }
     };
 
@@ -801,6 +854,18 @@
                 var field_key = $(event.currentTarget).data('key');
                 this.model.set(field_key, this.model.get(field_key).concat(''));
                 this.render();
+            },
+            'click #add-source': function() {
+                this.model.save(null, {
+                    wait: true,
+                    success: function(model, response) {
+                        reverse_view_redirect('sources.views.index');
+                    },
+                    error: function(model, error) {
+                        console.log(model.toJSON());
+                        console.log('error saving source');
+                    }
+                });                
             }
         },
         initialize: function() {
@@ -884,61 +949,6 @@
             });
         }
     });
-
-    function sourceRenderer(attrs) {
-        // make a trimmed copy
-        var data = {};
-        _.each(attrs, function(value, key) {
-            if (_.isArray(value)) {
-                var v = _.compact(_.map(value, $.trim));
-                if (v.length) data[key] = v;
-            } else if (_.isString(value)) {
-                var v = $.trim(value);
-                if (v) data[key] = v;
-            }
-        });
-    
-        var ret = '', type = data.type, items;
-        // author
-        if (data.author) {
-            if (data.author.length === 1) {
-                ret += _.first(data.author);
-            } else if (data.author.length === 2) {
-                ret += _.first(data.author) + ' and ' + _.last(data.author);
-            } else {
-                ret += _.initial(data.author).join(', ') + ', and ' + _.last(data.author); 
-            }
-            ret += '. ';
-        }
-        // title
-        if (data.title) {
-            ret += '<i>' + data.title + '</i>. ';
-        }
-        if (type == 'book') {
-            // edition
-            if (data.edition) {
-                ret += data.edition + ' edition. ';
-            }
-            // series, volume, number
-            items = [];
-            if (data.series) items.push(data.series);
-            if (data.volume) items.push('Volume ' + data.volume);
-            if (data.number) items.push('Number ' + data.number);
-            if (items.length) {
-                ret += items.join(', ') + '. ';                
-            }
-            // publisher, address, month, year
-            items = _.compact([data.publisher, data.address, data.month, data.year]);
-            if (items.length) {
-                ret += items.join(', ') + '. ';
-            }
-        }
-        // note
-        if (data.note) {
-            ret += data.note + '.';
-        }
-        return ret;
-    }
 
     teoremer.SourceRenderView = Backbone.View.extend({
         initialize: function() {

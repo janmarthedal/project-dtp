@@ -35,7 +35,7 @@ def is_int(value):
     return isinstance(value, int)
 
 def is_string_list(value):
-    return isinstance(value, list) and all(is_string(tag_name) for tag_name in value)
+    return isinstance(value, list) and all(is_string(item) for item in value)
 
 def is_string_list_list(value):
     return isinstance(value, list) and all(is_string_list(c) for c in value)
@@ -67,6 +67,9 @@ def api_request_string(request, key):
 
 def api_request_int(request, key):
     return api_request_value(request, key, is_int)
+
+def api_request_string_list(request, key):
+    return api_request_value(request, key, is_string_list)
 
 def api_request_string_list_list(request, key):
     return api_request_value(request, key, is_string_list_list)

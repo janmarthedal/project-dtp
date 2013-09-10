@@ -1,17 +1,10 @@
 {% extends "base.html" %}
-{% load ref_tags %}
 
 {% block title %}Sources{% endblock %}
 
 {% block mainbar %}
 
 <h1>Sources</h1>
-
-<ul class="source-list">
-{% for node in sourcelist %}
-<li>{{ node|typeset_refnode }}</li>
-{% endfor %}
-</ul>
 
 {% endblock %}
 

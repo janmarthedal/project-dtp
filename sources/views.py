@@ -105,6 +105,7 @@ def add_source(request, final_id):
     c.update({ 'form': form, 'source': source })
     return render(request, 'sources/add_source.html', c)
 
+@logged_in_or_404
 @require_safe
 def add_source2(request):
     c = init_context('sources')
