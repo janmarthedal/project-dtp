@@ -222,6 +222,26 @@
     teoremer.SourceItem = Backbone.Model.extend({
         defaults: {
             type: 'book'
+        },
+        clean: function() {
+            var attrs = _.clone(this.attributes), v;
+            _.each(attrs, function(value, key) {
+                if (_.isArray(value)) {
+                    v = _.compact(_.map(value, $.trim));
+                    if (!v.length) {
+                        this.unset(key);
+                    } else if (v.length != value.length) {
+                        this.set(key, v);
+                    }
+                } else if (_.isString(value)) {
+                    v = $.trim(value);
+                    if (!v) {
+                        this.unset(key);
+                    } else if (v != value) {
+                        this.set(key, v);
+                    }
+                }
+            }, this);
         }
     });
 
@@ -733,22 +753,22 @@
     });
 
     var sourceFields = {
-        'author':    ['array', ['string', 'input-xlarge', 256]],
-        'title':     ['string', 'input-xxlarge', 1024],
-        'publisher': ['string', 'input-xlarge', 1024],
-        'year':      ['string', 'input-medium', 32],
-        'editor':    ['array', ['string', 'input-xlarge', 256]],
-        'volume':    ['string', 'input-medium', 256],
-        'number':    ['string', 'input-medium', 256],
-        'series':    ['string', 'input-xlarge', 1024],
-        'address':   ['string', 'input-xlarge', 1024],
-        'edition':   ['string', 'input-medium', 256],
-        'month':     ['string', 'input-medium', 256],
-        'note':      ['string', 'input-xlarge', 1024],
-        'journal':   ['string', 'input-xlarge', 1024],
-        'pages':     ['string', 'input-medium', 256],
-        'isbn-10':   ['string', 'input-medium', 32],
-        'isbn-13':   ['string', 'input-medium', 32]
+        'author':    { 'type': 'array',  'classes': 'input-xlarge',  'maxlen': 256,  'name': 'Author' },
+        'title':     { 'type': 'string', 'classes': 'input-xxlarge', 'maxlen': 1024, 'name': 'Title'  },
+        'publisher': { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Publisher' },
+        'year':      { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,   'name': 'Year' },
+        'editor':    { 'type': 'array',  'classes': 'input-xlarge',  'maxlen': 256,  'name': 'Editor' },
+        'volume':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Volume' },
+        'number':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Number' },
+        'series':    { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Series' },
+        'address':   { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Address' },
+        'edition':   { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Edition' },
+        'month':     { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Month' },
+        'note':      { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Note' },
+        'journal':   { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 1024, 'name': 'Journal' },
+        'pages':     { 'type': 'string', 'classes': 'input-medium',  'maxlen': 256,  'name': 'Pages' },
+        'isbn-10':   { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,   'name': '10-digit ISBN' },
+        'isbn-13':   { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,   'name': '13-digit ISBN' }
     };
 
     var sourceTypes = {
@@ -758,12 +778,12 @@
             'extra': ['isbn-10', 'isbn-13', 'editor', 'volume', 'number', 'series', 'address', 'edition', 'month', 'note']
         },
         'article': {
-            'name':  'Article in journal',
+            'name':  'Article',
             'show':  ['author', 'title', 'journal', 'year'],
             'extra': ['volume', 'number', 'pages', 'month', 'note']
         },
         'foo': {
-            'name':  'foo bar',
+            'name':  'Foo Bar',
             'show':  ['author', 'title'],
             'extra': ['note']
         }
@@ -771,55 +791,76 @@
 
     teoremer.SourceEditView = Backbone.View.extend({
         events: {
-            'change #select-source':
-                function() {
-                    this._setType(this.$('#select-source').val());
-                }
+            'change #select-source': function() {
+                this._setType(this.$('#select-source').val());
+            },
+            'click #extra-fields a': function(event) {
+                this._addExtra($(event.currentTarget).data('key'));
+            },
+            'click #source-fields a': function(event) {
+                var field_key = $(event.currentTarget).data('key');
+                this.model.set(field_key, this.model.get(field_key).concat(''));
+                this.render();
+            }
         },
         initialize: function() {
-            _.bindAll(this, 'render', '_renderFields', '_setType', '_updateModel');
+            _.bindAll(this, 'render', '_setType', '_updateModel', '_addExtra');
             this.$el.on('input propertychange', this._updateModel);
-            this.render();
-        },
-        render: function() {
-            var html = Handlebars.templates.source_edit({
-                'types': _.map(sourceTypes, function(value, key) { return {'key': key, 'name': value.name}; })
-            });
-            this.$el.html(html);
-            var type = this.model.get('type');
-            this.$('#select-source').val(type);
-            this._setType(type);
+            this._setType(this.model.get('type'));
         },
         _setType: function(type) {
             this.model.set('type', type);
-            this._renderFields();
+            this.model.clean();
+            this.render();
         },
-        _renderFields: function() {
-            var source_fields_element = this.$('#source-fields');
-            source_fields_element.html('');
-            var model = this.model;
-            var type_data = sourceTypes[model.get('type')];
-            _.each(type_data.show, function(field_key) {
-                var field_config = sourceFields[field_key], html;
-                if (field_config[0] == 'string') {
-                    html = Handlebars.templates.source_string_field({
-                       'id':      'input-' + field_key,
-                       'name':    capitalize(field_key),
-                       'classes': field_config[1],
-                       'max':     field_config[2],
-                       'value':   model.has(field_key) ? model.get(field_key) : ''
-                    });
-                } else if (field_config[0] == 'array') {
-                    html = Handlebars.templates.source_array_field({
-                       'id':      'input-' + field_key,
-                       'name':    capitalize(field_key),
-                       'classes': field_config[1][1],
-                       'max':     field_config[1][2],
-                       'values':  model.has(field_key) ? model.get(field_key) : ['']
-                    });
-                }
-                source_fields_element.append(html);
+        _addExtra: function(name) {
+            var v = sourceFields[name].type == 'array' ? [''] : '';
+            this.model.set(name, v);
+            this.render();
+        },
+        render: function() {
+            var type = this.model.get('type');
+            
+            var type_data = sourceTypes[type];
+            var extras_to_show = _.filter(type_data.extra, function(element) {
+                return this.model.has(element);
+            }, this);
+            
+            var html = Handlebars.templates.source_edit({
+                'types': _.map(sourceTypes, function(value, key) {
+                    return { 'key': key, 'name': sourceTypes[key].name };
+                }),
+                'extra': _.map(_.difference(type_data.extra, extras_to_show), function(key) {
+                    return { 'key': key, 'name': sourceFields[key].name };
+                })
             });
+            this.$el.html(html);
+
+            this.$('#select-source').val(type);
+
+            var source_fields_element = this.$('#source-fields');
+            var show = _.union(type_data.show, extras_to_show);
+            
+            _.each(show, function(field_key) {
+                var field_config = sourceFields[field_key];
+                if (!this.model.has(field_key)) {
+                    this.model.set(field_key, field_config.type == 'array' ? [''] : ''); 
+                }
+                var data = {
+                    'id':      field_key,
+                    'name':    field_config.name,
+                    'classes': field_config.classes,
+                    'max':     field_config.maxlen,
+                    'value':   this.model.get(field_key)
+                };
+                if (field_config.type == 'string') {
+                    source_fields_element.append(Handlebars.templates.source_string_field(data));
+                } else if (field_config.type == 'array') {
+                    source_fields_element.append(Handlebars.templates.source_array_field(data));
+                }
+            }, this);
+
+           this.delegateEvents();
         },
         _updateModel: function() {
             var view = this, key, value;
@@ -834,18 +875,70 @@
                     value = [];
                     for (var j=0;; j++) {
                         var elem = $(idBase + j), v;
-                        if (!elem.length)
-                            break;
+                        if (!elem.length) break;
                         v = elem.val();
-                        if (v)
-                            value.push(v);
+                        if (v) value.push(v);
                     }
                     value.length ? view.model.set(key, value) : view.model.unset(key);
                 } 
             });
-            console.log(this.model.attributes);
         }
     });
+
+    function sourceRenderer(attrs) {
+        // make a trimmed copy
+        var data = {};
+        _.each(attrs, function(value, key) {
+            if (_.isArray(value)) {
+                var v = _.compact(_.map(value, $.trim));
+                if (v.length) data[key] = v;
+            } else if (_.isString(value)) {
+                var v = $.trim(value);
+                if (v) data[key] = v;
+            }
+        });
+    
+        var ret = '', type = data.type, items;
+        // author
+        if (data.author) {
+            if (data.author.length === 1) {
+                ret += _.first(data.author);
+            } else if (data.author.length === 2) {
+                ret += _.first(data.author) + ' and ' + _.last(data.author);
+            } else {
+                ret += _.initial(data.author).join(', ') + ', and ' + _.last(data.author); 
+            }
+            ret += '. ';
+        }
+        // title
+        if (data.title) {
+            ret += '<i>' + data.title + '</i>. ';
+        }
+        if (type == 'book') {
+            // edition
+            if (data.edition) {
+                ret += data.edition + ' edition. ';
+            }
+            // series, volume, number
+            items = [];
+            if (data.series) items.push(data.series);
+            if (data.volume) items.push('Volume ' + data.volume);
+            if (data.number) items.push('Number ' + data.number);
+            if (items.length) {
+                ret += items.join(', ') + '. ';                
+            }
+            // publisher, address, month, year
+            items = _.compact([data.publisher, data.address, data.month, data.year]);
+            if (items.length) {
+                ret += items.join(', ') + '. ';
+            }
+        }
+        // note
+        if (data.note) {
+            ret += data.note + '.';
+        }
+        return ret;
+    }
 
     teoremer.SourceRenderView = Backbone.View.extend({
         initialize: function() {
@@ -854,8 +947,7 @@
             this.render();
         },
         render: function() {
-            var html = Handlebars.templates.render_source({'data': this.model.attributes});
-            this.$el.html(html);
+            this.$el.html(sourceRenderer(this.model.attributes));
         }
     });
 

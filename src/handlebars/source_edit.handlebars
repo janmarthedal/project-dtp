@@ -10,3 +10,21 @@
 
 <div class="form-horizontal" id="source-fields">
 </div>
+
+{{#if extra}}
+<div class="form-horizontal">
+  <div class="controls">
+    <div class="btn-group">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        Add entry
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu" id="extra-fields">
+{{#each extra}}
+        <li><a data-key="{{key}}" href="#">{{name}}</a></li>
+{{/each}}
+      </ul>
+    </div>
+  </div>
+</div>
+{{/if}}

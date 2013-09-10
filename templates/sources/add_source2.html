@@ -8,7 +8,11 @@
 <h1>Add source</h1>
 
 <div id="source-edit"></div>
+
+<h4>Preview</h4>
 <div id="source-preview"></div>
+
+<h4>Search Results</h4>
 <div id="source-search"></div>
 
 {% endblock %}
@@ -24,7 +28,7 @@
 
 (function() {
 
-  var source = new teoremer.SourceItem({ 'type': 'article', 'author': ['foo', 'bar', ''], 'year': '2013' });
+  var source = new teoremer.SourceItem();
 
   new teoremer.SourceEditView({
     el: $('#source-edit'),

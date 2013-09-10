@@ -1,8 +1,9 @@
 <div class="control-group">
-  <label class="control-label" for="{{id}}0">{{name}}</label>
+  <label class="control-label" for="input-{{id}}0">{{name}}</label>
   <div class="controls">
-{{#each values}}
-    <input type="text" class="{{../classes}}" id="{{../id}}{{@index}}" value="{{this}}" maxlength="{{../max}}"><br>
-{{/each}}
+{{#foreach value}}
+    <input type="text" class="{{../classes}}" id="input-{{../id}}{{@index}}" value="{{this}}" maxlength="{{../max}}">
+    {{#if @last}}<a data-key="{{../../id}}" href="#"><i class="icon-plus"></i></a>{{else}}<br>{{/if}}
+{{/foreach}}
   </div>
 </div>
