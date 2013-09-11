@@ -39,28 +39,28 @@
             </p>
             <ul class="nav">
               <li {% if active_nav == 'home' %}class="active"{% endif %}>
-                <a href="{% url 'main.views.index' %}">Home</a>
+                <a href="{% url 'main.views.index' %}">{% trans "Home" %}</a>
               </li>
               <li {% if active_nav == 'definitions' %}class="active"{% endif %}>
-                <a href="{% url 'items.definitions.views.index' %}">Definitions</a>
+                <a href="{% url 'items.definitions.views.index' %}">{% trans "Definitions" %}</a>
               </li>
               <li {% if active_nav == 'theorems' %}class="active"{% endif %}>
-                <a href="{% url 'items.theorems.views.index' %}">Theorems</a>
+                <a href="{% url 'items.theorems.views.index' %}">{% trans "Theorems" %}</a>
               </li>
               <li {% if active_nav == 'proofs' %}class="active"{% endif %}>
-                <a href="{% url 'items.proofs.views.index' %}">Proofs</a>
+                <a href="{% url 'items.proofs.views.index' %}">{% trans "Proofs" %}</a>
               </li>
               <li {% if active_nav == 'categories' %}class="active"{% endif %}>
-                <a href="{% url 'tags.views.index' %}">Categories</a>
+                <a href="{% url 'tags.views.index' %}">{% trans "Categories" %}</a>
               </li>
               <li {% if active_nav == 'sources' %}class="active"{% endif %}>
-                <a href="{% url 'sources.views.index' %}">Sources</a>
+                <a href="{% url 'sources.views.index' %}">{% trans "Sources" %}</a>
               </li>
               <li {% if active_nav == 'media' %}class="active"{% endif %}>
-                <a href="{% url 'media.views.index' %}">Media</a>
+                <a href="{% url 'media.views.index' %}">{% trans "Media" %}</a>
               </li>
               <li {% if active_nav == 'users' %}class="active"{% endif %}>
-                <a href="{% url 'users.views.index' %}">Users</a>
+                <a href="{% url 'users.views.index' %}">{% trans "Users" %}</a>
               </li>
             </ul>
           </div>
