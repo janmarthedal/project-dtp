@@ -15,10 +15,10 @@
 $(function() {
     var $loginForm = $('#browserid-form');     // Form used to submit login.
     var $browseridInfo = $('#browserid-info'); // Useful info from backend.
-  
+
     var requestArgs = $browseridInfo.data('requestArgs') || {};
     var loginFailed = location.search.indexOf('bid_login_failed=1') !== -1;
-  
+
     navigator.id.watch({
         loggedInUser: $browseridInfo.data('userEmail') || null,
         onlogin: function(assertion) {
@@ -27,7 +27,7 @@ $(function() {
                 loginFailed = false;
                 return;
             }
-  
+
             if (assertion) {
                 $loginForm.find('input[name="next"]').val("{{ next }}");
                 $loginForm.find('input[name="assertion"]').val(assertion);
@@ -36,7 +36,7 @@ $(function() {
         },
         onlogout: function() {}
     });
-  
+
     navigator.id.request(requestArgs);
 });
 </script>

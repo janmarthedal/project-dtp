@@ -26,12 +26,11 @@ def new(request, kind, parent=None):
     if not request.user.is_authenticated():
         messages.info(request, "You must be logged in to create a " + kind)
         return HttpResponseRedirect(reverse('users.views.login') + '?next=' + request.path)
-    c = init_context(kind)
+    c = init_context(kind, kind=kind)
     if parent:
         if kind != 'proof':
             raise Http404
         c['parent'] = get_object_or_404(FinalItem, final_id=parent, itemtype='T')
-    c['kind'] = kind
     if kind == 'definition':
         c['primary_text'] = 'Terms defined'
     elif kind == 'theorem':
@@ -55,8 +54,7 @@ def edit(request, item_id):
     item_perms = get_user_draft_permissions(request.user, item)
     if not item_perms['edit']:
         raise Http404
-    c = init_context(item.itemtype)
-    c['item'] = item
+    c = init_context(item.itemtype, item=item)
     if item.itemtype == 'D':
         c['primary_text'] = 'Terms defined'
     elif item.itemtype == 'T':

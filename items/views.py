@@ -39,8 +39,7 @@ def edit_final(request, final_id):
     item_perms = get_user_final_permissions(request.user, item)
     if not item_perms['edit_final']:
         raise Http404
-    c = init_context(item.itemtype)
-    c['item'] = item
+    c = init_context(item.itemtype, item=item)
     if item.itemtype == 'D':
         c['primary_text'] = 'Terms defined'
     elif item.itemtype == 'T':

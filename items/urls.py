@@ -7,5 +7,5 @@ urlpatterns = patterns('items.views',
 )
 
 urlpatterns += patterns('sources.views',
-    url(r'^(\w+)/add-validation/(\d+)$', 'add_location_for_item'),                        
+    url(r'^(\w+)/add-validation/(\d+)$', 'add_location_for_item'),
 )

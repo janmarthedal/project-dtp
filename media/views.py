@@ -26,7 +26,6 @@ def handle_uploaded_file(f):
 
 @require_http_methods(["GET", "POST"])
 def add(request):
-    c = init_context('media')
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
@@ -37,5 +36,5 @@ def add(request):
     else:
         logger.info('media/add form clean')
         form = UploadFileForm()
-    c['form'] = form
+    c = init_context('media', form=form)
     return render(request, 'media/add.html', c)

@@ -93,7 +93,7 @@
             } else if (data.author.length === 2) {
                 ret += _.first(data.author) + ' and ' + _.last(data.author);
             } else {
-                ret += _.initial(data.author).join(', ') + ', and ' + _.last(data.author); 
+                ret += _.initial(data.author).join(', ') + ', and ' + _.last(data.author);
             }
             ret += '. ';
         }
@@ -112,7 +112,7 @@
             if (data.volume) items.push('Volume ' + data.volume);
             if (data.number) items.push('Number ' + data.number);
             if (items.length) {
-                ret += items.join(', ') + '. ';                
+                ret += items.join(', ') + '. ';
             }
             // publisher, address, month, year
             items = _.compact([data.publisher, data.address, data.month, data.year]);
@@ -848,14 +848,14 @@
                             reverse_view_redirect('sources.views.add_location_for_item',
                                                   self.options.itemid, model.get('id'));
                         } else {
-                            reverse_view_redirect('sources.views.index');                            
+                            reverse_view_redirect('sources.views.index');
                         }
                     },
                     error: function(model, error) {
                         console.log(model.toJSON());
                         console.log('error saving source');
                     }
-                });                
+                });
             }
         },
         initialize: function() {
@@ -877,12 +877,12 @@
         },
         render: function() {
             var type = this.model.get('type');
-            
+
             var type_data = sourceTypes[type];
             var extras_to_show = _.filter(type_data.extra, function(element) {
                 return this.model.has(element);
             }, this);
-            
+
             var html = Handlebars.templates.source_edit({
                 'types': _.map(sourceTypes, function(value, key) {
                     return { 'key': key, 'name': sourceTypes[key].name };
@@ -897,7 +897,7 @@
 
             var source_fields_element = this.$('#source-fields');
             var show = _.union(type_data.show, extras_to_show);
-            
+
             _.each(show, function(field_key) {
                 var field_config = sourceFields[field_key];
                 var data = {
@@ -935,7 +935,7 @@
                         if (v) value.push(v);
                     }
                     value.length ? view.model.set(key, value) : view.model.unset(key);
-                } 
+                }
             });
         }
     });
@@ -978,7 +978,7 @@
                 window.clearTimeout(this.timeoutID);
                 delete this.timeoutID;
             }
-        }      
+        }
     });
 
     window.teoremer = teoremer;

@@ -46,7 +46,7 @@ class RefNode(models.Model):
         names = [a.name for a in self.authors.all()]
         if names: data['author'] = names
         names = [a.name for a in self.editors.all()]
-        if names: data['editor'] = names 
+        if names: data['editor'] = names
         return data
 
 class SourceValidation(models.Model):
