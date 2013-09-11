@@ -32,10 +32,22 @@ class RefNode(models.Model):
     isbn10     = models.CharField(max_length=255, null=True)
     isbn13     = models.CharField(max_length=255, null=True)
     note       = models.CharField(max_length=255, null=True)
+    STRING_FIELDS = ['title', 'publisher', 'year', 'volume', 'number', 'series', 'address', 'edition',
+                    'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']
     def __unicode__(self):
         if self.pk:
             return 'Source %d' % self.pk
         return 'New source'
+    def json_serializable(self):
+        data = { 'id': self.pk, 'type': self.sourcetype }
+        for key in RefNode.STRING_FIELDS:
+            if self.__dict__[key]:
+                data[key] = self.__dict__[key]
+        names = [a.name for a in self.authors.all()]
+        if names: data['author'] = names
+        names = [a.name for a in self.editors.all()]
+        if names: data['editor'] = names 
+        return data
 
 class SourceValidation(models.Model):
     class Meta:
@@ -44,4 +56,4 @@ class SourceValidation(models.Model):
     created_at = models.DateTimeField(default=timezone.now, db_index=False)
     item       = models.ForeignKey(FinalItem)
     source     = models.ForeignKey(RefNode)
-    location   = models.CharField(max_length=64, null=True, blank=True)
+    location   = models.CharField(max_length=255, null=True)

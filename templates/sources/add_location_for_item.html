@@ -1,19 +1,22 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load utils_tags %}
 
-{% block title %}Add Source{% endblock %}
+{% block title %}Add Location{% endblock %}
 
 {% block mainbar %}
 
-<h1>Add source</h1>
-
-<div id="source-edit"></div>
-
-<h4>Preview</h4>
+<h4>Source</h4>
 <div id="source-preview"></div>
 
-<h4>Search Results</h4>
-<div id="source-search"></div>
+<h4>Location</h4>
+
+<form method="post" action="{% url 'sources.views.add_location_for_item' item.final_id source.id %}">
+{% csrf_token %}
+<input type="text" name="location" class="input-xxlarge" maxlength="255">
+<br>
+<input type="submit" class="btn btn-primary" value="Add validation">
+</form>
 
 {% endblock %}
 
@@ -22,32 +25,15 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
-<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
 <script src="{% static 'js/teoremer.js' %}"></script>
 
 <script type="text/javascript">
 
 (function() {
 
-  teoremer.setupCsrf();
-
-  var source = new teoremer.SourceItem();
-
-  new teoremer.SourceEditView({
-    el: $('#source-edit'),
-    model: source,
-    mode: "{{mode}}",
-    itemid: "{{itemid}}"
-  });
-
   new teoremer.SourceRenderView({
     el: $('#source-preview'),
-    model: source
-  });
-
-  new teoremer.LiveSourceSearchView({
-    el: $('#source-search'),
-    model: source
+    model: new teoremer.SourceItem({{source|to_json}})
   });
 
 })();

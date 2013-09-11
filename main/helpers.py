@@ -24,14 +24,14 @@ def logged_in_or_prompt(message=None):
     return real_decorator
 """
 
-def init_context(active_nav):
-    if active_nav.upper() == 'D':
-        active_nav = 'definitions'
-    elif active_nav.upper() == 'T':
-        active_nav = 'theorems'
-    elif active_nav.upper() == 'P':
-        active_nav = 'proofs'
-    return { 'active_nav': active_nav }
+def init_context(nav, extra={}, **kwargs):
+    if   nav.upper() == 'D': nav = 'definitions'
+    elif nav.upper() == 'T': nav = 'theorems'
+    elif nav.upper() == 'P': nav = 'proofs'
+    c = { 'active_nav': nav }
+    c.update(extra)
+    c.update(**kwargs)
+    return c
 
 class ListWrapper(object):
 

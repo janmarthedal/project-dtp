@@ -1,7 +1,5 @@
 from django.conf import settings
-from django.core.urlresolvers import resolve
 from django.db import models, IntegrityError
-from django.http import Http404
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from tags.models import Category, Tag

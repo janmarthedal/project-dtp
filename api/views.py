@@ -190,36 +190,21 @@ def api_string_list_clean(request, key):
 
 @api_view
 def source_new(request):
-    user = api_request_user(request)
-    sourcetype = api_request_string(request, 'type')
-
-    item = RefNode(created_by=user, sourcetype=sourcetype)
-    for key in ['title', 'publisher', 'year', 'volume', 'number', 'series', 'address', 'edition',
-                'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']:
+    item = RefNode(created_by=api_request_user(request),
+                   sourcetype=api_request_string(request, 'type'))
+    for key in RefNode.STRING_FIELDS:
         item.__dict__[key] = api_string_clean(request, key)
     item.save()
 
-    author_names = api_string_list_clean(request, 'author')
-    editor_names = api_string_list_clean(request, 'editor')
-    item.authors = map(lambda name: RefAuthor.objects.get_or_create(name=name)[0], author_names)
-    item.editors = map(lambda name: RefAuthor.objects.get_or_create(name=name)[0], editor_names)
+    item.authors = map(lambda n: RefAuthor.objects.get_or_create(name=n)[0], api_string_list_clean(request, 'author'))
+    item.editors = map(lambda n: RefAuthor.objects.get_or_create(name=n)[0], api_string_list_clean(request, 'editor'))
     item.save()
 
     message = u'%s successfully created' % item
     logger.debug(message)
     messages.success(request, message)
 
-    result = { 'id': item.pk, 'type': item.sourcetype }
-    for key in ['title', 'publisher', 'year', 'volume', 'number', 'series', 'address', 'edition',
-                'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']:
-        if item.__dict__[key]:
-            result[key] = item.__dict__[key]
-    if author_names:
-        result['author'] = author_names
-    if editor_names:
-        result['editor'] = editor_names
-
-    return result
+    return item.json_serializable()
 
 def source(request):
     if request.method == 'POST':

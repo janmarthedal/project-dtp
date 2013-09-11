@@ -53,7 +53,7 @@
         return st.charAt(0).toUpperCase() + st.slice(1);
     }
 
-    function reverse_view_redirect(view, arg1) {
+    function reverse_view_redirect(view, arg1, arg2) {
         var url;
         if (view == 'drafts.views.show') {
             url = '/draft/' + arg1;
@@ -61,6 +61,8 @@
             url = '/item/' + arg1;
         } else if (view == 'sources.views.index') {
             url = '/sources/';
+        } else if (view == 'sources.views.add_location_for_item') {
+            url = '/item/' + arg1 + '/add-validation/' + arg2;
         } else {
             console.log('Cannot do reverse lookup for view ' + view);
             return;
@@ -68,8 +70,7 @@
         window.location.href = url;
     }
 
-    function sourceRenderer(attrs) {
-        // make a trimmed copy
+    function sourceCleaner(attrs) {
         var data = {};
         _.each(attrs, function(value, key) {
             if (_.isArray(value)) {
@@ -80,8 +81,11 @@
                 if (v) data[key] = v;
             }
         });
-    
-        var ret = '', type = data.type, items;
+        return data;
+    }
+
+    function sourceRenderer(attrs) {
+        var data = sourceCleaner(attrs), ret = '', type = data.type, items;
         // author
         if (data.author) {
             if (data.author.length === 1) {
@@ -280,26 +284,6 @@
         urlRoot: '/api/source',
         defaults: {
             type: 'book'
-        },
-        clean: function() {
-            var attrs = _.clone(this.attributes), v;
-            _.each(attrs, function(value, key) {
-                if (_.isArray(value)) {
-                    v = _.compact(_.map(value, $.trim));
-                    if (!v.length) {
-                        this.unset(key);
-                    } else if (v.length != value.length) {
-                        this.set(key, v);
-                    }
-                } else if (_.isString(value)) {
-                    v = $.trim(value);
-                    if (!v) {
-                        this.unset(key);
-                    } else if (v != value) {
-                        this.set(key, v);
-                    }
-                }
-            }, this);
         }
     });
 
@@ -856,10 +840,16 @@
                 this.render();
             },
             'click #add-source': function() {
+                var self = this;
                 this.model.save(null, {
                     wait: true,
                     success: function(model, response) {
-                        reverse_view_redirect('sources.views.index');
+                        if (self.options.mode == 'item') {
+                            reverse_view_redirect('sources.views.add_location_for_item',
+                                                  self.options.itemid, model.get('id'));
+                        } else {
+                            reverse_view_redirect('sources.views.index');                            
+                        }
                     },
                     error: function(model, error) {
                         console.log(model.toJSON());
@@ -874,8 +864,10 @@
             this._setType(this.model.get('type'));
         },
         _setType: function(type) {
-            this.model.set('type', type);
-            this.model.clean();
+            var attrs = sourceCleaner(this.model.attributes);
+            attrs.type = type;
+            this.model.clear({ 'silent': true });
+            this.model.set(attrs);
             this.render();
         },
         _addExtra: function(name) {
@@ -908,15 +900,13 @@
             
             _.each(show, function(field_key) {
                 var field_config = sourceFields[field_key];
-                if (!this.model.has(field_key)) {
-                    this.model.set(field_key, field_config.type == 'array' ? [''] : ''); 
-                }
                 var data = {
                     'id':      field_key,
                     'name':    field_config.name,
                     'classes': field_config.classes,
                     'max':     field_config.maxlen,
-                    'value':   this.model.get(field_key)
+                    'value':   this.model.has(field_key) ? this.model.get(field_key)
+                                                         : (field_config.type == 'array' ? [''] : '')
                 };
                 if (field_config.type == 'string') {
                     source_fields_element.append(Handlebars.templates.source_string_field(data));
@@ -957,6 +947,8 @@
             this.render();
         },
         render: function() {
+            console.log('source change');
+            console.log(this.model.attributes);
             this.$el.html(sourceRenderer(this.model.attributes));
         }
     });
