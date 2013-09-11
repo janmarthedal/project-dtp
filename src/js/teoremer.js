@@ -70,22 +70,22 @@
         window.location.href = url;
     }
 
-    function sourceCleaner(attrs) {
+    function cleanValues(attrs, escape) {
         var data = {};
         _.each(attrs, function(value, key) {
             if (_.isArray(value)) {
                 var v = _.compact(_.map(value, $.trim));
-                if (v.length) data[key] = v;
+                if (v.length) data[key] = escape ? _.map(v, _.escape) : v;
             } else if (_.isString(value)) {
                 var v = $.trim(value);
-                if (v) data[key] = v;
+                if (v) data[key] = escape ? _.escape(v) : v;
             }
         });
         return data;
     }
 
-    function sourceRenderer(attrs) {
-        var data = sourceCleaner(attrs), ret = '', type = data.type, items;
+    function typeset_source(attrs) {
+        var data = cleanValues(attrs, true), ret = '', type = data.type, items;
         // author
         if (data.author) {
             if (data.author.length === 1) {
@@ -285,6 +285,12 @@
         defaults: {
             type: 'book'
         }
+    });
+
+    var ValidationItem = Backbone.Model;
+
+    teoremer.ValidationList = Backbone.Collection.extend({
+        model: ValidationItem
     });
 
     /***************************
@@ -721,7 +727,7 @@
         }
     });
 
-    var ChangableTagAssociation = Backbone.View.extend({
+    var ChangableTagAssociationView = Backbone.View.extend({
         // standard
         tagName: 'tr',
         events: {
@@ -765,7 +771,7 @@
         },
         // helpers
         _addOne: function(item) {
-            var tagAssociation = new ChangableTagAssociation({
+            var tagAssociation = new ChangableTagAssociationView({
                 model: item
             });
             this.$('tbody').append(tagAssociation.render().el);
@@ -864,7 +870,7 @@
             this._setType(this.model.get('type'));
         },
         _setType: function(type) {
-            var attrs = sourceCleaner(this.model.attributes);
+            var attrs = cleanValues(this.model.attributes);
             attrs.type = type;
             this.model.clear({ 'silent': true });
             this.model.set(attrs);
@@ -947,9 +953,7 @@
             this.render();
         },
         render: function() {
-            console.log('source change');
-            console.log(this.model.attributes);
-            this.$el.html(sourceRenderer(this.model.attributes));
+            this.$el.html(typeset_source(this.model.attributes));
         }
     });
 
@@ -981,6 +985,61 @@
         }
     });
 
+    var ValidationView = Backbone.View.extend({
+        tagName: 'tr',
+        initialize: function() {
+            _.bindAll(this, 'render');
+            this.render();
+        },
+        render: function() {
+            this.$el.html(Handlebars.templates.validation_item({
+                'source': typeset_source(this.model.get('source')),
+                'location': this.model.get('location')
+            }));
+            return this;
+        }
+    });
+
+    teoremer.ValidationListView = Backbone.View.extend({
+        // standard
+        initialize: function() {
+            _.bindAll(this, 'render', '_addOne');
+            this.collection.bind('add', this._addOne);
+            this.render();
+        },
+        render: function() {
+            this.$el.html(Handlebars.templates.validation_list());
+            this.collection.each(this._addOne);
+        },
+        // helpers
+        _addOne: function(item) {
+            var validationView = new ValidationView({ model: item });
+            this.$('tbody').append(validationView.render().el);
+        }        
+    });
+
     window.teoremer = teoremer;
 
 })(window);
+
+// on load actions
+
+$(function() {
+
+    $('.expander-in').each(function() {
+        $(this).append(' <i class="icon-chevron-down"></i>').next().hide();
+    }).click(function() {
+        $(this).toggleClass('expander-in').toggleClass('expander-out')
+            .find('i').toggleClass('icon-chevron-down').toggleClass('icon-chevron-up');
+        $(this).next().toggle();
+    });        
+
+    $('expander-out').each(function() {
+        $(this).append(' <i class="icon-chevron-up"></i>').next().show();
+    }).click(function() {
+        $(this).toggleClass('expander-in').toggleClass('expander-out')
+            .find('i').toggleClass('icon-chevron-down').toggleClass('icon-chevron-up');
+        $(this).next().toggle();
+    });        
+
+});

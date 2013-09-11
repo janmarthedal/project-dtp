@@ -20,14 +20,11 @@ def get_user_final_permissions(user, item):
 def show_final(request, final_id):
     item = get_object_or_404(FinalItem, final_id=final_id)
     item_perms = get_user_final_permissions(request.user, item)
-    validation_count = item.sourcevalidation_set.count()
     proof_count = item.finalitem_set.filter(itemtype='P', status='F').count() if item.itemtype == 'T' else 0
-    c = { 'item':             item,
-          'perm':             item_perms,
-          'validation_count': validation_count,
-          'proof_count':      proof_count }
-    if validation_count and 'vals' in request.GET:
-        c['validation_list'] = item.sourcevalidation_set.all()
+    c = { 'item':        item,
+          'perm':        item_perms,
+          'validations': [v.json_serializable() for v in item.sourcevalidation_set.all()],
+          'proof_count': proof_count }
     if proof_count and 'prfs' in request.GET:
         c['proof_list'] = item.finalitem_set.filter(itemtype='P', status='F').all()
     return render(request, 'items/show_final.html', c)

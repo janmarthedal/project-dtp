@@ -1,12 +1,19 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load item_tags %}
 
 {% block title %}Add Source{% endblock %}
 
 {% block mainbar %}
 
-<h1>Add source</h1>
+{% if mode == "item" %}
+<h4 class="expander-in">{{ item }}</h4>
+<div class="item-body">
+{{ item|typeset_body }}
+</div>
+{% endif %}
 
+<h4>Source data</h4>
 <div id="source-edit"></div>
 
 <h4>Preview</h4>
@@ -36,8 +43,10 @@
   new teoremer.SourceEditView({
     el: $('#source-edit'),
     model: source,
-    mode: "{{mode}}",
-    itemid: "{{itemid}}"
+    mode: "{{mode}}"
+{% if mode == "item" %}
+    ,itemid: "{{item.final_id}}"
+{% endif %}    
   });
 
   new teoremer.SourceRenderView({

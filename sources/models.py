@@ -57,3 +57,8 @@ class SourceValidation(models.Model):
     item       = models.ForeignKey(FinalItem)
     source     = models.ForeignKey(RefNode)
     location   = models.CharField(max_length=255, null=True)
+    def json_serializable(self):
+        return {
+            'source':   self.source.json_serializable(),
+            'location': self.location
+        }

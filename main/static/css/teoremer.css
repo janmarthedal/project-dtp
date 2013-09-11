@@ -44,3 +44,6 @@ textarea.item-body {
 .table-nonfluid {
   width: auto;
 }
+.expander-in, .expander-out {
+  cursor: pointer;
+}

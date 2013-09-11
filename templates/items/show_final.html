@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load item_tags %}
 {% load user_tags %}
+{% load utils_tags %}
 
 {% block title %}{{ item }}{% endblock %}
 
@@ -14,11 +16,8 @@
 {{ item|typeset_body }}
 </div>
 
-{% if validation_count %}
-<div class="item-count">{{ validation_count }} validations (<a href="{% url 'items.views.show_final' item.final_id %}?vals=1">show</a>)</div>
-{% else %}
-<div class="item-count">no validations</div>
-{% endif %}
+<h4 class="expander-in">{{ validations|length }} validation{{ validations|length|pluralize }}</h4>
+<div id="validation-list"></div>
 
 {% if item.itemtype == 'T' %}
 {% if proof_list %}
@@ -69,5 +68,27 @@ published at {{ item.created_at|datetime_user:user }}
   <input type="hidden" name="item" value="{{ item.id }}" />
 </form>
 {% endif %}
+
+{% endblock %}
+
+{% block bodybottom %}
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+<script src="{% static 'js/teoremer.js' %}"></script>
+
+<script type="text/javascript">
+
+(function() {
+
+  new teoremer.ValidationListView({
+    el: $('#validation-list'),
+    collection: new teoremer.ValidationList({{validations|to_json}})
+  });
+
+})();
+
+</script>
 
 {% endblock %}
