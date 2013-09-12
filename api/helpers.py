@@ -12,7 +12,10 @@ class ApiAuthenticationError(ApiError):
 def api_view(f):
     @wraps(f)
     def wrapper(request, *args, **kwds):
-        request.data = json.loads(request.body)
+        if request.method == 'GET':
+            request.data = request.GET
+        else:
+            request.data = json.loads(request.body)
         try:
             result = f(request, *args, **kwds)
             return HttpResponse(json.dumps(result), content_type="application/json")

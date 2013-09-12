@@ -1,8 +1,9 @@
+import json
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 from items.helpers import item_search_to_json
 from drafts.models import DraftItem
 from items.models import FinalItem
@@ -169,8 +170,7 @@ def final_save(request, item_id):
 def final_id(request, item_id):
     if request.method == 'PUT':
         return final_save(request, item_id)
-    else:
-        raise Http404
+    raise Http404
 
 ###########################################################
 # Source
@@ -189,7 +189,8 @@ def api_string_list_clean(request, key):
         return []
 
 @api_view
-def source_new(request):
+@require_POST
+def source(request):
     item = RefNode(created_by=api_request_user(request),
                    sourcetype=api_request_string(request, 'type'))
     for key in RefNode.STRING_FIELDS:
@@ -206,9 +207,21 @@ def source_new(request):
 
     return item.json_serializable()
 
-def source(request):
-    if request.method == 'POST':
-        return source_new(request)
-    else:
-        raise Http404
+@api_view
+@require_GET
+def source_search(request):
+    if not any([key in request.data for key in ['title', 'author']]):
+        return []
+    query = RefNode.objects
 
+    value = api_string_clean(request, 'title')
+    if value:
+        query = query.filter(title__istartswith=value)
+
+    value = api_string_clean(request, 'author')
+    if value:
+        names = filter(None, map(lambda st: st.strip(), json.loads(value)))
+        for name in names:
+            query = query.filter(authors__name__istartswith=name)
+
+    return [item.json_serializable() for item in query.all()]

@@ -213,7 +213,6 @@
 
     var TopList = Backbone.Collection.extend({
         model: MathItem,
-        url: api_prefix + 'items',
         parse: function(response) {
             return response.items;
         }
@@ -225,7 +224,7 @@
             _.bindAll(this, 'parse');
         },
         model: MathItem,
-        url: api_prefix + 'items',
+        url: api_prefix + 'item/search',
         parse: function(response) {
             this.has_more = response.meta.has_more;
             return response.items;
@@ -235,7 +234,7 @@
     // public
 
     teoremer.DraftItem = Backbone.Model.extend({
-        urlRoot: '/api/drafts',
+        urlRoot: api_prefix + 'draft/',
         parse: function(resp) {
             var parsed = {
                 body:    resp.body,
@@ -255,7 +254,7 @@
     });
 
     teoremer.FinalItem = Backbone.Model.extend({
-        urlRoot: '/api/final',
+        urlRoot: api_prefix + 'item/',
         parse: function(resp) {
             return {
                 id:        resp.id,
@@ -281,7 +280,7 @@
     });
 
     teoremer.SourceItem = Backbone.Model.extend({
-        urlRoot: '/api/source',
+        urlRoot: api_prefix + 'source/',
         defaults: {
             type: 'book'
         }
@@ -957,21 +956,54 @@
         }
     });
 
+    var SourceSearchItemView = Backbone.View.extend({
+        tagName: 'tr',
+        initialize: function() {
+            _.bindAll(this, 'render');
+            this.render();
+        },
+        render: function() {
+            this.$el.html(Handlebars.templates.source_search_item({
+                'source': typeset_source(this.model.attributes)
+            }));
+            return this;
+        }
+    });
+
     teoremer.LiveSourceSearchView = Backbone.View.extend({
         initialize: function() {
-            _.bindAll(this, 'render', '_search', '_check', '_cancelTimer');
-            this.model.on('change', this._check);
-            this.counter = 0;
+            _.bindAll(this, 'render', '_search', '_check', '_cancelTimer', '_addOne');
+            this.options.sourceModel.on('change', this._check);
+            this.collection = new Backbone.Collection;
+            this.collection.url = api_prefix + 'source/search';
+            this.collection.on('reset', this.render);
+            this.collection.on('add', this._addOne);
             this.render();
             this._search();
         },
         render: function() {
-            this.$el.html('Counter: ' + this.counter);
+            this.$el.html(Handlebars.templates.source_search_container());
+            this.collection.each(this._addOne);
+        },
+        _addOne: function(item) {
+            var itemView = new SourceSearchItemView({
+                model: item
+            });
+            this.$('tbody').append(itemView.render().el);
         },
         _search: function() {
             this._cancelTimer();
-            this.counter++;
-            this.render();
+            var attrs = cleanValues(this.options.sourceModel.attributes);
+            for (var key in attrs) {
+                if (_.isArray(attrs[key])) {
+                    attrs[key] = JSON.stringify(attrs[key]);
+                }
+            }
+            if (_.isEmpty(_.pick(attrs, 'author', 'title'))) {
+                this.collection.reset();
+            } else {
+                this.collection.fetch({ 'data': attrs, 'reset': true });
+            }
         },
         _check: function() {
             this._cancelTimer();
@@ -1015,7 +1047,7 @@
         _addOne: function(item) {
             var validationView = new ValidationView({ model: item });
             this.$('tbody').append(validationView.render().el);
-        }        
+        }
     });
 
     window.teoremer = teoremer;
@@ -1026,20 +1058,22 @@
 
 $(function() {
 
+    function expanderToggle(elem) {
+        elem.toggleClass('expander-in').toggleClass('expander-out');
+        elem.find('i').toggleClass('icon-chevron-down').toggleClass('icon-chevron-up');
+        elem.next().toggle();
+    }
+
     $('.expander-in').each(function() {
         $(this).append(' <i class="icon-chevron-down"></i>').next().hide();
     }).click(function() {
-        $(this).toggleClass('expander-in').toggleClass('expander-out')
-            .find('i').toggleClass('icon-chevron-down').toggleClass('icon-chevron-up');
-        $(this).next().toggle();
-    });        
+        expanderToggle($(this));
+    });
 
     $('expander-out').each(function() {
         $(this).append(' <i class="icon-chevron-up"></i>').next().show();
     }).click(function() {
-        $(this).toggleClass('expander-in').toggleClass('expander-out')
-            .find('i').toggleClass('icon-chevron-down').toggleClass('icon-chevron-up');
-        $(this).next().toggle();
-    });        
+        expanderToggle($(this));
+    });
 
 });
