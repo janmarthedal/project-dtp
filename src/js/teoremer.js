@@ -797,22 +797,22 @@
     });
 
     var sourceFields = {
-        'author':    { 'type': 'array',  'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Author' },
-        'editor':    { 'type': 'array',  'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Editor' },
-        'title':     { 'type': 'string', 'classes': 'input-xxlarge', 'maxlen': 255, 'name': 'Title'  },
-        'publisher': { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Publisher' },
-        'year':      { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,  'name': 'Year' },
-        'volume':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Volume' },
-        'number':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Number' },
-        'series':    { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Series' },
-        'address':   { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Address' },
-        'edition':   { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Edition' },
-        'month':     { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Month' },
-        'journal':   { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Journal' },
-        'pages':     { 'type': 'string', 'classes': 'input-medium',  'maxlen': 255, 'name': 'Pages' },
-        'isbn10':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,  'name': '10-digit ISBN' },
-        'isbn13':    { 'type': 'string', 'classes': 'input-medium',  'maxlen': 32,  'name': '13-digit ISBN' },
-        'note':      { 'type': 'string', 'classes': 'input-xlarge',  'maxlen': 255, 'name': 'Note' }
+        'author':    { 'type': 'array',  'size': '2', 'maxlen': 255, 'name': 'Author' },
+        'editor':    { 'type': 'array',  'size': '2', 'maxlen': 255, 'name': 'Editor' },
+        'title':     { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Title'  },
+        'publisher': { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Publisher' },
+        'year':      { 'type': 'string', 'size': '1', 'maxlen': 32,  'name': 'Year' },
+        'volume':    { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Volume' },
+        'number':    { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Number' },
+        'series':    { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Series' },
+        'address':   { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Address' },
+        'edition':   { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Edition' },
+        'month':     { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Month' },
+        'journal':   { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Journal' },
+        'pages':     { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Pages' },
+        'isbn10':    { 'type': 'string', 'size': '1', 'maxlen': 32,  'name': '10-digit ISBN' },
+        'isbn13':    { 'type': 'string', 'size': '1', 'maxlen': 32,  'name': '13-digit ISBN' },
+        'note':      { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Note' }
     };
 
     var sourceTypes = {
@@ -838,7 +838,8 @@
             },
             'click #source-fields a': function(event) {
                 var field_key = $(event.currentTarget).data('key');
-                this.model.set(field_key, this.model.get(field_key).concat(''));
+                var value = this.model.has(field_key) ? this.model.get(field_key) : [''];
+                this.model.set(field_key, value.concat(''));
                 this.render();
             },
             'click #add-source': function() {
@@ -903,11 +904,11 @@
             _.each(show, function(field_key) {
                 var field_config = sourceFields[field_key];
                 var data = {
-                    'id':      field_key,
-                    'name':    field_config.name,
-                    'classes': field_config.classes,
-                    'max':     field_config.maxlen,
-                    'value':   this.model.has(field_key) ? this.model.get(field_key)
+                    'id':    field_key,
+                    'name':  field_config.name,
+                    'size':  field_config.size,
+                    'max':   field_config.maxlen,
+                    'value': this.model.has(field_key) ? this.model.get(field_key)
                                                          : (field_config.type == 'array' ? [''] : '')
                 };
                 if (field_config.type == 'string') {
@@ -983,9 +984,7 @@
             this.collection.each(this._addOne);
         },
         _addOne: function(item) {
-            var itemView = new SourceSearchItemView({
-                model: item
-            });
+            var itemView = new SourceSearchItemView({ model: item });
             this.$('tbody').append(itemView.render().el);
         },
         _search: function() {
@@ -1057,18 +1056,18 @@ $(function() {
 
     function expanderToggle(elem) {
         elem.toggleClass('expander-in').toggleClass('expander-out');
-        elem.find('i').toggleClass('icon-chevron-down').toggleClass('icon-chevron-up');
+        elem.find('span.glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
         elem.next().toggle();
     }
 
     $('.expander-in').each(function() {
-        $(this).append(' <i class="icon-chevron-down"></i>').next().hide();
+        $(this).append(' <span class="glyphicon glyphicon-chevron-down"></span>').next().hide();
     }).click(function() {
         expanderToggle($(this));
     });
 
     $('expander-out').each(function() {
-        $(this).append(' <i class="icon-chevron-up"></i>').next().show();
+        $(this).append(' <span class="glyphicon glyphicon-chevron-up"></span>').next().show();
     }).click(function() {
         expanderToggle($(this));
     });

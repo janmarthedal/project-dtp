@@ -31,10 +31,10 @@
 {% if perm.edit %}
 <p><a class="btn btn-primary" href="{% url 'drafts.views.edit' item.id %}">Edit</a></p>
 
-<form method="post" action="{% url 'drafts.views.delete_draft' item.id %}">
+<p><form method="post" action="{% url 'drafts.views.delete_draft' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Delete</button>
-</form>
+</form></p>
 {% endif %}
 
 <!-- {% if perm.to_draft %}
@@ -45,17 +45,17 @@
 {% endif %} -->
 
 {% if perm.to_review %}
-<form method="post" action="{% url 'drafts.views.to_review' item.id %}">
+<p><form method="post" action="{% url 'drafts.views.to_review' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Submit for review</button>
-</form>
+</form></p>
 {% endif %}
 
 {% if perm.to_final %}
-<form method="post" action="{% url 'drafts.views.to_final' item.id %}">
+<p><form method="post" action="{% url 'drafts.views.to_final' item.id %}">
   {% csrf_token %}
   <button class="btn btn-primary" type="submit">Publish</button>
-</form>
+</form></p>
 {% endif %}
 
 {% endblock %}

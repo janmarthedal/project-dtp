@@ -1,8 +1,8 @@
 <div class="form-horizontal">
-  <label class="control-label" for="select-source">Type of source</label>
-  <div class="controls">
-    <div class="control-group">
-      <select id="select-source">
+  <div class="form-group">
+    <label class="control-label col-md-2" for="select-source">Type of source</label>
+    <div class="col-md-2">
+      <select id="select-source" class="form-control">
 {{#each types}}
         <option value="{{key}}">{{name}}</option>
 {{/each}}
@@ -16,24 +16,21 @@
 
 <div class="form-horizontal">
 {{#if extra}}
-  <div class="controls">
-    <div class="control-group">
-      <div class="btn-group">
-        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-          Add entry
-          <span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu" id="extra-fields">
+  <div class="form-group">
+    <div class="col-md-4 col-md-offset-2">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        Add entry <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" role="menu" id="extra-fields">
 {{#each extra}}
-          <li><a data-key="{{key}}" href="#">{{name}}</a></li>
+        <li><a data-key="{{key}}" href="#">{{name}}</a></li>
 {{/each}}
-        </ul>
-      </div>
+      </ul>
     </div>
   </div>
 {{/if}}
-  <div class="controls">
-    <div class="control-group">
+  <div class="form-group">
+    <div class="col-md-4 col-md-offset-2">
       <button id="add-source" class="btn btn-primary">Add source</button>
     </div>
   </div>

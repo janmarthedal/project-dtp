@@ -40,7 +40,8 @@
 </p>
 
 <h4>Actions</h4>
-<button id="save" type="button" class="btn btn-primary">Save</button>
+
+<p><button id="save" type="button" class="btn btn-primary">Save</button></p>
 
 {% endblock %}
 
@@ -54,46 +55,40 @@
 <script src="{% static 'js/teoremer.js' %}"></script>
 
 <script type="text/javascript">
-    teoremer.setupCsrf();
+  teoremer.setupCsrf();
 
-    (function(){
+  (function(){
 
     var item = new teoremer.FinalItem({
-    id: "{{item.final_id}}",
-    pricats: {{item.primary_categories|to_json}},
-    seccats: { {
-            item.secondary_categories | to_json
-        }
-    }, tagcatmap: { {
-            item.get_tag_category_associations | to_json
-        }
-    }
-    }, { parse:true
-    });
+      id: "{{item.final_id}}",
+      pricats: {{item.primary_categories|to_json}},
+      seccats: {{item.secondary_categories|to_json}},
+      tagcatmap: {{item.get_tag_category_associations|to_json}}
+    }, { parse:true });
 
     var saveItem = new teoremer.SaveFinalView({
-        el : $('#save'),
-        model : item
+      el : $('#save'),
+      model : item
     });
 
     {% if primary_text %}
     var primaryCategoryList = new teoremer.EditableCategoryListView({
-        el : $('#primary-categories'),
-        collection : item.get('pricats')
+      el : $('#primary-categories'),
+      collection : item.get('pricats')
     });
     {% endif %}
 
     var secondaryCategoryList = new teoremer.EditableCategoryListView({
-        el : $('#secondary-categories'),
-        collection : item.get('seccats')
+      el : $('#secondary-categories'),
+      collection : item.get('seccats')
     });
 
     var tagAssocationList = new teoremer.ChangableTagAssociationListView({
-        el : $('#tag-to-category-map'),
-        collection : item.get('tagcatmap')
+      el : $('#tag-to-category-map'),
+      collection : item.get('tagcatmap')
     });
 
-    })();
+  })();
 
 </script>
 

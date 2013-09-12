@@ -13,10 +13,19 @@
 
 <form method="post" action="{% url 'sources.views.add_location_for_item' item.final_id source.id %}">
 {% csrf_token %}
-<input type="text" name="location" class="input-xxlarge" maxlength="255">
-<br>
-<input type="submit" class="btn btn-primary" value="Add validation">
+<div class="form-group">
+  <input type="text" name="location" class="form-control" maxlength="255">
+</div>
+<div class="form-group">
+  <input type="submit" class="btn btn-primary" value="Add validation">
+</div>
 </form>
+
+{% endblock %}
+
+{% block sidebar %}
+
+<h4>Help</h4>
 
 {% endblock %}
 

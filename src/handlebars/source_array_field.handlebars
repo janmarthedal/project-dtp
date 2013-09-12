@@ -1,9 +1,17 @@
-<div class="control-group">
-  <label class="control-label" for="input-{{id}}0">{{name}}</label>
-  <div class="controls">
+<div class="form-group">
+  <label class="control-label col-md-2" for="input-{{id}}0">{{name}}</label>
+  <div class="col-md-{{size}}">
 {{#foreach value}}
-    <input type="text" class="{{../classes}}" id="input-{{../id}}{{@index}}" value="{{this}}" maxlength="{{../max}}">
-    {{#if @last}}<a data-key="{{../../id}}" href="#"><i class="icon-plus"></i></a>{{else}}<br>{{/if}}
+    {{#if @last}}
+      <div class="input-group">
+    {{/if}}
+        <input type="text" class="form-control" id="input-{{../id}}{{@index}}" value="{{this}}" maxlength="{{../max}}">
+    {{#if @last}}
+        <div class="input-group-btn">
+          <a data-key="{{../../id}}" href="#"><span class="glyphicon glyphicon-plus"></span></a>
+        </div>
+      </div>
+    {{/if}}
 {{/foreach}}
   </div>
 </div>

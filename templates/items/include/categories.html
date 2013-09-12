@@ -1,5 +1,6 @@
 {% load item_tags %}
 
+{% if categories %}
 <div class="categories">
 {% for category in categories %}
   <span class="category">
@@ -9,3 +10,6 @@
   </span>
 {% endfor %}
 </div>
+{% else %}
+<i>None</i>
+{% endif %}

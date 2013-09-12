@@ -8,9 +8,9 @@ Edit {{ item }}
 
 {% block mainbar %}
 
-<h1>Edit {{ item }}{% if item.parent %} of {{ item }}{% endif %}</h1>
+<h1>{{ item }}{% if item.parent %} of {{ item }}{% endif %} (edit)</h1>
 
-<textarea id="body-input" class="item-body span12">
+<textarea id="body-input" class="item-body col-md-12">
 </textarea>
 
 <div id="body-preview" class="item-body">
@@ -31,7 +31,8 @@ Edit {{ item }}
 {% block sidebar %}
 
 <h4>Actions</h4>
-<button id="save-draft" type="button" class="btn btn-primary">Save draft</button>
+
+<p><button id="save-draft" type="button" class="btn btn-primary">Save draft</button></p>
 
 {% endblock %}
 
