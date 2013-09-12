@@ -335,13 +335,13 @@
             this.collection.bind('add', this.addOne);
             this.render();
             this.input_field = this.$('#tag-name-' + this.uid);
-            this.input_field.typeahead({
+            /*this.input_field.typeahead({
                 source: function(query, process) {
                     $.get(api_prefix + 'tags/prefixed/' + query, function(data) {
                         process(data);
                     }, 'json');
                 }
-            });
+            });*/
         },
         render: function() {
             var html = Handlebars.templates.tag_list_input({
@@ -598,23 +598,20 @@
         // standard
         el: $('#modal-container'),
         events: {
-            'click    .cancel': 'remove',
-            'click    .btn-primary': 'addAction',
-            'click    #category-minus-btn': 'minusAction',
-            'click    #category-plus-btn': 'plusAction',
-            'keypress input': 'keyPress'
+            'click .cancel':             'remove',
+            'click .btn-primary':        'addAction',
+            'click #category-minus-btn': 'minusAction',
+            'click #category-plus-btn':  'plusAction',
+            'keypress input':            'keyPress',
+            'hidden.bs.modal':           function() { this.remove(); }
         },
         initialize: function() {
             _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction');
             this.collection = new TagList();
             this.collection.on('add remove', this.renderTags);
             this.render();
-            this.setElement(this.$('.modal'));
-            // so 'this.remove' functions correctly
-            this.$el.modal({
-                'backdrop': false,
-                'show': true
-            });
+            this.setElement(this.$('.modal'));  // so 'this.remove' functions correctly
+            this.$el.modal({ 'show': true });
             this.input_element = this.$('input');
             this.input_element.focus();
         },
@@ -645,7 +642,7 @@
             this.options.add(new Category({
                 tag_list: this.collection
             }));
-            this.remove();
+            this.$el.modal('hide');
         },
         minusAction: function() {
             if (!this.input_element.val()) {

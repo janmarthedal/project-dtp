@@ -11,7 +11,7 @@
 <h1>{{ item }}{% if item.parent %} of {{ item.parent }}{% endif %}</h1>
 
 <div class="item-body">
-{{ item|typeset_body }}
+  {{ item|typeset_body }}
 </div>
 
 {% if primary_text %}
@@ -34,13 +34,13 @@
 <h4>Meta</h4>
 
 <p>
-Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>,
-published at {{ item.created_at|datetime_user:user }}
-{% if item.created_at == item.modified_at %} (unmodified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
+  Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>,
+  published at {{ item.created_at|datetime_user:user }}
+  {% if item.created_at == item.modified_at %} (unmodified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
 </p>
 
 <h4>Actions</h4>
-<button id="save" class="btn btn-primary">Save</button>
+<button id="save" type="button" class="btn btn-primary">Save</button>
 
 {% endblock %}
 
@@ -54,41 +54,46 @@ published at {{ item.created_at|datetime_user:user }}
 <script src="{% static 'js/teoremer.js' %}"></script>
 
 <script type="text/javascript">
+    teoremer.setupCsrf();
 
-teoremer.setupCsrf();
+    (function(){
 
-(function(){
-
-  var item = new teoremer.FinalItem({
+    var item = new teoremer.FinalItem({
     id: "{{item.final_id}}",
     pricats: {{item.primary_categories|to_json}},
-    seccats: {{item.secondary_categories|to_json}},
-    tagcatmap: {{item.get_tag_category_associations|to_json}}
-  }, { parse: true });
+    seccats: { {
+            item.secondary_categories | to_json
+        }
+    }, tagcatmap: { {
+            item.get_tag_category_associations | to_json
+        }
+    }
+    }, { parse:true
+    });
 
-  var saveItem = new teoremer.SaveFinalView({
-    el: $('#save'),
-    model: item
-  });
+    var saveItem = new teoremer.SaveFinalView({
+        el : $('#save'),
+        model : item
+    });
 
-{% if primary_text %}
-  var primaryCategoryList = new teoremer.EditableCategoryListView({
-    el: $('#primary-categories'),
-    collection: item.get('pricats')
-  });
-{% endif %}
+    {% if primary_text %}
+    var primaryCategoryList = new teoremer.EditableCategoryListView({
+        el : $('#primary-categories'),
+        collection : item.get('pricats')
+    });
+    {% endif %}
 
-  var secondaryCategoryList = new teoremer.EditableCategoryListView({
-    el: $('#secondary-categories'),
-    collection: item.get('seccats')
-  });
+    var secondaryCategoryList = new teoremer.EditableCategoryListView({
+        el : $('#secondary-categories'),
+        collection : item.get('seccats')
+    });
 
-  var tagAssocationList = new teoremer.ChangableTagAssociationListView({
-    el: $('#tag-to-category-map'),
-    collection: item.get('tagcatmap')
-  });
+    var tagAssocationList = new teoremer.ChangableTagAssociationListView({
+        el : $('#tag-to-category-map'),
+        collection : item.get('tagcatmap')
+    });
 
-})();
+    })();
 
 </script>
 

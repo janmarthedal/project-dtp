@@ -1,18 +1,23 @@
-<div class="modal hide">
-    <div class="modal-header">
-        <button type="button" class="close cancel">&times;</button>
-        <h3>Add category</h3>
-    </div>
-    <div class="modal-body">
+<div class="modal" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4>Add category</h4>
+      </div>
+      <div class="modal-body">
         <div class="category"></div>
-        <div class="input-append">
-          <input class="span12" type="text">
-          <button id="category-plus-btn" class="btn"><i class="icon-plus"></i></button>
-          <button id="category-minus-btn" class="btn"><i class="icon-minus"></i></button>
+        <div class="input-group">
+          <input type="text" class="form-control">
+          <span class="input-group-btn">
+            <button id="category-plus-btn" type="button" class="btn btn-default"><span class="glyphicon glyphicon-plus"></i></button>
+            <button id="category-minus-btn" type="button" class="btn btn-default"><i class="glyphicon glyphicon-minus"></i></button>
         </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Add category</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
     </div>
-    <div class="modal-footer">
-        <button class="btn btn-primary">Add category</button>
-        <button class="btn cancel">Cancel</button>
-    </div>
+  </div>
 </div>

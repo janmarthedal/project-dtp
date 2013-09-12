@@ -9,7 +9,7 @@ Add {{ kind }}
 
 <h1>Add {{ kind }}{% if parent %} of {{ parent }}{% endif %}</h1>
 
-<textarea id="body-input" class="item-body span12">
+<textarea id="body-input" class="item-body col-md-12">
 </textarea>
 
 <div id="body-preview" class="item-body"></div>
@@ -29,7 +29,7 @@ Add {{ kind }}
 {% block sidebar %}
 
 <h4>Actions</h4>
-<button id="save-draft" class="btn btn-primary">Save draft</button>
+<button id="save-draft" type="button" class="btn btn-primary">Save draft</button>
 
 {% endblock %}
 

@@ -33,12 +33,10 @@ searchList.collection.reset({{ init_items|safe }}, { parse: true });
 
 includeView.collection.on('add remove', function() {
   searchTerms.set('includeTags', includeView.getTagList());
-    //searchList.setIncludeTags(includeView.getTagList());
 });
 
 excludeView.collection.on('add remove', function() {
   searchTerms.set('excludeTags', excludeView.getTagList());
-    //searchList.setExcludeTags(excludeView.getTagList());
 });
 
 </script>
