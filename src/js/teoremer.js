@@ -270,7 +270,9 @@
 
     teoremer.SearchTerms = Backbone.Model.extend({
         defaults: {
-            status: 'F'
+            status: 'F',
+            includeTags: [],
+            excludeTags: []
         },
         toJSON: function() {
             var data = _.clone(this.attributes);
@@ -393,9 +395,14 @@
         },
         render: function() {
             var categories = this.model.get('categories');
+            var name = capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id');
+            if (this.model.has('parent')) {
+                var parent = this.model.get('parent');
+                name += ' of ' + capitalize(type_short_to_long(parent.type)) + ' ' + parent.id;
+            }
             var html = Handlebars.templates.search_list_item({
                 id:          this.model.get('id'),
-                item_name:   capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id'),
+                item_name:   name,
                 item_link:   this.model.get('item_link'),
                 pritags:     _.map(_.map(categories.primary, _.last), typeset_tag).join(', '),
                 sectags:     _.map(categories.secondary, typeset_tag_list),
@@ -1085,6 +1092,10 @@ $(function() {
         $(this).next().show();
     }).click(function() {
         expanderToggle($(this));
+    });
+
+    $(function() {
+        $('input[type="text"]').first().focus();
     });
 
 });

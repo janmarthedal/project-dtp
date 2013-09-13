@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
+from items.helpers import item_search_to_json
 from items.models import FinalItem
 from main.helpers import init_context, logged_in_or_404
 
@@ -20,13 +21,15 @@ def get_user_final_permissions(user, item):
 def show_final(request, final_id):
     item = get_object_or_404(FinalItem, final_id=final_id)
     item_perms = get_user_final_permissions(request.user, item)
-    proof_count = item.finalitem_set.filter(itemtype='P', status='F').count() if item.itemtype == 'T' else 0
     c = { 'item':        item,
           'perm':        item_perms,
           'validations': [v.json_serializable() for v in item.sourcevalidation_set.all()],
-          'proof_count': proof_count }
-    if proof_count and 'prfs' in request.GET:
-        c['proof_list'] = item.finalitem_set.filter(itemtype='P', status='F').all()
+          'proof_count': 0 }
+    if item.itemtype == 'T':
+        c.update(proof_count = item.finalitem_set.filter(itemtype='P', status='F').count(),
+                 init_proofs = item_search_to_json(itemtype='P', parent=final_id))
+    if request.user.is_authenticated():
+        c.update(user_id = request.user.pk)
     return render(request, 'items/show_final.html', c)
 
 @logged_in_or_404

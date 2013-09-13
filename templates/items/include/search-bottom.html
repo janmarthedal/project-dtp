@@ -15,10 +15,8 @@ var excludeView = new teoremer.TagListView({
 });
 var searchTerms = new teoremer.SearchTerms({
 {% if user_id %}
-    user: {{ user_id }},
+  user: {{ user_id }}
 {% endif %}
-    includeTags: [],
-    excludeTags: []
 });
 var searchList = new teoremer.SearchListView({
     el: $('#search-item-list'),

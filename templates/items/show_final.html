@@ -19,21 +19,19 @@
 
 {% include 'items/include/categories.html' with categories=item.primary_categories no_categories_text="No primary categories" only %}
 
+{% if validations %}
 <h4 class="expander-in">{{ validations|length }} validation{{ validations|length|pluralize }} <span class="glyphicon"></span></h4>
 <div id="validation-list"></div>
-
-{% if item.itemtype == 'T' %}
-{% if proof_list %}
-<div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.final_id %}">hide</a>)</div>
-{% for proof in proof_list %}
-<p>
-    <a href="{% url 'items.views.show_final' proof.final_id %}">{{ proof }}</a>
-</p>
-{% endfor %}
-{% elif proof_count %}
-<div class="item-count">{{ proof_count }} proofs (<a href="{% url 'items.views.show_final' item.final_id %}?prfs=1">show</a>)</div>
 {% else %}
-<div class="item-count">no proofs</div>
+<h4>No validations</h4>
+{% endif %}
+
+{% if item.itemtype == "T" %}
+{% if proof_count %}
+<h4 class="expander-in">{{ proof_count }} proof{{ proof_count|pluralize }} <span class="glyphicon"></span></h4>
+<div id="proof-list"></div>
+{% else %}
+<h4>No proofs</h4>
 {% endif %}
 {% endif %}
 
@@ -68,7 +66,7 @@ published at {{ item.created_at|datetime_user:user }}
 <p><form method="post" action="{% url 'items.views.delete_public' %}">
   {% csrf_token %}
   <button class="btn btn-danger" type="submit">Delete</button>
-  <input type="hidden" name="item" value="{{ item.id }}" />
+  <input type="hidden" name="item" value="{{ item.final_id }}" />
 </form></p>
 {% endif %}
 
@@ -89,6 +87,24 @@ published at {{ item.created_at|datetime_user:user }}
     el: $('#validation-list'),
     collection: new teoremer.ValidationList({{validations|to_json}})
   });
+
+{% if item.itemtype == "T" %}
+  var searchTerms = new teoremer.SearchTerms({
+    parent: "{{ item.final_id }}"
+  {% if user_id %}
+    ,user: {{ user_id }}
+  {% endif %}
+  });
+  var searchList = new teoremer.SearchListView({
+      el: $('#proof-list'),
+      itemtypes: 'P',
+      parameters: searchTerms
+  {% if user_id %}
+      ,enable_drafts: true
+  {% endif %}
+  });
+  searchList.collection.reset({{ init_proofs|safe }}, { parse: true });
+{% endif %}
 
 })();
 

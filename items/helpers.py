@@ -153,44 +153,55 @@ def tag_names_to_tag_objects(tag_names):
 
 
 def _extract_draft_item_attributes(item):
-    return {
-            'id':          item.pk,
-            'item_link':   reverse('drafts.views.show', args=[item.pk]),
-            'type':        item.itemtype,
-            'author':      item.created_by.get_full_name(),
-            'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
-            'timestamp':   str(item.modified_at),
-            'categories':  {
-                            'primary':   item.primary_categories,
-                            'secondary': item.secondary_categories
-                            }
-            }
+    result = {
+        'id':          item.pk,
+        'item_link':   reverse('drafts.views.show', args=[item.pk]),
+        'type':        item.itemtype,
+        'author':      item.created_by.get_full_name(),
+        'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
+        'timestamp':   str(item.modified_at),
+        'categories':  {
+            'primary':   item.primary_categories,
+            'secondary': item.secondary_categories
+        }
+    }
+    if item.parent:
+        result.update(parent = { 'id': item.parent.final_id, 'type': item.parent.itemtype })
+    return result
 
 
 def _extract_final_item_attributes(item):
-    return {
-            'id':          item.final_id,
-            'item_link':   reverse('items.views.show_final', args=[item.final_id]),
-            'type':        item.itemtype,
-            'author':      item.created_by.get_full_name(),
-            'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
-            'timestamp':   str(item.created_at),
-            'categories':  {
-                            'primary':   item.primary_categories,
-                            'secondary': item.secondary_categories
-                            }
-            }
+    result = {
+        'id':          item.final_id,
+        'item_link':   reverse('items.views.show_final', args=[item.final_id]),
+        'type':        item.itemtype,
+        'author':      item.created_by.get_full_name(),
+        'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
+        'timestamp':   str(item.created_at),
+        'categories':  {
+            'primary':   item.primary_categories,
+            'secondary': item.secondary_categories
+        }
+    }
+    if item.parent:
+        result.update(parent = { 'id': item.parent.final_id, 'type': item.parent.itemtype })
+    return result
 
 
-def item_search_to_json(itemtype=None, include_tag_names=[], exclude_tag_names=[], status='F', offset=0, limit=5, user=None):
+def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclude_tag_names=[], status='F', offset=0, limit=5, user=None):
+    if itemtype and itemtype not in ['D', 'T', 'P']:
+        raise Http404
     if status == 'F':
         query = FinalItem.objects.filter(status='F')
     elif (status == 'R') or (user and status == 'D'):
         query = DraftItem.objects.filter(status=status)
     else:
         raise Http404
+
     if itemtype:
         query = query.filter(itemtype=itemtype)
+    if parent:
+        query = query.filter(parent__final_id=parent)
     if user:
         query = query.filter(created_by=user)
     (include_tags, not_found) = tag_names_to_tag_objects(include_tag_names)

@@ -25,6 +25,7 @@ def item_list(request):
     try:
         itemtype = request.GET.get('type')
         status = request.GET.get('status', 'F')
+        parent = request.GET.get('parent')
         list_user = None
         user_id = request.GET.get('user')
         if user_id:
@@ -38,6 +39,7 @@ def item_list(request):
     except:
         raise Http404
     result = item_search_to_json(itemtype=itemtype,
+                                 parent=parent,
                                  include_tag_names=include_tags,
                                  exclude_tag_names=exclude_tags,
                                  status=status,
