@@ -57,7 +57,7 @@ published at {{ item.created_at|datetime_user:user }}
 <p><a class="btn btn-primary" href="{% url 'drafts.views.new' kind='proof' parent=item.final_id %}">Add proof</a></p>
 {% endif %}
 {% if perm.add_source %}
-<p><a class="btn btn-primary" href="{% url 'sources.views.add_source_for_item' item.final_id %}">Add validation source</a></p>
+<p><a class="btn btn-primary" href="{% url 'sources.views.add_source_for_item' item.final_id %}">Add source validation</a></p>
 {% endif %}
 {% if perm.edit_final %}
 <p><a class="btn btn-primary" href="{% url 'items.views.edit_final' item.final_id %}">Edit</a></p>

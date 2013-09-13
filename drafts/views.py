@@ -16,6 +16,7 @@ def get_user_draft_permissions(user, item):
     return {
         'view':       (item.status == 'D' and own_item) or item.status == 'R',
         'edit':       item.status == 'D' and own_item,
+        'add_source': item.status == 'D' and own_item,
         'to_draft':   item.status == 'R' and own_item,
         'to_review':  item.status == 'D' and own_item,
         'to_final':   item.status in ['D', 'R'] and own_item
@@ -43,8 +44,9 @@ def show(request, item_id):
     permissions = get_user_draft_permissions(request.user, item)
     if not permissions['view']:
         raise Http404
-    c = { 'item': item,
-          'perm': permissions }
+    c = dict(item        = item,
+             perm        = permissions,
+             validations = [v.json_serializable() for v in item.draftvalidation_set.all()])
     return render(request, 'drafts/show_draft.html', c)
 
 @logged_in_or_404

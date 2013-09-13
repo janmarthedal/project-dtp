@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from drafts.models import DraftItem
 from items.models import FinalItem
 
 class RefAuthor(models.Model):
@@ -49,12 +50,11 @@ class RefNode(models.Model):
         if names: data['editor'] = names
         return data
 
-class SourceValidation(models.Model):
+class ValidationBase(models.Model):
     class Meta:
-        db_table = 'source_validation'
+        abstract = True
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+')
     created_at = models.DateTimeField(default=timezone.now, db_index=False)
-    item       = models.ForeignKey(FinalItem)
     source     = models.ForeignKey(RefNode)
     location   = models.CharField(max_length=255, null=True)
     def json_serializable(self):
@@ -62,3 +62,13 @@ class SourceValidation(models.Model):
             'source':   self.source.json_serializable(),
             'location': self.location
         }
+
+class ItemValidation(ValidationBase):
+    class Meta:
+        db_table = 'item_validation'
+    item = models.ForeignKey(FinalItem)
+
+class DraftValidation(ValidationBase):
+    class Meta:
+        db_table = 'draft_validation'
+    item = models.ForeignKey(DraftItem)

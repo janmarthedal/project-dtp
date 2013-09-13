@@ -63,6 +63,8 @@
             url = '/sources/';
         } else if (view == 'sources.views.add_location_for_item') {
             url = '/item/' + arg1 + '/add-validation/' + arg2;
+        } else if (view == 'sources.views.add_location_for_draft') {
+            url = '/draft/' + arg1 + '/add-validation/' + arg2;
         } else {
             console.log('Cannot do reverse lookup for view ' + view);
         }
@@ -821,8 +823,8 @@
         'month':     { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Month' },
         'journal':   { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Journal' },
         'pages':     { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Pages' },
-        'isbn10':    { 'type': 'string', 'size': '1', 'maxlen': 32,  'name': '10-digit ISBN' },
-        'isbn13':    { 'type': 'string', 'size': '1', 'maxlen': 32,  'name': '13-digit ISBN' },
+        'isbn10':    { 'type': 'string', 'size': '2', 'maxlen': 32,  'name': '10-digit ISBN' },
+        'isbn13':    { 'type': 'string', 'size': '2', 'maxlen': 32,  'name': '13-digit ISBN' },
         'note':      { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Note' }
     };
 
@@ -860,6 +862,9 @@
                     success: function(model, response) {
                         if (self.options.mode[0] == 'item') {
                             reverse_view_redirect('sources.views.add_location_for_item',
+                                                  self.options.mode[1], model.get('id'));
+                        } else if (self.options.mode[0] == 'draft') {
+                            reverse_view_redirect('sources.views.add_location_for_draft',
                                                   self.options.mode[1], model.get('id'));
                         } else {
                             reverse_view_redirect('sources.views.index');
@@ -972,6 +977,8 @@
             var url = '#';
             if (this.options.mode[0] == 'item') {
                 url = reverse_view('sources.views.add_location_for_item', this.options.mode[1], this.model.get('id'));
+            } else if (this.options.mode[0] == 'draft') {
+                url = reverse_view('sources.views.add_location_for_draft', this.options.mode[1], this.model.get('id'));
             } 
             return { 'href': url };
         },

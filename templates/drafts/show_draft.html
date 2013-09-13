@@ -1,6 +1,8 @@
 {% extends "base.html" %}
+{% load staticfiles %}
 {% load item_tags %}
 {% load user_tags %}
+{% load utils_tags %}
 
 {% block title %}{{ item }}{% endblock %}
 
@@ -17,6 +19,13 @@
 
 {% include 'items/include/categories.html' with categories=item.primary_categories no_categories_text="No primary categories" only %}
 
+{% if validations %}
+<h4 class="expander-in">{{ validations|length }} validation{{ validations|length|pluralize }} <span class="glyphicon"></span></h4>
+<div id="validation-list"></div>
+{% else %}
+<h4>No validations</h4>
+{% endif %}
+
 {% endblock mainbar %}
 
 {% block sidebar %}
@@ -30,6 +39,10 @@
 {% include 'items/include/categories.html' with categories=item.secondary_categories no_categories_text="None" only %}
 
 <h4>Actions</h4>
+
+{% if perm.add_source %}
+<p><a class="btn btn-primary" href="{% url 'sources.views.add_source_for_draft' item.id %}">Add source validation</a></p>
+{% endif %}
 
 {% if perm.edit %}
 <p><a class="btn btn-primary" href="{% url 'drafts.views.edit' item.id %}">Edit</a></p>
@@ -65,11 +78,27 @@
 
 {% block bodybottom %}
 
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+<script src="{% static 'js/teoremer.js' %}"></script>
+
 <script type="text/javascript">
 
-$('div.draft-view').tooltip({
-  selector: "a[rel=tooltip]"
-});
+  $(function() {
+    $('div.draft-view').tooltip({
+      selector: "a[rel=tooltip]"
+    });    
+  });
+
+(function() {
+
+  new teoremer.ValidationListView({
+    el: $('#validation-list'),
+    collection: new teoremer.ValidationList({{validations|to_json}})
+  });
+
+})();
 
 </script>
 
