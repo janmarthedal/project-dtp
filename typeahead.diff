@@ -1,0 +1,231 @@
+diff --git a/main/helpers.py b/main/helpers.py
+index 0b537ef..5e77b92 100644
+--- a/main/helpers.py
++++ b/main/helpers.py
+@@ -1,6 +1,7 @@
+ import json
+ from functools import wraps
+ from django.http import Http404
++from django.db.models.query import ValuesListQuerySet
+ 
+ def logged_in_or_404(view):
+     @wraps(view)
+@@ -67,6 +68,8 @@ class CustomJSONEncoder(json.JSONEncoder):
+             return json.JSONEncoder.default(self, obj)
+ 
+ def json_encode(obj):
++    if isinstance(obj, ValuesListQuerySet):
++        return json.dumps(list(obj))
+     return json.dumps(obj, cls=CustomJSONEncoder)
+ 
+ def json_decode(st):
+diff --git a/main/static/css/teoremer.css b/main/static/css/teoremer.css
+index 8638aed..2ae6e2e 100644
+--- a/main/static/css/teoremer.css
++++ b/main/static/css/teoremer.css
+@@ -1,9 +1,11 @@
+ /* override Bootstrap */
++
+ .container {
+   max-width: 2000px;
+ }
+ 
+ /* own styles */
++
+ span.category {
+   padding: 0.1em 0.2em;
+   margin: 0.1em 0.1em 1em 0.1em;
+@@ -43,3 +45,59 @@ div.category {
+   margin: 20px 13px 0px;
+   border-top: 1px dotted #eee;
+ }
++
++/*
++ * Twitter typeahead
++ * 
++ * https://github.com/jharding/typeahead.js-bootstrap.css
++ */
++
++.twitter-typeahead .tt-hint,
++.twitter-typeahead .tt-query {
++  margin-bottom: 0;
++}
++
++.tt-dropdown-menu {
++  min-width: 160px;
++  margin-top: 2px;
++  padding: 5px 0;
++  background-color: #fff;
++  border: 1px solid #ccc;
++  border: 1px solid rgba(0,0,0,.2);
++  *border-right-width: 2px;
++  *border-bottom-width: 2px;
++  -webkit-border-radius: 6px;
++     -moz-border-radius: 6px;
++          border-radius: 6px;
++  -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
++     -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
++          box-shadow: 0 5px 10px rgba(0,0,0,.2);
++  -webkit-background-clip: padding-box;
++     -moz-background-clip: padding;
++          background-clip: padding-box;
++}
++
++.tt-suggestion {
++  display: block;
++  padding: 3px 20px;
++}
++
++.tt-suggestion.tt-is-under-cursor {
++  color: #fff;
++  background-color: #0081c2;
++  background-image: -moz-linear-gradient(top, #0088cc, #0077b3);
++  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0077b3));
++  background-image: -webkit-linear-gradient(top, #0088cc, #0077b3);
++  background-image: -o-linear-gradient(top, #0088cc, #0077b3);
++  background-image: linear-gradient(to bottom, #0088cc, #0077b3);
++  background-repeat: repeat-x;
++  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff0088cc', endColorstr='#ff0077b3', GradientType=0)
++}
++
++.tt-suggestion.tt-is-under-cursor a {
++  color: #fff;
++}
++
++.tt-suggestion p {
++  margin: 0;
++}
+\ No newline at end of file
+diff --git a/main/templatetags/utils_tags.py b/main/templatetags/utils_tags.py
+index f889b78..18c6700 100644
+--- a/main/templatetags/utils_tags.py
++++ b/main/templatetags/utils_tags.py
+@@ -2,9 +2,6 @@ from django import template
+ from django.utils.safestring import mark_safe
+ from main.helpers import json_encode
+ 
+-#import logging
+-#logger = logging.getLogger(__name__)
+-
+ register = template.Library()
+ 
+ @register.filter
+diff --git a/sources/views.py b/sources/views.py
+index e189bd7..47360ca 100644
+--- a/sources/views.py
++++ b/sources/views.py
+@@ -4,24 +4,29 @@ from django.shortcuts import render, get_object_or_404
+ from django.views.decorators.http import require_safe, require_http_methods
+ from items.models import FinalItem
+ from main.helpers import init_context, logged_in_or_404
+-from sources.models import RefNode, SourceValidation
++from sources.models import RefNode, RefAuthor, SourceValidation
+ 
+ @require_safe
+ def index(request):
+     c = init_context('sources', sourcelist=RefNode.objects.all())
+     return render(request, 'sources/index.html', c)
+ 
++def init_add_source_context():
++    return init_context('sources', author_list=RefAuthor.objects.values_list('name', flat=True))
++
+ @logged_in_or_404
+ @require_safe
+ def add_source(request):
+-    c = init_context('sources', mode=['new'])
++    c = init_add_source_context()
++    c.update(mode=['new'])
+     return render(request, 'sources/add.html', c)
+ 
+ @logged_in_or_404
+ @require_safe
+ def add_source_for_item(request, item_id):
+     item = get_object_or_404(FinalItem, final_id=item_id)
+-    c = init_context('sources', mode=['item', item_id], item=item)
++    c = init_add_source_context()
++    c.update(mode=['item', item_id], item=item)
+     return render(request, 'sources/add.html', c)
+ 
+ @logged_in_or_404
+diff --git a/src/handlebars/source_array_field.handlebars b/src/handlebars/source_array_field.handlebars
+index 1a09ac0..8454b9e 100644
+--- a/src/handlebars/source_array_field.handlebars
++++ b/src/handlebars/source_array_field.handlebars
+@@ -5,7 +5,7 @@
+     {{#if @last}}
+       <div class="input-group">
+     {{/if}}
+-        <input type="text" class="form-control" id="input-{{../id}}{{@index}}" value="{{this}}" maxlength="{{../max}}">
++        <input type="text" class="form-control author-input" id="input-{{../id}}{{@index}}" value="{{this}}" maxlength="{{../max}}">
+     {{#if @last}}
+         <div class="input-group-btn">
+           <a data-key="{{../../id}}" href="#"><span class="glyphicon glyphicon-plus"></span></a>
+diff --git a/src/js/teoremer.js b/src/js/teoremer.js
+index 9343c23..8600499 100644
+--- a/src/js/teoremer.js
++++ b/src/js/teoremer.js
+@@ -863,6 +863,14 @@
+                         console.log('error saving source');
+                     }
+                 });
++            },
++            'typeahead:selected': function(event, arg1, arg2) {
++                $('#input-author0').val(arg1.value);
++                //$(event.target).typeahead('setQuery', arg1.value);
++                /*console.log('selected');
++                console.log(event);
++                console.log(arg1);
++                console.log(arg2);*/
+             }
+         },
+         initialize: function() {
+@@ -922,11 +930,20 @@
+                 }
+             }, this);
+ 
+-           this.delegateEvents();
++            this.$('input.author-input').typeahead({
++               name: 'authors',
++               local: this.options.authors 
++            });
++            // https://github.com/twitter/typeahead.js/issues/392
++            $('input.tt-hint').addClass('form-control');
++            $('span.twitter-typeahead').css('display', 'block');
++
++            this.delegateEvents();
+         },
+         _updateModel: function() {
+             var view = this, key, value;
+             view.$('input').each(function() {
++                if (!$(this).attr('id')) return;                
+                 key = $(this).attr('id').slice(6);
+                 if (key.match(/^[a-z]+$/)) {
+                     value = $(this).val();
+diff --git a/templates/sources/add.html b/templates/sources/add.html
+index 9f6625d..6b7f82b 100644
+--- a/templates/sources/add.html
++++ b/templates/sources/add.html
+@@ -31,10 +31,11 @@
+ 
+ {% block bodybottom %}
+ 
+-<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+-<script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
+-<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
+-<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
++<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
++<script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
++<script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0-rc.3/handlebars.min.js"></script>
++<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.3.1/jquery.cookie.min.js"></script>
++<script src="//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.9.3/typeahead.min.js"></script>
+ <script src="{% static 'js/teoremer.js' %}"></script>
+ 
+ <script type="text/javascript">
+@@ -48,6 +49,7 @@
+   new teoremer.SourceEditView({
+     el: $('#source-edit'),
+     model: source,
++    authors: {{author_list|to_json}},
+     mode: {{mode|to_json}}
+   });
+ 
