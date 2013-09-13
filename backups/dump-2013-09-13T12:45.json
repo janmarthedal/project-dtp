@@ -1,0 +1,1106 @@
+[
+{
+  "pk": 1, 
+  "model": "users.user", 
+  "fields": {
+    "name": "Administrator", 
+    "created_at": "2013-01-31T13:44:20Z", 
+    "is_active": true, 
+    "last_login": "2013-03-29T15:05:55Z", 
+    "is_admin": true, 
+    "password": "pbkdf2_sha256$10000$rQFiotnyUMyy$IHQaog1kTalrskW9lzL2cPyoAe1A+Y5RRYDMz1FfLsQ=", 
+    "email": "admin@teoremer.com"
+  }
+},
+{
+  "pk": 2, 
+  "model": "users.user", 
+  "fields": {
+    "name": "Jan Marthedal Rasmussen", 
+    "created_at": "2013-08-20T17:54:07Z", 
+    "is_active": true, 
+    "last_login": "2013-09-13T12:16:41Z", 
+    "is_admin": false, 
+    "password": "!", 
+    "email": "jmr@kanooth.com"
+  }
+},
+{
+  "pk": 1, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "set theory", 
+    "normalized": "set theory"
+  }
+},
+{
+  "pk": 2, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "member of", 
+    "normalized": "member of"
+  }
+},
+{
+  "pk": 3, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "element of", 
+    "normalized": "element of"
+  }
+},
+{
+  "pk": 4, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "notation", 
+    "normalized": "notation"
+  }
+},
+{
+  "pk": 5, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "$x \\in A$", 
+    "normalized": "$x \\in a$"
+  }
+},
+{
+  "pk": 6, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "$x \\notin A$", 
+    "normalized": "$x \\notin a$"
+  }
+},
+{
+  "pk": 7, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "empty set", 
+    "normalized": "empty set"
+  }
+},
+{
+  "pk": 8, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "nonempty", 
+    "normalized": "nonempty"
+  }
+},
+{
+  "pk": 9, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "set", 
+    "normalized": "set"
+  }
+},
+{
+  "pk": 10, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "contain", 
+    "normalized": "contain"
+  }
+},
+{
+  "pk": 11, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "element", 
+    "normalized": "element"
+  }
+},
+{
+  "pk": 12, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "subset", 
+    "normalized": "subset"
+  }
+},
+{
+  "pk": 13, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "proper subset", 
+    "normalized": "proper subset"
+  }
+},
+{
+  "pk": 14, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "set equality", 
+    "normalized": "set equality"
+  }
+},
+{
+  "pk": 15, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "set inequality", 
+    "normalized": "set inequality"
+  }
+},
+{
+  "pk": 16, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "$=$", 
+    "normalized": "$=$"
+  }
+},
+{
+  "pk": 17, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "$\\neq$", 
+    "normalized": "$\\neq$"
+  }
+},
+{
+  "pk": 18, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "number class", 
+    "normalized": "number class"
+  }
+},
+{
+  "pk": 19, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "$Q$", 
+    "normalized": "$q$"
+  }
+},
+{
+  "pk": 20, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "rational numbers", 
+    "normalized": "rational numbers"
+  }
+},
+{
+  "pk": 21, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "order", 
+    "normalized": "order"
+  }
+},
+{
+  "pk": 22, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "$<$", 
+    "normalized": "$<$"
+  }
+},
+{
+  "pk": 23, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "terminology", 
+    "normalized": "terminology"
+  }
+},
+{
+  "pk": 24, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "less than", 
+    "normalized": "less than"
+  }
+},
+{
+  "pk": 25, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "smaller than", 
+    "normalized": "smaller than"
+  }
+},
+{
+  "pk": 26, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "precedes", 
+    "normalized": "precedes"
+  }
+},
+{
+  "pk": 27, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "ordered set", 
+    "normalized": "ordered set"
+  }
+},
+{
+  "pk": 28, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "bounded above", 
+    "normalized": "bounded above"
+  }
+},
+{
+  "pk": 29, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "upper bound", 
+    "normalized": "upper bound"
+  }
+},
+{
+  "pk": 30, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "least upper bound", 
+    "normalized": "least upper bound"
+  }
+},
+{
+  "pk": 31, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "supremum", 
+    "normalized": "supremum"
+  }
+},
+{
+  "pk": 32, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "greatest lower bound", 
+    "normalized": "greatest lower bound"
+  }
+},
+{
+  "pk": 33, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "infimum", 
+    "normalized": "infimum"
+  }
+},
+{
+  "pk": 34, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "least-upper-bound property", 
+    "normalized": "least-upper-bound property"
+  }
+},
+{
+  "pk": 1, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 1, 
+    "parent": null
+  }
+},
+{
+  "pk": 2, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 2, 
+    "parent": 1
+  }
+},
+{
+  "pk": 3, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 3, 
+    "parent": 1
+  }
+},
+{
+  "pk": 4, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 4, 
+    "parent": null
+  }
+},
+{
+  "pk": 5, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 5, 
+    "parent": 4
+  }
+},
+{
+  "pk": 6, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 6, 
+    "parent": 4
+  }
+},
+{
+  "pk": 7, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 7, 
+    "parent": 1
+  }
+},
+{
+  "pk": 8, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 8, 
+    "parent": 1
+  }
+},
+{
+  "pk": 9, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 9, 
+    "parent": 1
+  }
+},
+{
+  "pk": 10, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 10, 
+    "parent": 1
+  }
+},
+{
+  "pk": 11, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 11, 
+    "parent": 1
+  }
+},
+{
+  "pk": 12, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 12, 
+    "parent": 1
+  }
+},
+{
+  "pk": 13, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 13, 
+    "parent": 1
+  }
+},
+{
+  "pk": 14, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 14, 
+    "parent": 1
+  }
+},
+{
+  "pk": 15, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 15, 
+    "parent": 1
+  }
+},
+{
+  "pk": 16, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 16, 
+    "parent": 4
+  }
+},
+{
+  "pk": 17, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 17, 
+    "parent": 4
+  }
+},
+{
+  "pk": 18, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 1, 
+    "parent": 4
+  }
+},
+{
+  "pk": 19, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 16, 
+    "parent": 18
+  }
+},
+{
+  "pk": 20, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 17, 
+    "parent": 18
+  }
+},
+{
+  "pk": 21, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 18, 
+    "parent": 4
+  }
+},
+{
+  "pk": 22, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 19, 
+    "parent": 21
+  }
+},
+{
+  "pk": 23, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 18, 
+    "parent": null
+  }
+},
+{
+  "pk": 24, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 20, 
+    "parent": 23
+  }
+},
+{
+  "pk": 25, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 21, 
+    "parent": 1
+  }
+},
+{
+  "pk": 26, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 22, 
+    "parent": 18
+  }
+},
+{
+  "pk": 27, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 23, 
+    "parent": null
+  }
+},
+{
+  "pk": 28, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 1, 
+    "parent": 27
+  }
+},
+{
+  "pk": 29, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 24, 
+    "parent": 28
+  }
+},
+{
+  "pk": 30, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 25, 
+    "parent": 28
+  }
+},
+{
+  "pk": 31, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 26, 
+    "parent": 28
+  }
+},
+{
+  "pk": 32, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 27, 
+    "parent": 1
+  }
+},
+{
+  "pk": 33, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 28, 
+    "parent": 1
+  }
+},
+{
+  "pk": 34, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 29, 
+    "parent": 1
+  }
+},
+{
+  "pk": 35, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 30, 
+    "parent": 1
+  }
+},
+{
+  "pk": 36, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 31, 
+    "parent": 1
+  }
+},
+{
+  "pk": 37, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 32, 
+    "parent": 1
+  }
+},
+{
+  "pk": 38, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 33, 
+    "parent": 1
+  }
+},
+{
+  "pk": 39, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 34, 
+    "parent": 1
+  }
+},
+{
+  "pk": 1, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "If $A$ is any [#set] (whose [elements#element] may be [numbers#number] or any other [objects#object]), we write $x \\in A$ to indicate that $x$ is a _member_ (or an _element_) _of_ $A$.\n\nIf $x$ is not a member of $A$, we write $x \\notin A$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-20T18:01:15Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 2, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "The [#set] which [contains#contain] no [#element] will be called the _empty set_. If a set has at least one [#element], it is called _nonempty_.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T05:32:10Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "If $A$ and $B$ are [sets#set], and if every [#element] of $A$ is an element of $B$, we say that $A$ is a _subset_ of $B$, and write $A \\subset B$, or $B \\supset A$. If, in addition, there is an element of $B$ which is not in $A$, then $A$ is said to be a _proper_ subset of $B$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T05:35:53Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 4, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "Let $A$ and $B$ be [sets#set]. If $A \\subset B$ and $B \\subset A$, we write $A = B$. Otherwise $A \\neq B$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T05:40:16Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 5, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "The [#set] of all [#rational numbers] will be denoted by $Q$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T05:42:23Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 6, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "Let $S$ be a [#set]. An _order_ on $S$ is a [#relation], denoted by $<$, with the following two properties:\n\n   1. If $x \\in S$ and $y \\in S$ then one and only one of the statements\n      $$\n      x < y, \\quad x = y, \\quad y < x\n      $$\n      is true.\n\n   2. If $x, y, z \\in S$, if $x < y$ and $y < z$, then $x < z$.\n\nThe statement \"$x < y$\" may be read as \"$x$ is less than $y$\" or \"$x$ is smaller than $y$\" or \"$x$ precedes $y$\".", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T05:54:08Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 7, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "An _ordered set_ is a [#set] $S$ in which an [#order] is defined.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T11:00:00Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 8, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "Suppose $S$ is an ordered, and $E \\subset S$. If there exists a $\\beta \\in S$ such that $x \\leq \\beta$ for every $x \\in E$, we say that $E$ is _bounded above_, and call $\\beta$ and _upper bound_ of $E$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T11:02:31Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 9, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "Suppose $S$ is an [#ordered set], $E \\subset S$, and $E$ is [#bounded above]. Suppose there exists an $\\alpha \\in S$ with the following properties:\n\n   1. $\\alpha$ is an [#upper bound] of $E$.\n   2. If $\\gamma < \\alpha$ then $\\gamma$ is not an [#upper bound] of $E$.\n\nThen $\\alpha$ is called the _least upper bound of $E$_ or the _supremum of $E$_, and we write\n$$\n\\alpha = \\sup E.\n$$\n\nThe _greatest lower bound_, or _infimum_, of a [#set] $E$ which is [#bounded below] is defined in the same manner: The statement\n$$\n\\alpha = \\inf E\n$$\nmeans that $\\alpha$ is a [#lower bound] of $E$ and that no $\\beta$ with $\\beta > \\alpha$ is a lower bound of $E$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T13:33:56Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 10, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "An [#ordered set] $S$ is said to have the [#least-upper-bound property] if the following is true: If $E \\subset S$, $E$ is not empty, and $E$ is [#bounded above], then $\\sup E$ exists in $S$.", 
+    "status": "D", 
+    "itemtype": "D", 
+    "parent": null, 
+    "modified_at": "2013-08-21T13:41:33Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 11, 
+  "model": "drafts.draftitem", 
+  "fields": {
+    "body": "Suppose $S$ is an [#ordered set] with the [#least-upper-bound property], $B \\subset S$, $B$ is not empty, and $B$ is [#bounded below]. Let $L$ be the [#set] of all [lower bounds#lower bound] of $B$. Then\n$$\n\\alpha = \\sup L\n$$\nexists in $S$, and $\\alpha = \\inf B$.\n\nIn particular, $\\inf B$ exists in $S$.", 
+    "status": "D", 
+    "itemtype": "T", 
+    "parent": null, 
+    "modified_at": "2013-08-21T13:44:52Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 1, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 2, 
+    "item": 1, 
+    "primary": true
+  }
+},
+{
+  "pk": 2, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 3, 
+    "item": 1, 
+    "primary": true
+  }
+},
+{
+  "pk": 3, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 5, 
+    "item": 1, 
+    "primary": true
+  }
+},
+{
+  "pk": 4, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 6, 
+    "item": 1, 
+    "primary": true
+  }
+},
+{
+  "pk": 6, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 7, 
+    "item": 2, 
+    "primary": true
+  }
+},
+{
+  "pk": 7, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 8, 
+    "item": 2, 
+    "primary": true
+  }
+},
+{
+  "pk": 8, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 9, 
+    "item": 2, 
+    "primary": false
+  }
+},
+{
+  "pk": 9, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 10, 
+    "item": 2, 
+    "primary": false
+  }
+},
+{
+  "pk": 10, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 11, 
+    "item": 2, 
+    "primary": false
+  }
+},
+{
+  "pk": 11, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 12, 
+    "item": 3, 
+    "primary": true
+  }
+},
+{
+  "pk": 12, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 13, 
+    "item": 3, 
+    "primary": true
+  }
+},
+{
+  "pk": 13, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 9, 
+    "item": 3, 
+    "primary": false
+  }
+},
+{
+  "pk": 14, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 11, 
+    "item": 3, 
+    "primary": false
+  }
+},
+{
+  "pk": 19, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 14, 
+    "item": 4, 
+    "primary": true
+  }
+},
+{
+  "pk": 20, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 15, 
+    "item": 4, 
+    "primary": true
+  }
+},
+{
+  "pk": 21, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 19, 
+    "item": 4, 
+    "primary": true
+  }
+},
+{
+  "pk": 22, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 20, 
+    "item": 4, 
+    "primary": true
+  }
+},
+{
+  "pk": 23, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 22, 
+    "item": 5, 
+    "primary": true
+  }
+},
+{
+  "pk": 24, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 9, 
+    "item": 5, 
+    "primary": false
+  }
+},
+{
+  "pk": 25, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 24, 
+    "item": 5, 
+    "primary": false
+  }
+},
+{
+  "pk": 26, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 25, 
+    "item": 6, 
+    "primary": true
+  }
+},
+{
+  "pk": 27, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 26, 
+    "item": 6, 
+    "primary": true
+  }
+},
+{
+  "pk": 28, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 29, 
+    "item": 6, 
+    "primary": true
+  }
+},
+{
+  "pk": 29, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 30, 
+    "item": 6, 
+    "primary": true
+  }
+},
+{
+  "pk": 30, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 31, 
+    "item": 6, 
+    "primary": true
+  }
+},
+{
+  "pk": 31, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 9, 
+    "item": 6, 
+    "primary": false
+  }
+},
+{
+  "pk": 32, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 32, 
+    "item": 7, 
+    "primary": true
+  }
+},
+{
+  "pk": 33, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 33, 
+    "item": 8, 
+    "primary": true
+  }
+},
+{
+  "pk": 34, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 34, 
+    "item": 8, 
+    "primary": true
+  }
+},
+{
+  "pk": 35, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 35, 
+    "item": 9, 
+    "primary": true
+  }
+},
+{
+  "pk": 36, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 36, 
+    "item": 9, 
+    "primary": true
+  }
+},
+{
+  "pk": 37, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 37, 
+    "item": 9, 
+    "primary": true
+  }
+},
+{
+  "pk": 38, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 38, 
+    "item": 9, 
+    "primary": true
+  }
+},
+{
+  "pk": 39, 
+  "model": "drafts.draftitemcategory", 
+  "fields": {
+    "category": 39, 
+    "item": 10, 
+    "primary": true
+  }
+},
+{
+  "pk": 3, 
+  "model": "sources.refauthor", 
+  "fields": {
+    "name": "Rudin, Walter"
+  }
+},
+{
+  "pk": 3, 
+  "model": "sources.refnode", 
+  "fields": {
+    "publisher": "McGraw-Hill", 
+    "note": null, 
+    "sourcetype": "book", 
+    "isbn13": "978-0070856134", 
+    "title": "Principles of Mathematical Analysis", 
+    "series": "International Series in Pure & Applied Mathematics", 
+    "created_at": "2013-09-13T12:28:03Z", 
+    "address": null, 
+    "number": null, 
+    "created_by": 2, 
+    "month": null, 
+    "volume": null, 
+    "edition": "Third", 
+    "authors": [
+      3
+    ], 
+    "editors": [], 
+    "pages": "x+342", 
+    "year": "1976", 
+    "journal": null, 
+    "isbn10": "0-07-085613-3"
+  }
+},
+{
+  "pk": 2, 
+  "model": "sources.draftvalidation", 
+  "fields": {
+    "source": 3, 
+    "created_at": "2013-09-13T12:31:52Z", 
+    "location": "Definition 1.10, page 4", 
+    "created_by": 2, 
+    "item": 10
+  }
+},
+{
+  "pk": 3, 
+  "model": "sources.draftvalidation", 
+  "fields": {
+    "source": 3, 
+    "created_at": "2013-09-13T12:43:34Z", 
+    "location": "Definition 1.3, page 3", 
+    "created_by": 2, 
+    "item": 1
+  }
+}
+]
