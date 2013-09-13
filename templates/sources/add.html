@@ -1,15 +1,20 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% load item_tags %}
+{% load utils_tags %}
 
 {% block title %}Add Source{% endblock %}
 
 {% block mainbar %}
 
 {% if mode == "item" %}
-<h4 class="expander-in">{{ item }}</h4>
-<div class="item-body">
+<div class="panel panel-default">
+  <div class="panel-heading expander-in">
+    <h4 class="panel-title">{{ item }}{% if item.parent %} of {{ item.parent }}{% endif %} <span class="glyphicon"></span></h4>
+  </div>
+  <div class="panel-body">
 {{ item|typeset_body }}
+  </div>
 </div>
 {% endif %}
 
@@ -22,7 +27,7 @@
 <h4>Search Results</h4>
 <div id="source-search"></div>
 
-{% endblock %}
+{% endblock mainbar %}
 
 {% block bodybottom %}
 
@@ -43,10 +48,7 @@
   new teoremer.SourceEditView({
     el: $('#source-edit'),
     model: source,
-    mode: "{{mode}}"
-{% if mode == "item" %}
-    ,itemid: "{{item.final_id}}"
-{% endif %}    
+    mode: {{mode|to_json}}
   });
 
   new teoremer.SourceRenderView({
@@ -56,7 +58,8 @@
 
   new teoremer.LiveSourceSearchView({
     el: $('#source-search'),
-    sourceModel: source
+    sourceModel: source,
+    mode: {{mode|to_json}}
   });
 
 })();

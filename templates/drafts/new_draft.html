@@ -7,12 +7,17 @@ Add {{ kind }}
 
 {% block mainbar %}
 
-<h1>Add {{ kind }}{% if parent %} of {{ parent }}{% endif %}</h1>
-
-<textarea id="body-input" class="item-body col-md-12">
-</textarea>
-
-<div id="body-preview" class="item-body"></div>
+<div class="panel panel-default draft-edit">
+  <div class="panel-heading">
+    <h4 class="panel-title">New {{ kind }}{% if parent %} of {{ parent }}{% endif %}</h4>
+  </div>
+  <div class="panel-body">
+    <textarea id="body-input" class="form-control">
+    </textarea>
+    <div id="body-preview">
+    </div>
+  </div>
+</div>
 
 {% if primary_text %}
 <h4>{{ primary_text }}</h4>
@@ -22,15 +27,15 @@ Add {{ kind }}
 <h4>Categories</h4>
 <div id="secondary-categories"></div>
 
+<p><button id="save-draft" type="button" class="btn btn-primary">Save draft</button></p>
+
 <div id="modal-container"></div>
 
 {% endblock mainbar %}
 
 {% block sidebar %}
 
-<h4>Actions</h4>
-
-<p><button id="save-draft" type="button" class="btn btn-primary">Save draft</button></p>
+<h4>Help</h4>
 
 {% endblock %}
 

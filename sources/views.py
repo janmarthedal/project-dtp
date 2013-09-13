@@ -14,14 +14,14 @@ def index(request):
 @logged_in_or_404
 @require_safe
 def add_source(request):
-    c = init_context('sources', mode='simple')
+    c = init_context('sources', mode=['new'])
     return render(request, 'sources/add.html', c)
 
 @logged_in_or_404
 @require_safe
 def add_source_for_item(request, item_id):
     item = get_object_or_404(FinalItem, final_id=item_id)
-    c = init_context('sources', mode='item', item=item)
+    c = init_context('sources', mode=['item', item_id], item=item)
     return render(request, 'sources/add.html', c)
 
 @logged_in_or_404

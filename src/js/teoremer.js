@@ -53,8 +53,8 @@
         return st.charAt(0).toUpperCase() + st.slice(1);
     }
 
-    function reverse_view_redirect(view, arg1, arg2) {
-        var url;
+    function reverse_view(view, arg1, arg2) {
+        var url = '/';
         if (view == 'drafts.views.show') {
             url = '/draft/' + arg1;
         } else if (view == 'items.views.show_final') {
@@ -65,9 +65,12 @@
             url = '/item/' + arg1 + '/add-validation/' + arg2;
         } else {
             console.log('Cannot do reverse lookup for view ' + view);
-            return;
         }
-        window.location.href = url;
+        return url;
+    }
+
+    function reverse_view_redirect(view, arg1, arg2) {
+        window.location.href = reverse_view(view, arg1, arg2);
     }
 
     function cleanValues(attrs, escape) {
@@ -382,7 +385,8 @@
     });
 
     teoremer.MathItemView = Backbone.View.extend({
-        tagName: 'tr',
+        tagName: 'li',
+        className: 'list-group-item clearfix',
         initialize: function() {
             _.bindAll(this, 'render');
             this.model.bind('change', this.render);
@@ -453,7 +457,7 @@
             var mathItemView = new teoremer.MathItemView({
                 model: item
             });
-            this.$('tbody').append(mathItemView.render().el);
+            this.$('ul').append(mathItemView.render().el);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItemView.$el.get()]);
         },
         doFetch: function(append) {
@@ -847,9 +851,9 @@
                 this.model.save(null, {
                     wait: true,
                     success: function(model, response) {
-                        if (self.options.mode == 'item') {
+                        if (self.options.mode[0] == 'item') {
                             reverse_view_redirect('sources.views.add_location_for_item',
-                                                  self.options.itemid, model.get('id'));
+                                                  self.options.mode[1], model.get('id'));
                         } else {
                             reverse_view_redirect('sources.views.index');
                         }
@@ -955,7 +959,15 @@
     });
 
     var SourceSearchItemView = Backbone.View.extend({
-        tagName: 'tr',
+        tagName: 'a',
+        className: 'list-group-item',
+        attributes: function() {
+            var url = '#';
+            if (this.options.mode[0] == 'item') {
+                url = reverse_view('sources.views.add_location_for_item', this.options.mode[1], this.model.get('id'));
+            } 
+            return { 'href': url };
+        },
         initialize: function() {
             _.bindAll(this, 'render');
             this.render();
@@ -984,8 +996,8 @@
             this.collection.each(this._addOne);
         },
         _addOne: function(item) {
-            var itemView = new SourceSearchItemView({ model: item });
-            this.$('tbody').append(itemView.render().el);
+            var itemView = new SourceSearchItemView({ model: item, mode: this.options.mode });
+            this.$('div').append(itemView.render().el);
         },
         _search: function() {
             this._cancelTimer();
@@ -1014,7 +1026,8 @@
     });
 
     var ValidationView = Backbone.View.extend({
-        tagName: 'tr',
+        tagName: 'li',
+        className: 'list-group-item',
         initialize: function() {
             _.bindAll(this, 'render');
             this.render();
@@ -1042,7 +1055,7 @@
         // helpers
         _addOne: function(item) {
             var validationView = new ValidationView({ model: item });
-            this.$('tbody').append(validationView.render().el);
+            this.$('ul').append(validationView.render().el);
         }
     });
 
@@ -1061,13 +1074,15 @@ $(function() {
     }
 
     $('.expander-in').each(function() {
-        $(this).append(' <span class="glyphicon glyphicon-chevron-down"></span>').next().hide();
+        $(this).next().hide();
+        $(this).find('span.glyphicon').addClass('glyphicon-chevron-down');
     }).click(function() {
         expanderToggle($(this));
     });
 
     $('expander-out').each(function() {
-        $(this).append(' <span class="glyphicon glyphicon-chevron-up"></span>').next().show();
+        $(this).find('span.glyphicon').addClass('glyphicon-chevron-up');
+        $(this).next().show();
     }).click(function() {
         expanderToggle($(this));
     });

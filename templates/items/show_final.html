@@ -8,15 +8,18 @@
 
 {% block mainbar %}
 
-<h1>{{ item }}
-{% if item.parent %} of <a href="{% url 'items.views.show_final' item.parent.final_id %}">{{ item.parent }}</a>{% endif %}</h1>
-{% include 'items/include/categories.html' with categories=item.primary_categories only %}
-
-<div class="item-body">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title">{{ item }}{% if item.parent %} of <a href="{% url 'items.views.show_final' item.parent.final_id %}">{{ item.parent }}</a>{% endif %}</h4>
+  </div>
+  <div class="panel-body">
 {{ item|typeset_body }}
+  </div>
 </div>
 
-<h4 class="expander-in">{{ validations|length }} validation{{ validations|length|pluralize }}</h4>
+{% include 'items/include/categories.html' with categories=item.primary_categories no_categories_text="No primary categories" only %}
+
+<h4 class="expander-in">{{ validations|length }} validation{{ validations|length|pluralize }} <span class="glyphicon"></span></h4>
 <div id="validation-list"></div>
 
 {% if item.itemtype == 'T' %}
@@ -48,7 +51,7 @@ published at {{ item.created_at|datetime_user:user }}
 
 <h4>Categories</h4>
 
-{% include 'items/include/categories.html' with categories=item.secondary_categories only %}
+{% include 'items/include/categories.html' with categories=item.secondary_categories no_categories_text="None" only %}
 
 <h4>Actions</h4>
 

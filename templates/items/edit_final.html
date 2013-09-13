@@ -8,10 +8,13 @@
 
 {% block mainbar %}
 
-<h1>{{ item }}{% if item.parent %} of {{ item.parent }}{% endif %}</h1>
-
-<div class="item-body">
-  {{ item|typeset_body }}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title">{{ item }}{% if item.parent %} of {{ item.parent }}{% endif %}</h4>
+  </div>
+  <div class="panel-body">
+{{ item|typeset_body }}
+  </div>
 </div>
 
 {% if primary_text %}
