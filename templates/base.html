@@ -50,7 +50,7 @@
             <a href="{% url 'items.proofs.views.index' %}">{% trans "Proofs" %}</a>
           </li>
           <li {% if active_nav == 'categories' %}class="active"{% endif %}>
-            <a href="{% url 'tags.views.index' %}">{% trans "Categories" %}</a>
+            <a href="{% url 'tags.views.show' '' %}">{% trans "Categories" %}</a>
           </li>
           <li {% if active_nav == 'sources' %}class="active"{% endif %}>
             <a href="{% url 'sources.views.index' %}">{% trans "Sources" %}</a>

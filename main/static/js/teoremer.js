@@ -62,7 +62,7 @@
             return '/item/' + item;
         },
         sources_index: function() {
-            return '/sources/';
+            return '/source/list';
         },
         sources_add_location_for_item: function(item, source) {
             return '/item/' + item + '/add-validation/' + source;
