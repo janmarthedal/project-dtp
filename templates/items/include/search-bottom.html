@@ -1,25 +1,23 @@
-{% load staticfiles %}
-
 {% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
 var includeView = new teoremer.TagListView({
-    el: $('#include-tags')
+  el: $('#include-tags')
 });
 var excludeView = new teoremer.TagListView({
-    el: $('#exclude-tags')
+  el: $('#exclude-tags')
 });
-var searchTerms = new teoremer.SearchTerms({
-{% if user_id %}
-  user: {{ user_id }}
-{% endif %}
-});
+var searchTerms = new teoremer.SearchTerms();
 var searchList = new teoremer.SearchListView({
-    el: $('#search-item-list'),
-    itemtypes: '{{ itemtypes }}',
-    parameters: searchTerms
-{% if enable_drafts %}
-    ,enable_drafts: true
+  el: $('#search-item-list'),
+  itemtypes: '{{itemtypes}}',
+  statuses: '{{statuses}}',
+  parameters: searchTerms
+{% if restrict %}
+  , restrict: {
+    user: {{user_id}},
+    statuses: '{{restrict}}'
+  }
 {% endif %}
 });
 

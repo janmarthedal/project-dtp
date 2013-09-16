@@ -28,8 +28,8 @@ def profile(request, user_id):
     c = init_context('users',
                      pageuser      = pageuser,
                      init_items    = item_search_to_json(itemtype='D', user=pageuser),
+                     statuses      = 'FRD' if own_profile else 'FR',
                      user_id       = pageuser.pk,
-                     enable_drafts = own_profile,
                      own_profile   = own_profile)
     return render(request, 'users/profile.html', c)
 

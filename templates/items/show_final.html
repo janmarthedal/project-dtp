@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load staticfiles %}
 {% load item_tags %}
 {% load user_tags %}
 {% load utils_tags %}
@@ -85,20 +84,23 @@ published at {{ item.created_at|datetime_user:user }}
     collection: new teoremer.ValidationList({{validations|to_json}})
   });
 
-{% if item.itemtype == "T" %}
+{% if item.itemtype == 'T' %}
   var searchTerms = new teoremer.SearchTerms({
-    parent: "{{ item.final_id }}"
-  {% if user_id %}
-    ,user: {{ user_id }}
-  {% endif %}
+    parent: '{{ item.final_id }}'
   });
   var searchList = new teoremer.SearchListView({
-      el: $('#proof-list'),
-      itemtypes: 'P',
-      parameters: searchTerms
-  {% if user_id %}
-      ,enable_drafts: true
-  {% endif %}
+    el: $('#proof-list'),
+    itemtypes: 'P',
+    parameters: searchTerms,
+{% if user_id %}
+    statuses: 'FRD',
+    restrict: {
+      user: {{ user_id }},
+      statuses: 'D'
+    }
+{% else %}
+    statuses: 'FR'
+{% endif %}
   });
   searchList.collection.reset({{ init_proofs|safe }}, { parse: true });
 {% endif %}

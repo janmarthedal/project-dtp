@@ -447,16 +447,16 @@
             var status = this.options.parameters.get('status');
             var type = this.options.parameters.get('type');
             var html = Handlebars.templates.search_list_container({
-                enable_drafts:      !!this.options.enable_drafts,
-                status_final:       status == 'F',
-                status_review:      status == 'R',
-                status_draft:       status == 'D',
                 enable_definitions: this.options.itemtypes.indexOf('D') != -1,
                 enable_theorems:    this.options.itemtypes.indexOf('T') != -1,
                 enable_proofs:      this.options.itemtypes.indexOf('P') != -1,
                 type_definition:    type == 'D',
                 type_theorem:       type == 'T',
-                type_proof:         type == 'P'
+                type_proof:         type == 'P',
+                status_final:       status == 'F',
+                status_review:      status == 'R',
+                status_draft:       status == 'D',
+                enable_drafts:      this.options.statuses.indexOf('D') != -1
             });
             this.$el.html(html);
             this.collection.each(this.addOne);
@@ -470,8 +470,13 @@
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItemView.$el.get()]);
         },
         doFetch: function(append) {
+            var status = this.options.parameters.get('status');
             var options = {};
             options.data = this.options.parameters.toJSON();
+            console.log(this.options.restrict);
+            if (this.options.restrict && (this.options.restrict.statuses.indexOf(status) != -1)) {
+                options.data.user = this.options.restrict.user;
+            }
             if (append) {
                 var self = this;
                 options.remove = false;
