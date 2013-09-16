@@ -19,7 +19,7 @@
     "name": "Jan Marthedal Rasmussen", 
     "created_at": "2013-08-20T17:54:07Z", 
     "is_active": true, 
-    "last_login": "2013-08-20T17:54:38Z", 
+    "last_login": "2013-09-16T08:38:59Z", 
     "is_admin": false, 
     "password": "!", 
     "email": "jmr@kanooth.com"
@@ -295,6 +295,22 @@
   "fields": {
     "name": "least-upper-bound property", 
     "normalized": "least-upper-bound property"
+  }
+},
+{
+  "pk": 35, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "object", 
+    "normalized": "object"
+  }
+},
+{
+  "pk": 36, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "general", 
+    "normalized": "general"
   }
 },
 {
@@ -610,15 +626,35 @@
   }
 },
 {
-  "pk": 1, 
-  "model": "drafts.draftitem", 
+  "pk": 40, 
+  "model": "tags.category", 
   "fields": {
-    "body": "If $A$ is any [#set] (whose [elements#element] may be [numbers#number] or any other [objects#object]), we write $x \\in A$ to indicate that $x$ is a _member_ (or an _element_) _of_ $A$.\n\nIf $x$ is not a member of $A$, we write $x \\notin A$.", 
-    "status": "D", 
-    "itemtype": "D", 
-    "parent": null, 
-    "modified_at": "2013-08-20T18:01:15Z", 
-    "created_by": 2
+    "tag": 36, 
+    "parent": null
+  }
+},
+{
+  "pk": 41, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 9, 
+    "parent": 40
+  }
+},
+{
+  "pk": 42, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 11, 
+    "parent": 40
+  }
+},
+{
+  "pk": 43, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 35, 
+    "parent": 40
   }
 },
 {
@@ -739,42 +775,6 @@
     "parent": null, 
     "modified_at": "2013-08-21T13:44:52Z", 
     "created_by": 2
-  }
-},
-{
-  "pk": 1, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 2, 
-    "item": 1, 
-    "primary": true
-  }
-},
-{
-  "pk": 2, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 3, 
-    "item": 1, 
-    "primary": true
-  }
-},
-{
-  "pk": 3, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 5, 
-    "item": 1, 
-    "primary": true
-  }
-},
-{
-  "pk": 4, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 6, 
-    "item": 1, 
-    "primary": true
   }
 },
 {
@@ -1045,6 +1045,182 @@
     "category": 39, 
     "item": 10, 
     "primary": true
+  }
+},
+{
+  "pk": 2, 
+  "model": "drafts.draftvalidation", 
+  "fields": {
+    "source": 3, 
+    "created_at": "2013-09-13T12:31:52Z", 
+    "location": "Definition 1.10, page 4", 
+    "created_by": 2, 
+    "item": 10
+  }
+},
+{
+  "pk": 1, 
+  "model": "items.finalitem", 
+  "fields": {
+    "body": "If $A$ is any [#set] (whose [elements#element] may be any [objects#object]), we write $x \\in A$ to indicate that $x$ is a _member_ (or an _element_) _of_ $A$.\n\nIf $x$ is not a member of $A$, we write $x \\notin A$.", 
+    "status": "F", 
+    "modified_by": 2, 
+    "itemtype": "D", 
+    "parent": null, 
+    "final_id": "D4772", 
+    "created_at": "2013-09-16T08:40:06Z", 
+    "modified_at": "2013-09-16T08:40:06Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 1, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 2, 
+    "item": 1, 
+    "primary": true
+  }
+},
+{
+  "pk": 2, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 3, 
+    "item": 1, 
+    "primary": true
+  }
+},
+{
+  "pk": 3, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 5, 
+    "item": 1, 
+    "primary": true
+  }
+},
+{
+  "pk": 4, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 6, 
+    "item": 1, 
+    "primary": true
+  }
+},
+{
+  "pk": 1, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 41, 
+    "item": 1, 
+    "tag": 9
+  }
+},
+{
+  "pk": 2, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 42, 
+    "item": 1, 
+    "tag": 11
+  }
+},
+{
+  "pk": 3, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 43, 
+    "item": 1, 
+    "tag": 35
+  }
+},
+{
+  "pk": 1, 
+  "model": "items.itemvalidation", 
+  "fields": {
+    "source": 3, 
+    "created_at": "2013-09-16T08:40:07Z", 
+    "location": "Definition 1.3, page 3", 
+    "created_by": 2, 
+    "item": 1
+  }
+},
+{
+  "pk": 3, 
+  "model": "sources.refauthor", 
+  "fields": {
+    "name": "Rudin, Walter"
+  }
+},
+{
+  "pk": 4, 
+  "model": "sources.refauthor", 
+  "fields": {
+    "name": "Hardy, Godfrey Harold"
+  }
+},
+{
+  "pk": 5, 
+  "model": "sources.refauthor", 
+  "fields": {
+    "name": "Wright, Edward Maitland"
+  }
+},
+{
+  "pk": 3, 
+  "model": "sources.refnode", 
+  "fields": {
+    "publisher": "McGraw-Hill", 
+    "note": null, 
+    "sourcetype": "book", 
+    "isbn13": "978-0070856134", 
+    "title": "Principles of Mathematical Analysis", 
+    "series": "International Series in Pure & Applied Mathematics", 
+    "created_at": "2013-09-13T12:28:03Z", 
+    "address": null, 
+    "number": null, 
+    "created_by": 2, 
+    "month": null, 
+    "volume": null, 
+    "edition": "Third", 
+    "authors": [
+      3
+    ], 
+    "editors": [], 
+    "pages": "x+342", 
+    "year": "1976", 
+    "journal": null, 
+    "isbn10": "0-07-085613-3"
+  }
+},
+{
+  "pk": 4, 
+  "model": "sources.refnode", 
+  "fields": {
+    "publisher": "Oxford University Press", 
+    "note": null, 
+    "sourcetype": "book", 
+    "isbn13": null, 
+    "title": "An Introduction to the Theory of Numbers", 
+    "series": "Oxford Science Publications", 
+    "created_at": "2013-09-16T08:49:46Z", 
+    "address": null, 
+    "number": null, 
+    "created_by": 2, 
+    "month": null, 
+    "volume": null, 
+    "edition": "Fifth", 
+    "authors": [
+      4, 
+      5
+    ], 
+    "editors": [], 
+    "pages": null, 
+    "year": "1979", 
+    "journal": null, 
+    "isbn10": "0-19-853171-0"
   }
 }
 ]
