@@ -9,7 +9,7 @@ from sources.models import RefNode
 
 @require_safe
 def index(request):
-    c = init_context('sources', sourcelist=RefNode.objects.all())
+    c = init_context('sources', sourcelist=[source.json_serializable() for source in RefNode.objects.all()])
     return render(request, 'sources/index.html', c)
 
 @logged_in_or_404

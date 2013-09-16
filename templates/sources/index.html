@@ -1,12 +1,13 @@
 {% extends "base.html" %}
+{% load utils_tags %}
 
 {% block title %}Sources{% endblock %}
 
 {% block mainbar %}
 
-<h1>Sources</h1>
+<div id="source-list">loading...</div>
 
-{% endblock %}
+{% endblock mainbar %}
 
 {% block sidebar %}
 
@@ -14,4 +15,14 @@
 
 <p><a class="btn btn-primary" href="{% url 'sources.views.add_source' %}">Add source</a></p>
 
-{% endblock %}
+{% endblock sidebar %}
+
+{% block bodybottom %}
+
+{% include 'include/js-scripts.html' only %}
+
+<script type="text/javascript">
+teoremer.page.source_list('#source-list', {{ sourcelist|to_json }});
+</script>
+
+{% endblock bodybottom %}

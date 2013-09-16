@@ -1,7 +1,5 @@
 (function(window) {
 
-    var $ = window.jQuery;
-
     var api_prefix = '/api/';
 
     var teoremer = {};
@@ -13,7 +11,6 @@
             // these HTTP methods do not require CSRF protection
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
-
 
         $.ajaxSetup({
             crossDomain: false, // obviates need for sameOrigin test
@@ -61,8 +58,11 @@
         items_show_final: function(item) {
             return '/item/' + item;
         },
-        sources_index: function() {
+        source_index: function() {
             return '/source/list';
+        },
+        source_item: function(id) {
+            return '/source/id/' + id;
         },
         sources_add_location_for_item: function(item, source) {
             return '/item/' + item + '/add-validation/' + source;
@@ -335,6 +335,10 @@
 
     teoremer.ValidationList = Backbone.Collection.extend({
         model: ValidationItem
+    });
+
+    teoremer.SourceList = Backbone.Collection.extend({
+        model: teoremer.SourceItem
     });
 
     /***************************
@@ -924,7 +928,7 @@
                         } else if (self.options.mode[0] == 'draft') {
                             redirect(to_url.sources_add_location_for_draft(self.options.mode[1], model.get('id')));
                         } else {
-                            redirect(to_url.sources_index());
+                            redirect(to_url.source_index());
                         }
                     },
                     error: function(model, error) {
@@ -1150,6 +1154,27 @@
         }
     });
 
+    teoremer.SourceListView = Backbone.View.extend({
+        // standard
+        initialize: function() {
+            _.bindAll(this, 'render', '_addOne');
+            this.collection.bind('reset', this.render);
+            this.render();
+        },
+        render: function() {
+            this.$el.html(Handlebars.templates.source_list_container());
+            this.collection.each(this._addOne);
+        },
+        // helpers
+        _addOne: function(item) {
+            var html = Handlebars.templates.source_list_item({
+                'link': '#', //to_url.source_item(item.get('id')),
+                'source': typeset_source(item.attributes)
+            });
+            this.$('div').append(html);
+        }
+    });
+
     window.teoremer = teoremer;
 
 })(window);
@@ -1163,7 +1188,6 @@ $(function() {
         elem.find('span.glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
         elem.next().toggle();
     }
-
 
     $('.expander-in').each(function() {
         $(this).next().hide();
