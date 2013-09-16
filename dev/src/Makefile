@@ -1,6 +1,6 @@
-all: ../main/static/js/templates.js
+all: ../../main/static/js/templates.js
 
-../main/static/js/templates.js: handlebars
+../../main/static/js/templates.js: handlebars
 	cp handlebars/teoremer_templates.js $@
 
 handlebars:
