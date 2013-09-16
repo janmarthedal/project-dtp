@@ -119,6 +119,11 @@
             if (items.length) {
                 ret += items.join(', ') + '. ';
             }
+            // isbn
+            items = _.compact([data.isbn10, data.isbn13]);
+            if (items.length) {
+                ret += 'ISBN: ' + items.join(', ') + '. ';
+            }
         }
         // note
         if (data.note) {
@@ -468,7 +473,6 @@
             var status = this.options.parameters.get('status');
             var options = {};
             options.data = this.options.parameters.toJSON();
-            console.log(this.options.restrict);
             if (this.options.restrict && (this.options.restrict.statuses.indexOf(status) != -1)) {
                 options.data.user = this.options.restrict.user;
             }
@@ -938,7 +942,7 @@
             var view = this, key, value;
             view.$('input').each(function() {
                 key = $(this).attr('id').slice(6);
-                if (key.match(/^[a-z]+$/)) {
+                if (key.match(/^[a-z]+$/) || key.match(/^isbn(10|13)$/)) {
                     value = $(this).val();
                     value ? view.model.set(key, value) : view.model.unset(key);
                 } else if (key.match(/^[a-z]+0$/)) {

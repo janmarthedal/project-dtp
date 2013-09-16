@@ -1,7 +1,7 @@
 /* override Bootstrap */
-.container {
-  max-width: 2000px;
-}
+/*.container {
+  max-width: none;
+}*/
 
 /* own styles */
 span.category {
