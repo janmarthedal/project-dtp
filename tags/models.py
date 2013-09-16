@@ -1,4 +1,5 @@
 from django.db import models
+from django.shortcuts import get_object_or_404
 from tags.helpers import normalize_tag
 
 class TagManager(models.Manager):
@@ -6,7 +7,6 @@ class TagManager(models.Manager):
         normalized = normalize_tag(name)
         tag = self.get_or_create(name=name, defaults={'normalized':normalized})[0]
         return tag
-
 
 class Tag(models.Model):
     class Meta:
@@ -26,6 +26,12 @@ class CategoryManager(models.Manager):
             if not isinstance(tag, Tag):
                 tag = Tag.objects.fetch(tag)
             category = self.get_or_create(tag=tag, parent=category)[0]
+        return category
+    def from_tag_names_or_404(self, tags):
+        category = None
+        for tag_name in tags:
+            tag = get_object_or_404(Tag, name=tag_name)
+            category = get_object_or_404(Category, tag=tag, parent=category)
         return category
     def default_category_for_tag(self, tag):
         return self.from_tag_list(['general', tag])

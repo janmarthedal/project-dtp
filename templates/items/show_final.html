@@ -16,7 +16,7 @@
   </div>
 </div>
 
-{% include 'items/include/categories.html' with categories=item.primary_categories no_categories_text="No primary categories" only %}
+{% include 'include/categories.html' with categories=item.primary_categories no_categories_text="No primary categories" only %}
 
 {% if validations %}
 <h4 class="expander-in">{{ validations|length }} validation{{ validations|length|pluralize }} <span class="glyphicon"></span></h4>
@@ -48,7 +48,7 @@ published at {{ item.created_at|datetime_user:user }}
 
 <h4>Categories</h4>
 
-{% include 'items/include/categories.html' with categories=item.secondary_categories no_categories_text="None" only %}
+{% include 'include/categories.html' with categories=item.secondary_categories no_categories_text="None" only %}
 
 <h4>Actions</h4>
 
