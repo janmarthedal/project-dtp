@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from tags.models import Category, Tag
 from drafts.models import BaseItem
+from sources.models import ValidationBase
 
 import logging
 logger = logging.getLogger(__name__)
@@ -28,6 +29,9 @@ class FinalItemManager(models.Manager):
                 for itemcat in draft_item.draftitemcategory_set.all():
                     FinalItemCategory.objects.create(item=item, category=itemcat.category,
                                                      primary=itemcat.primary)
+                for validation in draft_item.draftvalidation_set.all():
+                    ItemValidation.objects.create(item=item, created_by=validation.created_by,
+                                                  source=validation.source, location=validation.location)
                 return item
             except IntegrityError:
                 pass
@@ -114,3 +118,8 @@ class ItemTagCategory(models.Model):
     def json_serializable(self):
         return { 'tag':      self.tag,
                  'category': self.category }
+
+class ItemValidation(ValidationBase):
+    class Meta:
+        db_table = 'item_validation'
+    item = models.ForeignKey(FinalItem)

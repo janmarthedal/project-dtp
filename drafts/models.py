@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from tags.models import Category
 from tags.helpers import CategoryCollection
+from sources.models import ValidationBase
 
 import logging
 logger = logging.getLogger(__name__)
@@ -112,3 +113,8 @@ class DraftItemCategory(models.Model):
     item     = models.ForeignKey(DraftItem, db_index=True)
     category = models.ForeignKey(Category, db_index=False)
     primary  = models.BooleanField()
+
+class DraftValidation(ValidationBase):
+    class Meta:
+        db_table = 'draft_validation'
+    item = models.ForeignKey(DraftItem)

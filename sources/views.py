@@ -2,10 +2,10 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
-from drafts.models import DraftItem
-from items.models import FinalItem
+from drafts.models import DraftItem, DraftValidation
+from items.models import FinalItem, ItemValidation
 from main.helpers import init_context, logged_in_or_404
-from sources.models import RefNode, ItemValidation, DraftValidation
+from sources.models import RefNode
 
 @require_safe
 def index(request):

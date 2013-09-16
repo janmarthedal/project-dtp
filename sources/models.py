@@ -1,8 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-from drafts.models import DraftItem
-from items.models import FinalItem
 
 class RefAuthor(models.Model):
     class Meta:
@@ -62,13 +60,3 @@ class ValidationBase(models.Model):
             'source':   self.source.json_serializable(),
             'location': self.location
         }
-
-class ItemValidation(ValidationBase):
-    class Meta:
-        db_table = 'item_validation'
-    item = models.ForeignKey(FinalItem)
-
-class DraftValidation(ValidationBase):
-    class Meta:
-        db_table = 'draft_validation'
-    item = models.ForeignKey(DraftItem)
