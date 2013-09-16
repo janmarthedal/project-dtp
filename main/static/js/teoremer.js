@@ -14,6 +14,7 @@
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
 
+
         $.ajaxSetup({
             crossDomain: false, // obviates need for sameOrigin test
             beforeSend: function(xhr, settings) {
@@ -54,16 +55,21 @@
     }
 
     var to_url = {
-        drafts_show:
-            function(arg1) { return '/draft/' + arg1; },
-        items_show_final:
-            function(item) { return '/item/' + item; },
-        sources_index:
-            function() { return '/sources/'; },
-        sources_add_location_for_item:
-            function(item, source) { return '/item/' + item + '/add-validation/' + source; },
-        sources_add_location_for_draft:
-            function(item, source) { return '/draft/' + item + '/add-validation/' + source; }
+        drafts_show: function(arg1) {
+            return '/draft/' + arg1;
+        },
+        items_show_final: function(item) {
+            return '/item/' + item;
+        },
+        sources_index: function() {
+            return '/sources/';
+        },
+        sources_add_location_for_item: function(item, source) {
+            return '/item/' + item + '/add-validation/' + source;
+        },
+        sources_add_location_for_draft: function(item, source) {
+            return '/draft/' + item + '/add-validation/' + source;
+        }
     };
 
     function redirect(url) {
@@ -75,10 +81,12 @@
         _.each(attrs, function(value, key) {
             if (_.isArray(value)) {
                 var v = _.compact(_.map(value, $.trim));
-                if (v.length) data[key] = escape ? _.map(v, _.escape) : v;
+                if (v.length)
+                    data[key] = escape ? _.map(v, _.escape): v;
             } else if (_.isString(value)) {
                 var v = $.trim(value);
-                if (v) data[key] = escape ? _.escape(v) : v;
+                if (v)
+                    data[key] = escape ? _.escape(v): v;
             }
         });
         return data;
@@ -86,6 +94,9 @@
 
     function typeset_source(attrs) {
         var data = cleanValues(attrs, true), ret = '', type = data.type, items;
+        if (_.size(data) <= 1) {
+            return '<i>(empty)</i>';
+        }
         // author
         if (data.author) {
             if (data.author.length === 1) {
@@ -108,9 +119,12 @@
             }
             // series, volume, number
             items = [];
-            if (data.series) items.push(data.series);
-            if (data.volume) items.push('Volume ' + data.volume);
-            if (data.number) items.push('Number ' + data.number);
+            if (data.series)
+                items.push(data.series);
+            if (data.volume)
+                items.push('Volume ' + data.volume);
+            if (data.number)
+                items.push('Number ' + data.number);
             if (items.length) {
                 ret += items.join(', ') + '. ';
             }
@@ -147,7 +161,9 @@
             return this.get('name');
         },
         parse: function(resp) {
-            return { name: resp };
+            return {
+                name: resp
+            };
         }
     });
 
@@ -155,7 +171,9 @@
         model: TagItem,
         parse: function(resp) {
             return _.map(resp, function(item) {
-                return new TagItem(item, { parse: true });
+                return new TagItem(item, {
+                    parse: true
+                });
             });
         }
     });
@@ -176,7 +194,9 @@
         },
         parse: function(resp) {
             return {
-                tag_list: new TagList(resp, { parse: true })
+                tag_list: new TagList(resp, {
+                    parse: true
+                })
             };
         }
     });
@@ -185,7 +205,9 @@
         model: Category,
         parse: function(resp) {
             return _.map(resp, function(item) {
-                return new Category(item, { parse: true });
+                return new Category(item, {
+                    parse: true
+                });
             });
         }
     });
@@ -199,19 +221,25 @@
         },
         parse: function(resp) {
             return {
-                tag: new TagItem(resp.tag, { parse: true }),
-                category: new Category(resp.category, { parse: true })
+                tag: new TagItem(resp.tag, {
+                    parse: true
+                }),
+                category: new Category(resp.category, {
+                    parse: true
+                })
             };
         }
     });
 
     var TagAssociationList = Backbone.Collection.extend({
-       model: TagAssociation,
-       parse: function(resp) {
+        model: TagAssociation,
+        parse: function(resp) {
             return _.map(resp, function(item) {
-                return new TagAssociation(item, { parse: true });
+                return new TagAssociation(item, {
+                    parse: true
+                });
             });
-       }
+        }
     });
 
     var MathItem = Backbone.Model;
@@ -242,13 +270,17 @@
         urlRoot: api_prefix + 'draft/',
         parse: function(resp) {
             var parsed = {
-                body:    resp.body,
-                pricats: new CategoryList(resp.pricats, { parse: true }),
-                seccats: new CategoryList(resp.seccats, { parse: true })
+                body: resp.body,
+                pricats: new CategoryList(resp.pricats, {
+                    parse: true
+                }),
+                seccats: new CategoryList(resp.seccats, {
+                    parse: true
+                })
             };
-            if ('id' in resp) {                // updating
+            if ('id' in resp) {// updating
                 parsed.id = resp.id;
-            } else {                           // new
+            } else {// new
                 parsed.type = resp.type;
                 if ('parent' in resp) {
                     parsed.parent = resp.parent;
@@ -262,10 +294,16 @@
         urlRoot: api_prefix + 'item/',
         parse: function(resp) {
             return {
-                id:        resp.id,
-                pricats:   new CategoryList(resp.pricats, { parse: true }),
-                seccats:   new CategoryList(resp.seccats, { parse: true }),
-                tagcatmap: new TagAssociationList(resp.tagcatmap, { parse: true })
+                id: resp.id,
+                pricats: new CategoryList(resp.pricats, {
+                    parse: true
+                }),
+                seccats: new CategoryList(resp.seccats, {
+                    parse: true
+                }),
+                tagcatmap: new TagAssociationList(resp.tagcatmap, {
+                    parse: true
+                })
             };
         }
     });
@@ -343,12 +381,12 @@
             this.render();
             this.input_field = this.$('#tag-name-' + this.uid);
             /*this.input_field.typeahead({
-                source: function(query, process) {
-                    $.get(api_prefix + 'tags/prefixed/' + query, function(data) {
-                        process(data);
-                    }, 'json');
-                }
-            });*/
+             source: function(query, process) {
+             $.get(api_prefix + 'tags/prefixed/' + query, function(data) {
+             process(data);
+             }, 'json');
+             }
+             });*/
         },
         render: function() {
             var html = Handlebars.templates.tag_list_input({
@@ -419,13 +457,27 @@
 
     teoremer.SearchListView = Backbone.View.extend({
         events: {
-            'click .search-list-more':   function() { this.doFetch(true); },
-            'click .select-final':       function() { this.options.parameters.set('status', 'F'); },
-            'click .select-review':      function() { this.options.parameters.set('status', 'R'); },
-            'click .select-draft':       function() { this.options.parameters.set('status', 'D'); },
-            'click .select-definitions': function() { this.options.parameters.set('type', 'D'); },
-            'click .select-theorems':    function() { this.options.parameters.set('type', 'T'); },
-            'click .select-proofs':      function() { this.options.parameters.set('type', 'P'); }
+            'click .search-list-more': function() {
+                this.doFetch(true);
+            },
+            'click .select-final': function() {
+                this.options.parameters.set('status', 'F');
+            },
+            'click .select-review': function() {
+                this.options.parameters.set('status', 'R');
+            },
+            'click .select-draft': function() {
+                this.options.parameters.set('status', 'D');
+            },
+            'click .select-definitions': function() {
+                this.options.parameters.set('type', 'D');
+            },
+            'click .select-theorems': function() {
+                this.options.parameters.set('type', 'T');
+            },
+            'click .select-proofs': function() {
+                this.options.parameters.set('type', 'P');
+            }
         },
         initialize: function() {
             _.bindAll(this, 'render', 'addOne', 'doFetch', 'fetchReset');
@@ -627,8 +679,11 @@
             this.collection = new TagList();
             this.collection.on('add remove', this.renderTags);
             this.render();
-            this.setElement(this.$('.modal'));  // so 'this.remove' functions correctly
-            this.$el.modal({ 'show': true });
+            this.setElement(this.$('.modal'));
+            // so 'this.remove' functions correctly
+            this.$el.modal({
+                'show': true
+            });
             this.input_element = this.$('input');
             this.input_element.focus();
         },
@@ -814,33 +869,33 @@
     });
 
     var sourceFields = {
-        'author':    { 'type': 'array',  'size': '2', 'maxlen': 255, 'name': 'Author' },
-        'editor':    { 'type': 'array',  'size': '2', 'maxlen': 255, 'name': 'Editor' },
-        'title':     { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Title'  },
-        'publisher': { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Publisher' },
-        'year':      { 'type': 'string', 'size': '1', 'maxlen': 32,  'name': 'Year' },
-        'volume':    { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Volume' },
-        'number':    { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Number' },
-        'series':    { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Series' },
-        'address':   { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Address' },
-        'edition':   { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Edition' },
-        'month':     { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Month' },
-        'journal':   { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Journal' },
-        'pages':     { 'type': 'string', 'size': '1', 'maxlen': 255, 'name': 'Pages' },
-        'isbn10':    { 'type': 'string', 'size': '2', 'maxlen': 32,  'name': '10-digit ISBN' },
-        'isbn13':    { 'type': 'string', 'size': '2', 'maxlen': 32,  'name': '13-digit ISBN' },
-        'note':      { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Note' }
+        'author':    { 'type': 'array',  'size': '4', 'maxlen': 255, 'name': 'Author' },
+        'editor':    { 'type': 'array',  'size': '4', 'maxlen': 255, 'name': 'Editor' },
+        'title':     { 'type': 'string', 'size': '8', 'maxlen': 255, 'name': 'Title' },
+        'publisher': { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Publisher' },
+        'year':      { 'type': 'string', 'size': '2', 'maxlen': 32,  'name': 'Year' },
+        'volume':    { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Volume' },
+        'number':    { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Number' },
+        'series':    { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Series' },
+        'address':   { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Address' },
+        'edition':   { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Edition' },
+        'month':     { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Month' },
+        'journal':   { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Journal' },
+        'pages':     { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Pages' },
+        'isbn10':    { 'type': 'string', 'size': '4', 'maxlen': 32,  'name': '10-digit ISBN' },
+        'isbn13':    { 'type': 'string', 'size': '4', 'maxlen': 32,  'name': '13-digit ISBN' },
+        'note':      { 'type': 'string', 'size': '8', 'maxlen': 255, 'name': 'Note' }
     };
 
     var sourceTypes = {
         'book': {
-            'name':  'Book',
-            'show':  ['author', 'title', 'publisher', 'year'],
+            'name': 'Book',
+            'show': ['author', 'title', 'publisher', 'year'],
             'extra': ['isbn10', 'isbn13', 'editor', 'volume', 'number', 'series', 'address', 'edition', 'month', 'note']
         },
         'article': {
-            'name':  'Article',
-            'show':  ['author', 'title', 'journal', 'year'],
+            'name': 'Article',
+            'show': ['author', 'title', 'journal', 'year'],
             'extra': ['volume', 'number', 'pages', 'month', 'note']
         }
     };
@@ -855,7 +910,7 @@
             },
             'click #source-fields a': function(event) {
                 var field_key = $(event.currentTarget).data('key');
-                var value = this.model.has(field_key) ? this.model.get(field_key) : [''];
+                var value = this.model.has(field_key) ? this.model.get(field_key): [''];
                 this.model.set(field_key, value.concat(''));
                 this.render();
             },
@@ -887,7 +942,9 @@
         _setType: function(type) {
             var attrs = cleanValues(this.model.attributes);
             attrs.type = type;
-            this.model.clear({ 'silent': true });
+            this.model.clear({
+                'silent': true
+            });
             this.model.set(attrs);
             this.render();
         },
@@ -906,10 +963,16 @@
 
             var html = Handlebars.templates.source_edit({
                 'types': _.map(sourceTypes, function(value, key) {
-                    return { 'key': key, 'name': sourceTypes[key].name };
+                    return {
+                        'key': key,
+                        'name': sourceTypes[key].name
+                    };
                 }),
                 'extra': _.map(_.difference(type_data.extra, extras_to_show), function(key) {
-                    return { 'key': key, 'name': sourceFields[key].name };
+                    return {
+                        'key': key,
+                        'name': sourceFields[key].name
+                    };
                 })
             });
             this.$el.html(html);
@@ -922,12 +985,11 @@
             _.each(show, function(field_key) {
                 var field_config = sourceFields[field_key];
                 var data = {
-                    'id':    field_key,
-                    'name':  field_config.name,
-                    'size':  field_config.size,
-                    'max':   field_config.maxlen,
-                    'value': this.model.has(field_key) ? this.model.get(field_key)
-                                                         : (field_config.type == 'array' ? [''] : '')
+                    'id': field_key,
+                    'name': field_config.name,
+                    'size': field_config.size,
+                    'max': field_config.maxlen,
+                    'value': this.model.has(field_key) ? this.model.get(field_key): (field_config.type == 'array' ? [''] : '')
                 };
                 if (field_config.type == 'string') {
                     source_fields_element.append(Handlebars.templates.source_string_field(data));
@@ -936,7 +998,7 @@
                 }
             }, this);
 
-           this.delegateEvents();
+            this.delegateEvents();
         },
         _updateModel: function() {
             var view = this, key, value;
@@ -949,11 +1011,13 @@
                     key = key.slice(0, -1);
                     var idBase = '#input-' + key;
                     value = [];
-                    for (var j=0;; j++) {
+                    for (var j = 0; ; j++) {
                         var elem = $(idBase + j), v;
-                        if (!elem.length) break;
+                        if (!elem.length)
+                            break;
                         v = elem.val();
-                        if (v) value.push(v);
+                        if (v)
+                            value.push(v);
                     }
                     value.length ? view.model.set(key, value) : view.model.unset(key);
                 }
@@ -981,8 +1045,10 @@
                 url = to_url.sources_add_location_for_item(this.options.mode[1], this.model.get('id'));
             } else if (this.options.mode[0] == 'draft') {
                 url = to_url.sources_add_location_for_draft(this.options.mode[1], this.model.get('id'));
-            } 
-            return { 'href': url };
+            }
+            return {
+                'href': url
+            };
         },
         initialize: function() {
             _.bindAll(this, 'render');
@@ -1012,7 +1078,11 @@
             this.collection.each(this._addOne);
         },
         _addOne: function(item) {
-            var itemView = new SourceSearchItemView({ model: item, mode: this.options.mode });
+            var itemView = new SourceSearchItemView({
+                model: item,
+                mode: this.options.mode
+            });
+            this.$('.no-matches-message').hide();
             this.$('div').append(itemView.render().el);
         },
         _search: function() {
@@ -1023,10 +1093,13 @@
                     attrs[key] = JSON.stringify(attrs[key]);
                 }
             }
-            if (_.isEmpty(_.pick(attrs, 'author', 'title'))) {
+            if (_.isEmpty(_.pick(attrs, 'author', 'title', 'isbn10', 'isbn13'))) {
                 this.collection.reset();
             } else {
-                this.collection.fetch({ 'data': attrs, 'reset': true });
+                this.collection.fetch({
+                    'data': attrs,
+                    'reset': true
+                });
             }
         },
         _check: function() {
@@ -1070,7 +1143,9 @@
         },
         // helpers
         _addOne: function(item) {
-            var validationView = new ValidationView({ model: item });
+            var validationView = new ValidationView({
+                model: item
+            });
             this.$('ul').append(validationView.render().el);
         }
     });
@@ -1088,6 +1163,7 @@ $(function() {
         elem.find('span.glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
         elem.next().toggle();
     }
+
 
     $('.expander-in').each(function() {
         $(this).next().hide();
