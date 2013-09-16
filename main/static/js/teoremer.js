@@ -53,26 +53,21 @@
         return st.charAt(0).toUpperCase() + st.slice(1);
     }
 
-    function reverse_view(view, arg1, arg2) {
-        var url = '/';
-        if (view == 'drafts.views.show') {
-            url = '/draft/' + arg1;
-        } else if (view == 'items.views.show_final') {
-            url = '/item/' + arg1;
-        } else if (view == 'sources.views.index') {
-            url = '/sources/';
-        } else if (view == 'sources.views.add_location_for_item') {
-            url = '/item/' + arg1 + '/add-validation/' + arg2;
-        } else if (view == 'sources.views.add_location_for_draft') {
-            url = '/draft/' + arg1 + '/add-validation/' + arg2;
-        } else {
-            console.log('Cannot do reverse lookup for view ' + view);
-        }
-        return url;
-    }
+    var to_url = {
+        drafts_show:
+            function(arg1) { return '/draft/' + arg1; },
+        items_show_final:
+            function(item) { return '/item/' + item; },
+        sources_index:
+            function() { return '/sources/'; },
+        sources_add_location_for_item:
+            function(item, source) { return '/item/' + item + '/add-validation/' + source; },
+        sources_add_location_for_draft:
+            function(item, source) { return '/draft/' + item + '/add-validation/' + source; }
+    };
 
-    function reverse_view_redirect(view, arg1, arg2) {
-        window.location.href = reverse_view(view, arg1, arg2);
+    function redirect(url) {
+        window.location.href = url;
     }
 
     function cleanValues(attrs, escape) {
@@ -602,7 +597,7 @@
             this.model.save(null, {
                 wait: true,
                 success: function(model, response) {
-                    reverse_view_redirect('drafts.views.show', model.get('id'));
+                    redirect(to_url.drafts_show(model.get('id')));
                 },
                 error: function(model, error) {
                     console.log(model.toJSON());
@@ -804,7 +799,7 @@
             this.model.save(null, {
                 wait: true,
                 success: function(model, response) {
-                    reverse_view_redirect('items.views.show_final', model.get('id'));
+                    redirect(to_url.items_show_final(model.get('id')));
                 },
                 error: function(model, error) {
                     console.log(model.toJSON());
@@ -866,13 +861,11 @@
                     wait: true,
                     success: function(model, response) {
                         if (self.options.mode[0] == 'item') {
-                            reverse_view_redirect('sources.views.add_location_for_item',
-                                                  self.options.mode[1], model.get('id'));
+                            redirect(to_url.sources_add_location_for_item(self.options.mode[1], model.get('id')));
                         } else if (self.options.mode[0] == 'draft') {
-                            reverse_view_redirect('sources.views.add_location_for_draft',
-                                                  self.options.mode[1], model.get('id'));
+                            redirect(to_url.sources_add_location_for_draft(self.options.mode[1], model.get('id')));
                         } else {
-                            reverse_view_redirect('sources.views.index');
+                            redirect(to_url.sources_index());
                         }
                     },
                     error: function(model, error) {
@@ -981,9 +974,9 @@
         attributes: function() {
             var url = '#';
             if (this.options.mode[0] == 'item') {
-                url = reverse_view('sources.views.add_location_for_item', this.options.mode[1], this.model.get('id'));
+                url = to_url.sources_add_location_for_item(this.options.mode[1], this.model.get('id'));
             } else if (this.options.mode[0] == 'draft') {
-                url = reverse_view('sources.views.add_location_for_draft', this.options.mode[1], this.model.get('id'));
+                url = to_url.sources_add_location_for_draft(this.options.mode[1], this.model.get('id'));
             } 
             return { 'href': url };
         },
