@@ -1,9 +1,8 @@
-all: teoremer_handlebars.js
+all: teoremer_templates.js
 
-teoremer_handlebars.js: *.handlebars helpers.js
+teoremer_templates.js: *.handlebars helpers.js
 	handlebars *.handlebars > $@
 	cat helpers.js >> $@
 
 clean:
-	rm -f teoremer_handlebars.js
-
+	rm -f teoremer_templates.js
