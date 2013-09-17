@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load browserid %}
+{% load item_tags %}
+
+{% block title %}Definitions for category{% endblock %}
+
+{% block mainbar %}
+
+<div id="search-item-list">loading...</div>
+
+{% endblock %}
+
+{% block sidebar %}
+
+<h4>Actions</h4>
+
+<h4>Included tags</h4>
+<div id="include-tags"></div>
+
+<h4>Excluded tags</h4>
+<div id="exclude-tags"></div>
+
+{% endblock %}
+
+{% block bodybottom %}
+{% include 'include/js-scripts.html' only %}
+<script type="text/javascript">
+teoremer.item_search('D', 'FR', {{init_items|safe}}, {{category}});
+</script>
+{% endblock %}

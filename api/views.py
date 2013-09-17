@@ -28,6 +28,7 @@ def item_list(request):
         parent = request.GET.get('parent')
         list_user = None
         user_id = request.GET.get('user')
+        category = request.GET.get('category')
         if user_id:
             list_user = get_object_or_404(get_user_model(), pk=user_id)
             if status == 'D' and request.user != list_user:
@@ -42,6 +43,7 @@ def item_list(request):
                                  parent=parent,
                                  include_tag_names=include_tags,
                                  exclude_tag_names=exclude_tags,
+                                 category=category,
                                  status=status,
                                  offset=offset,
                                  limit=limit,

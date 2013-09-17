@@ -36,7 +36,7 @@
 {% block bodybottom %}
 {% include 'include/js-scripts.html' only %}
 <script type="text/javascript">
-teoremer.item_search('DTP', 'FRD', {{init_items|safe}}, 'FRD', {{user_id}});
+teoremer.item_search('DTP', 'FRD', {{init_items|safe}}, undefined, 'FRD', {{user_id}});
 </script>
 {% browserid_js %}
 {% endblock %}

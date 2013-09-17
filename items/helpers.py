@@ -109,7 +109,7 @@ def typesetConcept(text, tag_name, tag_to_category_map):
     try:
         tag_list = tag_to_category_map[tag_name]
         path = '/'.join(map(lambda tag: urlquote(tag, safe=''), tag_list))
-        href = reverse('tags.views.show', args=[path]) + '?type=d'
+        href = reverse('tags.views.list_definitions', args=[path])
         return '<a href="%s"><i>%s</i></a>' % (href, link_text)
     except KeyError:
         return '<a href="#" rel="tooltip" data-original-title="tag: %s"><i>%s</i></a>' % (tag_name, link_text)
@@ -188,7 +188,8 @@ def _extract_final_item_attributes(item):
     return result
 
 
-def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclude_tag_names=[], status='F', offset=0, limit=5, user=None):
+def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclude_tag_names=[],
+                        status='F', category=None, offset=0, limit=5, user=None):
     if itemtype and itemtype not in ['D', 'T', 'P']:
         raise Http404
     if status == 'F':
@@ -204,6 +205,7 @@ def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclud
         query = query.filter(parent__final_id=parent)
     if user:
         query = query.filter(created_by=user)
+
     (include_tags, not_found) = tag_names_to_tag_objects(include_tag_names)
     if not not_found:
         (exclude_tags, not_found) = tag_names_to_tag_objects(exclude_tag_names)
@@ -211,16 +213,26 @@ def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclud
             query = query.filter(itemtag__tag=tag)
         for tag in exclude_tags:
             query = query.exclude(itemtag__tag=tag)
+
+    if category:
+        query = query.filter(finalitemcategory__primary=True, finalitemcategory__category=category)
+
     if status == 'F':
         query = query.order_by('-created_at')
     else:
         query = query.order_by('-modified_at')
+
     items = query[offset:(offset+limit+1)]
-    result = { 'meta': { 'offset':   offset,
-                         'count':    min(len(items), limit),
-                         'has_more': len(items) > limit }}
+    result = {
+        'meta': {
+            'offset':   offset,
+            'count':    min(len(items), limit),
+            'has_more': len(items) > limit
+        }
+    }
     if status == 'F':
         result['items'] = [_extract_final_item_attributes(item) for item in items[:limit]]
     else:
         result['items'] = [_extract_draft_item_attributes(item) for item in items[:limit]]
+
     return json_encode(result)

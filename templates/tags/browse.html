@@ -8,12 +8,14 @@
 <h4>Current category</h4>
 
 <div>
-{% for item in category_items %}
+{% if category_items %}
+{%   for item in category_items %}
 <a href="{{item.link}}" class="btn btn-default btn-xs">/</a>
-{% if item.name %}
 <span>{{item.name|typeset_tag}}</span>
+{%   endfor %}
+{% else %}
+<button type="button" class="btn btn-default btn-xs" disabled="disabled">/</button>
 {% endif %}
-{% endfor %}
 </div>
 
 <h4>Sub categories</h4>
@@ -21,7 +23,7 @@
 {% if result_list %}
 <div class="list-group">
 {% for item in result_list %}
-<a href="{{item.link}}" class="list-group-item">{{item.name}}</a>
+<a href="{{item.link}}" class="list-group-item">{{item.name|typeset_tag}}</a>
 {% endfor %}
 </div>
 {% else %}
@@ -29,3 +31,12 @@
 {% endif %}
 
 {% endblock mainbar %}
+
+{% block sidebar %}
+
+{% if path %}
+<h4>Actions</h4>
+<a href="{% url 'tags.views.list_definitions' path %}" class="btn btn-primary">View definitions</a>
+{% endif %}
+
+{% endblock sidebar %}

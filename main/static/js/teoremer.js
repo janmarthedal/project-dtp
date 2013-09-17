@@ -496,11 +496,7 @@
             this.render();
         },
         postAppend: function() {
-            if (this.collection.has_more) {
-                this.$('.search-list-more').show();
-            } else {
-                this.$('.search-list-more').hide();
-            }
+            this.$('.search-list-more').toggle(this.collection.has_more);
         },
         render: function() {
             var status = this.options.parameters.get('status');
@@ -1296,7 +1292,7 @@
             });
         },
 
-        item_search: function(itemtypes, statuses, init_items, restrict, user_id) {
+        item_search: function(itemtypes, statuses, init_items, category, restrict, user_id) {
             var includeView = new TagListView({
                 el: $('#include-tags')
             });
@@ -1304,6 +1300,8 @@
                 el: $('#exclude-tags')
             });
             var searchTerms = new SearchTerms();
+            if (typeof category != 'undefined')
+                searchTerms.set('category', category);
             var searchListViewData = {
                 el: $('#search-item-list'),
                 itemtypes: itemtypes,
