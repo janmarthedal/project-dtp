@@ -6,7 +6,7 @@ from items.models import FinalItem
 class Document(models.Model):
     class Meta:
         db_table = 'documents'
-    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=True)
     created_at  = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)
     title       = models.CharField(max_length=255, null=True)

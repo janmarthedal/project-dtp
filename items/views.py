@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
+from document.models import Document
 from items.helpers import item_search_to_json
 from items.models import FinalItem
 from main.helpers import init_context, logged_in_or_404
@@ -14,7 +15,8 @@ def get_user_final_permissions(user, item):
     return {
         'add_proof':  item.status == 'F' and item.itemtype == 'T' and logged_in,
         'add_source': item.status == 'F' and logged_in,
-        'edit_final': item.status == 'F' and logged_in
+        'edit_final': item.status == 'F' and logged_in,
+        'add_to_doc': item.status == 'F' and logged_in,
     }
 
 @require_GET
@@ -24,7 +26,8 @@ def show_final(request, final_id):
     c = dict(item        = item,
              perm        = item_perms,
              validations = [v.json_serializable() for v in item.itemvalidation_set.all()],
-             proof_count = 0)
+             proof_count = 0,
+             documents   = Document.objects.filter(created_by=request.user).values('id', 'title'))
     if item.itemtype == 'T':
         c.update(proof_count = item.finalitem_set.filter(itemtype='P', status='F').count(),
                  init_proofs = item_search_to_json(itemtype='P', parent=final_id))

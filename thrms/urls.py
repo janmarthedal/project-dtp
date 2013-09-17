@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^definitions/', include('items.definitions.urls')),
     url(r'^proofs/',      include('items.proofs.urls')),
     url(r'^category/',    include('tags.urls')),
+    url(r'^document/',    include('document.urls')),
     url(r'^about$',       'main.views.about'),
     url(r'^$',            'main.views.index'),
 )

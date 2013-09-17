@@ -68,6 +68,22 @@ published at {{ item.created_at|datetime_user:user }}
   <input type="hidden" name="item" value="{{ item.final_id }}" />
 </form></p>
 {% endif %}
+{% if perm.add_to_doc %}
+<p><div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+    Add to document <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+{% if documents %}
+{%   for doc in documents %}
+    <li><a href="{% url 'document.views.add' doc.id item.final_id %}">{{doc.id}}. {{doc.title}}</a></li>
+{%   endfor %}
+    <li class="divider"></li>
+{% endif %}
+    <li><a href="{% url 'document.views.new' %}?items={{item.final_id}}"><i>New document</i></a></li>
+  </ul>
+</div></p>
+{% endif %}
 
 {% endblock %}
 
