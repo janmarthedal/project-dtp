@@ -188,6 +188,7 @@ INSTALLED_APPS = (
     'tags',
     'analysis',
     'api',
+    'document',
 )
 
 LOGGING = {
