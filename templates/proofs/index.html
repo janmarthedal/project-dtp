@@ -4,15 +4,22 @@
 
 {% block mainbar %}
 
-<div id="search-item-list"></div>
+<div id="search-item-list">loading...</div>
 
 {% endblock %}
 
 {% block sidebar %}
-{% include 'items/include/search-sidebar.html' %}
+<h4>Included tags</h4>
+<div id="include-tags"></div>
+
+<h4>Excluded tags</h4>
+<div id="exclude-tags"></div>
 {% endblock %}
 
 {% block bodybottom %}
-{% include 'items/include/search-bottom.html' with itemtypes='P' statuses='FR' %}
+{% include 'include/js-scripts.html' only %}
+<script type="text/javascript">
+teoremer.page.item_search('P', 'FR', {{init_items|safe}});
+</script>
 {% endblock %}
 

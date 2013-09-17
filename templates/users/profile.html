@@ -14,7 +14,7 @@
 
 <h3>Items</h3>
 
-<div id="search-item-list"></div>
+<div id="search-item-list">loading...</div>
 
 {% endblock %}
 
@@ -25,11 +25,18 @@
 {% browserid_logout text="log out" link_class="btn btn-primary" %}
 {% endif %}
 
-{% include 'items/include/search-sidebar.html' %}
+<h4>Included tags</h4>
+<div id="include-tags"></div>
+
+<h4>Excluded tags</h4>
+<div id="exclude-tags"></div>
 
 {% endblock %}
 
 {% block bodybottom %}
-{% include 'items/include/search-bottom.html' with itemtypes='DTP' restrict='FRD' %}
+{% include 'include/js-scripts.html' only %}
+<script type="text/javascript">
+teoremer.page.item_search('DTP', 'FRD', {{init_items|safe}}, 'FRD', {{user_id}});
+</script>
 {% browserid_js %}
 {% endblock %}

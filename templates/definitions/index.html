@@ -6,20 +6,26 @@
 
 {% block mainbar %}
 
-<div id="search-item-list"></div>
+<div id="search-item-list">loading...</div>
 
 {% endblock %}
 
 {% block sidebar %}
 
 <h4>Actions</h4>
-
 <p><a class="btn btn-primary" href="{% url 'drafts.views.new' kind='definition' %}">Add definition</a></p>
 
-{% include 'items/include/search-sidebar.html' %}
+<h4>Included tags</h4>
+<div id="include-tags"></div>
+
+<h4>Excluded tags</h4>
+<div id="exclude-tags"></div>
 
 {% endblock %}
 
 {% block bodybottom %}
-{% include 'items/include/search-bottom.html' with itemtypes='D' statuses='FR' %}
+{% include 'include/js-scripts.html' only %}
+<script type="text/javascript">
+teoremer.page.item_search('D', 'FR', {{init_items|safe}});
+</script>
 {% endblock %}
