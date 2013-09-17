@@ -2,9 +2,7 @@
 
     var api_prefix = '/api/';
 
-    var teoremer = {};
-
-    teoremer.setupCsrf = function() {
+    function setupCsrf() {
         var csrftoken = $.cookie('csrftoken');
 
         function csrfSafeMethod(method) {
@@ -266,7 +264,7 @@
 
     // public
 
-    teoremer.DraftItem = Backbone.Model.extend({
+    var DraftItem = Backbone.Model.extend({
         defaults: {
           body: '',
           pricats: [],
@@ -295,7 +293,7 @@
         }
     });
 
-    teoremer.FinalItem = Backbone.Model.extend({
+    var FinalItem = Backbone.Model.extend({
         urlRoot: api_prefix + 'item/',
         parse: function(resp) {
             return {
@@ -313,7 +311,7 @@
         }
     });
 
-    teoremer.SearchTerms = Backbone.Model.extend({
+    var SearchTerms = Backbone.Model.extend({
         defaults: {
             status: 'F',
             includeTags: [],
@@ -329,7 +327,7 @@
         }
     });
 
-    teoremer.SourceItem = Backbone.Model.extend({
+    var SourceItem = Backbone.Model.extend({
         urlRoot: api_prefix + 'source/',
         defaults: {
             type: 'book'
@@ -338,12 +336,12 @@
 
     var ValidationItem = Backbone.Model;
 
-    teoremer.ValidationList = Backbone.Collection.extend({
+    var ValidationList = Backbone.Collection.extend({
         model: ValidationItem
     });
 
-    teoremer.SourceList = Backbone.Collection.extend({
-        model: teoremer.SourceItem
+    var SourceList = Backbone.Collection.extend({
+        model: SourceItem
     });
 
     /***************************
@@ -374,7 +372,7 @@
         }
     });
 
-    teoremer.TagListView = Backbone.View.extend({
+    var TagListView = Backbone.View.extend({
         // standard
         events: function() {
             var e = {};
@@ -435,7 +433,7 @@
         }
     });
 
-    teoremer.MathItemView = Backbone.View.extend({
+    var MathItemView = Backbone.View.extend({
         tagName: 'li',
         className: 'list-group-item clearfix',
         initialize: function() {
@@ -464,7 +462,7 @@
         }
     });
 
-    teoremer.SearchListView = Backbone.View.extend({
+    var SearchListView = Backbone.View.extend({
         events: {
             'click .search-list-more': function() {
                 this.doFetch(true);
@@ -524,7 +522,7 @@
             this.postAppend();
         },
         addOne: function(item) {
-            var mathItemView = new teoremer.MathItemView({
+            var mathItemView = new MathItemView({
                 model: item
             });
             this.$('ul').append(mathItemView.render().el);
@@ -555,7 +553,7 @@
         }
     });
 
-    teoremer.TopListView = Backbone.View.extend({
+    var TopListView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render', 'addOne');
             this.collection = new TopList();
@@ -569,7 +567,7 @@
             this.collection.each(this.addOne);
         },
         addOne: function(item) {
-            var mathItemView = new teoremer.MathItemView({
+            var mathItemView = new MathItemView({
                 model: item
             });
             this.$('tbody').append(mathItemView.render().el);
@@ -577,7 +575,7 @@
         }
     });
 
-    teoremer.BodyEditView = Backbone.View.extend({
+    var BodyEditView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render');
             var self = this;
@@ -592,7 +590,7 @@
         }
     });
 
-    teoremer.BodyPreviewView = Backbone.View.extend({
+    var BodyPreviewView = Backbone.View.extend({
         initialize: function() {
             this.converter = new Showdown.converter();
             this.model.on('change:body', this.render, this);
@@ -651,7 +649,7 @@
         }
     });
 
-    teoremer.SaveDraftView = Backbone.View.extend({
+    var SaveDraftView = Backbone.View.extend({
         events: {
             'click': 'save'
         },
@@ -672,7 +670,7 @@
         }
     });
 
-    teoremer.AddCategoryView = Backbone.View.extend({
+    var AddCategoryView = Backbone.View.extend({
         // standard
         el: $('#modal-container'),
         events: {
@@ -766,7 +764,7 @@
         }
     });
 
-    teoremer.EditableCategoryListView = Backbone.View.extend({
+    var EditableCategoryListView = Backbone.View.extend({
         // standard
         events: function() {
             var e = {};
@@ -796,7 +794,7 @@
         },
         _promptCategory: function() {
             var self = this;
-            new teoremer.AddCategoryView({
+            new AddCategoryView({
                 add: function(category) {
                     self.collection.add(category);
                 }
@@ -826,7 +824,7 @@
         // helpers
         _change: function() {
             var self = this;
-            new teoremer.AddCategoryView({
+            new AddCategoryView({
                 add: function(category) {
                     self.model.set('category', category);
                 }
@@ -834,7 +832,7 @@
         }
     });
 
-    teoremer.ChangableTagAssociationListView = Backbone.View.extend({
+    var ChangableTagAssociationListView = Backbone.View.extend({
         // standard
         initialize: function() {
             _.bindAll(this, 'render', '_addOne');
@@ -856,7 +854,7 @@
         }
     });
 
-    teoremer.SaveFinalView = Backbone.View.extend({
+    var SaveFinalView = Backbone.View.extend({
         events: {
             'click': 'save'
         },
@@ -909,7 +907,7 @@
         }
     };
 
-    teoremer.SourceEditView = Backbone.View.extend({
+    var SourceEditView = Backbone.View.extend({
         events: {
             'change #select-source': function() {
                 this._setType(this.$('#select-source').val());
@@ -1036,7 +1034,7 @@
         }
     });
 
-    teoremer.SourceRenderView = Backbone.View.extend({
+    var SourceRenderView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render');
             this.model.on('change', this.render);
@@ -1073,7 +1071,7 @@
         }
     });
 
-    teoremer.LiveSourceSearchView = Backbone.View.extend({
+    var LiveSourceSearchView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render', '_search', '_check', '_cancelTimer', '_addOne');
             this.options.sourceModel.on('change', this._check);
@@ -1141,7 +1139,7 @@
         }
     });
 
-    teoremer.ValidationListView = Backbone.View.extend({
+    var ValidationListView = Backbone.View.extend({
         // standard
         initialize: function() {
             _.bindAll(this, 'render', '_addOne');
@@ -1161,7 +1159,7 @@
         }
     });
 
-    teoremer.SourceListView = Backbone.View.extend({
+    var SourceListView = Backbone.View.extend({
         // standard
         initialize: function() {
             _.bindAll(this, 'render', '_addOne');
@@ -1182,74 +1180,75 @@
         }
     });
 
-    teoremer.page = {
+    var teoremer = {
+        home: function(init_items) {
+            var topList = new TopListView({
+                el: $('#top-item-list'),
+            });
+            topList.collection.reset(init_items, { parse: true });
+        },
+
         source_list: function(items) {
-            new teoremer.SourceListView({
+            new SourceListView({
                 el: $('#source-list'),
-                collection: new teoremer.SourceList(items)
+                collection: new SourceList(items)
             });
         },
 
         new_draft: function(kind, show_primcats, parent) {
-            teoremer.setupCsrf();
+            setupCsrf();
 
             var draft_data = { type: kind };
             if (parent) draft_data.parent = parent;
-            var item = new teoremer.DraftItem(draft_data, { parse: true });
+            var item = new DraftItem(draft_data, { parse: true });
 
-            new teoremer.BodyEditView({
+            new BodyEditView({
                 el: $('#body-input'),
                 model: item
             });
-            new teoremer.BodyPreviewView({
+            new BodyPreviewView({
                 el: $('#body-preview'),
                 model: item
             });
-            new teoremer.SaveDraftView({
+            new SaveDraftView({
                 el: $('#save-draft'),
                 model: item
             });
             if (show_primcats) {
-                new teoremer.EditableCategoryListView({
+                new EditableCategoryListView({
                     el: $('#primary-categories'),
                     collection: item.get('pricats')
                 });
             }
-            new teoremer.EditableCategoryListView({
+            new EditableCategoryListView({
                 el: $('#secondary-categories'),
                 collection: item.get('seccats')
             });
         },
 
         edit_draft: function(id, body, pricats, seccats, show_primcats) {
-            teoremer.setupCsrf();
+            setupCsrf();
 
-            var item = new teoremer.DraftItem({
-                id: id,
-                body: body,
-                pricats: pricats,
-                seccats: seccats
-            }, { parse: true });
-
-            new teoremer.BodyEditView({
+            var item = new DraftItem({ id: id, body: body, pricats: pricats, seccats: seccats }, { parse: true });
+            new BodyEditView({
                 el: $('#body-input'),
                 model: item
             });
-            new teoremer.BodyPreviewView({
+            new BodyPreviewView({
                 el: $('#body-preview'),
                 model: item
             });
-            new teoremer.SaveDraftView({
+            new SaveDraftView({
                 el: $('#save-draft'),
                 model: item
             });
             if (show_primcats) {
-                new teoremer.EditableCategoryListView({
+                new EditableCategoryListView({
                     el: $('#primary-categories'),
                     collection: item.get('pricats')
                 });
             }
-            new teoremer.EditableCategoryListView({
+            new EditableCategoryListView({
                 el: $('#secondary-categories'),
                 collection: item.get('seccats')
             });
@@ -1261,50 +1260,50 @@
                   selector: "a[rel=tooltip]"
                 });
             });
-            new teoremer.ValidationListView({
+            new ValidationListView({
                 el: $('#validation-list'),
-                collection: new teoremer.ValidationList(validations)
+                collection: new ValidationList(validations)
             });
         },
 
         edit_final: function(id, pricats, seccats, tagcatmap, show_primcats) {
-            teoremer.setupCsrf();
+            setupCsrf();
 
-            var item = new teoremer.FinalItem({
+            var item = new FinalItem({
                 id: id,
                 pricats: pricats,
                 seccats: seccats,
                 tagcatmap: tagcatmap
             }, { parse: true });
 
-            new teoremer.SaveFinalView({
+            new SaveFinalView({
                 el: $('#save'),
                 model: item
             });
             if (show_primcats) {
-                new teoremer.EditableCategoryListView({
+                new EditableCategoryListView({
                     el: $('#primary-categories'),
                     collection: item.get('pricats')
                 });
             }
-            new teoremer.EditableCategoryListView({
+            new EditableCategoryListView({
               el: $('#secondary-categories'),
               collection: item.get('seccats')
             });
-            new teoremer.ChangableTagAssociationListView({
+            new ChangableTagAssociationListView({
               el: $('#tag-to-category-map'),
               collection: item.get('tagcatmap')
             });
         },
 
         item_search: function(itemtypes, statuses, init_items, restrict, user_id) {
-            var includeView = new teoremer.TagListView({
+            var includeView = new TagListView({
                 el: $('#include-tags')
             });
-            var excludeView = new teoremer.TagListView({
+            var excludeView = new TagListView({
                 el: $('#exclude-tags')
             });
-            var searchTerms = new teoremer.SearchTerms();
+            var searchTerms = new SearchTerms();
             var searchListViewData = {
                 el: $('#search-item-list'),
                 itemtypes: itemtypes,
@@ -1317,7 +1316,7 @@
                     statuses: restrict
                 };
             }
-            var searchList = new teoremer.SearchListView(searchListViewData);
+            var searchList = new SearchListView(searchListViewData);
 
             searchList.collection.reset(init_items, { parse: true });
 
@@ -1330,13 +1329,13 @@
         },
 
         show_final: function(validations, parent, user_id, init_proofs) {
-            new teoremer.ValidationListView({
+            new ValidationListView({
                 el: $('#validation-list'),
-                collection: new teoremer.ValidationList(validations)
+                collection: new ValidationList(validations)
             });
 
             if (parent) {
-                var searchTerms = new teoremer.SearchTerms({
+                var searchTerms = new SearchTerms({
                     parent: parent
                 });
                 var searchListViewData = {
@@ -1353,23 +1352,23 @@
                 } else {
                     searchListViewData.statuses = 'FR';
                 }
-                var searchList = new teoremer.SearchListView(searchListViewData);
+                var searchList = new SearchListView(searchListViewData);
                 searchList.collection.reset(init_proofs, { parse: true });
             }
         },
 
         source_add: function(mode) {
-            teoremer.setupCsrf();
-            var source = new teoremer.SourceItem();
-            new teoremer.SourceEditView({ el: $('#source-edit'), model: source, mode: mode });
-            new teoremer.SourceRenderView({ el: $('#source-preview'), model: source });
-            new teoremer.LiveSourceSearchView({ el: $('#source-search'), sourceModel: source, mode: mode });
+            setupCsrf();
+            var source = new SourceItem();
+            new SourceEditView({ el: $('#source-edit'), model: source, mode: mode });
+            new SourceRenderView({ el: $('#source-preview'), model: source });
+            new LiveSourceSearchView({ el: $('#source-search'), sourceModel: source, mode: mode });
         },
 
         source_preview: function(source) {
-            new teoremer.SourceRenderView({
+            new SourceRenderView({
                 el: $('#source-preview'),
-                model: new teoremer.SourceItem(source)
+                model: new SourceItem(source)
             });
         }
     };

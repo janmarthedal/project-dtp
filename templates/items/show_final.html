@@ -76,7 +76,7 @@ published at {{ item.created_at|datetime_user:user }}
 {% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
-teoremer.page.show_final({{validations|to_json}}
+teoremer.show_final({{validations|to_json}}
 {% if item.itemtype == 'T' %}, '{{ item.final_id }}', {{ user_id }}, {{ init_proofs|safe }}{% endif %});
 </script>
 

@@ -28,14 +28,9 @@
 {% endblock %}
 
 {% block bodybottom %}
-
 {% include 'include/js-scripts.html' only %}
-
 <script type="text/javascript">
-var topList = new teoremer.TopListView({
-    el: $('#top-item-list'),
-});
-topList.collection.reset({{ init_items|safe }}, { parse: true });
+teoremer.home({{init_items|safe}});
 </script>
 
 {% endblock %}

@@ -44,7 +44,7 @@ Edit {{ item }}
 {% include 'include/js-scripts.html' with showdown=True cookie=True only %}
 
 <script type="text/javascript">
-teoremer.page.edit_draft({{item.pk}}, {{item.body|to_json}}, {{item.primary_categories|to_json}}, {{item.secondary_categories|to_json}});
+teoremer.edit_draft({{item.pk}}, {{item.body|to_json}}, {{item.primary_categories|to_json}}, {{item.secondary_categories|to_json}});
 </script>
 
 {% endblock %}
