@@ -76,37 +76,8 @@ published at {{ item.created_at|datetime_user:user }}
 {% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
-
-(function() {
-
-  new teoremer.ValidationListView({
-    el: $('#validation-list'),
-    collection: new teoremer.ValidationList({{validations|to_json}})
-  });
-
-{% if item.itemtype == 'T' %}
-  var searchTerms = new teoremer.SearchTerms({
-    parent: '{{ item.final_id }}'
-  });
-  var searchList = new teoremer.SearchListView({
-    el: $('#proof-list'),
-    itemtypes: 'P',
-    parameters: searchTerms,
-{% if user_id %}
-    statuses: 'FRD',
-    restrict: {
-      user: {{ user_id }},
-      statuses: 'D'
-    }
-{% else %}
-    statuses: 'FR'
-{% endif %}
-  });
-  searchList.collection.reset({{ init_proofs|safe }}, { parse: true });
-{% endif %}
-
-})();
-
+teoremer.page.show_final({{validations|to_json}}
+{% if item.itemtype == 'T' %}, '{{ item.final_id }}', {{ user_id }}, {{ init_proofs|safe }}{% endif %});
 </script>
 
 {% endblock %}

@@ -1,4 +1,4 @@
-(function(window) {
+(function() {
 
     var api_prefix = '/api/';
 
@@ -267,6 +267,11 @@
     // public
 
     teoremer.DraftItem = Backbone.Model.extend({
+        defaults: {
+          body: '',
+          pricats: [],
+          seccats: []
+        },
         urlRoot: api_prefix + 'draft/',
         parse: function(resp) {
             var parsed = {
@@ -1003,6 +1008,8 @@
             }, this);
 
             this.delegateEvents();
+
+            this.$('input[type="text"]').first().focus();
         },
         _updateModel: function() {
             var view = this, key, value;
@@ -1175,9 +1182,201 @@
         }
     });
 
+    teoremer.page = {
+        source_list: function(items) {
+            new teoremer.SourceListView({
+                el: $('#source-list'),
+                collection: new teoremer.SourceList(items)
+            });
+        },
+
+        new_draft: function(kind, show_primcats, parent) {
+            teoremer.setupCsrf();
+
+            var draft_data = { type: kind };
+            if (parent) draft_data.parent = parent;
+            var item = new teoremer.DraftItem(draft_data, { parse: true });
+
+            new teoremer.BodyEditView({
+                el: $('#body-input'),
+                model: item
+            });
+            new teoremer.BodyPreviewView({
+                el: $('#body-preview'),
+                model: item
+            });
+            new teoremer.SaveDraftView({
+                el: $('#save-draft'),
+                model: item
+            });
+            if (show_primcats) {
+                new teoremer.EditableCategoryListView({
+                    el: $('#primary-categories'),
+                    collection: item.get('pricats')
+                });
+            }
+            new teoremer.EditableCategoryListView({
+                el: $('#secondary-categories'),
+                collection: item.get('seccats')
+            });
+        },
+
+        edit_draft: function(id, body, pricats, seccats, show_primcats) {
+            teoremer.setupCsrf();
+
+            var item = new teoremer.DraftItem({
+                id: id,
+                body: body,
+                pricats: pricats,
+                seccats: seccats
+            }, { parse: true });
+
+            new teoremer.BodyEditView({
+                el: $('#body-input'),
+                model: item
+            });
+            new teoremer.BodyPreviewView({
+                el: $('#body-preview'),
+                model: item
+            });
+            new teoremer.SaveDraftView({
+                el: $('#save-draft'),
+                model: item
+            });
+            if (show_primcats) {
+                new teoremer.EditableCategoryListView({
+                    el: $('#primary-categories'),
+                    collection: item.get('pricats')
+                });
+            }
+            new teoremer.EditableCategoryListView({
+                el: $('#secondary-categories'),
+                collection: item.get('seccats')
+            });
+        },
+
+        show_draft: function(validations) {
+            $(function() {
+                $('div.draft-view').tooltip({
+                  selector: "a[rel=tooltip]"
+                });
+            });
+            new teoremer.ValidationListView({
+                el: $('#validation-list'),
+                collection: new teoremer.ValidationList(validations)
+            });
+        },
+
+        edit_final: function(id, pricats, seccats, tagcatmap, show_primcats) {
+            teoremer.setupCsrf();
+
+            var item = new teoremer.FinalItem({
+                id: id,
+                pricats: pricats,
+                seccats: seccats,
+                tagcatmap: tagcatmap
+            }, { parse: true });
+
+            new teoremer.SaveFinalView({
+                el: $('#save'),
+                model: item
+            });
+            if (show_primcats) {
+                new teoremer.EditableCategoryListView({
+                    el: $('#primary-categories'),
+                    collection: item.get('pricats')
+                });
+            }
+            new teoremer.EditableCategoryListView({
+              el: $('#secondary-categories'),
+              collection: item.get('seccats')
+            });
+            new teoremer.ChangableTagAssociationListView({
+              el: $('#tag-to-category-map'),
+              collection: item.get('tagcatmap')
+            });
+        },
+
+        item_search: function(itemtypes, statuses, init_items, restrict, user_id) {
+            var includeView = new teoremer.TagListView({
+                el: $('#include-tags')
+            });
+            var excludeView = new teoremer.TagListView({
+                el: $('#exclude-tags')
+            });
+            var searchTerms = new teoremer.SearchTerms();
+            var searchListViewData = {
+                el: $('#search-item-list'),
+                itemtypes: itemtypes,
+                statuses: statuses,
+                parameters: searchTerms
+            };
+            if (restrict) {
+                searchListViewData.restrict = {
+                    user: user_id,
+                    statuses: restrict
+                };
+            }
+            var searchList = new teoremer.SearchListView(searchListViewData);
+
+            searchList.collection.reset(init_items, { parse: true });
+
+            includeView.collection.on('add remove', function() {
+              searchTerms.set('includeTags', includeView.getTagList());
+            });
+            excludeView.collection.on('add remove', function() {
+              searchTerms.set('excludeTags', excludeView.getTagList());
+            });
+        },
+
+        show_final: function(validations, parent, user_id, init_proofs) {
+            new teoremer.ValidationListView({
+                el: $('#validation-list'),
+                collection: new teoremer.ValidationList(validations)
+            });
+
+            if (parent) {
+                var searchTerms = new teoremer.SearchTerms({
+                    parent: parent
+                });
+                var searchListViewData = {
+                    el: $('#proof-list'),
+                    itemtypes: 'P',
+                    parameters: searchTerms
+                };
+                if (user_id) {
+                    searchListViewData.statuses = 'FRD';
+                    searchListViewData.restrict = {
+                        user: user_id,
+                        statuses: 'D'
+                    };
+                } else {
+                    searchListViewData.statuses = 'FR';
+                }
+                var searchList = new teoremer.SearchListView(searchListViewData);
+                searchList.collection.reset(init_proofs, { parse: true });
+            }
+        },
+
+        source_add: function(mode) {
+            teoremer.setupCsrf();
+            var source = new teoremer.SourceItem();
+            new teoremer.SourceEditView({ el: $('#source-edit'), model: source, mode: mode });
+            new teoremer.SourceRenderView({ el: $('#source-preview'), model: source });
+            new teoremer.LiveSourceSearchView({ el: $('#source-search'), sourceModel: source, mode: mode });
+        },
+
+        source_preview: function(source) {
+            new teoremer.SourceRenderView({
+                el: $('#source-preview'),
+                model: new teoremer.SourceItem(source)
+            });
+        }
+    };
+
     window.teoremer = teoremer;
 
-})(window);
+})();
 
 // on load actions
 
@@ -1204,7 +1403,7 @@ $(function() {
     });
 
     $(function() {
-        $('input[type="text"]').first().focus();
+        $('input.focus').first().focus();
     });
 
 });

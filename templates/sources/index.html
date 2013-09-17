@@ -22,7 +22,7 @@
 {% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
-teoremer.page.source_list('#source-list', {{ sourcelist|to_json }});
+teoremer.page.source_list({{ sourcelist|to_json }});
 </script>
 
 {% endblock bodybottom %}

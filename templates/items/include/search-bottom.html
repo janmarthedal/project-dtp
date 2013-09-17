@@ -1,34 +1,6 @@
 {% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
-var includeView = new teoremer.TagListView({
-  el: $('#include-tags')
-});
-var excludeView = new teoremer.TagListView({
-  el: $('#exclude-tags')
-});
-var searchTerms = new teoremer.SearchTerms();
-var searchList = new teoremer.SearchListView({
-  el: $('#search-item-list'),
-  itemtypes: '{{itemtypes}}',
-  statuses: '{{statuses}}',
-  parameters: searchTerms
-{% if restrict %}
-  , restrict: {
-    user: {{user_id}},
-    statuses: '{{restrict}}'
-  }
-{% endif %}
-});
-
-searchList.collection.reset({{ init_items|safe }}, { parse: true });
-
-includeView.collection.on('add remove', function() {
-  searchTerms.set('includeTags', includeView.getTagList());
-});
-
-excludeView.collection.on('add remove', function() {
-  searchTerms.set('excludeTags', excludeView.getTagList());
-});
-
+teoremer.page.item_search('{{itemtypes}}', '{{statuses}}', {{init_items|safe}}
+{% if restrict %}, '{{restrict}}', {{user_id}}{% endif %});
 </script>

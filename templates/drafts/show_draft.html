@@ -80,22 +80,7 @@
 {% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
-
-  $(function() {
-    $('div.draft-view').tooltip({
-      selector: "a[rel=tooltip]"
-    });    
-  });
-
-(function() {
-
-  new teoremer.ValidationListView({
-    el: $('#validation-list'),
-    collection: new teoremer.ValidationList({{validations|to_json}})
-  });
-
-})();
-
+teoremer.page.show_draft({{validations|to_json}});
 </script>
 
 {% endblock %}

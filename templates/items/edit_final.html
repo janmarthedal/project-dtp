@@ -52,41 +52,7 @@
 {% include 'include/js-scripts.html' with showdown=True cookie=True only %}
 
 <script type="text/javascript">
-  teoremer.setupCsrf();
-
-  (function(){
-
-    var item = new teoremer.FinalItem({
-      id: "{{item.final_id}}",
-      pricats: {{item.primary_categories|to_json}},
-      seccats: {{item.secondary_categories|to_json}},
-      tagcatmap: {{item.get_tag_category_associations|to_json}}
-    }, { parse:true });
-
-    var saveItem = new teoremer.SaveFinalView({
-      el : $('#save'),
-      model : item
-    });
-
-    {% if primary_text %}
-    var primaryCategoryList = new teoremer.EditableCategoryListView({
-      el : $('#primary-categories'),
-      collection : item.get('pricats')
-    });
-    {% endif %}
-
-    var secondaryCategoryList = new teoremer.EditableCategoryListView({
-      el : $('#secondary-categories'),
-      collection : item.get('seccats')
-    });
-
-    var tagAssocationList = new teoremer.ChangableTagAssociationListView({
-      el : $('#tag-to-category-map'),
-      collection : item.get('tagcatmap')
-    });
-
-  })();
-
+teoremer.page.edit_final("{{item.final_id}}", {{item.primary_categories|to_json}}, {{item.secondary_categories|to_json}}, {{item.get_tag_category_associations|to_json}});
 </script>
 
 {% endblock %}

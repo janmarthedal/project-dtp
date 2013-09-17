@@ -43,48 +43,7 @@ New {{ kind }}
 {% include 'include/js-scripts.html' with showdown=True cookie=True only %}
 
 <script type="text/javascript">
-
-teoremer.setupCsrf();
-
-(function() {
-
-  var item = new teoremer.DraftItem({
-    type: "{{kind}}",
-    body: '',
-    {% if parent %}parent: "{{parent.final_id}}",{% endif %}
-    pricats: [],
-    seccats: []
-  }, { parse: true });
-
-  var bodyEdit = new teoremer.BodyEditView({
-    el: $('#body-input'),
-    model: item
-  });
-
-  var bodyPreview = new teoremer.BodyPreviewView({
-    el: $('#body-preview'),
-    model: item
-  });
-
-  var saveDraft = new teoremer.SaveDraftView({
-    el: $('#save-draft'),
-    model: item
-  });
-
-{% if primary_text %}
-  var primaryCategoryList = new teoremer.EditableCategoryListView({
-    el: $('#primary-categories'),
-    collection: item.get('pricats')
-  });
-{% endif %}
-
-  var secondaryCategoryList = new teoremer.EditableCategoryListView({
-    el: $('#secondary-categories'),
-    collection: item.get('seccats')
-  });
-
-})();
-
+teoremer.page.new_draft("{{kind}}", {% if primary_text %}true{% else %}false{% endif %}{% if parent %},"{{parent.final_id}}"{% endif %});
 </script>
 
 {% endblock %}

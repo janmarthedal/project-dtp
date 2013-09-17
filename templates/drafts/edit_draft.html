@@ -44,47 +44,7 @@ Edit {{ item }}
 {% include 'include/js-scripts.html' with showdown=True cookie=True only %}
 
 <script type="text/javascript">
-
-teoremer.setupCsrf();
-
-(function(){
-
-  var item = new teoremer.DraftItem({
-    id: {{item.pk}},
-    body: {{item.body|to_json}},
-    pricats: {{item.primary_categories|to_json}},
-    seccats: {{item.secondary_categories|to_json}}
-  }, { parse: true });
-
-  var bodyEdit = new teoremer.BodyEditView({
-    el: $('#body-input'),
-    model: item
-  });
-
-  var bodyPreview = new teoremer.BodyPreviewView({
-    el: $('#body-preview'),
-    model: item
-  });
-
-  var saveDraft = new teoremer.SaveDraftView({
-    el: $('#save-draft'),
-    model: item
-  });
-
-{% if primary_text %}
-  var primaryCategoryList = new teoremer.EditableCategoryListView({
-    el: $('#primary-categories'),
-    collection: item.get('pricats')
-  });
-{% endif %}
-
-  var secondaryCategoryList = new teoremer.EditableCategoryListView({
-    el: $('#secondary-categories'),
-    collection: item.get('seccats')
-  });
-
-})();
-
+teoremer.page.edit_draft({{item.pk}}, {{item.body|to_json}}, {{item.primary_categories|to_json}}, {{item.secondary_categories|to_json}});
 </script>
 
 {% endblock %}
