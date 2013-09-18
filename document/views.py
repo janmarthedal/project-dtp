@@ -38,4 +38,8 @@ def add(request, doc_id, item_id):
     document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
     add_item_to_document(document, item_id)
     return render(request, 'document/view.html', c)
-    
+
+@require_safe
+def view(request, doc_id):
+    c = init_context('document')
+    return render(request, 'document/view.html', c)

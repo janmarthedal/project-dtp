@@ -2,9 +2,6 @@ from django.db import models
 from tags.models import Tag
 from items.models import FinalItem
 
-import logging
-logger = logging.getLogger(__name__)
-
 class ItemDependency(models.Model):
     class Meta:
         db_table = 'item_deps'

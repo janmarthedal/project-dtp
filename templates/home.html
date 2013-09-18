@@ -5,14 +5,14 @@
 
 {% block mainbar %}
 
-<h2>teoremer blog</h2>
+<h3>teoremer blog</h3>
 
 {% for item in blog_feed %}
 <h4><a href="{{ item.link }}">{{ item.title }}</a></h4>
 <p>{{ item.description|safe }}</p>
 {% endfor %}
 
-<h2>Latest items</h2>
+<h3>Latest items</h3>
 
 <div id="top-item-list"><i>loading...</i></div>
 

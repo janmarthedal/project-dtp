@@ -4,11 +4,10 @@
 
 {% block mainbar %}
 
-<h1>Add media</h1>
+<h3>Add media</h3>
 
 <form enctype="multipart/form-data" action="" method="post">
 {% csrf_token %}
-
 {{ form.file }}
 <br/>
 <input type="submit" value="Upload">

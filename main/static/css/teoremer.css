@@ -24,6 +24,7 @@ div.category {
 }
 .tag-counts {
   list-style: none;
+  padding: 0px;
   margin: 0px;
 }
 .tag-counts>li {

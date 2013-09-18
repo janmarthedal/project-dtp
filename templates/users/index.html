@@ -4,11 +4,11 @@
 
 {% block mainbar %}
 
-<h1>Users</h1>
+<h3>All users</h3>
 
 <ul>
 {% for u in userlist %}
-    <li><a href="{% url 'users.views.profile' u.get_username %}">{{ u.get_full_name }}</a></li>
+  <li><a href="{% url 'users.views.profile' u.get_username %}">{{ u.get_full_name }}</a></li>
 {% endfor %}
 </ul>
 

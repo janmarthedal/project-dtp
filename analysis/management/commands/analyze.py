@@ -13,18 +13,17 @@ def queryset_generator(queryset):
             yield item
         items = queryset.filter(pk__gt=latest_pk).order_by('pk')[:100]
 
-def add_final_item_dependencies(fitem):
-    bs = BodyScanner(fitem.body)
-
-    ItemDependency.objects.filter(from_item=fitem).delete()
-    for itemref_id in bs.getItemRefSet():
-        try:
-            itemref_item = FinalItem.objects.get(final_id=itemref_id)
-            ItemDependency.objects.create(from_item=fitem, to_item=itemref_item)
-        except ValueError:
-            raise CommandError("add_final_item_dependencies: illegal item name '%s'" % itemref_id)
-        except FinalItem.DoesNotExist:
-            raise CommandError("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
+def add_final_item_dependencies(from_item):
+    bs = BodyScanner(from_item.body)
+    try:
+        to_item_list = [FinalItem.objects.get(final_id=itemref_id) for itemref_id in bs.getItemRefSet()] 
+    except ValueError:
+        raise CommandError("add_final_item_dependencies: illegal item name '%s'" % itemref_id)
+    except FinalItem.DoesNotExist:
+        raise CommandError("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
+    ItemDependency.objects.filter(from_item=from_item).delete()
+    ItemDependency.objects.bulk_create([ItemDependency(from_item=from_item, to_item=to_item)
+                                        for to_item in to_item_list])
 
 def check_final_item_tag_categories(fitem):
     bs = BodyScanner(fitem.body)

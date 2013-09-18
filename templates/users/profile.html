@@ -7,10 +7,22 @@
 
 <h3>User profile</h3>
 
-<table>
-  <tr><th>Display name</th><td>{{ pageuser.get_full_name }}</td></tr>
-  <tr><th>Member since</th><td>{{ pageuser.created_at|timesince }}</td></tr>
-</table>
+<dl class="dl-horizontal">
+  <dt>Display name</dt><dd>{{ pageuser.get_full_name }}</dd>
+  <dt>Member since</dt><dd>{{ pageuser.created_at|timesince }}</dd>
+</dl>
+
+<h3>Documents</h3>
+
+{% if documents %}
+<ul>
+{%  for doc in documents %}
+<li><a href="{% url 'document.views.view' doc.id %}">{{doc}}</a></li>
+{%  endfor %}
+</ul>
+{% else %}
+<i>None</i>
+{% endif %}
 
 <h3>Items</h3>
 
@@ -36,7 +48,7 @@
 {% block bodybottom %}
 {% include 'include/js-scripts.html' only %}
 <script type="text/javascript">
-teoremer.item_search('DTP', 'FRD', {{init_items|safe}}, undefined, 'FRD', {{user_id}});
+teoremer.item_search('DTP', '{{statuses}}', {{init_items|safe}}, undefined, 'FRD', {{user_id}});
 </script>
 {% browserid_js %}
 {% endblock %}

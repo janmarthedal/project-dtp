@@ -10,6 +10,8 @@ class Document(models.Model):
     created_at  = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)
     title       = models.CharField(max_length=255, null=True)
+    def __unicode__(self):
+        return "%d. %s" % (self.id, self.title)
 
 class DocumentItem(models.Model):
     class Meta:

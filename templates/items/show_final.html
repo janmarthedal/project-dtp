@@ -76,7 +76,7 @@ published at {{ item.created_at|datetime_user:user }}
   <ul class="dropdown-menu" role="menu">
 {% if documents %}
 {%   for doc in documents %}
-    <li><a href="{% url 'document.views.add' doc.id item.final_id %}">{{doc.id}}. {{doc.title}}</a></li>
+    <li><a href="{% url 'document.views.add' doc.id item.final_id %}">{{doc}}</a></li>
 {%   endfor %}
     <li class="divider"></li>
 {% endif %}
