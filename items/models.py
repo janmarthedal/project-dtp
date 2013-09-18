@@ -93,28 +93,22 @@ class FinalItem(BaseItem):
         self.set_item_tag_categories(tag_category_list)
 
 class FinalItemCategory(models.Model):
-
     class Meta:
         db_table = 'final_item_category'
         unique_together = ('item', 'category')
-
     item     = models.ForeignKey(FinalItem, db_index=True)
     category = models.ForeignKey(Category, db_index=False)
     primary  = models.BooleanField()
 
 class ItemTagCategory(models.Model):
-
     class Meta:
         db_table = 'item_tag_category'
         unique_together = ('item', 'tag')
-
     item     = models.ForeignKey(FinalItem, db_index=True)
     tag      = models.ForeignKey(Tag, db_index=False)
     category = models.ForeignKey(Category, db_index=False)
-
     def __unicode__(self):
         return u'%s | %s | %s' % (self.item, self.tag, self.category)
-
     def json_serializable(self):
         return dict(tag=self.tag, category=self.category)
 

@@ -13,10 +13,10 @@
 
 {% block bodybottom %}
 
-{% include 'include/js-scripts.html' with showdown=True only %}
+{% include 'include/js-scripts.html' with cookie=True showdown=True only %}
 
 <script type="text/javascript">
-teoremer.document_view({{items|to_json}});
+teoremer.document_view({{document.id}}, {{items|to_json}});
 </script>
 
 {% endblock %}

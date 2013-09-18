@@ -1,11 +1,12 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, include, url
 
-urlpatterns = patterns('api.views',
-    url(r'^tags/prefixed/(.*)$', 'tags_prefixed'),
-    url(r'^draft/$',             'drafts'),
-    url(r'^draft/(\d+)$',        'drafts_id'),
-    url(r'^item/search$',        'items'),
-    url(r'^item/(\w+)$',         'final_id'),
-    url(r'^source/$',            'source'),
-    url(r'^source/search$',      'source_search'),
+urlpatterns = patterns('',
+    url(r'^tags/prefixed/(.*)$', 'api.views.tags_prefixed'),
+    url(r'^draft/$',             'api.views.drafts'),
+    url(r'^draft/(\d+)$',        'api.views.drafts_id'),
+    url(r'^item/search$',        'api.views.items'),
+    url(r'^item/(\w+)$',         'api.views.final_id'),
+    url(r'^source/$',            'api.views.source'),
+    url(r'^source/search$',      'api.views.source_search'),
+    url(r'^document/',           include('api.document.urls')),
 )

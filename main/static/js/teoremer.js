@@ -395,10 +395,11 @@
     });
 
     var DocumentItemList = Backbone.Collection.extend({
-        model: MathItem/*,
+        url: api_prefix + 'document/',
+        model: MathItem,
         comparator: function(item) {
             return item.get('order');
-        }*/
+        }
     });
 
     /***************************
@@ -1194,19 +1195,44 @@
 
     var DocumentItemView = Backbone.View.extend({
         className: 'panel panel-default',
+        events: {
+            'click a.add-concept': function(e) {
+                var elem = $(e.currentTarget); 
+                var tag = elem.data('tag');
+                var tag_map = this.model.get('tag_map');
+                if (tag in tag_map) 
+                    this.options.dispatcher.trigger('add-concept', tag_map[tag]);
+            },
+            'click a.add-item': function(e) {
+                var elem = $(e.currentTarget);
+                this.options.dispatcher.trigger('add-item', elem.data('item'));
+            }
+        },
         initialize: function() {
             _.bindAll(this, 'render');
         },
         render: function() {
-            var body = typeset_body(this.model.get('body'), function(text, tag) {
-                return text;
-            }, function(text, item_id) {
-                return text;
-            });
-            var html = Handlebars.templates.document_item({
-                title: this.model.get('name'),
-                body: body
-            });
+            var html, body;
+            var title = this.model.has('name') ? this.model.get('name') : 'Definition ?';
+            if (this.model.has('body')) {
+                body = typeset_body(this.model.get('body'), function(text, tag) {
+                    return '<a href="#" class="add-concept" data-tag="' + tag + '">' + text + '</a>';
+                }, function(text, item_id) {
+                    return '<a href="#" class="add-item" data-item="' + item_id + '">' + text + '</a>';
+                });
+            }
+            if (this.model.get('type') == 'item') {
+                html = Handlebars.templates.document_item({
+                    title: title,
+                    body:  body
+                });
+            } else if (this.model.get('type') == 'concept') {
+                html = Handlebars.templates.document_concept_item({
+                    title:   title,
+                    body:    body,
+                    concept: _.map(this.model.get('concept'), typeset_tag)
+                });                
+            }
             this.$el.html(html);
             return this;
         }
@@ -1214,9 +1240,16 @@
 
     var DocumentView = Backbone.View.extend({
         initialize: function() {
-            _.bindAll(this, 'render', 'addOne');
-            this.collection.on('reset', this.render);
-            this.collection.on('add', this.addOne);
+            _.bindAll(this, 'render', 'addOne', 'fetchConcept', 'fetchItem');
+            this.collection.on({
+                'reset': this.render,
+                'add':   this.addOne
+            });
+            this.dispatcher = _.clone(Backbone.Events);
+            this.dispatcher.on({
+                'add-item':    this.fetchItem,
+                'add-concept': this.fetchConcept
+            });
             this.render();
         },
         render: function() {
@@ -1224,10 +1257,25 @@
             this.collection.each(this.addOne);
         },
         addOne: function(item) {
-            if (item.get('type') == 'item') {
-                var itemView = new DocumentItemView({ model: item });
-                this.$el.append(itemView.render().el);
-            }
+            var itemView = new DocumentItemView({
+                model: item,
+                dispatcher: this.dispatcher
+            });
+            this.$el.append(itemView.render().el);
+        },
+        fetchConcept: function(tag_list) {
+            var options = {
+                url: this.collection.url + this.options.doc_id + '/add-concept',
+                type: 'POST',
+                data: JSON.stringify(tag_list),
+                error: function() {
+                    console.log('fetchConcept error');
+                }
+            };
+            this.collection.fetch(options);
+        },
+        fetchItem: function(item_id) {
+            console.log('fetchItem ' + item_id);
         }
     });
 
@@ -1429,9 +1477,11 @@
             });
         },
 
-        document_view: function(items) {
+        document_view: function(doc_id, items) {
+            setupCsrf();
             new DocumentView({
                 el: $('#document-items'),
+                doc_id: doc_id,
                 collection: new DocumentItemList(items)
             });
         }

@@ -44,9 +44,9 @@ class Category(models.Model):
     tag    = models.ForeignKey(Tag, related_name='+', db_index=False)
     parent = models.ForeignKey('self', null=True, related_name='+', db_index=False)
     def get_tag_list(self):
-        tag_list = self.parent.get_tag_list()[:] if self.parent else []
-        tag_list.append(self.tag)
-        return tag_list
+        if self.parent:
+            return self.parent.get_tag_list() + [self.tag]
+        return [self.tag]
     def __unicode__(self):
         return u'%d:[%s]' % (self.pk, u','.join(map(unicode, self.get_tag_list())))
     def json_serializable(self):
