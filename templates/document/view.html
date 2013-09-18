@@ -1,8 +1,22 @@
 {% extends "base.html" %}
+{% load utils_tags %}
 
 {% block title %}View document{% endblock %}
 
 {% block mainbar %}
 
+<h3>Document {{document}}</h3>
+
+<div id="document-items"></div>
 
 {% endblock mainbar %}
+
+{% block bodybottom %}
+
+{% include 'include/js-scripts.html' with showdown=True only %}
+
+<script type="text/javascript">
+teoremer.document_view({{items|to_json}});
+</script>
+
+{% endblock %}

@@ -34,6 +34,60 @@
         return _.map(tag_list, typeset_tag);
     }
 
+    var showdown_converter;
+    function showdown_convert(source) {
+        if (!showdown_converter)
+            showdown_converter = new Showdown.converter();
+        return showdown_converter.makeHtml(source);
+    }
+
+    function typeset_body(source, typeset_tag, typeset_item) {
+        var insertsCounter = 0, mathInserts = {}, inserts = {}, key;
+        var pars = source.split('$$');
+        for (var i = 0; i < pars.length; i++) {
+            if (i % 2) {
+                key = 'zZ' + (++insertsCounter) + 'Zz';
+                mathInserts[key] = '\\[' + pars[i] + '\\]';
+                pars[i] = key;
+            } else {
+                pars2 = pars[i].split('$');
+                for (var j = 0; j < pars2.length; j++) {
+                    if (j % 2) {
+                        key = 'zZ' + (++insertsCounter) + 'Zz';
+                        mathInserts[key] = '\\(' + pars2[j] + '\\)';
+                        pars2[j] = key;
+                    }
+                }
+                pars[i] = pars2.join('');
+            }
+        }
+        source = pars.join('');
+        // [text#tag] or [#tag]
+        source = source.replace(/\[([^#\]]*)#([\w -]+)\]/g, function(full_match, text, tag) {
+            text = text || tag;
+            key = 'zZ' + (++insertsCounter) + 'Zz';
+            inserts[key] = typeset_tag(text, tag);
+            return key;
+        });
+        // [@q25tY]
+        source = source.replace(/\[([^@\]]*)@(\w+)\]/g, function(full_match, text, item_id) {
+            text = text || item_id;
+            key = 'zZ' + (++insertsCounter) + 'Zz';
+            inserts[key] = typeset_item(text, item_id);
+            return key;
+        });
+        // disable markdown links and images
+        source = source.replace("[", "&#91;").replace("]", "&#93;").replace("<", "&lt;").replace(">", "&gt;");
+        var html = showdown_convert(source);
+        for (key in inserts) {
+            html = html.replace(key, inserts[key]);
+        }
+        for (key in mathInserts) {
+            html = html.replace(key, mathInserts[key]);
+        }
+        return html;
+    }
+
     function type_short_to_long(st) {
         switch (st.toUpperCase()) {
             case 'D':
@@ -148,8 +202,6 @@
      * Models and collections
      ***************************/
 
-    // private
-
     var TagItem = Backbone.Model.extend({
         // name
         typeset: function() {
@@ -262,8 +314,6 @@
         }
     });
 
-    // public
-
     var DraftItem = Backbone.Model.extend({
         defaults: {
           body: '',
@@ -342,6 +392,13 @@
 
     var SourceList = Backbone.Collection.extend({
         model: SourceItem
+    });
+
+    var DocumentItemList = Backbone.Collection.extend({
+        model: MathItem/*,
+        comparator: function(item) {
+            return item.get('order');
+        }*/
     });
 
     /***************************
@@ -588,59 +645,18 @@
 
     var BodyPreviewView = Backbone.View.extend({
         initialize: function() {
-            this.converter = new Showdown.converter();
             this.model.on('change:body', this.render, this);
             this.render.call(this);
         },
         render: function() {
             var source = this.model.get('body');
-            var insertsCounter = 0, mathInserts = {}, inserts = {}, key;
-            var pars = source.split('$$');
-            for (var i = 0; i < pars.length; i++) {
-                if (i % 2) {
-                    key = 'zZ' + (++insertsCounter) + 'Zz';
-                    mathInserts[key] = '\\[' + pars[i] + '\\]';
-                    pars[i] = key;
-                } else {
-                    pars2 = pars[i].split('$');
-                    for (var j = 0; j < pars2.length; j++) {
-                        if (j % 2) {
-                            key = 'zZ' + (++insertsCounter) + 'Zz';
-                            mathInserts[key] = '\\(' + pars2[j] + '\\)';
-                            pars2[j] = key;
-                        }
-                    }
-                    pars[i] = pars2.join('');
-                }
-            }
-            source = pars.join('');
-            // [text#tag] or [#tag]
-            source = source.replace(/\[([^#\]]*)#([\w -]+)\]/g, function(full_match, text, tag) {
-                text = text || tag;
-                key = 'zZ' + (++insertsCounter) + 'Zz';
-                inserts[key] = '<a href="#" rel="tooltip" data-original-title="tag: ' + tag + '"><i>' + text + '</i></a>';
-                return key;
+            var html = typeset_body(source, function(text, tag) {
+                return '<a href="#" rel="tooltip" data-original-title="tag: ' + tag + '"><i>' + text + '</i></a>';
+            }, function(text, item_id) {
+                return '<a href="#" rel="tooltip" data-original-title="item: ' + item_id + '"><b>' + text + '</b></a>';
             });
-            // [@q25tY]
-            source = source.replace(/\[([^@\]]*)@(\w+)\]/g, function(full_match, text, item_id) {
-                text = text || item_id;
-                key = 'zZ' + (++insertsCounter) + 'Zz';
-                inserts[key] = '<a href="#" rel="tooltip" data-original-title="item: ' + item_id + '"><b>' + text + '</b></a>';
-                return key;
-            });
-            // disable markdown links and images
-            source = source.replace("[", "&#91;").replace("]", "&#93;").replace("<", "&lt;").replace(">", "&gt;");
-            var html = this.converter.makeHtml(source);
-            for (key in inserts) {
-                html = html.replace(key, inserts[key]);
-            }
-            for (key in mathInserts) {
-                html = html.replace(key, mathInserts[key]);
-            }
             this.$el.html(html);
-            this.$el.tooltip({
-                selector: "a[rel=tooltip]"
-            });
+            this.$el.tooltip({ selector: "a[rel=tooltip]" });
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
         }
     });
@@ -1176,6 +1192,49 @@
         }
     });
 
+    var DocumentItemView = Backbone.View.extend({
+        className: 'panel panel-default',
+        initialize: function() {
+            _.bindAll(this, 'render');
+        },
+        render: function() {
+            var body = typeset_body(this.model.get('body'), function(text, tag) {
+                return text;
+            }, function(text, item_id) {
+                return text;
+            });
+            var html = Handlebars.templates.document_item({
+                title: this.model.get('name'),
+                body: body
+            });
+            this.$el.html(html);
+            return this;
+        }
+    });
+
+    var DocumentView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, 'render', 'addOne');
+            this.collection.on('reset', this.render);
+            this.collection.on('add', this.addOne);
+            this.render();
+        },
+        render: function() {
+            this.$el.empty();
+            this.collection.each(this.addOne);
+        },
+        addOne: function(item) {
+            if (item.get('type') == 'item') {
+                var itemView = new DocumentItemView({ model: item });
+                this.$el.append(itemView.render().el);
+            }
+        }
+    });
+
+    /****************************
+     * Pages
+     ****************************/
+
     var teoremer = {
         home: function(init_items) {
             var topList = new TopListView({
@@ -1367,6 +1426,13 @@
             new SourceRenderView({
                 el: $('#source-preview'),
                 model: new SourceItem(source)
+            });
+        },
+
+        document_view: function(items) {
+            new DocumentView({
+                el: $('#document-items'),
+                collection: new DocumentItemList(items)
             });
         }
     };

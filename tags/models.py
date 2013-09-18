@@ -34,7 +34,7 @@ class CategoryManager(models.Manager):
             category = get_object_or_404(Category, tag=tag, parent=category)
         return category
     def default_category_for_tag(self, tag):
-        return self.from_tag_list(['general', tag])
+        return self.from_tag_list(['unspecified'])
 
 class Category(models.Model):
     class Meta:

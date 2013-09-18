@@ -116,8 +116,7 @@ class ItemTagCategory(models.Model):
         return u'%s | %s | %s' % (self.item, self.tag, self.category)
 
     def json_serializable(self):
-        return { 'tag':      self.tag,
-                 'category': self.category }
+        return dict(tag=self.tag, category=self.category)
 
 class ItemValidation(ValidationBase):
     class Meta:
