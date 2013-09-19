@@ -28,6 +28,27 @@
         };
     })();
 
+    var concept_map = (function() {
+        var concept_to_id_map = {};
+        var id_to_concept_array = [];
+        return {
+            to_id: function(tag_list) {
+                var obj = concept_to_id_map, j, tag;
+                for (j=0; j < tag_list.length; j++) {
+                    tag = tag_list[j];
+                    obj = tag in obj ? obj[tag] : (obj[tag] = {});
+                }
+                if ('' in obj) return obj[''];
+                obj = (obj[''] = id_to_concept_array.length);
+                id_to_concept_array.push(tag_list);
+                return obj;
+            },
+            from_id: function(id) {
+                return id_to_concept_array[id];
+            }
+        };
+    })();
+
     function typeset_tag(st) {
         var elems = st.split('$');
         for (var n = 0; n < elems.length; n++) {
@@ -403,9 +424,17 @@
         model: SourceItem
     });
 
+    var DocumentEntry = Backbone.Model.extend({
+        parse: function(response) {
+            var data = _.clone(response);
+            !data.concept || (data.concept = concept_map.to_id(data.concept));
+            return data;
+        }
+    });
+
     var DocumentItemList = Backbone.Collection.extend({
         url: api_prefix + 'document/',
-        model: MathItem,
+        model: DocumentEntry,
         comparator: 'order'
     });
 
@@ -553,7 +582,6 @@
         },
         initialize: function() {
             _.bindAll(this, 'render', 'addOne', 'doFetch', 'fetchReset');
-            this.collection = new SearchList();
             this.collection.on('reset', this.render);
             this.collection.on('add', this.addOne);
             this.options.parameters.set('type', this.options.itemtypes.charAt(0));
@@ -617,7 +645,6 @@
     var TopListView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render', 'addOne');
-            this.collection = new TopList();
             this.collection.on('reset', this.render);
             this.collection.on('add', this.addOne);
             this.render();
@@ -1204,10 +1231,10 @@
         className: 'panel panel-default',
         events: {
             'click a.add-concept': function(e) {
-                var elem = $(e.currentTarget); 
+                var elem = $(e.currentTarget);
                 var tag = elem.data('tag');
                 var tag_map = this.model.get('tag_map');
-                if (tag in tag_map) 
+                if (tag in tag_map)
                     this.options.dispatcher.trigger('add-concept', tag_map[tag]);
             },
             'click a.add-item': function(e) {
@@ -1237,8 +1264,8 @@
                 html = Handlebars.templates.document_concept_item({
                     title:   title,
                     body:    body,
-                    concept: _.map(this.model.get('concept'), typeset_tag)
-                });                
+                    concept: _.map(concept_map.from_id(this.model.get('concept')), typeset_tag)
+                });
             }
             this.$el.html(html);
             return this;
@@ -1304,10 +1331,10 @@
 
     var teoremer = {
         home: function(init_items) {
-            var topList = new TopListView({
+            new TopListView({
                 el: $('#top-item-list'),
+                collection: new TopList(init_items, { parse: true })
             });
-            topList.collection.reset(init_items, { parse: true });
         },
 
         source_list: function(items) {
@@ -1424,6 +1451,7 @@
                 searchTerms.set('category', category);
             var searchListViewData = {
                 el: $('#search-item-list'),
+                collection: new SearchList(init_items, { parse: true }),
                 itemtypes: itemtypes,
                 statuses: statuses,
                 parameters: searchTerms
@@ -1434,9 +1462,7 @@
                     statuses: restrict
                 };
             }
-            var searchList = new SearchListView(searchListViewData);
-
-            searchList.collection.reset(init_items, { parse: true });
+            new SearchListView(searchListViewData);
 
             includeView.collection.on('add remove', function() {
               searchTerms.set('includeTags', includeView.getTagList());
@@ -1458,6 +1484,7 @@
                 });
                 var searchListViewData = {
                     el: $('#proof-list'),
+                    collection: new SearchList(init_proofs, { parse: true }),
                     itemtypes: 'P',
                     parameters: searchTerms
                 };
@@ -1471,7 +1498,6 @@
                     searchListViewData.statuses = 'FR';
                 }
                 var searchList = new SearchListView(searchListViewData);
-                searchList.collection.reset(init_proofs, { parse: true });
             }
         },
 
@@ -1493,7 +1519,7 @@
             new DocumentView({
                 el: $('#document-items'),
                 doc_id: doc_id,
-                collection: new DocumentItemList(items)
+                collection: new DocumentItemList(items, { parse: true })
             });
         }
     };
