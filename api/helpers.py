@@ -3,6 +3,12 @@ import logging
 from functools import wraps
 from django.http import HttpResponse, HttpResponseBadRequest
 
+def itemtype_supported(itemtype):
+    return itemtype in ['definition', 'theorem', 'proof']
+
+def itemtype_has_parent(itemtype):
+    return itemtype in ['proof']
+
 class ApiError(Exception):
     pass
 
