@@ -52,7 +52,8 @@
 {% include 'include/js-scripts.html' with showdown=True cookie=True only %}
 
 <script type="text/javascript">
-teoremer.edit_final("{{item.final_id}}", {{item.primary_categories|to_json}}, {{item.secondary_categories|to_json}}, {{item.get_tag_category_associations|to_json}});
+teoremer.edit_final("{{item.final_id}}", {{item.primary_categories|to_json}}, {{item.secondary_categories|to_json}},
+{{item.get_tag_category_associations|to_json}}, {% if primary_text %}true{% else %}false{% endif %});
 </script>
 
 {% endblock %}

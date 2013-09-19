@@ -50,4 +50,4 @@ class Category(models.Model):
     def __unicode__(self):
         return u'%d:[%s]' % (self.pk, u','.join(map(unicode, self.get_tag_list())))
     def json_serializable(self):
-        return self.get_tag_list()
+        return [t.json_serializable() for t in self.get_tag_list()]

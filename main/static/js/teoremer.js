@@ -3,28 +3,25 @@
     var api_prefix = '/api/';
 
     Backbone.ajax = (function() {
-        var previousBackbone_ajax = Backbone.ajax;
+        var previous_ajax = Backbone.ajax;
         var setupCsrfDone = false;
-        function setupCsrf() {
-            var csrftoken = $.cookie('csrftoken');
-            function csrfSafeMethod(method) {
-                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-            }
-            $.ajaxSetup({
-                crossDomain: false, // obviates need for sameOrigin test
-                beforeSend: function(xhr, settings) {
-                    if (!csrfSafeMethod(settings.type)) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
-                }
-            });
-        };
+        function csrfSafeMethod(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
         return function(params) {
-            if (params.type == 'POST' && !setupCsrfDone) {
-                setupCsrf();
+            if (!csrfSafeMethod(params.type) && !setupCsrfDone) {
+                var csrftoken = $.cookie('csrftoken');
+                $.ajaxSetup({
+                    crossDomain: false, // obviates need for sameOrigin test
+                    beforeSend: function(xhr, settings) {
+                        if (!csrfSafeMethod(settings.type)) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    }
+                });
                 setupCsrfDone = true;
             }
-            return previousBackbone_ajax(params);
+            return previous_ajax(params);
         };
     })();
 
@@ -428,6 +425,12 @@
         parse: function(response) {
             var data = _.clone(response);
             !data.concept || (data.concept = concept_map.to_id(data.concept));
+            if (response.tag_refs) {
+                data.tag_refs = {};
+                for (key in response.tag_refs) {
+                   data.tag_refs[key] = concept_map.to_id(response.tag_refs[key]);                    
+                }
+            }
             return data;
         }
     });
@@ -1232,10 +1235,7 @@
         events: {
             'click a.add-concept': function(e) {
                 var elem = $(e.currentTarget);
-                var tag = elem.data('tag');
-                var tag_map = this.model.get('tag_map');
-                if (tag in tag_map)
-                    this.options.dispatcher.trigger('add-concept', tag_map[tag]);
+                this.options.dispatcher.trigger('add-concept', concept_map.from_id(elem.data('concept')));
             },
             'click a.add-item': function(e) {
                 var elem = $(e.currentTarget);
@@ -1246,11 +1246,11 @@
             _.bindAll(this, 'render');
         },
         render: function() {
-            var html, body;
-            var title = this.model.has('name') ? this.model.get('name') : 'Definition ?';
+            var html, body, title = this.model.get('name');
             if (this.model.has('body')) {
+                var tag_refs = this.model.get('tag_refs');                
                 body = typeset_body(this.model.get('body'), function(text, tag) {
-                    return '<a href="#" class="add-concept" data-tag="' + tag + '">' + text + '</a>';
+                    return '<a href="#" class="add-concept" data-concept="' + tag_refs[tag] + '">' + text + '</a>';
                 }, function(text, item_id) {
                     return '<a href="#" class="add-item" data-item="' + item_id + '">' + text + '</a>';
                 });

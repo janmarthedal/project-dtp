@@ -54,7 +54,7 @@ class ListWrapper(object):
         return self.__unicode__().encode('utf-8')
 
     def __unicode__(self):
-        return self.toJSON()
+        return unicode(self.json_serializable())
 
     def json_serializable(self):
         return self._list
