@@ -46,7 +46,7 @@ def show(request, item_id):
         raise Http404
     c = dict(item        = item,
              perm        = permissions,
-             validations = [v.json_serializable() for v in item.draftvalidation_set.all()])
+             validations = [v.json_data() for v in item.draftvalidation_set.all()])
     return render(request, 'drafts/show_draft.html', c)
 
 @logged_in_or_404

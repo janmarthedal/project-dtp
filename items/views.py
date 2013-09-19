@@ -25,7 +25,7 @@ def show_final(request, final_id):
     item_perms = get_user_final_permissions(request.user, item)
     c = dict(item        = item,
              perm        = item_perms,
-             validations = [v.json_serializable() for v in item.itemvalidation_set.all()],
+             validations = [v.json_data() for v in item.itemvalidation_set.all()],
              proof_count = 0,
              documents   = Document.objects.filter(created_by=request.user).all())
     if item.itemtype == 'T':

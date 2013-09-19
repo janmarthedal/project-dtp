@@ -209,7 +209,7 @@ def source(request):
     logger.debug(message)
     messages.success(request, message)
 
-    return item.json_serializable()
+    return item.json_data()
 
 @api_view
 @require_GET
@@ -228,4 +228,4 @@ def source_search(request):
         for name in names:
             query = query.filter(authors__name__istartswith=name)
 
-    return [item.json_serializable() for item in query.all()]
+    return [item.json_data() for item in query.all()]

@@ -109,7 +109,7 @@ class ItemTagCategory(models.Model):
     category = models.ForeignKey(Category, db_index=False)
     def __unicode__(self):
         return u'%s | %s | %s' % (self.item, self.tag, self.category)
-    def json_serializable(self):
+    def json_data(self):
         return dict(tag=self.tag, category=self.category)
 
 class ItemValidation(ValidationBase):

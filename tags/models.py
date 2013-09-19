@@ -16,7 +16,7 @@ class Tag(models.Model):
     normalized = models.CharField(max_length=255, db_index=True, unique=False)
     def __unicode__(self):
         return self.name
-    def json_serializable(self):
+    def json_data(self):
         return self.name
 
 class CategoryManager(models.Manager):
@@ -49,5 +49,5 @@ class Category(models.Model):
         return [self.tag]
     def __unicode__(self):
         return u'%d:[%s]' % (self.pk, u','.join(map(unicode, self.get_tag_list())))
-    def json_serializable(self):
-        return [t.json_serializable() for t in self.get_tag_list()]
+    def json_data(self):
+        return [t.json_data() for t in self.get_tag_list()]

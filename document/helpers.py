@@ -34,5 +34,5 @@ class DocumentView(object):
         concept_entry.init_meta()
         return concept_entry
 
-    def json_serializable(self):
-        return [entry.json_serializable() for entry in self.entries]
+    def json_data(self):
+        return [entry.json_data() for entry in self.entries]

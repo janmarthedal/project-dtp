@@ -34,14 +34,14 @@ class DocumentItemEntryBase(DocumentEntryBase):
         bs = BodyScanner(self.item.body)
         self.concept_defs = self.item.primary_categories if self.item.itemtype == 'D' else CategoryCollection([])
         self.item_uses = bs.getItemRefSet()
-        self.tag_refs = dict([(item_tag_category.tag.name, item_tag_category.category.json_serializable())
+        self.tag_refs = dict([(item_tag_category.tag.name, item_tag_category.category.json_data())
                               for item_tag_category in ItemTagCategory.objects.filter(item=self.item).all()]) 
     def make_json(self, entry_type, **kwargs):
         result = super(DocumentItemEntryBase, self).make_json(entry_type, **kwargs)
         result.update(name         = unicode(self.item),
                       body         = self.item.body,
                       tag_refs     = self.tag_refs,
-                      concept_defs = self.concept_defs.json_serializable(),
+                      concept_defs = self.concept_defs.json_data(),
                       item_uses    = self.item_uses)
         return result
 
@@ -49,7 +49,7 @@ class DocumentItemEntry(DocumentItemEntryBase):
     class Meta:
         db_table = 'document_item_entry'
         unique_together = (('document', 'item'), ('document', 'order'))
-    def json_serializable(self):
+    def json_data(self):
         return self.make_json('item')
 
 class DocumentConceptEntry(DocumentItemEntryBase):
@@ -57,6 +57,6 @@ class DocumentConceptEntry(DocumentItemEntryBase):
         db_table = 'document_concept_entry'
         unique_together = (('document', 'category'), ('document', 'order'))
     category = models.ForeignKey(Category, null=False)
-    def json_serializable(self):
+    def json_data(self):
         return self.make_json('concept',
                               concept = [t.name for t in self.category.get_tag_list()])

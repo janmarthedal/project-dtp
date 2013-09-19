@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 def view_render(request, document_view):
-    c = init_context('document', document=document_view.document, items=document_view.json_serializable())
+    c = init_context('document', document=document_view.document, items=document_view.json_data())
     return render(request, 'document/view.html', c)
 
 @require_safe

@@ -54,15 +54,15 @@ class ListWrapper(object):
         return self.__unicode__().encode('utf-8')
 
     def __unicode__(self):
-        return unicode(self.json_serializable())
+        return unicode(self.json_data())
 
-    def json_serializable(self):
+    def json_data(self):
         return self._list
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         try:
-            return obj.json_serializable()
+            return obj.json_data()
         except AttributeError:
             return json.JSONEncoder.default(self, obj)
 

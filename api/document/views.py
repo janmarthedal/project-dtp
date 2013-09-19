@@ -15,4 +15,4 @@ def add_concept(request, doc_id):
     document = get_object_or_404(Document, pk=doc_id, created_by=request.user) 
     document_view = DocumentView(document)
     concept_entry = document_view.add_concept(request.data)
-    return concept_entry.json_serializable()
+    return concept_entry.json_data()

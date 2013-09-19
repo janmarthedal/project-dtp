@@ -37,7 +37,7 @@ class RefNode(models.Model):
         if self.pk:
             return 'Source %d' % self.pk
         return 'New source'
-    def json_serializable(self):
+    def json_data(self):
         data = { 'id': self.pk, 'type': self.sourcetype }
         for key in RefNode.STRING_FIELDS:
             if self.__dict__[key]:
@@ -55,8 +55,8 @@ class ValidationBase(models.Model):
     created_at = models.DateTimeField(default=timezone.now, db_index=False)
     source     = models.ForeignKey(RefNode)
     location   = models.CharField(max_length=255, null=True)
-    def json_serializable(self):
+    def json_data(self):
         return {
-            'source':   self.source.json_serializable(),
+            'source':   self.source.json_data(),
             'location': self.location
         }
