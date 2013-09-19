@@ -2,23 +2,31 @@
 
     var api_prefix = '/api/';
 
-    function setupCsrf() {
-        var csrftoken = $.cookie('csrftoken');
-
-        function csrfSafeMethod(method) {
-            // these HTTP methods do not require CSRF protection
-            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-
-        $.ajaxSetup({
-            crossDomain: false, // obviates need for sameOrigin test
-            beforeSend: function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type)) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
+    Backbone.ajax = (function() {
+        var previousBackbone_ajax = Backbone.ajax;
+        var setupCsrfDone = false;
+        function setupCsrf() {
+            var csrftoken = $.cookie('csrftoken');
+            function csrfSafeMethod(method) {
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
             }
-        });
-    };
+            $.ajaxSetup({
+                crossDomain: false, // obviates need for sameOrigin test
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type)) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+        };
+        return function(params) {
+            if (params.type == 'POST' && !setupCsrfDone) {
+                setupCsrf();
+                setupCsrfDone = true;
+            }
+            return previousBackbone_ajax(params);
+        };
+    })();
 
     function typeset_tag(st) {
         var elems = st.split('$');
@@ -1310,8 +1318,6 @@
         },
 
         new_draft: function(kind, show_primcats, parent) {
-            setupCsrf();
-
             var draft_data = { type: kind };
             if (parent) draft_data.parent = parent;
             var item = new DraftItem(draft_data, { parse: true });
@@ -1341,8 +1347,6 @@
         },
 
         edit_draft: function(id, body, pricats, seccats, show_primcats) {
-            setupCsrf();
-
             var item = new DraftItem({ id: id, body: body, pricats: pricats, seccats: seccats }, { parse: true });
             new BodyEditView({
                 el: $('#body-input'),
@@ -1381,8 +1385,6 @@
         },
 
         edit_final: function(id, pricats, seccats, tagcatmap, show_primcats) {
-            setupCsrf();
-
             var item = new FinalItem({
                 id: id,
                 pricats: pricats,
@@ -1474,7 +1476,6 @@
         },
 
         source_add: function(mode) {
-            setupCsrf();
             var source = new SourceItem();
             new SourceEditView({ el: $('#source-edit'), model: source, mode: mode });
             new SourceRenderView({ el: $('#source-preview'), model: source });
@@ -1489,7 +1490,6 @@
         },
 
         document_view: function(doc_id, items) {
-            setupCsrf();
             new DocumentView({
                 el: $('#document-items'),
                 doc_id: doc_id,
