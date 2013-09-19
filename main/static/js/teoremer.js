@@ -34,12 +34,13 @@
         return _.map(tag_list, typeset_tag);
     }
 
-    var showdown_converter;
-    function showdown_convert(source) {
-        if (!showdown_converter)
-            showdown_converter = new Showdown.converter();
-        return showdown_converter.makeHtml(source);
-    }
+    var showdown_convert = (function() {
+        var converter;
+        return function(source) {
+            converter || (converter = new Showdown.converter());
+            return converter.makeHtml(source);
+        };
+    })();
 
     function typeset_body(source, typeset_tag, typeset_item) {
         var insertsCounter = 0, mathInserts = {}, inserts = {}, key;
@@ -397,9 +398,7 @@
     var DocumentItemList = Backbone.Collection.extend({
         url: api_prefix + 'document/',
         model: MathItem,
-        comparator: function(item) {
-            return item.get('order');
-        }
+        comparator: 'order'
     });
 
     /***************************
@@ -1240,10 +1239,10 @@
 
     var DocumentView = Backbone.View.extend({
         initialize: function() {
-            _.bindAll(this, 'render', 'addOne', 'fetchConcept', 'fetchItem');
+            _.bindAll(this, 'render', 'onAdd', 'makeEntryView', 'fetchConcept', 'fetchItem', 'fetch');
             this.collection.on({
                 'reset': this.render,
-                'add':   this.addOne
+                'add':   this.onAdd
             });
             this.dispatcher = _.clone(Backbone.Events);
             this.dispatcher.on({
@@ -1254,28 +1253,40 @@
         },
         render: function() {
             this.$el.empty();
-            this.collection.each(this.addOne);
+            this.collection.each(function(model) {
+                this.$el.append(this.makeEntryView(model).render().el);
+            }, this);
         },
-        addOne: function(item) {
-            var itemView = new DocumentItemView({
-                model: item,
+        onAdd: function(model) {
+            // model has already been inserted into the collection at the correct position,
+            // so to get the index of the model *after* the new one, we add 1
+            var insertPosition = this.collection.sortedIndex(model) + 1;
+            var content = this.makeEntryView(model).render().el;
+            if (insertPosition == this.collection.length)
+                this.$el.append(content);
+            else
+                $('#doc-entry-' + this.collection.at(insertPosition).cid).before(content);
+        },
+        makeEntryView: function(model) {
+            return new DocumentItemView({
+                id: 'doc-entry-' + model.cid,
+                model: model,
                 dispatcher: this.dispatcher
             });
-            this.$el.append(itemView.render().el);
+        },
+        fetch: function(subpath, data) {
+            this.collection.fetch({
+                url: this.collection.url + this.options.doc_id + '/' + subpath,
+                type: 'POST',
+                data: JSON.stringify(data),
+                remove: false
+            });
         },
         fetchConcept: function(tag_list) {
-            var options = {
-                url: this.collection.url + this.options.doc_id + '/add-concept',
-                type: 'POST',
-                data: JSON.stringify(tag_list),
-                error: function() {
-                    console.log('fetchConcept error');
-                }
-            };
-            this.collection.fetch(options);
+            this.fetch('add-concept', tag_list);
         },
         fetchItem: function(item_id) {
-            console.log('fetchItem ' + item_id);
+            this.fetch('add-item', item_id);
         }
     });
 
