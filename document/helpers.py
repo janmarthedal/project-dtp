@@ -21,10 +21,10 @@ class DocumentView(object):
         item_entry = DocumentItemEntry(document=self.document, item=item)
         item_entry.order = self.entries[-1].order + 1 if len(self.entries) else 0
         item_entry.save()
-        self.entries.append(item_entry)
         item_entry.init_meta()
+        self.entries.append(item_entry)
         return item_entry
-    
+
     def add_concept(self, tag_list):
         category = Category.objects.from_tag_list(tag_list)
         item = FinalItem.objects.filter(itemtype='D', status='F', finalitemcategory__primary=True, finalitemcategory__category=category)[0]
@@ -32,7 +32,15 @@ class DocumentView(object):
         concept_entry.order = self.entries[-1].order + 1 if len(self.entries) else 0
         concept_entry.save()
         concept_entry.init_meta()
+        self.entries.append(concept_entry)
         return concept_entry
 
+    def json_data_for_entries(self, entries):
+        category_set = set()
+        for entry in entries:
+            category_set.update(entry.category_set)
+        return dict(items = [entry.json_data() for entry in entries],
+                    concept_map = [(c.id, c.json_data()) for c in category_set])
+
     def json_data(self):
-        return [entry.json_data() for entry in self.entries]
+        return self.json_data_for_entries(self.entries)

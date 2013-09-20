@@ -4,7 +4,6 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
 
-
 class UserManager(BaseUserManager):
 
     def create_user(self, name, email=None, password=None):
@@ -27,7 +26,6 @@ class UserManager(BaseUserManager):
         user.is_admin = True
         user.save(using=self._db)
         return user
-
 
 class User(AbstractBaseUser):
     email = models.EmailField(verbose_name='email address', max_length=255, db_index=True, null=True, blank=True)

@@ -32,16 +32,23 @@ class DocumentItemEntryBase(DocumentEntryBase):
     item = models.ForeignKey(FinalItem, db_index=False)
     def init_meta(self):
         bs = BodyScanner(self.item.body)
-        self.concept_defs = self.item.primary_categories if self.item.itemtype == 'D' else CategoryCollection([])
+        self.category_set = set()
+        if self.item.itemtype == 'D':
+            self.category_set.update(self.item.primary_categories)
+            self.concept_defs = [c.id for c in self.item.primary_categories]
+        else:
+            self.concept_defs = []
         self.item_uses = bs.getItemRefSet()
-        self.tag_refs = dict([(item_tag_category.tag.name, item_tag_category.category.json_data())
-                              for item_tag_category in ItemTagCategory.objects.filter(item=self.item).all()]) 
+        self.tag_refs = {}
+        for item_tag_category in ItemTagCategory.objects.filter(item=self.item).all():
+            self.category_set.add(item_tag_category.category)
+            self.tag_refs[item_tag_category.tag.name] = item_tag_category.category.id
     def make_json(self, entry_type, **kwargs):
         result = super(DocumentItemEntryBase, self).make_json(entry_type, **kwargs)
         result.update(name         = unicode(self.item),
                       body         = self.item.body,
                       tag_refs     = self.tag_refs,
-                      concept_defs = self.concept_defs.json_data(),
+                      concept_defs = self.concept_defs,
                       item_uses    = self.item_uses)
         return result
 
@@ -57,6 +64,8 @@ class DocumentConceptEntry(DocumentItemEntryBase):
         db_table = 'document_concept_entry'
         unique_together = (('document', 'category'), ('document', 'order'))
     category = models.ForeignKey(Category, null=False)
+    def init_meta(self):
+        super(DocumentConceptEntry, self).init_meta()
+        self.category_set.add(self.category)
     def json_data(self):
-        return self.make_json('concept',
-                              concept = [t.name for t in self.category.get_tag_list()])
+        return self.make_json('concept', concept = self.category.id)

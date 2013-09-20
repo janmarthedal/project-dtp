@@ -26,23 +26,22 @@
     })();
 
     var concept_map = (function() {
-        var concept_to_id_map = {};
-        var id_to_concept_array = [];
+        var id_to_concept_map = {};
         return {
-            to_id: function(tag_list) {
-                var obj = concept_to_id_map, j, tag;
-                for (j=0; j < tag_list.length; j++) {
-                    tag = tag_list[j];
-                    obj = tag in obj ? obj[tag] : (obj[tag] = {});
-                }
-                if ('' in obj) return obj[''];
-                obj = (obj[''] = id_to_concept_array.length);
-                id_to_concept_array.push(tag_list);
-                return obj;
+            insert: function(id, tag_list) {
+                id_to_concept_map['' + id] = tag_list;
             },
             from_id: function(id) {
-                return id_to_concept_array[id];
+                return id_to_concept_map[id];
             }
+        };
+    })();
+
+    var showdown_convert = (function() {
+        var converter;
+        return function(source) {
+            converter || (converter = new Showdown.converter());
+            return converter.makeHtml(source);
         };
     })();
 
@@ -59,14 +58,6 @@
     function typeset_tag_list(tag_list) {
         return _.map(tag_list, typeset_tag);
     }
-
-    var showdown_convert = (function() {
-        var converter;
-        return function(source) {
-            converter || (converter = new Showdown.converter());
-            return converter.makeHtml(source);
-        };
-    })();
 
     function typeset_body(source, typeset_tag, typeset_item) {
         var insertsCounter = 0, mathInserts = {}, inserts = {}, key;
@@ -421,24 +412,18 @@
         model: SourceItem
     });
 
-    var DocumentEntry = Backbone.Model.extend({
-        parse: function(response) {
-            var data = _.clone(response);
-            !data.concept || (data.concept = concept_map.to_id(data.concept));
-            if (response.tag_refs) {
-                data.tag_refs = {};
-                for (key in response.tag_refs) {
-                   data.tag_refs[key] = concept_map.to_id(response.tag_refs[key]);                    
-                }
-            }
-            return data;
-        }
-    });
+    var DocumentEntry = Backbone.Model;
 
     var DocumentItemList = Backbone.Collection.extend({
         url: api_prefix + 'document/',
         model: DocumentEntry,
-        comparator: 'order'
+        comparator: 'order',
+        parse: function(response) {
+            _.each(response.concept_map, function(elem) {
+                concept_map.insert(elem[0], elem[1]);
+            });
+            return response.items;
+        }
     });
 
     /***************************
@@ -1248,7 +1233,7 @@
         render: function() {
             var html, body, title = this.model.get('name');
             if (this.model.has('body')) {
-                var tag_refs = this.model.get('tag_refs');                
+                var tag_refs = this.model.get('tag_refs');
                 body = typeset_body(this.model.get('body'), function(text, tag) {
                     return '<a href="#" class="add-concept" data-concept="' + tag_refs[tag] + '">' + text + '</a>';
                 }, function(text, item_id) {
