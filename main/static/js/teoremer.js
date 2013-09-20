@@ -1281,11 +1281,12 @@
             // model has already been inserted into the collection at the correct position,
             // so to get the index of the model *after* the new one, we add 1
             var insertPosition = this.collection.sortedIndex(model) + 1;
-            var content = this.makeEntryView(model).render().el;
+            var entry = this.makeEntryView(model).render();
             if (insertPosition == this.collection.length)
-                this.$el.append(content);
+                this.$el.append(entry.el);
             else
-                $('#doc-entry-' + this.collection.at(insertPosition).cid).before(content);
+                $('#doc-entry-' + this.collection.at(insertPosition).cid).before(entry.el);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, entry.$el.get()]);
         },
         makeEntryView: function(model) {
             return new DocumentItemView({

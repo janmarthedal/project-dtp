@@ -1,9 +1,6 @@
 <div class="panel-heading">
-  <h4 class="panel-title">{{title}}</h4>
+  <h4 class="panel-title">{{title}} ({{#each concept}}<span class="tag">{{this}}</span>{{/each}})</h4>
 </div>
 <div class="panel-body">
-<p>
-<span class="category">{{#each concept}}<span class="tag">{{this}}</span>{{/each}}</span>
-</p>
 {{{body}}}
 </div>

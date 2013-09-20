@@ -3,7 +3,6 @@ from django.db import models
 from django.utils import timezone
 from items.helpers import BodyScanner
 from items.models import FinalItem, ItemTagCategory
-from tags.helpers import CategoryCollection
 from tags.models import Category
 
 class Document(models.Model):
@@ -21,6 +20,12 @@ class DocumentEntryBase(models.Model):
         abstract = True
     document = models.ForeignKey(Document, db_index=True)
     order    = models.FloatField(null=False)
+    def init_meta(self):
+        self.category_set = set()   # Category models
+        self.concept_defs = set()   # Category ids (ints)
+        self.concept_uses = set()   # Category ids (ints)
+        self.item_defs = set()      # FinalItem ids (strings)
+        self.item_uses = set()      # FinalItem ids (strings)
     def make_json(self, entry_type, **kwargs):
         result = dict(type = entry_type, order = self.order)
         result.update(**kwargs)
@@ -31,25 +36,25 @@ class DocumentItemEntryBase(DocumentEntryBase):
         abstract = True
     item = models.ForeignKey(FinalItem, db_index=False)
     def init_meta(self):
+        super(DocumentItemEntryBase, self).init_meta()
         bs = BodyScanner(self.item.body)
-        self.category_set = set()
         if self.item.itemtype == 'D':
             self.category_set.update(self.item.primary_categories)
-            self.concept_defs = [c.id for c in self.item.primary_categories]
-        else:
-            self.concept_defs = []
-        self.item_uses = bs.getItemRefSet()
+            self.concept_defs.update([c.id for c in self.item.primary_categories])
+        self.item_defs.add(self.item.final_id)
+        self.item_uses.update(bs.getItemRefSet())
         self.tag_refs = {}
         for item_tag_category in ItemTagCategory.objects.filter(item=self.item).all():
             self.category_set.add(item_tag_category.category)
+            self.concept_uses.add(item_tag_category.category.id)
             self.tag_refs[item_tag_category.tag.name] = item_tag_category.category.id
     def make_json(self, entry_type, **kwargs):
         result = super(DocumentItemEntryBase, self).make_json(entry_type, **kwargs)
         result.update(name         = unicode(self.item),
                       body         = self.item.body,
                       tag_refs     = self.tag_refs,
-                      concept_defs = self.concept_defs,
-                      item_uses    = self.item_uses)
+                      concept_defs = list(self.concept_defs),
+                      item_uses    = list(self.item_uses))
         return result
 
 class DocumentItemEntry(DocumentItemEntryBase):
