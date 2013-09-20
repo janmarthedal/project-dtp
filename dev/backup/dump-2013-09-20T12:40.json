@@ -19,7 +19,7 @@
     "name": "Jan Marthedal Rasmussen", 
     "created_at": "2013-08-20T17:54:07Z", 
     "is_active": true, 
-    "last_login": "2013-09-16T08:38:59Z", 
+    "last_login": "2013-09-19T09:31:02Z", 
     "is_admin": false, 
     "password": "!", 
     "email": "jmr@kanooth.com"
@@ -311,6 +311,38 @@
   "fields": {
     "name": "general", 
     "normalized": "general"
+  }
+},
+{
+  "pk": 37, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "bounded below", 
+    "normalized": "bounded below"
+  }
+},
+{
+  "pk": 38, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "lower bound", 
+    "normalized": "lower bound"
+  }
+},
+{
+  "pk": 39, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "unspecified", 
+    "normalized": "unspecified"
+  }
+},
+{
+  "pk": 40, 
+  "model": "tags.tag", 
+  "fields": {
+    "name": "relation", 
+    "normalized": "relation"
   }
 },
 {
@@ -658,6 +690,62 @@
   }
 },
 {
+  "pk": 44, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 34, 
+    "parent": 40
+  }
+},
+{
+  "pk": 45, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 27, 
+    "parent": 40
+  }
+},
+{
+  "pk": 46, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 37, 
+    "parent": 40
+  }
+},
+{
+  "pk": 47, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 38, 
+    "parent": 40
+  }
+},
+{
+  "pk": 48, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 37, 
+    "parent": 1
+  }
+},
+{
+  "pk": 49, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 38, 
+    "parent": 1
+  }
+},
+{
+  "pk": 50, 
+  "model": "tags.category", 
+  "fields": {
+    "tag": 39, 
+    "parent": null
+  }
+},
+{
   "pk": 2, 
   "model": "drafts.draftitem", 
   "fields": {
@@ -706,30 +794,6 @@
   }
 },
 {
-  "pk": 6, 
-  "model": "drafts.draftitem", 
-  "fields": {
-    "body": "Let $S$ be a [#set]. An _order_ on $S$ is a [#relation], denoted by $<$, with the following two properties:\n\n   1. If $x \\in S$ and $y \\in S$ then one and only one of the statements\n      $$\n      x < y, \\quad x = y, \\quad y < x\n      $$\n      is true.\n\n   2. If $x, y, z \\in S$, if $x < y$ and $y < z$, then $x < z$.\n\nThe statement \"$x < y$\" may be read as \"$x$ is less than $y$\" or \"$x$ is smaller than $y$\" or \"$x$ precedes $y$\".", 
-    "status": "D", 
-    "itemtype": "D", 
-    "parent": null, 
-    "modified_at": "2013-08-21T05:54:08Z", 
-    "created_by": 2
-  }
-},
-{
-  "pk": 7, 
-  "model": "drafts.draftitem", 
-  "fields": {
-    "body": "An _ordered set_ is a [#set] $S$ in which an [#order] is defined.", 
-    "status": "D", 
-    "itemtype": "D", 
-    "parent": null, 
-    "modified_at": "2013-08-21T11:00:00Z", 
-    "created_by": 2
-  }
-},
-{
   "pk": 8, 
   "model": "drafts.draftitem", 
   "fields": {
@@ -750,30 +814,6 @@
     "itemtype": "D", 
     "parent": null, 
     "modified_at": "2013-08-21T13:33:56Z", 
-    "created_by": 2
-  }
-},
-{
-  "pk": 10, 
-  "model": "drafts.draftitem", 
-  "fields": {
-    "body": "An [#ordered set] $S$ is said to have the [#least-upper-bound property] if the following is true: If $E \\subset S$, $E$ is not empty, and $E$ is [#bounded above], then $\\sup E$ exists in $S$.", 
-    "status": "D", 
-    "itemtype": "D", 
-    "parent": null, 
-    "modified_at": "2013-08-21T13:41:33Z", 
-    "created_by": 2
-  }
-},
-{
-  "pk": 11, 
-  "model": "drafts.draftitem", 
-  "fields": {
-    "body": "Suppose $S$ is an [#ordered set] with the [#least-upper-bound property], $B \\subset S$, $B$ is not empty, and $B$ is [#bounded below]. Let $L$ be the [#set] of all [lower bounds#lower bound] of $B$. Then\n$$\n\\alpha = \\sup L\n$$\nexists in $S$, and $\\alpha = \\inf B$.\n\nIn particular, $\\inf B$ exists in $S$.", 
-    "status": "D", 
-    "itemtype": "T", 
-    "parent": null, 
-    "modified_at": "2013-08-21T13:44:52Z", 
     "created_by": 2
   }
 },
@@ -922,69 +962,6 @@
   }
 },
 {
-  "pk": 26, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 25, 
-    "item": 6, 
-    "primary": true
-  }
-},
-{
-  "pk": 27, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 26, 
-    "item": 6, 
-    "primary": true
-  }
-},
-{
-  "pk": 28, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 29, 
-    "item": 6, 
-    "primary": true
-  }
-},
-{
-  "pk": 29, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 30, 
-    "item": 6, 
-    "primary": true
-  }
-},
-{
-  "pk": 30, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 31, 
-    "item": 6, 
-    "primary": true
-  }
-},
-{
-  "pk": 31, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 9, 
-    "item": 6, 
-    "primary": false
-  }
-},
-{
-  "pk": 32, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 32, 
-    "item": 7, 
-    "primary": true
-  }
-},
-{
   "pk": 33, 
   "model": "drafts.draftitemcategory", 
   "fields": {
@@ -1039,26 +1016,6 @@
   }
 },
 {
-  "pk": 39, 
-  "model": "drafts.draftitemcategory", 
-  "fields": {
-    "category": 39, 
-    "item": 10, 
-    "primary": true
-  }
-},
-{
-  "pk": 2, 
-  "model": "drafts.draftvalidation", 
-  "fields": {
-    "source": 3, 
-    "created_at": "2013-09-13T12:31:52Z", 
-    "location": "Definition 1.10, page 4", 
-    "created_by": 2, 
-    "item": 10
-  }
-},
-{
   "pk": 1, 
   "model": "items.finalitem", 
   "fields": {
@@ -1070,6 +1027,66 @@
     "final_id": "D4772", 
     "created_at": "2013-09-16T08:40:06Z", 
     "modified_at": "2013-09-16T08:40:06Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 2, 
+  "model": "items.finalitem", 
+  "fields": {
+    "body": "Suppose $S$ is an [#ordered set] with the [#least-upper-bound property]. Let $B \\subset S$ with $B$ not empty and [#bounded below]. Let $L$ be the [#set] of all [lower bounds#lower bound] of $B$.\n\nThen\n$$\n\\alpha = \\sup L\n$$\nexists in $S$, and $\\alpha = \\inf B$.\n\nIn particular, $\\inf B$ exists in $S$.", 
+    "status": "F", 
+    "modified_by": 2, 
+    "itemtype": "T", 
+    "parent": null, 
+    "final_id": "T0953", 
+    "created_at": "2013-09-17T06:27:47Z", 
+    "modified_at": "2013-09-17T06:31:06Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "items.finalitem", 
+  "fields": {
+    "body": "An [#ordered set] $S$ is said to have the _least-upper-bound property_ if the following is true: If $E \\subset S$, $E$ is not empty, and $E$ is [#bounded above], then $\\sup E$ exists in $S$.", 
+    "status": "F", 
+    "modified_by": 2, 
+    "itemtype": "D", 
+    "parent": null, 
+    "final_id": "D1833", 
+    "created_at": "2013-09-19T10:18:39Z", 
+    "modified_at": "2013-09-19T10:20:06Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 4, 
+  "model": "items.finalitem", 
+  "fields": {
+    "body": "An _ordered set_ is a [#set] $S$ in which an [#order] is defined.", 
+    "status": "F", 
+    "modified_by": 2, 
+    "itemtype": "D", 
+    "parent": null, 
+    "final_id": "D1393", 
+    "created_at": "2013-09-19T10:19:07Z", 
+    "modified_at": "2013-09-20T08:24:52Z", 
+    "created_by": 2
+  }
+},
+{
+  "pk": 5, 
+  "model": "items.finalitem", 
+  "fields": {
+    "body": "Let $S$ be a [#set]. An _order_ on $S$ is a [#relation], denoted by $<$, with the following two properties:\n\n   1. If $x \\in S$ and $y \\in S$ then one and only one of the statements\n      $$\n      x < y, \\quad x = y, \\quad y < x\n      $$\n      is true.\n\n   2. If $x, y, z \\in S$, if $x < y$ and $y < z$, then $x < z$.\n\nThe statement \"$x < y$\" may be read as \"$x$ is less than $y$\" or \"$x$ is smaller than $y$\" or \"$x$ precedes $y$\".", 
+    "status": "F", 
+    "modified_by": 2, 
+    "itemtype": "D", 
+    "parent": null, 
+    "final_id": "D1724", 
+    "created_at": "2013-09-20T08:23:09Z", 
+    "modified_at": "2013-09-20T08:23:09Z", 
     "created_by": 2
   }
 },
@@ -1110,6 +1127,87 @@
   }
 },
 {
+  "pk": 5, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 1, 
+    "item": 2, 
+    "primary": false
+  }
+},
+{
+  "pk": 8, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 39, 
+    "item": 3, 
+    "primary": true
+  }
+},
+{
+  "pk": 9, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 9, 
+    "item": 5, 
+    "primary": false
+  }
+},
+{
+  "pk": 10, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 25, 
+    "item": 5, 
+    "primary": true
+  }
+},
+{
+  "pk": 11, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 26, 
+    "item": 5, 
+    "primary": true
+  }
+},
+{
+  "pk": 12, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 29, 
+    "item": 5, 
+    "primary": true
+  }
+},
+{
+  "pk": 13, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 30, 
+    "item": 5, 
+    "primary": true
+  }
+},
+{
+  "pk": 14, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 31, 
+    "item": 5, 
+    "primary": true
+  }
+},
+{
+  "pk": 15, 
+  "model": "items.finalitemcategory", 
+  "fields": {
+    "category": 32, 
+    "item": 4, 
+    "primary": true
+  }
+},
+{
   "pk": 1, 
   "model": "items.itemtagcategory", 
   "fields": {
@@ -1137,6 +1235,105 @@
   }
 },
 {
+  "pk": 14, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 9, 
+    "item": 2, 
+    "tag": 9
+  }
+},
+{
+  "pk": 15, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 39, 
+    "item": 2, 
+    "tag": 34
+  }
+},
+{
+  "pk": 16, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 32, 
+    "item": 2, 
+    "tag": 27
+  }
+},
+{
+  "pk": 17, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 48, 
+    "item": 2, 
+    "tag": 37
+  }
+},
+{
+  "pk": 18, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 49, 
+    "item": 2, 
+    "tag": 38
+  }
+},
+{
+  "pk": 23, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 32, 
+    "item": 3, 
+    "tag": 27
+  }
+},
+{
+  "pk": 24, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 33, 
+    "item": 3, 
+    "tag": 28
+  }
+},
+{
+  "pk": 25, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 50, 
+    "item": 5, 
+    "tag": 40
+  }
+},
+{
+  "pk": 26, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 50, 
+    "item": 5, 
+    "tag": 9
+  }
+},
+{
+  "pk": 27, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 9, 
+    "item": 4, 
+    "tag": 9
+  }
+},
+{
+  "pk": 28, 
+  "model": "items.itemtagcategory", 
+  "fields": {
+    "category": 25, 
+    "item": 4, 
+    "tag": 21
+  }
+},
+{
   "pk": 1, 
   "model": "items.itemvalidation", 
   "fields": {
@@ -1145,6 +1342,28 @@
     "location": "Definition 1.3, page 3", 
     "created_by": 2, 
     "item": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "items.itemvalidation", 
+  "fields": {
+    "source": 3, 
+    "created_at": "2013-09-17T06:27:47Z", 
+    "location": "Theorem 1.11, page 5", 
+    "created_by": 2, 
+    "item": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "items.itemvalidation", 
+  "fields": {
+    "source": 3, 
+    "created_at": "2013-09-19T10:18:39Z", 
+    "location": "Definition 1.10, page 4", 
+    "created_by": 2, 
+    "item": 3
   }
 },
 {

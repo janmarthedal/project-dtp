@@ -14,5 +14,7 @@ logger = logging.getLogger(__name__)
 def add_concept(request, doc_id):
     document = get_object_or_404(Document, pk=doc_id, created_by=request.user) 
     document_view = DocumentView(document)
-    concept_entry = document_view.add_concept(request.data)
+    tag_list = request.data['concept']
+    source_id = request.data['source_id']
+    concept_entry = document_view.add_concept(tag_list, source_id)
     return document_view.json_data_for_entries([concept_entry])

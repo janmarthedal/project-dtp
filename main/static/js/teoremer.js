@@ -1215,12 +1215,29 @@
         }
     });
 
+    var DocumentMessageView = Backbone.View.extend({
+        className: function() {
+            return 'alert alert-dismissable alert-' + this.model.get('severity');
+        },
+        initialize: function() {
+            _.bindAll(this, 'render');
+        },
+        render: function() {
+            var html = Handlebars.templates.document_message({
+               message: this.model.get('message')
+            });
+            this.$el.html(html);
+            return this;
+        }
+    });
+
     var DocumentItemView = Backbone.View.extend({
         className: 'panel panel-default',
         events: {
             'click a.add-concept': function(e) {
                 var elem = $(e.currentTarget);
-                this.options.dispatcher.trigger('add-concept', concept_map.from_id(elem.data('concept')));
+                this.options.dispatcher.trigger('add-concept', concept_map.from_id(elem.data('concept')),
+                                                this.$el.attr('id'));
             },
             'click a.add-item': function(e) {
                 var elem = $(e.currentTarget);
@@ -1278,15 +1295,33 @@
             }, this);
         },
         onAdd: function(model) {
-            // model has already been inserted into the collection at the correct position,
-            // so to get the index of the model *after* the new one, we add 1
-            var insertPosition = this.collection.sortedIndex(model) + 1;
-            var entry = this.makeEntryView(model).render();
-            if (insertPosition == this.collection.length)
-                this.$el.append(entry.el);
-            else
-                $('#doc-entry-' + this.collection.at(insertPosition).cid).before(entry.el);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, entry.$el.get()]);
+            if (model.get('type') == 'message') {
+                this.collection.remove(model);
+                var message = new DocumentMessageView({
+                    model: new Backbone.Model({
+                        severity: model.get('severity'),
+                        message: model.get('message')
+                    })
+                });
+                $('#' + model.get('source_id')).before(message.render().el);
+            } else {
+                // model has already been inserted into the collection at the correct position,
+                // so to get the index of the model *after* the new one, we add 1
+                var nextPosition = this.collection.sortedIndex(model) + 1;
+                var entry = this.makeEntryView(model).render();
+                if (nextPosition == this.collection.length)
+                    this.$el.append(entry.el);
+                else
+                    $('#doc-entry-' + this.collection.at(nextPosition).cid).before(entry.el);
+                var message = new DocumentMessageView({
+                    model: new Backbone.Model({
+                        severity: 'success',
+                        message: model.get('name') + " was successfully inserted"
+                    })
+                });
+                entry.$el.before(message.render().el);
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, entry.$el.get()]);
+            }
         },
         makeEntryView: function(model) {
             return new DocumentItemView({
@@ -1296,6 +1331,7 @@
             });
         },
         fetch: function(subpath, data) {
+            this.$('.alert').remove();
             this.collection.fetch({
                 url: this.collection.url + this.options.doc_id + '/' + subpath,
                 type: 'POST',
@@ -1303,8 +1339,11 @@
                 remove: false
             });
         },
-        fetchConcept: function(tag_list) {
-            this.fetch('add-concept', tag_list);
+        fetchConcept: function(tag_list, source_id) {
+            this.fetch('add-concept', {
+                concept: tag_list,
+                source_id: source_id
+            });
         },
         fetchItem: function(item_id) {
             this.fetch('add-item', item_id);

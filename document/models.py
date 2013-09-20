@@ -3,7 +3,6 @@ from django.db import models
 from django.utils import timezone
 from items.helpers import BodyScanner
 from items.models import FinalItem, ItemTagCategory
-from tags.models import Category
 
 class Document(models.Model):
     class Meta:
@@ -63,14 +62,3 @@ class DocumentItemEntry(DocumentItemEntryBase):
         unique_together = (('document', 'item'), ('document', 'order'))
     def json_data(self):
         return self.make_json('item')
-
-class DocumentConceptEntry(DocumentItemEntryBase):
-    class Meta:
-        db_table = 'document_concept_entry'
-        unique_together = (('document', 'category'), ('document', 'order'))
-    category = models.ForeignKey(Category, null=False)
-    def init_meta(self):
-        super(DocumentConceptEntry, self).init_meta()
-        self.category_set.add(self.category)
-    def json_data(self):
-        return self.make_json('concept', concept = self.category.id)
