@@ -2,27 +2,19 @@
 
     var api_prefix = '/api/';
 
-    Backbone.ajax = (function() {
-        var previous_ajax = Backbone.ajax;
-        var setupCsrfDone = false;
+    (function() {
+        var csrftoken = $.cookie('csrftoken');
         function csrfSafeMethod(method) {
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
-        return function(params) {
-            if (!csrfSafeMethod(params.type) && !setupCsrfDone) {
-                var csrftoken = $.cookie('csrftoken');
-                $.ajaxSetup({
-                    crossDomain: false, // obviates need for sameOrigin test
-                    beforeSend: function(xhr, settings) {
-                        if (!csrfSafeMethod(settings.type)) {
-                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                        }
-                    }
-                });
-                setupCsrfDone = true;
+        $.ajaxSetup({
+            crossDomain: false, // obviates need for sameOrigin test
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type)) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
             }
-            return previous_ajax(params);
-        };
+        });
     })();
 
     var concept_map = (function() {

@@ -39,7 +39,7 @@
 
 {% block bodybottom %}
 
-{% include 'include/js-scripts.html' with cookie=True only %}
+{% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
 teoremer.source_add({{mode|to_json}});

@@ -40,7 +40,7 @@ New {{ kind }}
 
 {% block bodybottom %}
 
-{% include 'include/js-scripts.html' with showdown=True cookie=True only %}
+{% include 'include/js-scripts.html' with showdown=True only %}
 
 <script type="text/javascript">
 teoremer.new_draft("{{kind}}", {% if primary_text %}true{% else %}false{% endif %}{% if parent %},"{{parent.final_id}}"{% endif %});
