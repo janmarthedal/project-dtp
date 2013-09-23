@@ -46,6 +46,8 @@ class DocumentItemEntry(DocumentEntryBase):
             self.concept_defs.update([c.id for c in self.item.primary_categories])
         self.item_defs.add(self.item.final_id)
         self.item_uses.update(bs.getItemRefSet())
+        if self.item.parent:
+            self.item_uses.add(self.item.parent.final_id)
         self.tag_refs = {}
         for item_tag_category in ItemTagCategory.objects.filter(item=self.item).all():
             self.category_set.add(item_tag_category.category)

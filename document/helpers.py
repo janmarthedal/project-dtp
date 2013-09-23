@@ -54,11 +54,18 @@ class DocumentView(object):
 
     def insert(self, entry):
         entry.init_meta()
-        pos = 0
-        while (pos < len(self.entries)
-               and entry.concept_defs.isdisjoint(self.entries[pos].concept_uses)
-               and entry.item_defs.isdisjoint(self.entries[pos].item_uses)):
-            pos += 1
+        if entry.item_uses:
+            pos = len(self.entries)
+            while (pos > 0 and
+                   self.entries[pos - 1].concept_defs.isdisjoint(entry.concept_uses) and
+                   self.entries[pos - 1].item_defs.isdisjoint(entry.item_uses)):
+                pos -= 1
+        else:
+            pos = 0
+            while (pos < len(self.entries) and
+                   entry.concept_defs.isdisjoint(self.entries[pos].concept_uses) and
+                   entry.item_defs.isdisjoint(self.entries[pos].item_uses)):
+                pos += 1
         entry.order = self._order_before_entry_at(pos)
         entry.save()
         self.entries.insert(pos, entry)

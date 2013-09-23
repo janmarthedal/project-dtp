@@ -1226,7 +1226,7 @@
     });
 
     var DocumentItemView = Backbone.View.extend({
-        className: 'panel panel-default doc-item',
+        className: 'panel panel-default',
         events: {
             'click a.add-concept': function(e) {
                 var elem = $(e.currentTarget);
