@@ -409,7 +409,6 @@
     var DocumentItemList = Backbone.Collection.extend({
         url: api_prefix + 'document/',
         model: DocumentEntry,
-        comparator: 'order',
         parse: function(response) {
             _.each(response.concept_map, function(elem) {
                 concept_map.insert(elem[0], elem[1]);
@@ -1211,6 +1210,9 @@
         className: function() {
             return 'alert alert-dismissable alert-' + this.model.get('severity');
         },
+        events: {
+            'click .close': 'remove'
+        },
         initialize: function() {
             _.bindAll(this, 'render');
         },
@@ -1224,43 +1226,36 @@
     });
 
     var DocumentItemView = Backbone.View.extend({
-        className: 'panel panel-default',
+        className: 'panel panel-default doc-item',
         events: {
             'click a.add-concept': function(e) {
                 var elem = $(e.currentTarget);
                 this.options.dispatcher.trigger('add-concept', concept_map.from_id(elem.data('concept')),
-                                                this.$el.attr('id'));
+                                                this.id.slice(10));
             },
             'click a.add-item': function(e) {
                 var elem = $(e.currentTarget);
                 this.options.dispatcher.trigger('add-item', elem.data('item'));
+            },
+            'click .close': function() {
+                this.options.dispatcher.trigger('remove', this.model.get('id'));
             }
         },
         initialize: function() {
             _.bindAll(this, 'render');
         },
         render: function() {
-            var html, body, title = this.model.get('name');
-            if (this.model.has('body')) {
-                var tag_refs = this.model.get('tag_refs');
-                body = typeset_body(this.model.get('body'), function(text, tag) {
-                    return '<a href="#" class="add-concept" data-concept="' + tag_refs[tag] + '">' + text + '</a>';
-                }, function(text, item_id) {
-                    return '<a href="#" class="add-item" data-item="' + item_id + '">' + text + '</a>';
-                });
-            }
-            if (this.model.get('type') == 'item') {
-                html = Handlebars.templates.document_item({
-                    title: title,
-                    body:  body
-                });
-            } else if (this.model.get('type') == 'concept') {
-                html = Handlebars.templates.document_concept_item({
-                    title:   title,
-                    body:    body,
-                    concept: _.map(concept_map.from_id(this.model.get('concept')), typeset_tag)
-                });
-            }
+            var tag_refs = this.model.get('tag_refs');
+            var body = typeset_body(this.model.get('body'), function(text, tag) {
+                return '<a href="#" class="add-concept" data-concept="' + tag_refs[tag] + '">' + text + '</a>';
+            }, function(text, item_id) {
+                return '<a href="#" class="add-item" data-item="' + item_id + '">' + text + '</a>';
+            });
+            var html = Handlebars.templates.document_item({
+                title: this.model.get('name'),
+                link:  this.model.get('link'),
+                body:  body
+            });
             this.$el.html(html);
             return this;
         }
@@ -1268,7 +1263,7 @@
 
     var DocumentView = Backbone.View.extend({
         initialize: function() {
-            _.bindAll(this, 'render', 'onAdd', 'makeEntryView', 'fetchConcept', 'fetchItem', 'fetch');
+            _.bindAll(this, 'render', 'onAdd', 'makeEntryView', 'fetchConcept', 'fetchItem', 'fetch', 'removeEntryView');
             this.collection.on({
                 'reset': this.render,
                 'add':   this.onAdd
@@ -1276,51 +1271,65 @@
             this.dispatcher = _.clone(Backbone.Events);
             this.dispatcher.on({
                 'add-item':    this.fetchItem,
-                'add-concept': this.fetchConcept
+                'add-concept': this.fetchConcept,
+                'remove':      this.removeEntryView
             });
             this.render();
         },
         render: function() {
             this.$el.empty();
             this.collection.each(function(model) {
-                this.$el.append(this.makeEntryView(model).render().el);
+                var view = this.makeEntryView(model);
+                model.set('view', view);
+                this.$el.append(view.render().el);
             }, this);
         },
-        onAdd: function(model) {
-            if (model.get('type') == 'message') {
-                this.collection.remove(model);
-                var message = new DocumentMessageView({
-                    model: new Backbone.Model({
-                        severity: model.get('severity'),
-                        message: model.get('message')
-                    })
-                });
-                $('#' + model.get('source_id')).before(message.render().el);
-            } else {
-                // model has already been inserted into the collection at the correct position,
-                // so to get the index of the model *after* the new one, we add 1
-                var nextPosition = this.collection.sortedIndex(model) + 1;
-                var entry = this.makeEntryView(model).render();
-                if (nextPosition == this.collection.length)
-                    this.$el.append(entry.el);
-                else
-                    $('#doc-entry-' + this.collection.at(nextPosition).cid).before(entry.el);
-                var message = new DocumentMessageView({
-                    model: new Backbone.Model({
-                        severity: 'success',
-                        message: model.get('name') + " was successfully inserted"
-                    })
-                });
-                entry.$el.before(message.render().el);
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, entry.$el.get()]);
+        insertEntryView: function(model, view, insert) {
+            this.collection.remove(model);
+            var pos = 0, model_order = model.get('order');
+            while (pos < this.collection.length && model_order > this.collection.at(pos).get('order'))
+                pos++;
+            view.render();
+            if (pos < this.collection.length) {
+                var pos_model = this.collection.at(pos);
+                $('#doc-entry-' + (pos_model.id || pos_model.cid)).before(view.el);
+            } else
+                this.$el.append(view.el);
+            if (insert) {
+                model.set('view', view);
+                this.collection.add(model, { at: pos, silent: true });
             }
         },
+        onAdd: function(model) {
+            if (model.has('action')) {
+                var action = model.get('action');
+                model.unset('action');
+                if (action.type == 'delete') {
+                    var target_model = this.collection.get(action.entry);
+                    target_model.get('view').remove();
+                    this.collection.remove(target_model);
+                }
+            }
+            var entryView = this.makeEntryView(model);
+            var isItem = model.get('type') != 'message';
+            this.insertEntryView(model, entryView, isItem);
+            if (isItem)
+                MathJax.Hub.Queue(["Typeset", MathJax.Hub, entryView.$el.get()]);
+        },
         makeEntryView: function(model) {
-            return new DocumentItemView({
-                id: 'doc-entry-' + model.cid,
-                model: model,
-                dispatcher: this.dispatcher
-            });
+            switch (model.get('type')) {
+                case 'message':
+                    return new DocumentMessageView({
+                        id: 'doc-entry-' + model.cid,
+                        model: model
+                    });
+                default:
+                    return new DocumentItemView({
+                        id: 'doc-entry-' + model.id,
+                        model: model,
+                        dispatcher: this.dispatcher
+                    });
+            }
         },
         fetch: function(subpath, data) {
             this.$('.alert').remove();
@@ -1339,6 +1348,9 @@
         },
         fetchItem: function(item_id) {
             this.fetch('add-item', item_id);
+        },
+        removeEntryView: function(item_id) {
+            this.fetch('delete', item_id);
         }
     });
 

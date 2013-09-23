@@ -44,3 +44,7 @@ div.category {
   margin: 20px 13px 0px;
   border-top: 1px dotted #eee;
 }
+.doc-item .item-link {
+  float: right;
+  margin-right: 8px;
+}

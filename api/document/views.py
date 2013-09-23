@@ -12,9 +12,18 @@ logger = logging.getLogger(__name__)
 @logged_in_or_404
 @api_view
 def add_concept(request, doc_id):
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user) 
+    document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
     document_view = DocumentView(document)
     tag_list = request.data['concept']
     source_id = request.data['source_id']
-    concept_entry = document_view.add_concept(tag_list, source_id)
-    return document_view.json_data_for_entries([concept_entry])
+    new_entries = document_view.add_concept(tag_list, source_id)
+    return document_view.json_data_for_entries(new_entries)
+
+@require_POST
+@logged_in_or_404
+@api_view
+def delete(request, doc_id):
+    document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
+    document_view = DocumentView(document)
+    new_entries = document_view.delete(request.data)
+    return document_view.json_data_for_entries(new_entries)

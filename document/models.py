@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 from items.helpers import BodyScanner
@@ -25,17 +26,20 @@ class DocumentEntryBase(models.Model):
         self.concept_uses = set()   # Category ids (ints)
         self.item_defs = set()      # FinalItem ids (strings)
         self.item_uses = set()      # FinalItem ids (strings)
+        self.key = None
     def make_json(self, entry_type, **kwargs):
         result = dict(type = entry_type, order = self.order)
         result.update(**kwargs)
         return result
 
-class DocumentItemEntryBase(DocumentEntryBase):
+class DocumentItemEntry(DocumentEntryBase):
     class Meta:
-        abstract = True
+        db_table = 'document_item_entry'
+        unique_together = (('document', 'item'), ('document', 'order'))
     item = models.ForeignKey(FinalItem, db_index=False)
     def init_meta(self):
-        super(DocumentItemEntryBase, self).init_meta()
+        super(DocumentItemEntry, self).init_meta()
+        self.key = 'item-' + self.item.final_id
         bs = BodyScanner(self.item.body)
         if self.item.itemtype == 'D':
             self.category_set.update(self.item.primary_categories)
@@ -47,18 +51,13 @@ class DocumentItemEntryBase(DocumentEntryBase):
             self.category_set.add(item_tag_category.category)
             self.concept_uses.add(item_tag_category.category.id)
             self.tag_refs[item_tag_category.tag.name] = item_tag_category.category.id
-    def make_json(self, entry_type, **kwargs):
-        result = super(DocumentItemEntryBase, self).make_json(entry_type, **kwargs)
-        result.update(name         = unicode(self.item),
-                      body         = self.item.body,
-                      tag_refs     = self.tag_refs,
-                      concept_defs = list(self.concept_defs),
-                      item_uses    = list(self.item_uses))
-        return result
-
-class DocumentItemEntry(DocumentItemEntryBase):
-    class Meta:
-        db_table = 'document_item_entry'
-        unique_together = (('document', 'item'), ('document', 'order'))
     def json_data(self):
-        return self.make_json('item')
+        result = self.make_json('item',
+                                id           = self.key,
+                                name         = unicode(self.item),
+                                body         = self.item.body,
+                                tag_refs     = self.tag_refs,
+                                concept_defs = list(self.concept_defs),
+                                item_uses    = list(self.item_uses),
+                                link         = reverse('items.views.show_final', args=[self.item.final_id]))
+        return result
