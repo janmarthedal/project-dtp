@@ -1275,7 +1275,8 @@
 
     var DocumentView = Backbone.View.extend({
         initialize: function() {
-            _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch', 'removeEntryView');
+            _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch',
+                            'removeEntryView', 'updateReferenceStyles');
             this.collection.on({
                 'reset': this.render,
                 'add':   this.onAdd
@@ -1286,6 +1287,7 @@
                 'add-concept': this.fetchConcept,
                 'remove':      this.removeEntryView
             });
+            this.concepts_unavailable = {};
             this.render();
         },
         render: function() {
@@ -1295,6 +1297,7 @@
                 model.set('view', view);
                 this.$el.append(view.render().el);
             }, this);
+            this.updateReferenceStyles();
         },
         insertEntryView: function(model, view, insert) {
             this.collection.remove(model);
@@ -1325,8 +1328,10 @@
                                                     + concept_html + ' was inserted');
                     break;
                 case 'concept-not-found':
-                    var concept_html = typeset_category_id(model.get('concept'));
+                    var concept_id = model.get('concept');
+                    var concept_html = typeset_category_id(concept_id);
                     var view = this.makeMessageView('warning', 'Definition for ' + concept_html + ' not found');
+                    this.concepts_unavailable['' + concept_id] = false;
                     break;
                 case 'item-removed':
                     var target_model = this.collection.get(model.get('entryid'));
@@ -1339,7 +1344,28 @@
                     return;
             }
             this.insertEntryView(model, view, !remove_from_collection);
+            this.updateReferenceStyles();
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, view.$el.get()]);
+        },
+        updateReferenceStyles: function() {
+            var item_availability = {};
+            var concept_availability = _.clone(this.concepts_unavailable);
+            this.collection.each(function(model) {
+                _.each(model.get('item_defs'), function(item_id) {
+                    item_availability[item_id] = true;
+                });
+                _.each(model.get('concept_defs'), function(concept_id) {
+                    concept_availability['' + concept_id] = true;
+                });
+            });
+            this.$('a.add-item').removeClass('text-success');
+            _.each(item_availability, function(value, key) {
+                this.$('a.item-' + key + '-ref').addClass('text-success');
+            }, this);
+            this.$('a.add-concept').removeClass('text-success text-warning');
+            _.each(concept_availability, function(value, key) {
+                this.$('a.concept-' + key + '-ref').addClass(value ? 'text-success' : 'text-warning');
+            }, this);
         },
         makeItemView: function(model) {
             return new DocumentItemView({

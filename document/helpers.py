@@ -22,7 +22,8 @@ class DocumentMessageEntry(object):
     def __init__(self, msgtype, order, **kwargs):
         self.data = dict(type = msgtype, order = order)
         self.data.update(**kwargs)
-        self.category_set = set()
+    def get_categories_used(self):
+        return set()
     def json_data(self):
         return self.data
 
@@ -105,11 +106,15 @@ class DocumentView(object):
         return [msg_entry]
 
     def json_data_for_entries(self, entries):
-        category_set = set()
+        category_ids = set()
         for entry in entries:
-            category_set.update(entry.category_set)
-        return dict(items       = [entry.json_data() for entry in entries],
-                    concept_map = [(c.id, c.json_data()) for c in category_set])
+            category_ids.update(entry.get_categories_used())
+        concept_map = []
+        for cid in category_ids:
+            category = Category.objects.get(pk=cid)
+            concept_map.append((category.id, category.json_data()))
+        return dict(items = [entry.json_data() for entry in entries],
+                    concept_map = concept_map)
 
     def json_data(self):
         return self.json_data_for_entries(self.entries)
