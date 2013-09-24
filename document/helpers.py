@@ -69,14 +69,26 @@ class DocumentView(object):
         self.items_in_doc.update(entry.item_defs)
         return pos
 
-    def add_item(self, item_id):
-        item = get_object_or_404(FinalItem, final_id=item_id)
-        item_entry = DocumentItemEntry(document=self.document, item=item)
-        self.insert(item_entry)
-        return [item_entry]
+    def add_item(self, item_id, source_id):
+        try:
+            item = FinalItem.objects.get(status='F', final_id=item_id)
+            if DocumentItemEntry.objects.filter(document=self.document, item=item).exists():
+                return []
+            item_entry = DocumentItemEntry(document=self.document, item=item)
+            pos = self.insert(item_entry)
+            order = self._order_before_entry_at(pos)
+            msg_entry = DocumentMessageEntry('add-item-success', order, name = unicode(item))
+            return [item_entry, msg_entry]
+        except FinalItem.DoesNotExist:
+            logger.warning('Item %s not found. This should not happen.')
+            return []
 
     def add_concept(self, tag_list, source_id):
         category = Category.objects.from_tag_list(tag_list)
+        if FinalItem.objects.filter(documentitementry__document=self.document, itemtype='D',
+                                    finalitemcategory__primary=True, finalitemcategory__category=category).exists():
+            logger.warning('Definition for %s already exists. This should not happen.' % '/'.join(tag_list))
+            return []
         try:
             item = FinalItem.objects.get(itemtype='D', status='F', finalitemcategory__primary=True, finalitemcategory__category=category)
             item_entry = DocumentItemEntry(document=self.document, item=item)

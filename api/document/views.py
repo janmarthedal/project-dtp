@@ -22,6 +22,17 @@ def add_concept(request, doc_id):
 @require_POST
 @logged_in_or_404
 @api_view
+def add_item(request, doc_id):
+    document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
+    document_view = DocumentView(document)
+    item_id = request.data['item_id']
+    source_id = request.data['source_id']
+    new_entries = document_view.add_item(item_id, source_id)
+    return document_view.json_data_for_entries(new_entries)
+
+@require_POST
+@logged_in_or_404
+@api_view
 def delete(request, doc_id):
     document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
     document_view = DocumentView(document)

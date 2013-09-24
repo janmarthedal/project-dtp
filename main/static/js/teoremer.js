@@ -17,6 +17,13 @@
         });
     })();
 
+    // http://www.abeautifulsite.net/blog/2010/01/smoothly-scroll-to-an-element-without-a-jquery-plugin/
+    function scrollTo(element) {
+        $('body').animate({
+            scrollTop: element.offset().top
+        }, 200);
+    }
+
     var concept_map = (function() {
         var id_to_concept_map = {};
         return {
@@ -1239,13 +1246,14 @@
         className: 'panel panel-default',
         events: {
             'click a.add-concept': function(e) {
+                e.preventDefault();
                 var elem = $(e.currentTarget);
-                this.options.dispatcher.trigger('add-concept', concept_map.from_id(elem.data('concept')),
-                                                this.id.slice(10));
+                this.options.dispatcher.trigger('add-concept', elem.data('concept'), this.id.slice(10));
             },
             'click a.add-item': function(e) {
+                e.preventDefault();
                 var elem = $(e.currentTarget);
-                this.options.dispatcher.trigger('add-item', elem.data('item'));
+                this.options.dispatcher.trigger('add-item', elem.data('item'), this.id.slice(10));
             },
             'click .close': function() {
                 this.options.dispatcher.trigger('remove', this.model.get('id'));
@@ -1276,7 +1284,7 @@
     var DocumentView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch',
-                            'removeEntryView', 'updateReferenceStyles');
+                            'removeEntryView', 'updateReferenceAvailability');
             this.collection.on({
                 'reset': this.render,
                 'add':   this.onAdd
@@ -1297,7 +1305,7 @@
                 model.set('view', view);
                 this.$el.append(view.render().el);
             }, this);
-            this.updateReferenceStyles();
+            this.updateReferenceAvailability();
         },
         insertEntryView: function(model, view, insert) {
             this.collection.remove(model);
@@ -1327,6 +1335,11 @@
                     var view = this.makeMessageView('success', model.get('name') + ' defining '
                                                     + concept_html + ' was inserted');
                     break;
+                case 'add-item-success':
+                    var concept_html = typeset_category_id(model.get('concept'));
+                    var view = this.makeMessageView('success', model.get('name') + ' defining '
+                                                    + concept_html + ' was inserted');
+                    break;
                 case 'concept-not-found':
                     var concept_id = model.get('concept');
                     var concept_html = typeset_category_id(concept_id);
@@ -1344,27 +1357,30 @@
                     return;
             }
             this.insertEntryView(model, view, !remove_from_collection);
-            this.updateReferenceStyles();
+            this.updateReferenceAvailability();
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, view.$el.get()]);
+            if (model.get('type') != 'item')
+                scrollTo(view.$el);
         },
-        updateReferenceStyles: function() {
-            var item_availability = {};
-            var concept_availability = _.clone(this.concepts_unavailable);
+        updateReferenceAvailability: function() {
+            this.item_availability = {};
+            this.concept_availability = _.clone(this.concepts_unavailable);
             this.collection.each(function(model) {
                 _.each(model.get('item_defs'), function(item_id) {
-                    item_availability[item_id] = true;
-                });
+                    this.item_availability[item_id] = model.get('id');
+                }, this);
                 _.each(model.get('concept_defs'), function(concept_id) {
-                    concept_availability['' + concept_id] = true;
-                });
-            });
+                    this.concept_availability['' + concept_id] = model.get('id');
+                }, this);
+            }, this);
             this.$('a.add-item').removeClass('text-success');
-            _.each(item_availability, function(value, key) {
+            _.each(this.item_availability, function(value, key) {
                 this.$('a.item-' + key + '-ref').addClass('text-success');
             }, this);
             this.$('a.add-concept').removeClass('text-success text-warning');
-            _.each(concept_availability, function(value, key) {
-                this.$('a.concept-' + key + '-ref').addClass(value ? 'text-success' : 'text-warning');
+            _.each(this.concept_availability, function(value, key) {
+                var has_concept = typeof value === 'string';
+                this.$('a.concept-' + key + '-ref').addClass(has_concept ? 'text-success' : 'text-warning');
             }, this);
         },
         makeItemView: function(model) {
@@ -1391,14 +1407,26 @@
                 remove: false
             });
         },
-        fetchConcept: function(tag_list, source_id) {
-            this.fetch('add-concept', {
-                concept: tag_list,
-                source_id: source_id
-            });
+        fetchConcept: function(concept_id, source_id) {
+            var key = '' + concept_id;
+            if (this.concept_availability[key]) {
+                scrollTo($('#doc-entry-' + this.concept_availability[key]));
+            } else {
+                this.fetch('add-concept', {
+                    concept: concept_map.from_id(concept_id),
+                    source_id: source_id
+                });
+            }
         },
-        fetchItem: function(item_id) {
-            this.fetch('add-item', item_id);
+        fetchItem: function(item_id, source_id) {
+            if (this.item_availability[item_id]) {
+                scrollTo($('#doc-entry-' + this.item_availability[item_id]));
+            } else {
+                this.fetch('add-item', {
+                    item_id: item_id,
+                    source_id: source_id
+                });
+            }
         },
         removeEntryView: function(item_id) {
             this.fetch('delete', item_id);
