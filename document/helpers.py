@@ -15,6 +15,9 @@ def render_template(template_name, **kwargs):
     c = Context(dict(**kwargs))
     return t.render(c)
 
+def entry_before(a, b):
+    return a.concept_defs.isdisjoint(b.concept_uses) and a.item_defs.isdisjoint(b.item_uses)
+
 class DocumentMessageEntry(object):
     def __init__(self, severity, msg, order, action=None):
         self.severity = severity
@@ -33,8 +36,10 @@ class DocumentView(object):
     def __init__(self, document):
         self.document = document
         self.entries = list(DocumentItemEntry.objects.filter(document=document).all())
+        self.items_in_doc = set()
         for entry in self.entries:
             entry.init_meta()
+            self.items_in_doc.update(entry.item_defs)
         self.entries.sort(key=lambda entry: entry.order)
 
     def _order_before_entry_at(self, pos):
@@ -54,21 +59,18 @@ class DocumentView(object):
 
     def insert(self, entry):
         entry.init_meta()
-        if entry.item_uses:
-            pos = len(self.entries)
-            while (pos > 0 and
-                   self.entries[pos - 1].concept_defs.isdisjoint(entry.concept_uses) and
-                   self.entries[pos - 1].item_defs.isdisjoint(entry.item_uses)):
-                pos -= 1
-        else:
+        if self.items_in_doc.isdisjoint(entry.item_uses):
             pos = 0
-            while (pos < len(self.entries) and
-                   entry.concept_defs.isdisjoint(self.entries[pos].concept_uses) and
-                   entry.item_defs.isdisjoint(self.entries[pos].item_uses)):
+            while pos < len(self.entries) and entry_before(entry, self.entries[pos]):
                 pos += 1
+        else:
+            pos = len(self.entries)
+            while pos > 0 and entry_before(self.entries[pos - 1], entry):
+                pos -= 1
         entry.order = self._order_before_entry_at(pos)
         entry.save()
         self.entries.insert(pos, entry)
+        self.items_in_doc.update(entry.item_defs)
         return pos
 
     def add_item(self, item_id):
