@@ -19,17 +19,12 @@ def entry_before(a, b):
     return a.concept_defs.isdisjoint(b.concept_uses) and a.item_defs.isdisjoint(b.item_uses)
 
 class DocumentMessageEntry(object):
-    def __init__(self, severity, msg, order, action=None):
-        self.severity = severity
-        self.msg = msg
-        self.order = order
+    def __init__(self, msgtype, order, **kwargs):
+        self.data = dict(type = msgtype, order = order)
+        self.data.update(**kwargs)
         self.category_set = set()
-        self.action = action
     def json_data(self):
-        result = dict(type = 'message', severity = self.severity, message = self.msg, order = self.order)
-        if self.action:
-            result.update(action = self.action)
-        return result
+        return self.data
 
 class DocumentView(object):
 
@@ -85,14 +80,14 @@ class DocumentView(object):
             item = FinalItem.objects.get(itemtype='D', status='F', finalitemcategory__primary=True, finalitemcategory__category=category)
             item_entry = DocumentItemEntry(document=self.document, item=item)
             pos = self.insert(item_entry)
-            msg = render_template('document/concept_insert_success.html', item=item, category=category)
-            msg_entry = DocumentMessageEntry('success', msg, self._order_before_entry_at(pos))
+            order = self._order_before_entry_at(pos)
+            msg_entry = DocumentMessageEntry('add-concept-success', order, name = unicode(item), concept = category.id)
             return [item_entry, msg_entry]
         except FinalItem.DoesNotExist:
-            pos = self._pos_for_key(source_id) or 0
-            msg_entry = DocumentMessageEntry('warning',
-                                             render_template('document/no_defs_found.html', category=category),
-                                             self._order_before_entry_at(pos))
+            pos = self._pos_for_key(source_id)
+            assert pos is not None
+            order = self._order_before_entry_at(pos)
+            msg_entry = DocumentMessageEntry('concept-not-found', order, concept = category.id)
             return [msg_entry]
 
     def delete(self, item_id):
@@ -104,9 +99,9 @@ class DocumentView(object):
         order = self._order_before_entry_at(pos)
         item_entry = self.entries.pop(pos)
         assert item_entry.item == item
+        self.items_in_doc.difference_update(item_entry.item_defs)
         item_entry.delete()
-        msg_entry = DocumentMessageEntry('success', unicode(item) + " was removed", order,
-                                         dict(type = 'delete', entry = item_id))
+        msg_entry = DocumentMessageEntry('item-removed', order, entryid = item_entry.key, name = unicode(item))
         return [msg_entry]
 
     def json_data_for_entries(self, entries):

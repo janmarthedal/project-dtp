@@ -51,6 +51,14 @@
         return _.map(tag_list, typeset_tag);
     }
 
+    function typeset_category_id(id) {
+        var tag_list = concept_map.from_id(id);
+        var category = Handlebars.templates.tag_list({
+                           tags: typeset_tag_list(tag_list)
+                       });
+        return '<span class="category">' + category + '</span>';
+    }
+
     function typeset_body(source, typeset_tag, typeset_item) {
         var insertsCounter = 0, mathInserts = {}, inserts = {}, key;
         var pars = source.split('$$');
@@ -1207,6 +1215,9 @@
     });
 
     var DocumentMessageView = Backbone.View.extend({
+        id: function() {
+            return 'doc-entry-' + this.model.cid;
+        },
         className: function() {
             return 'alert alert-dismissable alert-' + this.model.get('severity');
         },
@@ -1217,10 +1228,9 @@
             _.bindAll(this, 'render');
         },
         render: function() {
-            var html = Handlebars.templates.document_message({
+            this.$el.html(Handlebars.templates.document_message({
                message: this.model.get('message')
-            });
-            this.$el.html(html);
+            }));
             return this;
         }
     });
@@ -1247,9 +1257,11 @@
         render: function() {
             var tag_refs = this.model.get('tag_refs');
             var body = typeset_body(this.model.get('body'), function(text, tag) {
-                return '<a href="#" class="add-concept" data-concept="' + tag_refs[tag] + '">' + text + '</a>';
+                var concept_id = tag_refs[tag];
+                return '<a href="#" class="add-concept concept-' + concept_id + '-ref" data-concept="'
+                        + concept_id + '">' + text + '</a>';
             }, function(text, item_id) {
-                return '<a href="#" class="add-item" data-item="' + item_id + '">' + text + '</a>';
+                return '<a href="#" class="add-item item-' + item_id + '-ref" data-item="' + item_id + '">' + text + '</a>';
             });
             var html = Handlebars.templates.document_item({
                 title: this.model.get('name'),
@@ -1263,7 +1275,7 @@
 
     var DocumentView = Backbone.View.extend({
         initialize: function() {
-            _.bindAll(this, 'render', 'onAdd', 'makeEntryView', 'fetchConcept', 'fetchItem', 'fetch', 'removeEntryView');
+            _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch', 'removeEntryView');
             this.collection.on({
                 'reset': this.render,
                 'add':   this.onAdd
@@ -1279,7 +1291,7 @@
         render: function() {
             this.$el.empty();
             this.collection.each(function(model) {
-                var view = this.makeEntryView(model);
+                var view = this.makeItemView(model);
                 model.set('view', view);
                 this.$el.append(view.render().el);
             }, this);
@@ -1301,35 +1313,48 @@
             }
         },
         onAdd: function(model) {
-            if (model.has('action')) {
-                var action = model.get('action');
-                model.unset('action');
-                if (action.type == 'delete') {
-                    var target_model = this.collection.get(action.entry);
+            var view, remove_from_collection = true;
+            switch (model.get('type')) {
+                case 'item':
+                    view = this.makeItemView(model);
+                    remove_from_collection = false;
+                    break;
+                case 'add-concept-success':
+                    var concept_html = typeset_category_id(model.get('concept'));
+                    var view = this.makeMessageView('success', model.get('name') + ' defining '
+                                                    + concept_html + ' was inserted');
+                    break;
+                case 'concept-not-found':
+                    var concept_html = typeset_category_id(model.get('concept'));
+                    var view = this.makeMessageView('warning', 'Definition for ' + concept_html + ' not found');
+                    break;
+                case 'item-removed':
+                    var target_model = this.collection.get(model.get('entryid'));
                     target_model.get('view').remove();
                     this.collection.remove(target_model);
-                }
-            }
-            var entryView = this.makeEntryView(model);
-            var isItem = model.get('type') != 'message';
-            this.insertEntryView(model, entryView, isItem);
-            if (isItem)
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub, entryView.$el.get()]);
-        },
-        makeEntryView: function(model) {
-            switch (model.get('type')) {
-                case 'message':
-                    return new DocumentMessageView({
-                        id: 'doc-entry-' + model.cid,
-                        model: model
-                    });
+                    var view = this.makeMessageView('success', model.get('name') + ' was removed');
+                    break;
                 default:
-                    return new DocumentItemView({
-                        id: 'doc-entry-' + model.id,
-                        model: model,
-                        dispatcher: this.dispatcher
-                    });
+                    this.collection.remove(model);
+                    return;
             }
+            this.insertEntryView(model, view, !remove_from_collection);
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub, view.$el.get()]);
+        },
+        makeItemView: function(model) {
+            return new DocumentItemView({
+                id: 'doc-entry-' + model.id,
+                model: model,
+                dispatcher: this.dispatcher
+            });
+        },
+        makeMessageView: function(severity, message) {
+            return new DocumentMessageView({
+                model: new Backbone.Model({
+                    severity: severity,
+                    message: message
+                })
+            });
         },
         fetch: function(subpath, data) {
             this.$('.alert').remove();
