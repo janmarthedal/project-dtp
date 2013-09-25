@@ -1392,8 +1392,7 @@
                     break;
                 case 'add-item-success':
                     var concept_html = typeset_category_id(model.get('concept'));
-                    var view = this.makeMessageView('success', model.get('name') + ' defining '
-                                                    + concept_html + ' was inserted');
+                    var view = this.makeMessageView('success', model.get('name') + ' was inserted');
                     break;
                 case 'concept-not-found':
                     var concept_id = model.get('concept');
