@@ -440,23 +440,19 @@
         tagName: 'span',
         className: 'tag',
         events: {
-            'click .delete-tag': 'remove'
+            'click .delete-tag': function() {
+                this.model.destroy();            
+            }
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'unrender', 'remove');
-            this.model.on('change', this.render);
-            this.model.on('remove', this.unrender);
+            _.bindAll(this, 'render');
+            this.listenTo(this.model, 'change', this.render);
+            this.listenTo(this.model, 'remove', this.remove);
         },
         render: function() {
             var tag_html = this.model.typeset();
-            this.$el.html(tag_html + ' <i class="icon-remove delete-tag"></i>');
+            this.$el.html(tag_html + ' <a href="#" class="glyphicon glyphicon-remove delete-tag"></a>');
             return this;
-        },
-        unrender: function() {
-            this.$el.remove();
-        },
-        remove: function() {
-            this.model.destroy();
         }
     });
 
@@ -472,7 +468,7 @@
             _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList', 'events');
             this.uid = _.uniqueId();
             this.collection = new TagList();
-            this.collection.bind('add', this.addOne);
+            this.listenTo(this.collection, 'add', this.addOne);
             this.render();
             this.input_field = this.$('#tag-name-' + this.uid);
             /*this.input_field.typeahead({
@@ -576,10 +572,10 @@
         },
         initialize: function() {
             _.bindAll(this, 'render', 'addOne', 'doFetch', 'fetchReset');
-            this.collection.on('reset', this.render);
-            this.collection.on('add', this.addOne);
+            this.listenTo(this.collection, 'reset', this.render);
+            this.listenTo(this.collection, 'add', this.addOne);
             this.options.parameters.set('type', this.options.itemtypes.charAt(0));
-            this.options.parameters.on('change', this.fetchReset, this);
+            this.listenTo(this.options.parameters, 'change', this.fetchReset);
             this.render();
         },
         postAppend: function() {
@@ -639,8 +635,8 @@
     var TopListView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render', 'addOne');
-            this.collection.on('reset', this.render);
-            this.collection.on('add', this.addOne);
+            this.listenTo(this.collection, 'reset', this.render);
+            this.listenTo(this.collection, 'add', this.addOne);
             this.render();
         },
         render: function() {
@@ -661,7 +657,7 @@
         initialize: function() {
             _.bindAll(this, 'render');
             var self = this;
-            this.$el.on('input propertychange', function() {
+            this.listenTo(this.$el, 'input propertychange', function() {
                 self.model.set('body', this.value);
             });
             this.render();
@@ -674,8 +670,9 @@
 
     var BodyPreviewView = Backbone.View.extend({
         initialize: function() {
-            this.model.on('change:body', this.render, this);
-            this.render.call(this);
+            _.bindAll(this, 'render');
+            this.listenTo(this.model, 'change:body', this.render);
+            this.render();
         },
         render: function() {
             var source = this.model.get('body');
@@ -725,7 +722,7 @@
         initialize: function() {
             _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction');
             this.collection = new TagList();
-            this.collection.on('add remove', this.renderTags);
+            this.listenTo(this.collection, 'add remove', this.renderTags);
             this.render();
             this.setElement(this.$('.modal'));
             // so 'this.remove' functions correctly
@@ -785,23 +782,19 @@
         tagName: 'span',
         className: 'category',
         events: {
-            'click .delete-category': 'remove'
+            'click .delete-category': function() {
+                this.model.destroy();            
+            }
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'unrender', 'remove');
-            this.model.on('change', this.render);
-            this.model.on('remove', this.unrender);
+            _.bindAll(this, 'render');
+            this.listenTo(this.model, 'change', this.render);
+            this.listenTo(this.model, 'remove', this.remove);
         },
         render: function() {
             var tag_html = this.model.typeset();
-            this.$el.html(tag_html + ' <i class="icon-remove delete-category"></i>');
+            this.$el.html(tag_html + ' <a href="#" class="glyphicon glyphicon-remove delete-category"></a>');
             return this;
-        },
-        unrender: function() {
-            this.$el.remove();
-        },
-        remove: function() {
-            this.model.destroy();
         }
     });
 
@@ -851,7 +844,7 @@
         },
         initialize: function() {
             _.bindAll(this, 'render', '_change');
-            this.model.on('change', this.render);
+            this.listenTo(this.model, 'change', this.render);
         },
         render: function() {
             var html = Handlebars.templates.tag_association({
@@ -984,7 +977,7 @@
         },
         initialize: function() {
             _.bindAll(this, 'render', '_setType', '_updateModel', '_addExtra');
-            this.$el.on('input propertychange', this._updateModel);
+            this.listenTo(this.$el, 'input propertychange', this._updateModel);
             this._setType(this.model.get('type'));
         },
         _setType: function(type) {
@@ -1078,7 +1071,7 @@
     var SourceRenderView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render');
-            this.model.on('change', this.render);
+            this.listenTo(this.model, 'change', this.render);
             this.render();
         },
         render: function() {
@@ -1115,11 +1108,11 @@
     var LiveSourceSearchView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render', '_search', '_check', '_cancelTimer', '_addOne');
-            this.options.sourceModel.on('change', this._check);
+            this.listenTo(this.options.sourceModel, 'change', this._check);
             this.collection = new Backbone.Collection;
             this.collection.url = api_prefix + 'source/search';
-            this.collection.on('reset', this.render);
-            this.collection.on('add', this._addOne);
+            this.listenTo(this.collection, 'reset', this.render);
+            this.listenTo(this.collection, 'add', this._addOne);
             this.render();
             this._search();
         },
@@ -1285,12 +1278,12 @@
         initialize: function() {
             _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch',
                             'removeEntryView', 'updateReferenceAvailability');
-            this.collection.on({
+            this.listenTo(this.collection, {
                 'reset': this.render,
                 'add':   this.onAdd
             });
             this.dispatcher = _.clone(Backbone.Events);
-            this.dispatcher.on({
+            this.listenTo(this.dispatcher, {
                 'add-item':    this.fetchItem,
                 'add-concept': this.fetchConcept,
                 'remove':      this.removeEntryView
@@ -1432,6 +1425,80 @@
             this.fetch('delete', item_id);
         }
     });
+
+    var ModalWrapperView = Backbone.View.extend({
+        events: function() {
+            var self = this;
+            var e = {
+                'click .close': function() {
+                    self.dispatcher.trigger('close');
+                },
+                'hidden.bs.modal .modal': function() {
+                    self.options.innerView.remove();
+                    self.remove();
+                }
+            };
+            _.each(this.buttons, function(item) {
+                e['click #' + item.id] = function() {
+                    self.dispatcher.trigger(item.signal);
+                };                    
+            });
+            return e;
+        },
+        initialize: function() {
+            _.bindAll(this, 'render', 'close', 'events');
+            this.buttons = _.map(this.options.buttons, function (item) {
+                return {
+                    name: item.name,
+                    id: _.uniqueId('modal-'),
+                    signal: item.signal || item.name.toLowerCase(),
+                    'class': item.primary ? 'btn-primary' : 'btn-default'
+                }; 
+            });
+            this.dispatcher = _.clone(Backbone.Events);
+            this.listenTo(this.dispatcher, 'close', this.close);
+            this.options.innerView.setDispatcher(this.dispatcher);
+            this.render();
+            this.$('.modal').modal('show');
+        },
+        render: function() {
+            this.$el.html(Handlebars.templates.modal_wrapper({
+                title: this.options.title,
+                buttons: this.buttons
+            }));
+            this.$('.modal-body').html(this.options.innerView.render().el);
+        },
+        close: function() {
+            this.$('.modal').modal('hide');
+        }
+    });
+    
+    var DocumentRenameView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, 'render', 'setDispatcher');
+            this.render();
+        },
+        render: function() {
+            this.$el.html('<input type="text" class="form-control" placeholder="Document name" max-length="255">');
+            return this;
+        },
+        setDispatcher: function(dispatcher) {
+            this.listenTo(dispatcher, 'save', function() {
+                console.log('save!');
+                dispatcher.trigger('close');
+            });
+        }
+    });
+
+    function show_modal(title, view, buttons) {
+        jQuery('<div/>', { id: 'modal-container' }).appendTo('body');
+        new ModalWrapperView({
+            el: $('#modal-container'),
+            title: title,
+            buttons: buttons,
+            innerView: view
+        });
+    }
 
     /****************************
      * Pages
@@ -1628,6 +1695,11 @@
                 el: $('#document-items'),
                 doc_id: doc_id,
                 collection: new DocumentItemList(items, { parse: true })
+            });
+            $('#rename-button').click(function() {
+                show_modal('Rename document',
+                           new DocumentRenameView(),
+                           [ { name: 'Close' }, { name: 'Save', primary: true } ]);
             });
         }
     };
