@@ -44,6 +44,10 @@
         };
     })();
 
+    function trim(st) {
+        return $.trim(st);
+    }
+
     function typeset_tag(st) {
         var elems = st.split('$');
         for (var n = 0; n < elems.length; n++) {
@@ -157,11 +161,11 @@
         var data = {};
         _.each(attrs, function(value, key) {
             if (_.isArray(value)) {
-                var v = _.compact(_.map(value, $.trim));
+                var v = _.compact(_.map(value, trim));
                 if (v.length)
                     data[key] = escape ? _.map(v, _.escape): v;
             } else if (_.isString(value)) {
-                var v = $.trim(value);
+                var v = trim(value);
                 if (v)
                     data[key] = escape ? _.escape(v): v;
             }
@@ -258,9 +262,9 @@
             });
             this.dispatcher = _.clone(Backbone.Events);
             this.listenTo(this.dispatcher, 'close', this.close);
-            this.options.innerView.setDispatcher(this.dispatcher);
             this.render();
             this.$('.modal').modal('show');
+            this.options.innerView.modalReady(this.dispatcher);
         },
         render: function() {
             this.$el.html(Handlebars.templates.modal_wrapper({
@@ -775,34 +779,27 @@
     });
 
     var AddCategoryView = Backbone.View.extend({
-        // standard
-        el: $('#modal-container'),
         events: {
-            'click .cancel':             'remove',
-            'click .btn-primary':        'addAction',
             'click #category-minus-btn': 'minusAction',
             'click #category-plus-btn':  'plusAction',
-            'keypress input':            'keyPress',
-            'hidden.bs.modal':           function() { this.remove(); }
+            'keypress input':            'keyPress'
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction');
+            _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction', 'modalReady');
             this.collection = new TagList();
             this.listenTo(this.collection, 'add remove', this.renderTags);
             this.render();
-            this.setElement(this.$('.modal'));
-            // so 'this.remove' functions correctly
-            this.$el.modal({
-                'show': true
-            });
-            this.input_element = this.$('input');
-            this.input_element.focus();
         },
         render: function() {
-            var html = Handlebars.templates.add_category();
-            this.$el.html(html);
+            this.$el.html(Handlebars.templates.add_category());
+            this.input_element = this.$('input');
+            return this;
         },
-        // helpers
+        modalReady: function(dispatcher) {
+            this.listenTo(dispatcher, 'add', this.addAction);
+            this.dispatcher = dispatcher;
+            this.input_element.focus();
+        },
         renderTags: function() {
             var html = Handlebars.templates.tag_list({
                 tags: this.collection.map(function(model) {
@@ -813,10 +810,10 @@
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
         },
         keyPress: function(e) {
-            if (e.keyCode == 13) {
+            if (e.which == 13) {
                 if (this.input_element.val()) {
                     this.plusAction();
-                } else {
+                } else if (this.collection.length) {
                     this.addAction();
                 }
             }
@@ -825,24 +822,27 @@
             this.options.add(new Category({
                 tag_list: this.collection
             }));
-            this.$el.modal('hide');
+            this.dispatcher.trigger('close');
         },
         minusAction: function() {
-            if (!this.input_element.val()) {
+            if (!this.input_element.val())
                 this.collection.pop();
-            }
             this.input_element.val('').focus();
         },
         plusAction: function() {
-            var value = this.input_element.val();
-            if (value) {
-                this.collection.push({
-                    name: value
-                });
-            }
+            var value = trim(this.input_element.val());
+            if (value)
+                this.collection.push({ name: value });
             this.input_element.val('').focus();
         }
     });
+
+    function show_add_category_modal(callback) {
+        show_modal('Add category',
+                   new AddCategoryView({ add: callback }),
+                   [{ name: 'Add category', signal: 'add', primary: true },
+                    { name: 'Cancel', signal: 'close' }]);
+    }
 
     var RemovableCategoryView = Backbone.View.extend({
         tagName: 'span',
@@ -893,11 +893,9 @@
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, categoryView.$el.get()]);
         },
         _promptCategory: function() {
-            var self = this;
-            new AddCategoryView({
-                add: function(category) {
-                    self.collection.add(category);
-                }
+            var collection = this.collection;
+            show_add_category_modal(function(category) {
+                collection.add(category);
             });
         }
     });
@@ -923,11 +921,9 @@
         },
         // helpers
         _change: function() {
-            var self = this;
-            new AddCategoryView({
-                add: function(category) {
-                    self.model.set('category', category);
-                }
+            var model = this.model;
+            show_add_category_modal(function(category) {
+                model.set('category', category);
             });
         }
     });
@@ -1497,20 +1493,19 @@
             'keypress input': 'keyPress'
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'setDispatcher', 'keyPress', 'save');
+            _.bindAll(this, 'render', 'modalReady', 'keyPress', 'save');
             this.render();
         },
         render: function() {
             this.$el.html('<input type="text" class="form-control" placeholder="document name" max-length="255">');
             return this;
         },
-        setDispatcher: function(dispatcher) {
+        modalReady: function(dispatcher) {
             this.dispatcher = dispatcher;
             this.listenTo(dispatcher, 'save', this.save);
         },
         keyPress: function(e) {
-            if (e.which == 13)
-                this.save();
+            if (e.which == 13) this.save();
         },
         save: function() {
             this.model.save({ title: this.$('input').val() }, { wait: true });
