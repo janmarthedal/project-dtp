@@ -1354,12 +1354,14 @@
             this.render();
         },
         render: function() {
-            this.$el.empty();
+            var container = document.createDocumentFragment();
             this.collection.each(function(model) {
                 var view = this.makeItemView(model);
                 model.set('view', view);
-                this.$el.append(view.render().el);
+                container.appendChild(view.render().el);
             }, this);
+            this.$el.empty();
+            this.$el.append(container);
             this.updateReferenceAvailability();
         },
         insertItemView: function(model, view) {
