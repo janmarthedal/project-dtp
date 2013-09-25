@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from api.helpers import api_view
 from document.helpers import DocumentView
 from document.models import Document
@@ -38,3 +38,13 @@ def delete(request, doc_id):
     document_view = DocumentView(document)
     new_entries = document_view.delete(request.data)
     return document_view.json_data_for_entries(new_entries)
+
+@require_http_methods(['PUT'])
+@logged_in_or_404
+@api_view
+def sync(request, doc_id):
+    document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
+    if 'title' in request.data:
+        document.title = request.data['title']
+    document.save()
+    return document.json_data()

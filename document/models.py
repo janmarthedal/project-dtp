@@ -15,6 +15,8 @@ class Document(models.Model):
     title       = models.CharField(max_length=255, null=True)
     def __unicode__(self):
         return "%d. %s" % (self.id, self.title)
+    def json_data(self):
+        return dict(id=self.id, title=self.title)
 
 class DocumentEntryBase(models.Model):
     class Meta:

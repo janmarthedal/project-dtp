@@ -224,6 +224,68 @@
     }
 
     /***************************
+     * Modal wrapper
+     ***************************/
+
+    var ModalWrapperView = Backbone.View.extend({
+        events: function() {
+            var self = this;
+            var e = {
+                'click .close': function() {
+                    self.dispatcher.trigger('close');
+                },
+                'hidden.bs.modal .modal': function() {
+                    self.options.innerView.remove();
+                    self.remove();
+                }
+            };
+            _.each(this.buttons, function(item) {
+                e['click #' + item.id] = function() {
+                    self.dispatcher.trigger(item.signal);
+                };
+            });
+            return e;
+        },
+        initialize: function() {
+            _.bindAll(this, 'render', 'close', 'events');
+            this.buttons = _.map(this.options.buttons, function (item) {
+                return {
+                    name: item.name,
+                    id: _.uniqueId('modal-'),
+                    signal: item.signal || item.name.toLowerCase(),
+                    'class': item.primary ? 'btn-primary' : 'btn-default'
+                };
+            });
+            this.dispatcher = _.clone(Backbone.Events);
+            this.listenTo(this.dispatcher, 'close', this.close);
+            this.options.innerView.setDispatcher(this.dispatcher);
+            this.render();
+            this.$('.modal').modal('show');
+        },
+        render: function() {
+            this.$el.html(Handlebars.templates.modal_wrapper({
+                title: this.options.title,
+                buttons: this.buttons
+            }));
+            this.$('.modal-body').html(this.options.innerView.render().el);
+        },
+        close: function() {
+            this.$('.modal').modal('hide');
+        }
+    });
+
+    function show_modal(title, view, buttons) {
+        var id = _.uniqueId('model-container-');
+        jQuery('<div/>', { id: id }).appendTo('body');
+        new ModalWrapperView({
+            el: $('#' + id),
+            title: title,
+            buttons: buttons,
+            innerView: view
+        });
+    }
+
+    /***************************
      * Models and collections
      ***************************/
 
@@ -419,6 +481,10 @@
         model: SourceItem
     });
 
+    var DocumentModel = Backbone.Model.extend({
+        urlRoot: api_prefix + 'document'
+    });
+
     var DocumentEntry = Backbone.Model;
 
     var DocumentItemList = Backbone.Collection.extend({
@@ -441,7 +507,7 @@
         className: 'tag',
         events: {
             'click .delete-tag': function() {
-                this.model.destroy();            
+                this.model.destroy();
             }
         },
         initialize: function() {
@@ -488,7 +554,7 @@
         },
         // helpers
         keyPress: function(e) {
-            if (e.keyCode == 13) {
+            if (e.which == 13) {
                 this.addItem();
             }
         },
@@ -783,7 +849,7 @@
         className: 'category',
         events: {
             'click .delete-category': function() {
-                this.model.destroy();            
+                this.model.destroy();
             }
         },
         initialize: function() {
@@ -1426,79 +1492,31 @@
         }
     });
 
-    var ModalWrapperView = Backbone.View.extend({
-        events: function() {
-            var self = this;
-            var e = {
-                'click .close': function() {
-                    self.dispatcher.trigger('close');
-                },
-                'hidden.bs.modal .modal': function() {
-                    self.options.innerView.remove();
-                    self.remove();
-                }
-            };
-            _.each(this.buttons, function(item) {
-                e['click #' + item.id] = function() {
-                    self.dispatcher.trigger(item.signal);
-                };                    
-            });
-            return e;
-        },
-        initialize: function() {
-            _.bindAll(this, 'render', 'close', 'events');
-            this.buttons = _.map(this.options.buttons, function (item) {
-                return {
-                    name: item.name,
-                    id: _.uniqueId('modal-'),
-                    signal: item.signal || item.name.toLowerCase(),
-                    'class': item.primary ? 'btn-primary' : 'btn-default'
-                }; 
-            });
-            this.dispatcher = _.clone(Backbone.Events);
-            this.listenTo(this.dispatcher, 'close', this.close);
-            this.options.innerView.setDispatcher(this.dispatcher);
-            this.render();
-            this.$('.modal').modal('show');
-        },
-        render: function() {
-            this.$el.html(Handlebars.templates.modal_wrapper({
-                title: this.options.title,
-                buttons: this.buttons
-            }));
-            this.$('.modal-body').html(this.options.innerView.render().el);
-        },
-        close: function() {
-            this.$('.modal').modal('hide');
-        }
-    });
-    
     var DocumentRenameView = Backbone.View.extend({
+        events: {
+            'keypress input': 'keyPress'
+        },
         initialize: function() {
-            _.bindAll(this, 'render', 'setDispatcher');
+            _.bindAll(this, 'render', 'setDispatcher', 'keyPress', 'save');
             this.render();
         },
         render: function() {
-            this.$el.html('<input type="text" class="form-control" placeholder="Document name" max-length="255">');
+            this.$el.html('<input type="text" class="form-control" placeholder="document name" max-length="255">');
             return this;
         },
         setDispatcher: function(dispatcher) {
-            this.listenTo(dispatcher, 'save', function() {
-                console.log('save!');
-                dispatcher.trigger('close');
-            });
+            this.dispatcher = dispatcher;
+            this.listenTo(dispatcher, 'save', this.save);
+        },
+        keyPress: function(e) {
+            if (e.which == 13)
+                this.save();
+        },
+        save: function() {
+            this.model.save({ title: this.$('input').val() }, { wait: true });
+            this.dispatcher.trigger('close');
         }
     });
-
-    function show_modal(title, view, buttons) {
-        jQuery('<div/>', { id: 'modal-container' }).appendTo('body');
-        new ModalWrapperView({
-            el: $('#modal-container'),
-            title: title,
-            buttons: buttons,
-            innerView: view
-        });
-    }
 
     /****************************
      * Pages
@@ -1690,15 +1708,21 @@
             });
         },
 
-        document_view: function(doc_id, items) {
+        document_view: function(data, items) {
+            var document_data = new DocumentModel(data);
+            var set_title = function() {
+                $('#document-title').html('Document ' + (document_data.escape('title') || data.id));
+            };
+            set_title();
+            document_data.on('change:title', set_title);
             new DocumentView({
                 el: $('#document-items'),
-                doc_id: doc_id,
+                doc_id: data.id,
                 collection: new DocumentItemList(items, { parse: true })
             });
             $('#rename-button').click(function() {
                 show_modal('Rename document',
-                           new DocumentRenameView(),
+                           new DocumentRenameView({ model: document_data }),
                            [ { name: 'Close' }, { name: 'Save', primary: true } ]);
             });
         }
