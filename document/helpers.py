@@ -11,8 +11,8 @@ def entry_before(a, b):
     return a.concept_defs.isdisjoint(b.concept_uses) and a.item_defs.isdisjoint(b.item_uses)
 
 class DocumentMessageEntry(object):
-    def __init__(self, msgtype, order, **kwargs):
-        self.data = dict(type = msgtype, order = order)
+    def __init__(self, msgtype, **kwargs):
+        self.data = dict(type = msgtype)
         self.data.update(**kwargs)
     def get_categories_used(self):
         return set()
@@ -59,18 +59,15 @@ class DocumentView(object):
         entry.save()
         self.entries.insert(pos, entry)
         self.items_in_doc.update(entry.item_defs)
-        return pos
 
-    def add_item(self, item_id, source_id):
+    def add_item(self, item_id):
         try:
-            item = FinalItem.objects.get(status='F', final_id=item_id)
+            item = FinalItem.objects.get(final_id=item_id, status='F')
             if DocumentItemEntry.objects.filter(document=self.document, item=item).exists():
                 return []
             item_entry = DocumentItemEntry(document=self.document, item=item)
-            pos = self.insert(item_entry)
-            order = self._order_before_entry_at(pos)
-            msg_entry = DocumentMessageEntry('add-item-success', order, name = unicode(item))
-            return [item_entry, msg_entry]
+            self.insert(item_entry)
+            return [item_entry]
         except FinalItem.DoesNotExist:
             logger.warning('Item %s not found. This should not happen.')
             return []
@@ -84,15 +81,11 @@ class DocumentView(object):
         try:
             item = FinalItem.objects.get(itemtype='D', status='F', finalitemcategory__primary=True, finalitemcategory__category=category)
             item_entry = DocumentItemEntry(document=self.document, item=item)
-            pos = self.insert(item_entry)
-            order = self._order_before_entry_at(pos)
-            msg_entry = DocumentMessageEntry('add-concept-success', order, name = unicode(item), concept = category.id)
-            return [item_entry, msg_entry]
+            self.insert(item_entry)
+            item_entry.extra = dict(for_concept=category.id)
+            return [item_entry]
         except FinalItem.DoesNotExist:
-            pos = self._pos_for_key(source_id)
-            assert pos is not None
-            order = self._order_before_entry_at(pos)
-            msg_entry = DocumentMessageEntry('concept-not-found', order, concept = category.id)
+            msg_entry = DocumentMessageEntry('concept-not-found', source_id = source_id, concept = category.id)
             return [msg_entry]
 
     def delete(self, item_id):
@@ -100,13 +93,11 @@ class DocumentView(object):
         item = FinalItem.objects.get(status='F', final_id=item_id[5:])
         pos = self._pos_for_key(item_id)
         assert pos is not None
-        # compute order here so we don't end up with the same order as the deleted entry
-        order = self._order_before_entry_at(pos)
         item_entry = self.entries.pop(pos)
         assert item_entry.item == item
         self.items_in_doc.difference_update(item_entry.item_defs)
         item_entry.delete()
-        msg_entry = DocumentMessageEntry('item-removed', order, entryid = item_entry.key, name = unicode(item))
+        msg_entry = DocumentMessageEntry('item-removed', entry_id = item_entry.key, name = unicode(item))
         return [msg_entry]
 
     def json_data_for_entries(self, entries):

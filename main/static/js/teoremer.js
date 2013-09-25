@@ -1362,7 +1362,7 @@
             }, this);
             this.updateReferenceAvailability();
         },
-        insertEntryView: function(model, view, insert) {
+        insertItemView: function(model, view) {
             this.collection.remove(model);
             var pos = 0, model_order = model.get('order');
             while (pos < this.collection.length && model_order > this.collection.at(pos).get('order'))
@@ -1373,48 +1373,45 @@
                 $('#doc-entry-' + (pos_model.id || pos_model.cid)).before(view.el);
             } else
                 this.$el.append(view.el);
-            if (insert) {
-                model.set('view', view);
-                this.collection.add(model, { at: pos, silent: true });
-            }
+            model.set('view', view);
+            this.collection.add(model, { at: pos, silent: true });
         },
         onAdd: function(model) {
-            var view, remove_from_collection = true;
+            var msgView;
             switch (model.get('type')) {
                 case 'item':
-                    view = this.makeItemView(model);
-                    remove_from_collection = false;
-                    break;
-                case 'add-concept-success':
-                    var concept_html = typeset_category_id(model.get('concept'));
-                    var view = this.makeMessageView('success', model.get('name') + ' defining '
-                                                    + concept_html + ' was inserted');
-                    break;
-                case 'add-item-success':
-                    var concept_html = typeset_category_id(model.get('concept'));
-                    var view = this.makeMessageView('success', model.get('name') + ' was inserted');
+                    var itemView = this.makeItemView(model);
+                    this.insertItemView(model, itemView);
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, itemView.$el.get()]);
+                    if (model.has('for_concept')) {
+                        var concept_html = typeset_category_id(model.get('for_concept'));
+                        model.unset('for_concept');
+                        msgView = this.makeMessageView('success', model.get('name') + ' defining ' + concept_html + ' was inserted');
+                    } else {
+                        msgView = this.makeMessageView('success', model.get('name') + ' was inserted');
+                    }
+                    itemView.$el.before(msgView.render().el);
                     break;
                 case 'concept-not-found':
+                    this.collection.remove(model);
                     var concept_id = model.get('concept');
                     var concept_html = typeset_category_id(concept_id);
-                    var view = this.makeMessageView('warning', 'Definition for ' + concept_html + ' not found');
+                    msgView = this.makeMessageView('warning', 'Definition for ' + concept_html + ' not found');
                     this.concepts_unavailable['' + concept_id] = false;
+                    $('#doc-entry-' + model.get('source_id')).before(msgView.render().el);
                     break;
                 case 'item-removed':
-                    var target_model = this.collection.get(model.get('entryid'));
-                    target_model.get('view').remove();
-                    this.collection.remove(target_model);
-                    var view = this.makeMessageView('success', model.get('name') + ' was removed');
-                    break;
-                default:
+                    var target_model = this.collection.get(model.get('entry_id'));
+                    var target_view = target_model.get('view');
+                    msgView = this.makeMessageView('success', model.get('name') + ' was removed');
+                    target_view.$el.before(msgView.render().el);
                     this.collection.remove(model);
-                    return;
+                    this.collection.remove(target_model);
+                    target_view.remove();
+                    break;
             }
-            this.insertEntryView(model, view, !remove_from_collection);
             this.updateReferenceAvailability();
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, view.$el.get()]);
-            if (model.get('type') != 'item')
-                scrollTo(view.$el);
+            scrollTo(msgView.$el);
         },
         updateReferenceAvailability: function() {
             this.item_availability = {};
@@ -1477,8 +1474,7 @@
                 scrollTo($('#doc-entry-' + this.item_availability[item_id]));
             } else {
                 this.fetch('add-item', {
-                    item_id: item_id,
-                    source_id: source_id
+                    item_id: item_id
                 });
             }
         },

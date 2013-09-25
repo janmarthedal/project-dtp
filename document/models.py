@@ -26,6 +26,7 @@ class DocumentItemEntry(models.Model):
     order    = models.FloatField(null=False)
     item     = models.ForeignKey(FinalItem, db_index=False)
     def init_meta(self):
+        self.extra = {}
         # key
         self.key = 'item-' + self.item.final_id
         # item defs
@@ -48,13 +49,15 @@ class DocumentItemEntry(models.Model):
     def get_categories_used(self):
         return self.concept_defs | self.concept_uses
     def json_data(self):
-        return dict(type         = 'item',
-                    order        = self.order,
-                    id           = self.key,
-                    name         = unicode(self.item),
-                    body         = self.item.body,
-                    item_defs    = list(self.item_defs),
-                    item_uses    = list(self.item_uses),
-                    concept_defs = list(self.concept_defs),
-                    tag_refs     = self.tag_refs,  # implicitly concept uses
-                    link         = reverse('items.views.show_final', args=[self.item.final_id]))
+        result = dict(type         = 'item',
+                      order        = self.order,
+                      id           = self.key,
+                      name         = unicode(self.item),
+                      body         = self.item.body,
+                      item_defs    = list(self.item_defs),
+                      item_uses    = list(self.item_uses),
+                      concept_defs = list(self.concept_defs),
+                      tag_refs     = self.tag_refs,  # implicitly concept uses
+                      link         = reverse('items.views.show_final', args=[self.item.final_id]))
+        result.update(self.extra)
+        return result
