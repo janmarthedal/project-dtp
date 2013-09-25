@@ -1,6 +1,3 @@
-from django.shortcuts import get_object_or_404
-from django.template import Context
-from django.template.loader import get_template
 from document.models import DocumentItemEntry
 from items.models import FinalItem
 from tags.models import Category
@@ -9,11 +6,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 STEP_SIZE = 100
-
-def render_template(template_name, **kwargs):
-    t = get_template(template_name)
-    c = Context(dict(**kwargs))
-    return t.render(c)
 
 def entry_before(a, b):
     return a.concept_defs.isdisjoint(b.concept_uses) and a.item_defs.isdisjoint(b.item_uses)
