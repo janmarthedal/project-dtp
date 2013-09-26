@@ -1024,17 +1024,18 @@
         },
         initialize: function() {
             _.bindAll(this, 'render', 'change');
-            if (!this.model.has(this.options.setup.key))
-                this.model.set(this.options.setup.key, '');
+            if (!this.model.has(this.options.key))
+                this.model.set(this.options.key, '');
         },
         render: function() {
-            this.$el.html(Handlebars.templates.source_string_field(_.extend(this.options.setup, {
-                value: this.model.get(this.options.setup.key)
-            })));
+            var context = _.extend(sourceFields[this.options.key], {
+                value: this.model.get(this.options.key)
+            });
+            this.$el.html(Handlebars.templates.source_string_field(context));
             return this;
         },
         change: function() {
-            this.model.set(this.options.setup.key, this.$('input').val());
+            this.model.set(this.options.key, this.$('input').val());
         }
     });
 
@@ -1046,28 +1047,29 @@
         },
         initialize: function() {
             _.bindAll(this, 'render', 'change', 'add');
-            if (!this.model.has(this.options.setup.key))
-                this.model.set(this.options.setup.key, ['']);
+            if (!this.model.has(this.options.key))
+                this.model.set(this.options.key, ['']);
         },
         render: function() {
-            this.$el.html(Handlebars.templates.source_array_field(_.extend(this.options.setup, {
-                value: this.model.get(this.options.setup.key)
-            })));
+            var context = _.extend(sourceFields[this.options.key], {
+                value: this.model.get(this.options.key)
+            });
+            this.$el.html(Handlebars.templates.source_array_field(context));
             return this;
         },
         change: function(event) {
             var input = $(event.currentTarget);
             var value = trim(input.val());
             var index = input.data('idx');
-            var current = this.model.get(this.options.setup.key);
+            var current = this.model.get(this.options.key);
             if (value != current[index]) {
                 var changed = _.clone(current);
                 changed[index] = value;
-                this.model.set(this.options.setup.key, changed);
+                this.model.set(this.options.key, changed);
             }
         },
         add: function() {
-            this.model.get(this.options.setup.key).push('');
+            this.model.get(this.options.key).push('');
             this.render();
         }
     });
@@ -1126,7 +1128,6 @@
                     return { key: key, name: sourceFields[key].name };
                 })
             });
-
             this.$el.html(html);
 
             var show = _.union(type_data.show, extras_to_show);
@@ -1137,15 +1138,7 @@
         },
         addExtra: function(field_key) {
             var field_config = sourceFields[field_key], view;
-            var options = {
-                model: this.model,
-                setup: {
-                    key:  field_key,
-                    name: field_config.name,
-                    size: field_config.size,
-                    max:  field_config.maxlen
-                }
-            };
+            var options = { model: this.model, key: field_key };
             if (field_config.type == 'text') {
                 view = new SourceEditTextFieldView(options);
             } else /*if (field_config.type == 'author')*/ {
