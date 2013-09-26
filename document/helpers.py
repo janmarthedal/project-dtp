@@ -10,15 +10,6 @@ STEP_SIZE = 100
 def entry_before(a, b):
     return a.concept_defs.isdisjoint(b.concept_uses) and a.item_defs.isdisjoint(b.item_uses)
 
-class DocumentMessageEntry(object):
-    def __init__(self, msgtype, **kwargs):
-        self.data = dict(type = msgtype)
-        self.data.update(**kwargs)
-    def get_categories_used(self):
-        return set()
-    def json_data(self):
-        return self.data
-
 class DocumentView(object):
 
     def __init__(self, document):
@@ -67,7 +58,7 @@ class DocumentView(object):
                 return []
             item_entry = DocumentItemEntry(document=self.document, item=item)
             self.insert(item_entry)
-            return [item_entry]
+            return self.json_data_for_entries([item_entry])
         except FinalItem.DoesNotExist:
             logger.warning('Item %s not found. This should not happen.')
             return []
@@ -83,10 +74,9 @@ class DocumentView(object):
             item_entry = DocumentItemEntry(document=self.document, item=item)
             self.insert(item_entry)
             item_entry.extra = dict(for_concept=category.id)
-            return [item_entry]
+            return self.json_data_for_entries([item_entry])
         except FinalItem.DoesNotExist:
-            msg_entry = DocumentMessageEntry('concept-not-found', source_id = source_id, concept = category.id)
-            return [msg_entry]
+            return [dict(type = 'concept-not-found', source_id = source_id, concept = category.id)]
 
     def delete(self, item_id):
         assert len(item_id) > 5 and item_id[:5] == 'item-'
@@ -97,8 +87,7 @@ class DocumentView(object):
         assert item_entry.item == item
         self.items_in_doc.difference_update(item_entry.item_defs)
         item_entry.delete()
-        msg_entry = DocumentMessageEntry('item-removed', entry_id = item_entry.key, name = unicode(item))
-        return [msg_entry]
+        return [dict(type = 'item-removed', entry_id = item_entry.key)]
 
     def json_data_for_entries(self, entries):
         category_ids = set()
@@ -107,9 +96,8 @@ class DocumentView(object):
         concept_map = []
         for cid in category_ids:
             category = Category.objects.get(pk=cid)
-            concept_map.append((category.id, category.json_data()))
-        return dict(items = [entry.json_data() for entry in entries],
-                    concept_map = concept_map)
+            concept_map.append([category.id, category.json_data()])
+        return dict(items = [entry.json_data() for entry in entries], concept_map = concept_map)
 
     def json_data(self):
         return self.json_data_for_entries(self.entries)

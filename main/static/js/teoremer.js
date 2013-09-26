@@ -495,10 +495,13 @@
         url: api_prefix + 'document/',
         model: DocumentEntry,
         parse: function(response) {
-            _.each(response.concept_map, function(elem) {
-                concept_map.insert(elem[0], elem[1]);
-            });
-            return response.items;
+            if (response.items) {
+                _.each(response.concept_map, function(elem) {
+                    concept_map.insert(elem[0], elem[1]);
+                });
+                return response.items;
+            }
+            return response;
         }
     });
 
@@ -1405,12 +1408,15 @@
                 case 'item-removed':
                     var target_model = this.collection.get(model.get('entry_id'));
                     var target_view = target_model.get('view');
-                    msgView = this.makeMessageView('success', model.get('name') + ' was removed');
+                    msgView = this.makeMessageView('success', target_model.get('name') + ' was removed');
                     target_view.$el.before(msgView.render().el);
                     this.collection.remove(model);
                     this.collection.remove(target_model);
                     target_view.remove();
                     break;
+                default:
+                    this.collection.remove(model);
+                    return;
             }
             this.updateReferenceAvailability();
             scrollTo(msgView.$el);

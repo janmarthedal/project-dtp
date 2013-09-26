@@ -16,8 +16,7 @@ def add_concept(request, doc_id):
     document_view = DocumentView(document)
     tag_list = request.data['concept']
     source_id = request.data['source_id']
-    new_entries = document_view.add_concept(tag_list, source_id)
-    return document_view.json_data_for_entries(new_entries)
+    return document_view.add_concept(tag_list, source_id)
 
 @require_POST
 @logged_in_or_404
@@ -26,8 +25,7 @@ def add_item(request, doc_id):
     document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
     document_view = DocumentView(document)
     item_id = request.data['item_id']
-    new_entries = document_view.add_item(item_id)
-    return document_view.json_data_for_entries(new_entries)
+    return document_view.add_item(item_id)
 
 @require_POST
 @logged_in_or_404
@@ -35,8 +33,7 @@ def add_item(request, doc_id):
 def delete(request, doc_id):
     document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
     document_view = DocumentView(document)
-    new_entries = document_view.delete(request.data)
-    return document_view.json_data_for_entries(new_entries)
+    return document_view.delete(request.data)
 
 @require_http_methods(['PUT'])
 @logged_in_or_404
