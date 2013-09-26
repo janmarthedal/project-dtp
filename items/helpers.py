@@ -236,3 +236,13 @@ def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclud
         result['items'] = [_extract_draft_item_attributes(item) for item in items[:limit]]
 
     return json_encode(result)
+
+def publishIssues(draft_item):
+    issues = []
+    if not draft_item.body.strip():
+        issues.append('No contents')
+    bs = BodyScanner(draft_item.body)
+    for itemref_id in bs.getItemRefSet():
+        if not FinalItem.objects.filter(final_id=itemref_id, status='F').exists():
+            issues.append("Reference to non-existing item '%s'" % itemref_id)
+    return issues
