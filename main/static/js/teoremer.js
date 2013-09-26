@@ -48,6 +48,14 @@
         return $.trim(st);
     }
 
+    function pluralize(base, count) {
+        return count === 1 ? base : base + 's';
+    }
+
+    function formatCount(name, count) {
+        return (count === 0 ? 'no' : count) + ' ' + pluralize(name, count);
+    }
+
     function typeset_tag(st) {
         var elems = st.split('$');
         for (var n = 0; n < elems.length; n++) {
@@ -1345,7 +1353,7 @@
     var DocumentView = Backbone.View.extend({
         initialize: function() {
             _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch',
-                            'removeEntryView', 'updateReferenceAvailability');
+                            'removeEntryView', 'updateMeta');
             this.listenTo(this.collection, {
                 'reset': this.render,
                 'add':   this.onAdd
@@ -1368,7 +1376,7 @@
             }, this);
             this.$el.empty();
             this.$el.append(container);
-            this.updateReferenceAvailability();
+            this.updateMeta();
         },
         insertItemView: function(model, view) {
             this.collection.remove(model);
@@ -1421,13 +1429,19 @@
                     this.collection.remove(model);
                     return;
             }
-            this.updateReferenceAvailability();
+            this.updateMeta();
             scrollTo(msgView.$el);
         },
-        updateReferenceAvailability: function() {
+        updateMeta: function() {
+            var def_count = 0, thm_count = 0, prf_count = 0;
             this.item_availability = {};
             this.concept_availability = _.clone(this.concepts_unavailable);
             this.collection.each(function(model) {
+                switch (model.get('itemtype')) {
+                    case 'D': def_count++; break;
+                    case 'T': thm_count++; break;
+                    case 'P': prf_count++; break;
+                }
                 _.each(model.get('item_defs'), function(item_id) {
                     this.item_availability[item_id] = model.get('id');
                 }, this);
@@ -1444,6 +1458,9 @@
                 var has_concept = typeof value === 'string';
                 this.$('a.concept-' + key + '-ref').addClass(has_concept ? 'text-success' : 'text-warning');
             }, this);
+            $('#def-count').text(formatCount('definition', def_count));
+            $('#thm-count').text(formatCount('theorem', thm_count));
+            $('#prf-count').text(formatCount('proof', prf_count));
         },
         makeItemView: function(model) {
             return new DocumentItemView({
@@ -1509,6 +1526,7 @@
         modalReady: function(dispatcher) {
             this.dispatcher = dispatcher;
             this.listenTo(dispatcher, 'save', this.save);
+            this.$('input').focus();
         },
         keyPress: function(e) {
             if (e.which == 13) this.save();

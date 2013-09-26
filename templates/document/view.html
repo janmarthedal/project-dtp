@@ -13,7 +13,18 @@
 
 {% block sidebar %}
 
+<h4>Items</h4>
+
+<ul>
+<li id="def-count"></li>
+<li id="thm-count"></li>
+<li id="prf-count"></li>
+</ul>
+
 <h4>Actions</h4>
+
+<p><a id="rename-button" href="#" class="btn btn-default">Rename document</a></p>
+
 {% if can_delete %}
 <p><form method="post" action="{% url 'document.views.delete' %}">
   {% csrf_token %}
@@ -21,8 +32,6 @@
   <input type="hidden" name="id" value="{{ document.id }}" />
 </form></p>
 {% endif %}
-
-<p><a id="rename-button" href="#" class="btn btn-default">Rename document</a></p>
 
 {% endblock sidebar %}
 

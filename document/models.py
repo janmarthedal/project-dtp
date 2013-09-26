@@ -51,6 +51,7 @@ class DocumentItemEntry(models.Model):
         return self.concept_defs | self.concept_uses
     def json_data(self):
         result = dict(type         = 'item',
+                      itemtype     = self.item.itemtype,
                       order        = self.order,
                       id           = self.key,
                       name         = unicode(self.item),
