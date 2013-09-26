@@ -741,7 +741,7 @@
         initialize: function() {
             _.bindAll(this, 'render');
             var self = this;
-            this.listenTo(this.$el, 'input propertychange', function() {
+            this.$el.on('input propertychange', function() {
                 self.model.set('body', this.value);
             });
             this.render();

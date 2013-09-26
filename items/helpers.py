@@ -41,7 +41,7 @@ class BodyScanner:
         body = ''.join(parts)
         body = re.sub(r'\[([^#\]]*)#([\w -]+)\]', self._conceptMatch, body)
         body = re.sub(r'\[([^@\]]*)@(\w+)\]', self._itemRefMatch, body)
-        body = body.replace("[", "&#91;").replace("]", "&#93;").replace("<", "&lt;").replace(">", "&gt;");
+        body = body.replace('[', '&#91;').replace(']', '&#93;').replace('<', '&lt;').replace('>', '&gt;');
         self.body = body
         self._imaths = self._imaths.items()
 
@@ -86,10 +86,10 @@ class BodyScanner:
         self._itemRefs = map(lambda p: (p[0], func(p[2], p[3]), p[2], p[3]), self._itemRefs)
 
     def getItemRefSet(self):
-        return [p[2] for p in self._itemRefs]
+        return set([p[3] for p in self._itemRefs])
 
     def getConceptSet(self):
-        return [p[3] for p in self._conceptRefs]
+        return set([p[3] for p in self._conceptRefs])
 
     def assemble(self):
         st = self.body
