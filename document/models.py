@@ -14,7 +14,8 @@ class Document(models.Model):
     modified_at = models.DateTimeField(default=timezone.now)
     title       = models.CharField(max_length=255, null=True)
     def __unicode__(self):
-        return "%d. %s" % (self.id, self.title)
+        if self.title: return self.title
+        return "Document %d" % self.id
     def json_data(self):
         return dict(id=self.id, title=self.title)
 

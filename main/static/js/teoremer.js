@@ -150,6 +150,9 @@
         },
         sources_add_location_for_draft: function(item, source) {
             return '/draft/' + item + '/add-validation/' + source;
+        },
+        document_show: function(id) {
+            return '/document/id/' + id;
         }
     };
 
@@ -1663,15 +1666,15 @@
             });
         },
 
-        show_final: function(validations, parent, user_id, init_proofs) {
+        show_final: function(validations, item_id, user_id, init_proofs) {
             new ValidationListView({
                 el: $('#validation-list'),
                 collection: new ValidationList(validations)
             });
 
-            if (parent) {
+            if (arguments.length == 4) {
                 var searchTerms = new SearchTerms({
-                    parent: parent
+                    parent: item_id
                 });
                 var searchListViewData = {
                     el: $('#proof-list'),
@@ -1690,6 +1693,22 @@
                 }
                 var searchList = new SearchListView(searchListViewData);
             }
+
+            $('#add-to-document a').click(function(event) {
+                var doc_id = $(this).data('doc');
+                var data_to_send = JSON.stringify({ item_id: item_id });
+                if (doc_id) {
+                    $.post(api_prefix + 'document/' + doc_id + '/add-item', data_to_send,
+                           function() {
+                               redirect(to_url.document_show(doc_id));
+                           });
+                } else {
+                    $.post(api_prefix + 'document/', data_to_send,
+                           function(data) {
+                               redirect(to_url.document_show(data.id));
+                           });
+                }
+            });
         },
 
         source_add: function(mode) {
@@ -1709,7 +1728,7 @@
         document_view: function(data, items) {
             var document_data = new DocumentModel(data);
             var set_title = function() {
-                $('#document-title').html('Document ' + (document_data.escape('title') || data.id));
+                $('#document-title').html(document_data.escape('title') || ('Document ' + data.id));
             };
             set_title();
             document_data.on('change:title', set_title);

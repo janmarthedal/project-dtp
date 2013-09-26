@@ -73,14 +73,14 @@ published at {{ item.created_at|datetime_user:user }}
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
     Add to document <span class="caret"></span>
   </button>
-  <ul class="dropdown-menu" role="menu">
+  <ul id="add-to-document" class="dropdown-menu" role="menu">
 {% if documents %}
 {%   for doc in documents %}
-    <li><a href="{% url 'document.views.add' doc.id item.final_id %}">{{doc}}</a></li>
+    <li><a href="#" data-doc="{{doc.id}}">{{doc}}</a></li>
 {%   endfor %}
     <li class="divider"></li>
 {% endif %}
-    <li><a href="{% url 'document.views.new' %}?items={{item.final_id}}"><i>New document</i></a></li>
+    <li><a href="#"><i>New document</i></a></li>
   </ul>
 </div></p>
 {% endif %}
@@ -92,8 +92,8 @@ published at {{ item.created_at|datetime_user:user }}
 {% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
-teoremer.show_final({{validations|to_json}}
-{% if item.itemtype == 'T' %}, '{{ item.final_id }}', {{ user_id }}, {{ init_proofs|safe }}{% endif %});
+teoremer.show_final({{validations|to_json}}, '{{ item.final_id }}'
+{% if item.itemtype == 'T' %}, {{ user_id }}, {{ init_proofs|safe }}{% endif %});
 </script>
 
 {% endblock %}

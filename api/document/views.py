@@ -30,10 +30,20 @@ def add_item(request, doc_id):
 @require_POST
 @logged_in_or_404
 @api_view
-def delete(request, doc_id):
+def delete_item(request, doc_id):
     document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
     document_view = DocumentView(document)
     return document_view.delete(request.data)
+
+@require_POST
+@logged_in_or_404
+@api_view
+def new(request):
+    document = Document.objects.create(created_by=request.user)
+    document_view = DocumentView(document)
+    item_id = request.data['item_id']
+    document_view.add_item(item_id)
+    return document.json_data()
 
 @require_http_methods(['PUT'])
 @logged_in_or_404
