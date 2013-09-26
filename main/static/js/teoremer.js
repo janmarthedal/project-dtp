@@ -761,12 +761,12 @@
         render: function() {
             var source = this.model.get('body');
             var html = typeset_body(source, function(text, tag) {
-                return '<a href="#" rel="tooltip" data-original-title="tag: ' + tag + '"><i>' + text + '</i></a>';
+                return '<a href="#" data-toggle="tooltip" title="tag: ' + tag + '"><i>' + text + '</i></a>';
             }, function(text, item_id) {
-                return '<a href="#" rel="tooltip" data-original-title="item: ' + item_id + '"><b>' + text + '</b></a>';
+                return '<a href="#" data-toggle="tooltip" title="item: ' + item_id + '"><b>' + text + '</b></a>';
             });
             this.$el.html(html);
-            this.$el.tooltip({ selector: "a[rel=tooltip]" });
+            this.$('a').tooltip();
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
         }
     });
