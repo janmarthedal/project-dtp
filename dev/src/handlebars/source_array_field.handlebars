@@ -1,17 +1,8 @@
 <div class="form-group">
-  <label class="control-label col-md-2" for="input-{{id}}0">{{name}}</label>
+  <label class="control-label col-md-2" for="input-{{key}}">{{name}} (<a href="#">add</a>)</label>
   <div class="col-md-{{size}}">
 {{#foreach value}}
-    {{#if @last}}
-      <div class="input-group">
-    {{/if}}
-        <input type="text" class="form-control" id="input-{{../id}}{{@index}}" value="{{this}}" maxlength="{{../max}}">
-    {{#if @last}}
-        <div class="input-group-btn">
-          <a data-key="{{../../id}}" href="#"><span class="glyphicon glyphicon-plus"></span></a>
-        </div>
-      </div>
-    {{/if}}
+    <input type="text" class="form-control" data-idx="{{@index}}" {{#if @first}}id="input-{{../../key}}" {{/if}}value="{{this}}" maxlength="{{../max}}">
 {{/foreach}}
   </div>
 </div>

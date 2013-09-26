@@ -986,50 +986,99 @@
     });
 
     var sourceFields = {
-        'author':    { 'type': 'array',  'size': '4', 'maxlen': 255, 'name': 'Author' },
-        'editor':    { 'type': 'array',  'size': '4', 'maxlen': 255, 'name': 'Editor' },
-        'title':     { 'type': 'string', 'size': '8', 'maxlen': 255, 'name': 'Title' },
-        'publisher': { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Publisher' },
-        'year':      { 'type': 'string', 'size': '2', 'maxlen': 32,  'name': 'Year' },
-        'volume':    { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Volume' },
-        'number':    { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Number' },
-        'series':    { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Series' },
-        'address':   { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Address' },
-        'edition':   { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Edition' },
-        'month':     { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Month' },
-        'journal':   { 'type': 'string', 'size': '4', 'maxlen': 255, 'name': 'Journal' },
-        'pages':     { 'type': 'string', 'size': '2', 'maxlen': 255, 'name': 'Pages' },
-        'isbn10':    { 'type': 'string', 'size': '4', 'maxlen': 32,  'name': '10-digit ISBN' },
-        'isbn13':    { 'type': 'string', 'size': '4', 'maxlen': 32,  'name': '13-digit ISBN' },
-        'note':      { 'type': 'string', 'size': '8', 'maxlen': 255, 'name': 'Note' }
+        author:    { type: 'author', size: '4', maxlen: 255, name: 'Author' },
+        editor:    { type: 'author', size: '4', maxlen: 255, name: 'Editor' },
+        title:     { type: 'text',   size: '8', maxlen: 255, name: 'Title' },
+        publisher: { type: 'text',   size: '4', maxlen: 255, name: 'Publisher' },
+        year:      { type: 'text',   size: '2', maxlen: 32,  name: 'Year' },
+        volume:    { type: 'text',   size: '2', maxlen: 255, name: 'Volume' },
+        number:    { type: 'text',   size: '2', maxlen: 255, name: 'Number' },
+        series:    { type: 'text',   size: '4', maxlen: 255, name: 'Series' },
+        address:   { type: 'text',   size: '4', maxlen: 255, name: 'Address' },
+        edition:   { type: 'text',   size: '2', maxlen: 255, name: 'Edition' },
+        month:     { type: 'text',   size: '2', maxlen: 255, name: 'Month' },
+        journal:   { type: 'text',   size: '4', maxlen: 255, name: 'Journal' },
+        pages:     { type: 'text',   size: '2', maxlen: 255, name: 'Pages' },
+        isbn10:    { type: 'text',   size: '4', maxlen: 32,  name: '10-digit ISBN' },
+        isbn13:    { type: 'text',   size: '4', maxlen: 32,  name: '13-digit ISBN' },
+        note:      { type: 'text',   size: '8', maxlen: 255, name: 'Note' }
     };
 
     var sourceTypes = {
-        'book': {
-            'name': 'Book',
-            'show': ['author', 'title', 'publisher', 'year'],
-            'extra': ['isbn10', 'isbn13', 'editor', 'volume', 'number', 'series', 'address', 'edition', 'month', 'note']
+        book: {
+            name: 'Book',
+            show: ['author', 'title', 'publisher', 'year'],
+            extra: ['isbn10', 'isbn13', 'editor', 'volume', 'number', 'series', 'address', 'edition', 'month', 'note']
         },
-        'article': {
-            'name': 'Article',
-            'show': ['author', 'title', 'journal', 'year'],
-            'extra': ['volume', 'number', 'pages', 'month', 'note']
+        article: {
+            name: 'Article',
+            show: ['author', 'title', 'journal', 'year'],
+            extra: ['volume', 'number', 'pages', 'month', 'note']
         }
     };
 
+    var SourceEditTextFieldView = Backbone.View.extend({
+        events: {
+            'input': 'change',
+            'propertychange': 'change'
+        },
+        initialize: function() {
+            _.bindAll(this, 'render', 'change');
+            if (!this.model.has(this.options.setup.key))
+                this.model.set(this.options.setup.key, '');
+        },
+        render: function() {
+            this.$el.html(Handlebars.templates.source_string_field(_.extend(this.options.setup, {
+                value: this.model.get(this.options.setup.key)
+            })));
+            return this;
+        },
+        change: function() {
+            this.model.set(this.options.setup.key, this.$('input').val());
+        }
+    });
+
+    var SourceEditAuthorFieldView = Backbone.View.extend({
+        events: {
+            'input input': 'change',
+            'propertychange input': 'change',
+            'click a': 'add'
+        },
+        initialize: function() {
+            _.bindAll(this, 'render', 'change', 'add');
+            if (!this.model.has(this.options.setup.key))
+                this.model.set(this.options.setup.key, ['']);
+        },
+        render: function() {
+            this.$el.html(Handlebars.templates.source_array_field(_.extend(this.options.setup, {
+                value: this.model.get(this.options.setup.key)
+            })));
+            return this;
+        },
+        change: function(event) {
+            var input = $(event.currentTarget);
+            var value = trim(input.val());
+            var index = input.data('idx');
+            var current = this.model.get(this.options.setup.key);
+            if (value != current[index]) {
+                var changed = _.clone(current);
+                changed[index] = value;
+                this.model.set(this.options.setup.key, changed);
+            }
+        },
+        add: function() {
+            this.model.get(this.options.setup.key).push('');
+            this.render();
+        }
+    });
+
     var SourceEditView = Backbone.View.extend({
         events: {
-            'change #select-source': function() {
-                this._setType(this.$('#select-source').val());
+            'change #select-source': function(event) {
+                this.setType($(event.currentTarget).val());
             },
             'click #extra-fields a': function(event) {
-                this._addExtra($(event.currentTarget).data('key'));
-            },
-            'click #source-fields a': function(event) {
-                var field_key = $(event.currentTarget).data('key');
-                var value = this.model.has(field_key) ? this.model.get(field_key): [''];
-                this.model.set(field_key, value.concat(''));
-                this.render();
+                this.addExtra($(event.currentTarget).data('key'));
             },
             'click #add-source': function() {
                 var self = this;
@@ -1052,95 +1101,57 @@
             }
         },
         initialize: function() {
-            _.bindAll(this, 'render', '_setType', '_updateModel', '_addExtra');
-            this.listenTo(this.$el, 'input propertychange', this._updateModel);
-            this._setType(this.model.get('type'));
+            _.bindAll(this, 'render', 'setType', 'addExtra');
+            this.setType(this.model.get('type'));
         },
-        _setType: function(type) {
+        setType: function(type) {
             var attrs = cleanValues(this.model.attributes);
             attrs.type = type;
-            this.model.clear({
-                'silent': true
-            });
+            this.model.clear({ silent: true });
             this.model.set(attrs);
-            this.render();
-        },
-        _addExtra: function(name) {
-            var v = sourceFields[name].type == 'array' ? [''] : '';
-            this.model.set(name, v);
             this.render();
         },
         render: function() {
             var type = this.model.get('type');
-
             var type_data = sourceTypes[type];
             var extras_to_show = _.filter(type_data.extra, function(element) {
                 return this.model.has(element);
             }, this);
 
             var html = Handlebars.templates.source_edit({
-                'types': _.map(sourceTypes, function(value, key) {
-                    return {
-                        'key': key,
-                        'name': sourceTypes[key].name
-                    };
+                types: _.map(sourceTypes, function(value, key) {
+                    return { key: key, name: sourceTypes[key].name };
                 }),
-                'extra': _.map(_.difference(type_data.extra, extras_to_show), function(key) {
-                    return {
-                        'key': key,
-                        'name': sourceFields[key].name
-                    };
+                extra: _.map(_.difference(type_data.extra, extras_to_show), function(key) {
+                    return { key: key, name: sourceFields[key].name };
                 })
             });
+
             this.$el.html(html);
 
-            this.$('#select-source').val(type);
-
-            var source_fields_element = this.$('#source-fields');
             var show = _.union(type_data.show, extras_to_show);
+            _.each(show, this.addExtra);
 
-            _.each(show, function(field_key) {
-                var field_config = sourceFields[field_key];
-                var data = {
-                    'id': field_key,
-                    'name': field_config.name,
-                    'size': field_config.size,
-                    'max': field_config.maxlen,
-                    'value': this.model.has(field_key) ? this.model.get(field_key): (field_config.type == 'array' ? [''] : '')
-                };
-                if (field_config.type == 'string') {
-                    source_fields_element.append(Handlebars.templates.source_string_field(data));
-                } else if (field_config.type == 'array') {
-                    source_fields_element.append(Handlebars.templates.source_array_field(data));
-                }
-            }, this);
-
-            this.delegateEvents();
-
+            $('#select-source').val(type);
             this.$('input[type="text"]').first().focus();
         },
-        _updateModel: function() {
-            var view = this, key, value;
-            view.$('input').each(function() {
-                key = $(this).attr('id').slice(6);
-                if (key.match(/^[a-z]+$/) || key.match(/^isbn(10|13)$/)) {
-                    value = $(this).val();
-                    value ? view.model.set(key, value) : view.model.unset(key);
-                } else if (key.match(/^[a-z]+0$/)) {
-                    key = key.slice(0, -1);
-                    var idBase = '#input-' + key;
-                    value = [];
-                    for (var j = 0; ; j++) {
-                        var elem = $(idBase + j), v;
-                        if (!elem.length)
-                            break;
-                        v = elem.val();
-                        if (v)
-                            value.push(v);
-                    }
-                    value.length ? view.model.set(key, value) : view.model.unset(key);
+        addExtra: function(field_key) {
+            var field_config = sourceFields[field_key], view;
+            var options = {
+                model: this.model,
+                setup: {
+                    key:  field_key,
+                    name: field_config.name,
+                    size: field_config.size,
+                    max:  field_config.maxlen
                 }
-            });
+            };
+            if (field_config.type == 'text') {
+                view = new SourceEditTextFieldView(options);
+            } else /*if (field_config.type == 'author')*/ {
+                view = new SourceEditAuthorFieldView(options);
+            }
+            $('#source-fields').append(view.render().el);
         }
     });
 
