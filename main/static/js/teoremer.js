@@ -1434,6 +1434,7 @@
         },
         updateMeta: function() {
             var def_count = 0, thm_count = 0, prf_count = 0;
+            var all_concepts_referenced = {};
             this.item_availability = {};
             this.concept_availability = _.clone(this.concepts_unavailable);
             this.collection.each(function(model) {
@@ -1448,6 +1449,9 @@
                 _.each(model.get('concept_defs'), function(concept_id) {
                     this.concept_availability['' + concept_id] = model.get('id');
                 }, this);
+                _.each(model.get('tag_refs'), function(value) {
+                    all_concepts_referenced[value] = true;
+                });
             }, this);
             this.$('a.add-item').removeClass('text-success');
             _.each(this.item_availability, function(value, key) {
@@ -1461,6 +1465,14 @@
             $('#def-count').text(formatCount('definition', def_count));
             $('#thm-count').text(formatCount('theorem', thm_count));
             $('#prf-count').text(formatCount('proof', prf_count));
+            _.each(all_concepts_referenced, function(value, key) {
+                this.$('a.add-concept.concept-' + key + '-ref').tooltip({
+                    html: true,
+                    title: function() {
+                        return typeset_category_id(key);
+                    }
+                });
+            }, this);
         },
         makeItemView: function(model) {
             return new DocumentItemView({
