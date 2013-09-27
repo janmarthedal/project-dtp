@@ -72,7 +72,7 @@
 
     function typeset_category_id(id) {
         var tag_list = concept_map.from_id(id);
-        var category = Handlebars.templates.tag_list({
+        var category = teoremer.templates.tag_list({
                            tags: typeset_tag_list(tag_list)
                        });
         return '<span class="category">' + category + '</span>';
@@ -279,7 +279,7 @@
             this.options.innerView.modalReady(this.dispatcher);
         },
         render: function() {
-            this.$el.html(Handlebars.templates.modal_wrapper({
+            this.$el.html(teoremer.templates.modal_wrapper({
                 title: this.options.title,
                 buttons: this.buttons
             }));
@@ -334,7 +334,7 @@
     var Category = Backbone.Model.extend({
         // tag_list
         typeset: function() {
-            return Handlebars.templates.tag_list({
+            return teoremer.templates.tag_list({
                 tags: this.get('tag_list').map(function(tag_item) {
                     return tag_item.typeset();
                 })
@@ -535,7 +535,7 @@
             this.listenTo(this.model, 'remove', this.remove);
         },
         render: function() {
-            this.$el.html(Handlebars.templates.item_removable({
+            this.$el.html(teoremer.templates.item_removable({
                 html: this.model.typeset()
             }));
             return this;
@@ -566,7 +566,7 @@
              });*/
         },
         render: function() {
-            var html = Handlebars.templates.tag_list_input({
+            var html = teoremer.templates.tag_list_input({
                 uid: this.uid
             });
             this.$el.html(html);
@@ -616,7 +616,7 @@
                 var parent = this.model.get('parent');
                 name += ' of ' + capitalize(type_short_to_long(parent.type)) + ' ' + parent.id;
             }
-            var html = Handlebars.templates.search_list_item({
+            var html = teoremer.templates.search_list_item({
                 id:          this.model.get('id'),
                 item_name:   name,
                 item_link:   this.model.get('item_link'),
@@ -669,7 +669,7 @@
         render: function() {
             var status = this.options.parameters.get('status');
             var type = this.options.parameters.get('type');
-            var html = Handlebars.templates.search_list_container({
+            var html = teoremer.templates.search_list_container({
                 enable_definitions: this.options.itemtypes.indexOf('D') != -1,
                 enable_theorems:    this.options.itemtypes.indexOf('T') != -1,
                 enable_proofs:      this.options.itemtypes.indexOf('P') != -1,
@@ -725,7 +725,7 @@
             this.render();
         },
         render: function() {
-            var html = Handlebars.templates.top_list_container();
+            var html = teoremer.templates.top_list_container();
             this.$el.html(html);
             this.collection.each(this.addOne);
         },
@@ -809,7 +809,7 @@
             this.render();
         },
         render: function() {
-            this.$el.html(Handlebars.templates.add_category());
+            this.$el.html(teoremer.templates.add_category());
             this.input_element = this.$('input');
             return this;
         },
@@ -819,7 +819,7 @@
             this.input_element.focus();
         },
         renderTags: function() {
-            var html = Handlebars.templates.tag_list({
+            var html = teoremer.templates.tag_list({
                 tags: this.collection.map(function(model) {
                     return model.typeset();
                 })
@@ -876,7 +876,7 @@
             this.listenTo(this.model, 'remove', this.remove);
         },
         render: function() {
-            this.$el.html(Handlebars.templates.item_removable({
+            this.$el.html(teoremer.templates.item_removable({
                 html: this.model.typeset()
             }));
             return this;
@@ -897,7 +897,7 @@
             this.render();
         },
         render: function() {
-            var html = Handlebars.templates.editable_category_list({
+            var html = teoremer.templates.editable_category_list({
                 uid: this.uid
             });
             this.$el.html(html);
@@ -930,7 +930,7 @@
             this.listenTo(this.model, 'change', this.render);
         },
         render: function() {
-            var html = Handlebars.templates.tag_association({
+            var html = teoremer.templates.tag_association({
                 tag: this.model.get('tag').typeset(),
                 category: this.model.get('category').typeset()
             });
@@ -955,7 +955,7 @@
             this.render();
         },
         render: function() {
-            var html = Handlebars.templates.tag_association_list();
+            var html = teoremer.templates.tag_association_list();
             this.$el.html(html);
             this.collection.each(this._addOne);
         },
@@ -1037,7 +1037,7 @@
             var context = _.extend(sourceFields[this.options.key], {
                 value: this.model.get(this.options.key)
             });
-            this.$el.html(Handlebars.templates.source_string_field(context));
+            this.$el.html(teoremer.templates.source_string_field(context));
             return this;
         },
         change: function() {
@@ -1062,7 +1062,7 @@
                 key: this.options.key,
                 value: this.model.get(this.options.key)
             });
-            this.$el.html(Handlebars.templates.source_array_field(context));
+            this.$el.html(teoremer.templates.source_array_field(context));
             this.$('input').typeahead({
                name: 'authors',
                local: this.options.author_list
@@ -1133,7 +1133,7 @@
                 return this.model.has(element);
             }, this);
 
-            var html = Handlebars.templates.source_edit({
+            var html = teoremer.templates.source_edit({
                 types: _.map(sourceTypes, function(value, key) {
                     return { key: key, name: sourceTypes[key].name };
                 }),
@@ -1193,7 +1193,7 @@
             this.render();
         },
         render: function() {
-            this.$el.html(Handlebars.templates.source_search_item({
+            this.$el.html(teoremer.templates.source_search_item({
                 'source': typeset_source(this.model.attributes)
             }));
             return this;
@@ -1212,7 +1212,7 @@
             this._search();
         },
         render: function() {
-            this.$el.html(Handlebars.templates.source_search_container());
+            this.$el.html(teoremer.templates.source_search_container());
             this.collection.each(this._addOne);
         },
         _addOne: function(item) {
@@ -1260,7 +1260,7 @@
             this.render();
         },
         render: function() {
-            this.$el.html(Handlebars.templates.validation_item({
+            this.$el.html(teoremer.templates.validation_item({
                 'source': typeset_source(this.model.get('source')),
                 'location': this.model.get('location')
             }));
@@ -1276,7 +1276,7 @@
             this.render();
         },
         render: function() {
-            this.$el.html(Handlebars.templates.validation_list());
+            this.$el.html(teoremer.templates.validation_list());
             this.collection.each(this._addOne);
         },
         // helpers
@@ -1296,12 +1296,12 @@
             this.render();
         },
         render: function() {
-            this.$el.html(Handlebars.templates.source_list_container());
+            this.$el.html(teoremer.templates.source_list_container());
             this.collection.each(this._addOne);
         },
         // helpers
         _addOne: function(item) {
-            var html = Handlebars.templates.source_list_item({
+            var html = teoremer.templates.source_list_item({
                 'link': '#', //to_url.source_item(item.get('id')),
                 'source': typeset_source(item.attributes)
             });
@@ -1323,7 +1323,7 @@
             _.bindAll(this, 'render');
         },
         render: function() {
-            this.$el.html(Handlebars.templates.document_message({
+            this.$el.html(teoremer.templates.document_message({
                message: this.model.get('message')
             }));
             return this;
@@ -1362,7 +1362,7 @@
                 return '<a href="#" class="add-item item-' + item_id + '-ref" data-item="'
                        + item_id + '">' + text + '</a>';
             });
-            var html = Handlebars.templates.document_item({
+            var html = teoremer.templates.document_item({
                 title: this.model.get('name'),
                 link:  this.model.get('link'),
                 body:  body
@@ -1560,7 +1560,7 @@
             this.render();
         },
         render: function() {
-            this.$el.html(Handlebars.templates.document_name_input());
+            this.$el.html(teoremer.templates.document_name_input());
             return this;
         },
         modalReady: function(dispatcher) {

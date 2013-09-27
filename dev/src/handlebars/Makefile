@@ -1,7 +1,7 @@
 all: teoremer_templates.js
 
 teoremer_templates.js: *.handlebars helpers.js
-	handlebars *.handlebars > $@
+	handlebars *.handlebars -k each -k if -k foreach -n "teoremer.templates" > $@
 	cat helpers.js >> $@
 
 clean:
