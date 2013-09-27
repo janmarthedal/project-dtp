@@ -7,6 +7,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 @require_GET
-def tags_prefixed(request, prefix):
-    tags = list(Tag.objects.filter(normalized__startswith=prefix).order_by('normalized')[:20])
+def tag_list(request):
+    tags = list(Tag.objects.all())
     return HttpResponse(json_encode(tags), content_type="application/json")

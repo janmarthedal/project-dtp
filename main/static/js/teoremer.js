@@ -572,7 +572,7 @@
             this.render();
             this.$('input.tag-input').typeahead({
                 name: 'tags',
-                remote: api_prefix + 'tags/prefixed/%QUERY'
+                prefetch: api_prefix + 'tags/list'
             });
         },
         render: function() {
