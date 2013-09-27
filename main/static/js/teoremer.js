@@ -114,7 +114,8 @@
             return key;
         });
         // disable markdown links and images
-        source = source.replace("[", "&#91;").replace("]", "&#93;").replace("<", "&lt;").replace(">", "&gt;");
+        source = source.replace("[", "&#91;").replace("]", "&#93;")
+                       .replace("<", "&lt;").replace(">", "&gt;");
         var html = showdown_convert(source);
         for (key in inserts) {
             html = html.replace(key, inserts[key]);
@@ -524,7 +525,7 @@
         tagName: 'span',
         className: 'tag',
         events: {
-            'click .delete-tag': function() {
+            'click a': function() {
                 this.model.destroy();
             }
         },
@@ -534,8 +535,9 @@
             this.listenTo(this.model, 'remove', this.remove);
         },
         render: function() {
-            var tag_html = this.model.typeset();
-            this.$el.html(tag_html + ' <a href="#" class="glyphicon glyphicon-remove delete-tag"></a>');
+            this.$el.html(Handlebars.templates.item_removable({
+                html: this.model.typeset()
+            }));
             return this;
         }
     });
@@ -572,9 +574,7 @@
         },
         // helpers
         keyPress: function(e) {
-            if (e.which == 13) {
-                this.addItem();
-            }
+            if (e.which == 13) this.addItem();
         },
         addItem: function() {
             var value = this.input_field.val();
@@ -610,7 +610,8 @@
         },
         render: function() {
             var categories = this.model.get('categories');
-            var name = capitalize(type_short_to_long(this.model.get('type'))) + ' ' + this.model.get('id');
+            var name = capitalize(type_short_to_long(this.model.get('type')))
+                           + ' ' + this.model.get('id');
             if (this.model.has('parent')) {
                 var parent = this.model.get('parent');
                 name += ' of ' + capitalize(type_short_to_long(parent.type)) + ' ' + parent.id;
@@ -761,9 +762,11 @@
         render: function() {
             var source = this.model.get('body');
             var html = typeset_body(source, function(text, tag) {
-                return '<a href="#" data-toggle="tooltip" title="tag: ' + tag + '"><i>' + text + '</i></a>';
+                return '<a href="#" data-toggle="tooltip" title="tag: ' + tag + '"><i>'
+                           + text + '</i></a>';
             }, function(text, item_id) {
-                return '<a href="#" data-toggle="tooltip" title="item: ' + item_id + '"><b>' + text + '</b></a>';
+                return '<a href="#" data-toggle="tooltip" title="item: ' + item_id + '"><b>'
+                           + text + '</b></a>';
             });
             this.$el.html(html);
             this.$('a').tooltip();
@@ -799,7 +802,8 @@
             'keypress input':            'keyPress'
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction', 'minusAction', 'plusAction', 'modalReady');
+            _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction',
+                            'minusAction', 'plusAction', 'modalReady');
             this.collection = new TagList();
             this.listenTo(this.collection, 'add remove', this.renderTags);
             this.render();
@@ -862,7 +866,7 @@
         tagName: 'span',
         className: 'category',
         events: {
-            'click .delete-category': function() {
+            'click a': function() {
                 this.model.destroy();
             }
         },
@@ -872,8 +876,9 @@
             this.listenTo(this.model, 'remove', this.remove);
         },
         render: function() {
-            var tag_html = this.model.typeset();
-            this.$el.html(tag_html + ' <a href="#" class="glyphicon glyphicon-remove delete-category"></a>');
+            this.$el.html(Handlebars.templates.item_removable({
+                html: this.model.typeset()
+            }));
             return this;
         }
     });
@@ -1008,7 +1013,8 @@
         book: {
             name: 'Book',
             show: ['author', 'title', 'publisher', 'year'],
-            extra: ['isbn10', 'isbn13', 'editor', 'volume', 'number', 'series', 'address', 'edition', 'month', 'note']
+            extra: ['isbn10', 'isbn13', 'editor', 'volume', 'number', 'series',
+                    'address', 'edition', 'month', 'note']
         },
         article: {
             name: 'Article',
@@ -1093,9 +1099,11 @@
                     wait: true,
                     success: function(model, response) {
                         if (self.options.mode[0] == 'item') {
-                            redirect(to_url.sources_add_location_for_item(self.options.mode[1], model.get('id')));
+                            redirect(to_url.sources_add_location_for_item(
+                                self.options.mode[1], model.get('id')));
                         } else if (self.options.mode[0] == 'draft') {
-                            redirect(to_url.sources_add_location_for_draft(self.options.mode[1], model.get('id')));
+                            redirect(to_url.sources_add_location_for_draft(
+                                self.options.mode[1], model.get('id')));
                         } else {
                             redirect(to_url.source_index());
                         }
@@ -1172,13 +1180,13 @@
         attributes: function() {
             var url = '#';
             if (this.options.mode[0] == 'item') {
-                url = to_url.sources_add_location_for_item(this.options.mode[1], this.model.get('id'));
+                url = to_url.sources_add_location_for_item(
+                          this.options.mode[1], this.model.get('id'));
             } else if (this.options.mode[0] == 'draft') {
-                url = to_url.sources_add_location_for_draft(this.options.mode[1], this.model.get('id'));
+                url = to_url.sources_add_location_for_draft(
+                          this.options.mode[1], this.model.get('id'));
             }
-            return {
-                'href': url
-            };
+            return { href: url };
         },
         initialize: function() {
             _.bindAll(this, 'render');
@@ -1328,12 +1336,14 @@
             'click a.add-concept': function(e) {
                 e.preventDefault();
                 var elem = $(e.currentTarget);
-                this.options.dispatcher.trigger('add-concept', elem.data('concept'), this.id.slice(10));
+                this.options.dispatcher.trigger('add-concept', elem.data('concept'),
+                                                this.id.slice(10));
             },
             'click a.add-item': function(e) {
                 e.preventDefault();
                 var elem = $(e.currentTarget);
-                this.options.dispatcher.trigger('add-item', elem.data('item'), this.id.slice(10));
+                this.options.dispatcher.trigger('add-item', elem.data('item'),
+                                                this.id.slice(10));
             },
             'click .close': function() {
                 this.options.dispatcher.trigger('remove', this.model.get('id'));
@@ -1346,10 +1356,11 @@
             var tag_refs = this.model.get('tag_refs');
             var body = typeset_body(this.model.get('body'), function(text, tag) {
                 var concept_id = tag_refs[tag];
-                return '<a href="#" class="add-concept concept-' + concept_id + '-ref" data-concept="'
-                        + concept_id + '">' + text + '</a>';
+                return '<a href="#" class="add-concept concept-' + concept_id
+                       + '-ref" data-concept="' + concept_id + '">' + text + '</a>';
             }, function(text, item_id) {
-                return '<a href="#" class="add-item item-' + item_id + '-ref" data-item="' + item_id + '">' + text + '</a>';
+                return '<a href="#" class="add-item item-' + item_id + '-ref" data-item="'
+                       + item_id + '">' + text + '</a>';
             });
             var html = Handlebars.templates.document_item({
                 title: this.model.get('name'),
@@ -1392,7 +1403,8 @@
         insertItemView: function(model, view) {
             this.collection.remove(model);
             var pos = 0, model_order = model.get('order');
-            while (pos < this.collection.length && model_order > this.collection.at(pos).get('order'))
+            while (pos < this.collection.length &&
+                   model_order > this.collection.at(pos).get('order'))
                 pos++;
             view.render();
             if (pos < this.collection.length) {
@@ -1413,9 +1425,11 @@
                     if (model.has('for_concept')) {
                         var concept_html = typeset_category_id(model.get('for_concept'));
                         model.unset('for_concept');
-                        msgView = this.makeMessageView('success', model.get('name') + ' defining ' + concept_html + ' was inserted');
+                        msgView = this.makeMessageView('success', model.get('name') + ' defining '
+                                                           + concept_html + ' was inserted');
                     } else {
-                        msgView = this.makeMessageView('success', model.get('name') + ' was inserted');
+                        msgView = this.makeMessageView('success', model.get('name')
+                                                           + ' was inserted');
                     }
                     itemView.$el.before(msgView.render().el);
                     break;
@@ -1423,14 +1437,16 @@
                     this.collection.remove(model);
                     var concept_id = model.get('concept');
                     var concept_html = typeset_category_id(concept_id);
-                    msgView = this.makeMessageView('warning', 'Definition for ' + concept_html + ' not found');
+                    msgView = this.makeMessageView('warning', 'Definition for ' + concept_html
+                                                       + ' not found');
                     this.concepts_unavailable['' + concept_id] = false;
                     $('#doc-entry-' + model.get('source_id')).before(msgView.render().el);
                     break;
                 case 'item-removed':
                     var target_model = this.collection.get(model.get('entry_id'));
                     var target_view = target_model.get('view');
-                    msgView = this.makeMessageView('success', target_model.get('name') + ' was removed');
+                    msgView = this.makeMessageView('success', target_model.get('name')
+                                                       + ' was removed');
                     target_view.$el.before(msgView.render().el);
                     this.collection.remove(model);
                     this.collection.remove(target_model);
@@ -1471,7 +1487,8 @@
             this.$('a.add-concept').removeClass('text-success text-warning');
             _.each(this.concept_availability, function(value, key) {
                 var has_concept = typeof value === 'string';
-                this.$('a.concept-' + key + '-ref').addClass(has_concept ? 'text-success' : 'text-warning');
+                this.$('a.concept-' + key + '-ref').addClass(has_concept
+                                                             ? 'text-success' : 'text-warning');
             }, this);
             $('#def-count').text(formatCount('definition', def_count));
             $('#thm-count').text(formatCount('theorem', thm_count));
@@ -1543,7 +1560,7 @@
             this.render();
         },
         render: function() {
-            this.$el.html('<input type="text" class="form-control" placeholder="document name" max-length="255">');
+            this.$el.html(Handlebars.templates.document_name_input());
             return this;
         },
         modalReady: function(dispatcher) {
@@ -1609,7 +1626,8 @@
         },
 
         edit_draft: function(id, body, pricats, seccats, show_primcats) {
-            var item = new DraftItem({ id: id, body: body, pricats: pricats, seccats: seccats }, { parse: true });
+            var item = new DraftItem({ id: id, body: body, pricats: pricats, seccats: seccats },
+                                     { parse: true });
             new BodyEditView({
                 el: $('#body-input'),
                 model: item
