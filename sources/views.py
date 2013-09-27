@@ -13,7 +13,7 @@ def context_for_add_source(**kwargs):
 
 @require_safe
 def index(request):
-    c = init_context(sourcelist=[source.json_data() for source in RefNode.objects.all()])
+    c = init_context('sources', sourcelist=[source.json_data() for source in RefNode.objects.all()])
     return render(request, 'sources/index.html', c)
 
 @logged_in_or_prompt('You must log in to add a source')

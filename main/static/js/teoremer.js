@@ -543,46 +543,37 @@
     });
 
     var TagListView = Backbone.View.extend({
-        // standard
-        events: function() {
-            var e = {};
-            e['click #tag-add-' + this.uid] = 'addItem';
-            e['keypress #tag-name-' + this.uid] = 'keyPress';
-            return e;
+        events: {
+            'keypress input.tag-input': 'keyPress',
+            'click button': 'addItem',
+            'typeahead:selected input.tag-input': function(event, datum) {
+                this.addItem(datum.value);
+            }
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList', 'events');
-            this.uid = _.uniqueId();
+            _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList');
+            this.value = '';
             this.collection = new TagList();
             this.listenTo(this.collection, 'add', this.addOne);
             this.render();
-            this.input_field = this.$('#tag-name-' + this.uid);
-            /*this.input_field.typeahead({
-             source: function(query, process) {
-             $.get(api_prefix + 'tags/prefixed/' + query, function(data) {
-             process(data);
-             }, 'json');
-             }
-             });*/
+            this.$('input.tag-input').typeahead({
+                name: 'tags',
+                remote: api_prefix + 'tags/prefixed/%QUERY'
+            });
         },
         render: function() {
-            var html = teoremer.templates.tag_list_input({
-                uid: this.uid
-            });
-            this.$el.html(html);
+            this.$el.html(teoremer.templates.tag_list_input());
             this.collection.each(this.addOne);
         },
-        // helpers
         keyPress: function(e) {
-            if (e.which == 13) this.addItem();
+            if (e.which == 13)
+                this.addItem();
         },
-        addItem: function() {
-            var value = this.input_field.val();
+        addItem: function(value) {
+            value = trim(value || this.$('input.tag-input').val());
             if (value) {
-                this.input_field.val('');
-                var item = new TagItem({
-                    name: value
-                });
+                this.$('input.tag-input').typeahead('setQuery', '');
+                var item = new TagItem({ name: value });
                 this.collection.add(item);
             }
         },
@@ -590,10 +581,10 @@
             var removableTagView = new RemovableTagView({
                 model: item
             });
-            this.$('#tag-list-' + this.uid).append(removableTagView.render().el);
+            this.$('p.tag-list').append(removableTagView.render().el);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, removableTagView.$el.get()]);
         },
-        // public methods
+        // public method
         getTagList: function() {
             return this.collection.map(function(item) {
                 return item.get('name');

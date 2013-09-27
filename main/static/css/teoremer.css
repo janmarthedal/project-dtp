@@ -12,15 +12,18 @@ span.category {
 div.category {
   margin-bottom: 1em;
 }
-.tag:before {
+.category .tag:before {
   content: ' / ';
   color: #888;
 }
-.tag:first-child:before {
+.category .tag:first-child:before {
   content: '';
 }
 .categories {
   line-height: 30px;
+}
+.tag-list .tag {
+  margin: 0em 1em 0em 0em;
 }
 .tag-counts {
   list-style: none;
