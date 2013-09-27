@@ -36,6 +36,20 @@
         };
     })();
 
+    var tag_list_to_id = (function() {
+        var id_counter = 0;
+        var concept_to_id_map = {};
+        return function(tag_list) {
+            var obj = concept_to_id_map, j, tag;
+            for (j=0; j < tag_list.length; j++) {
+                tag = tag_list[j];
+                obj = tag in obj ? obj[tag] : (obj[tag] = {});
+            }
+            if ('' in obj) return obj[''];
+            return (obj[''] = id_counter++);
+        };
+    })();
+
     var showdown_convert = (function() {
         var converter;
         return function(source) {
@@ -793,8 +807,8 @@
             'keypress input':            'keyPress'
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'renderTags', 'keyPress', 'addAction',
-                            'minusAction', 'plusAction', 'modalReady');
+            _.bindAll(this, 'render', 'renderTags', 'keyPress', 'modalReady', 'resetInput',
+                            'selectAction', 'minusAction', 'plusAction');
             this.collection = new TagList();
             this.listenTo(this.collection, 'add remove', this.renderTags);
             this.render();
@@ -804,10 +818,23 @@
             this.input_element = this.$('input');
             return this;
         },
-        modalReady: function(dispatcher) {
-            this.listenTo(dispatcher, 'add', this.addAction);
-            this.dispatcher = dispatcher;
+        resetInput: function() {
+            this.input_element.typeahead('destroy');
+            var tag_list = this.collection.map(function(model) {
+                return model.get('name');
+            });
+            var path = _.map(tag_list, encodeURIComponent).join('/');
+            this.input_element.typeahead({
+                name: 'category-' + tag_list_to_id(tag_list),
+                prefetch: api_prefix + 'category/list/' + path
+            });
+            this.input_element.typeahead('setQuery', '');
             this.input_element.focus();
+        },
+        modalReady: function(dispatcher) {
+            this.listenTo(dispatcher, 'add', this.selectAction);
+            this.dispatcher = dispatcher;
+            this.resetInput();
         },
         renderTags: function() {
             var html = teoremer.templates.tag_list({
@@ -823,11 +850,11 @@
                 if (this.input_element.val()) {
                     this.plusAction();
                 } else if (this.collection.length) {
-                    this.addAction();
+                    this.selectAction();
                 }
             }
         },
-        addAction: function() {
+        selectAction: function() {
             this.options.add(new Category({
                 tag_list: this.collection
             }));
@@ -836,13 +863,13 @@
         minusAction: function() {
             if (!this.input_element.val())
                 this.collection.pop();
-            this.input_element.val('').focus();
+            this.resetInput();
         },
         plusAction: function() {
             var value = trim(this.input_element.val());
             if (value)
                 this.collection.push({ name: value });
-            this.input_element.val('').focus();
+            this.resetInput();
         }
     });
 
