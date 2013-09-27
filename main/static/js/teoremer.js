@@ -1043,6 +1043,7 @@
         events: {
             'input input': 'change',
             'propertychange input': 'change',
+            'typeahead:selected input': 'change',
             'click a': 'add'
         },
         initialize: function() {
@@ -1052,15 +1053,19 @@
         },
         render: function() {
             var context = _.extend(sourceFields[this.options.key], {
+                key: this.options.key,
                 value: this.model.get(this.options.key)
             });
             this.$el.html(Handlebars.templates.source_array_field(context));
+            this.$('input').typeahead({
+               name: 'authors',
+               local: this.options.author_list
+            });
             return this;
         },
-        change: function(event) {
-            var input = $(event.currentTarget);
-            var value = trim(input.val());
-            var index = input.data('idx');
+        change: function(event, datum) {
+            var value = trim(datum ? datum.value : $(event.currentTarget).val());
+            var index = $(event.currentTarget).data('idx');
             var current = this.model.get(this.options.key);
             if (value != current[index]) {
                 var changed = _.clone(current);
@@ -1142,7 +1147,9 @@
             if (field_config.type == 'text') {
                 view = new SourceEditTextFieldView(options);
             } else /*if (field_config.type == 'author')*/ {
-                view = new SourceEditAuthorFieldView(options);
+                view = new SourceEditAuthorFieldView(_.extend(options, {
+                    author_list: this.options.author_list
+                }));
             }
             $('#source-fields').append(view.render().el);
         }
@@ -1745,9 +1752,14 @@
             });
         },
 
-        source_add: function(mode) {
+        source_add: function(mode, author_list) {
             var source = new SourceItem();
-            new SourceEditView({ el: $('#source-edit'), model: source, mode: mode });
+            new SourceEditView({
+                el: $('#source-edit'),
+                model: source,
+                mode: mode,
+                author_list: author_list
+            });
             new SourceRenderView({ el: $('#source-preview'), model: source });
             new LiveSourceSearchView({ el: $('#source-search'), sourceModel: source, mode: mode });
         },
@@ -1789,7 +1801,8 @@ $(function() {
 
     function expanderToggle(elem) {
         elem.toggleClass('expander-in').toggleClass('expander-out');
-        elem.find('span.glyphicon').toggleClass('glyphicon-chevron-down').toggleClass('glyphicon-chevron-up');
+        elem.find('span.glyphicon').toggleClass('glyphicon-chevron-down')
+                                   .toggleClass('glyphicon-chevron-up');
         elem.next().toggle();
     }
 

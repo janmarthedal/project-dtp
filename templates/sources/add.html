@@ -42,7 +42,7 @@
 {% include 'include/js-scripts.html' only %}
 
 <script type="text/javascript">
-teoremer.source_add({{mode|to_json}});
+teoremer.source_add({{mode|to_json}}, {{author_list|to_json}});
 </script>
 
 {% endblock %}

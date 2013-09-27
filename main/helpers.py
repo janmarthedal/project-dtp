@@ -1,6 +1,8 @@
 import json
 from functools import wraps
-from django.http import Http404
+from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect, Http404
 
 def logged_in_or_404(view):
     @wraps(view)
@@ -10,8 +12,7 @@ def logged_in_or_404(view):
         return view(request, *args, **kwds)
     return wrapper
 
-"""
-def logged_in_or_prompt(message=None):
+def logged_in_or_prompt(message):
     def real_decorator(view):
         @wraps(view)
         def wrapper(request, *args, **kwds):
@@ -22,7 +23,6 @@ def logged_in_or_prompt(message=None):
             return view(request, *args, **kwds)
         return wrapper
     return real_decorator
-"""
 
 def init_context(nav, extra={}, **kwargs):
     if   nav.upper() == 'D': nav = 'definitions'
