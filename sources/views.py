@@ -16,6 +16,13 @@ def index(request):
     c = init_context('sources', sourcelist=[source.json_data() for source in RefNode.objects.all()])
     return render(request, 'sources/index.html', c)
 
+@require_safe
+def view(request, source_id):
+    source = get_object_or_404(RefNode, pk=source_id)
+    validations = ItemValidation.objects.filter(source=source).all()
+    c = init_context('sources', source=source, validations=validations)
+    return render(request, 'sources/view.html', c)
+
 @logged_in_or_prompt('You must log in to add a source')
 @require_safe
 def add_source(request):

@@ -1320,7 +1320,7 @@
         // helpers
         _addOne: function(item) {
             var html = teoremer.templates.source_list_item({
-                'link': '#', //to_url.source_item(item.get('id')),
+                'link': to_url.source_item(item.get('id')),
                 'source': typeset_source(item.attributes)
             });
             this.$('div').append(html);
