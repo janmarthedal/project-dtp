@@ -1,5 +1,6 @@
 import time
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 from analysis.models import ItemDependency, TagCount, ItemTag
 from items.models import FinalItem, ItemTagCategory
 from items.helpers import BodyScanner
@@ -46,10 +47,12 @@ class Command(BaseCommand):
     help = 'Builds (redundant) analysis information'
 
     def handle(self, *args, **options):
+        self.stdout.write('>>>>>>>>>> analyze %s' % timezone.now())
         self._rebuild_dependencies()
         self._check_item_tag_categories()
         self._build_item_tags()
         self._build_tag_counts()
+        self.stdout.write('<<<<<<<<<<')
 
     def _rebuild_dependencies(self):
         self.stdout.write('Rebuild dependencies')
