@@ -8,5 +8,9 @@
 {% if showdown %}
 <script src="//cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
 {% endif %}
+{% if debug %}
 <script src="{% static 'js/teoremer.js' %}"></script>
 <script src="{% static 'js/templates.js' %}"></script>
+{% else %}
+<script src="{% static 'teoremer.js' %}"></script>
+{% endif %}

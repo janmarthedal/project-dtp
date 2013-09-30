@@ -31,11 +31,12 @@ if os.uname()[1].endswith('webfaction.com'):
 
     MESSAGE_LEVEL = message_constants.INFO
 
-    SITE_URL = 'http://hilbert.janmr.com'
+    SITE_URL = 'http://hilbert.janmr.com'  # used by browser_id
 
 else:
 
     DEBUG = True
+    INTERNAL_IPS = ('127.0.0.1', )  # to enable the debug variable in templates
 
     DATABASES = {
         'default': {
@@ -54,7 +55,7 @@ else:
 
     MESSAGE_LEVEL = message_constants.DEBUG
 
-    SITE_URL = 'http://localhost:8000'
+    SITE_URL = 'http://localhost:8000'  # used by browser_id
 
 ############ Common settings ############
 
@@ -164,7 +165,7 @@ BROWSERID_CREATE_USER = False
 # Path to redirect to on successful login.
 LOGIN_REDIRECT_URL = '/users/current'
 # Path to redirect to on unsuccessful login attempt.
-LOGIN_REDIRECT_URL_FAILURE = '/'
+LOGIN_REDIRECT_URL_FAILURE = '/users/login-fail'
 # Path to redirect to on logout.
 LOGOUT_REDIRECT_URL = '/'
 

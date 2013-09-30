@@ -8,8 +8,12 @@
     <title>teoremer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+{% if debug %}
     <link href="{% static 'css/teoremer.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/typeahead.js-bootstrap.css' %}" rel="stylesheet" type="text/css">
+{% else %}
+    <link href="{% static 'teoremer.css' %}" rel="stylesheet" type="text/css">
+{% endif %}
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
         tex2jax: {
@@ -65,7 +69,7 @@
           {% if user.is_authenticated %}
             <a href="{% url 'users.views.profile' user.get_username %}">{{ user.get_full_name }}</a>
           {% else %}
-            <a href="{% url 'users.views.login' %}">log in</a>
+            <a href="{% url 'users.views.login' %}?invite">log in</a>
           {% endif %}
         </p>
       </div>

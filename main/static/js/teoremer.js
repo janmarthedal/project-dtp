@@ -1768,7 +1768,7 @@
                 } else {
                     searchListViewData.statuses = 'FR';
                 }
-                var searchList = new SearchListView(searchListViewData);
+                new SearchListView(searchListViewData);
             }
 
             $('#add-to-document a').click(function(event) {

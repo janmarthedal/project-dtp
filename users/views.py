@@ -18,9 +18,12 @@ def index(request):
 
 @require_safe
 def login(request):
-    c = init_context('users',
-                     next = request.GET.get('next', reverse('users.views.profile_current')))
-    return render(request, 'users/login.html', c)
+    c = init_context('users')
+    if 'invite' in request.GET:
+        return render(request, 'users/beta-signup.html', c)
+    else:
+        c.update(next = request.GET.get('next', reverse('users.views.profile_current')))
+        return render(request, 'users/login.html', c)
 
 @require_safe
 def profile(request, user_id):
