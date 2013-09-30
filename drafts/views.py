@@ -86,7 +86,7 @@ def to_review(request, item_id):
 @logged_in_or_404
 @require_POST
 def to_final(request, item_id):
-    item = get_object_or_404(DraftItem, pk=item_id, created_by=request.user, status__in=['D', 'R'])
+    item = get_object_or_404(DraftItem, pk=item_id, created_by=request.user.id, status__in=['D', 'R'])
     publish_issues = publishIssues(item)
     if publish_issues:
         for issue in publish_issues:

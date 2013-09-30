@@ -30,7 +30,7 @@ def profile(request, user_id):
                      pageuser    = pageuser,
                      init_items  = item_search_to_json(itemtype='D', user=pageuser),
                      statuses    = 'FRD' if own_profile else 'FR',
-                     user_id     = pageuser.pk,
+                     user_id     = pageuser.id,
                      own_profile = own_profile,
                      documents   = Document.objects.filter(created_by=pageuser).all())
     return render(request, 'users/profile.html', c)

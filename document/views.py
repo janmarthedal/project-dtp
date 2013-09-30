@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 @require_safe
 @logged_in_or_404
 def new(request):
-    document = Document.objects.create(created_by=request.user, title='Unnamed')
+    document = Document.objects.create(created_by=request.user.id, title='Unnamed')
     document_view = DocumentView(document)
     items = filter(None, request.GET.get('items', '').split(' '))
     for item_id in items:
@@ -22,14 +22,14 @@ def new(request):
 @require_safe
 @logged_in_or_404
 def add(request, doc_id, item_id):
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
+    document = get_object_or_404(Document, pk=doc_id, created_by=request.user.id)
     document_view = DocumentView(document)
     document_view.add_item(item_id)
     return HttpResponseRedirect(reverse('document.views.view', args=[document_view.document.id]))
 
 @require_safe
 def view(request, doc_id):
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
+    document = get_object_or_404(Document, pk=doc_id, created_by=request.user.id)
     document_view = DocumentView(document)
     c = init_context('document',
                      document   = document_view.document,
@@ -41,6 +41,6 @@ def view(request, doc_id):
 @logged_in_or_404
 def delete(request):
     doc_id = request.POST.get('id')
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user)
+    document = get_object_or_404(Document, pk=doc_id, created_by=request.user.id)
     document.delete()
     return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.pk]))

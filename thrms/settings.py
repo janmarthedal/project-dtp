@@ -15,8 +15,8 @@ if os.uname()[1].endswith('webfaction.com'):
             'PASSWORD': 'Cas250Tor_sql',
             'HOST': '',
             'PORT': '',
-            }
         }
+    }
 
     STATIC_ROOT = '/home/jmr/webapps/thrms_static/'
     MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
@@ -31,7 +31,7 @@ if os.uname()[1].endswith('webfaction.com'):
 
     MESSAGE_LEVEL = message_constants.INFO
 
-    SITE_URL = 'hilbert.janmr.com'
+    SITE_URL = 'http://hilbert.janmr.com'
 
 else:
 
@@ -45,8 +45,8 @@ else:
             'PASSWORD': 'Cas250Tor_sql',
             'HOST': '',
             'PORT': '',
-            }
         }
+    }
 
     #STATIC_ROOT = '/home/jmr/www/static/'
     #MEDIA_ROOT = '/home/jmr/www/media/'
