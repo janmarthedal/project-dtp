@@ -1,8 +1,9 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.views.decorators.http import require_safe
-from django.core.urlresolvers import reverse
+from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from django.views.decorators.http import require_safe
 from document.models import Document
 from items.helpers import item_search_to_json
 from main.helpers import init_context, logged_in_or_404
@@ -26,6 +27,11 @@ def login(request):
 def closed_beta(request):
     c = init_context('users')
     return render(request, 'users/closed-beta.html', c)
+
+@require_safe
+def login_failed(request):
+    messages.warning(request, 'Login failed')
+    return HttpResponseRedirect(reverse('users.views.closed_beta'))
 
 @require_safe
 def profile(request, user_id):

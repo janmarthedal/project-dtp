@@ -165,7 +165,7 @@ BROWSERID_CREATE_USER = False
 # Path to redirect to on successful login.
 LOGIN_REDIRECT_URL = '/users/current'
 # Path to redirect to on unsuccessful login attempt.
-LOGIN_REDIRECT_URL_FAILURE = '/users/login-fail'
+LOGIN_REDIRECT_URL_FAILURE = '/user/login-failed'
 # Path to redirect to on logout.
 LOGOUT_REDIRECT_URL = '/'
 
