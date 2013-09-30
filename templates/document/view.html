@@ -37,7 +37,7 @@
 
 {% block bodybottom %}
 
-{% include 'include/js-scripts.html' with showdown=True only %}
+{% include 'include/js-scripts.html' with showdown=True %}
 
 <script type="text/javascript">
 teoremer.document_view({{document|to_json}}, {{items|to_json}});

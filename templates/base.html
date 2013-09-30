@@ -64,12 +64,12 @@
             <a href="{% url 'users.views.index' %}">{% trans "Users" %}</a>
           </li>
         </ul>
-    
+
         <p class="navbar-text pull-right">
           {% if user.is_authenticated %}
             <a href="{% url 'users.views.profile' user.get_username %}">{{ user.get_full_name }}</a>
           {% else %}
-            <a href="{% url 'users.views.login' %}?invite">log in</a>
+            <a href="{% url 'users.views.closed_beta' %}">log in</a>
           {% endif %}
         </p>
       </div>

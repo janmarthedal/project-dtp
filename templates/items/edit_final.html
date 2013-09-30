@@ -49,7 +49,7 @@
 
 {% block bodybottom %}
 
-{% include 'include/js-scripts.html' with showdown=True only %}
+{% include 'include/js-scripts.html' with showdown=True %}
 
 <script type="text/javascript">
 teoremer.edit_final("{{item.final_id}}", {{item.primary_categories|to_json}}, {{item.secondary_categories|to_json}},

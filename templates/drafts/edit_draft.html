@@ -41,7 +41,7 @@ Edit {{ item }}
 
 {% block bodybottom %}
 
-{% include 'include/js-scripts.html' with showdown=True only %}
+{% include 'include/js-scripts.html' with showdown=True %}
 
 <script type="text/javascript">
 teoremer.edit_draft({{item.pk}}, {{item.body|to_json}}, {{item.primary_categories|to_json}}, {{item.secondary_categories|to_json}},

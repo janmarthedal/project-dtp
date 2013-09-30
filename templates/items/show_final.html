@@ -89,7 +89,7 @@ published at {{ item.created_at|datetime_user:user }}
 
 {% block bodybottom %}
 
-{% include 'include/js-scripts.html' only %}
+{% include 'include/js-scripts.html' %}
 
 <script type="text/javascript">
 teoremer.show_final({{validations|to_json}}, '{{ item.final_id }}'
