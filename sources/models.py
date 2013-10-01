@@ -55,8 +55,4 @@ class ValidationBase(models.Model):
     created_at = models.DateTimeField(default=timezone.now, db_index=False)
     source     = models.ForeignKey(RefNode)
     location   = models.CharField(max_length=255, null=True)
-    def json_data(self):
-        return {
-            'source':   self.source.json_data(),
-            'location': self.location
-        }
+    points     = models.IntegerField(default=0, null=False)

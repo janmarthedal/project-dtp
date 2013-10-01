@@ -47,3 +47,16 @@ div.category {
   margin: 20px 13px 0px;
   border-top: 1px dotted #eee;
 }
+.validation-vote {
+  float: right;
+  font-size: 150%;
+}
+.vote-down:before {
+  content: "\e094";
+}
+.vote-up:before {
+  content: "\e093";
+}
+.vote-enabled {
+  cursor: pointer;
+}

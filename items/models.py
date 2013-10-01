@@ -58,6 +58,7 @@ class FinalItem(BaseItem):
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     modified_at = models.DateTimeField(default=timezone.now)
     categories  = models.ManyToManyField(Category, through='FinalItemCategory')
+    points      = models.FloatField(default=0, null=False)
 
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
@@ -116,3 +117,26 @@ class ItemValidation(ValidationBase):
     class Meta:
         db_table = 'item_validation'
     item = models.ForeignKey(FinalItem)
+    def json_data(self, user=None):
+        data = {
+            'source':   self.source.json_data(),
+            'location': self.location,
+            'points':   self.points
+        }
+        if user and user.is_authenticated():
+            try:
+                vote = UserItemValidation.objects.filter(validation=self, created_by=user.id).exclude(value=0).get()
+                logger.debug(vote.value)
+                data.update(user_vote='up' if vote.value > 0 else 'down')
+            except UserItemValidation.DoesNotExist:
+                pass
+        return data
+
+class UserItemValidation(models.Model):
+    class Meta:
+        db_table = 'user_item_validation'
+        unique_together = ('validation', 'created_by')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    validation = models.ForeignKey(ItemValidation)
+    value      = models.IntegerField(default=1, null=False)

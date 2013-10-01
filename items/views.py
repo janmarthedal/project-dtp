@@ -23,11 +23,12 @@ def get_user_final_permissions(user, item):
 def show_final(request, final_id):
     item = get_object_or_404(FinalItem, final_id=final_id)
     item_perms = get_user_final_permissions(request.user, item)
-    c = dict(item        = item,
-             perm        = item_perms,
-             validations = [v.json_data() for v in item.itemvalidation_set.all()],
-             proof_count = 0,
-             documents   = Document.objects.filter(created_by=request.user.id).exclude(documentitementry__item=item).all())
+    c = init_context(item.itemtype,
+                     item        = item,
+                     perm        = item_perms,
+                     validations = [v.json_data(request.user) for v in item.itemvalidation_set.all()],
+                     proof_count = 0,
+                     documents   = Document.objects.filter(created_by=request.user.id).exclude(documentitementry__item=item).all())
     if item.itemtype == 'T':
         c.update(proof_count = item.finalitem_set.filter(itemtype='P', status='F').count(),
                  init_proofs = item_search_to_json(itemtype='P', parent=final_id))

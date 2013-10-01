@@ -40,6 +40,8 @@
 
 <h4>Meta</h4>
 
+<p>Points: {{ item.points|floatformat }}</p>
+
 <p>
 Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>,
 published at {{ item.created_at|datetime_user:user }}
@@ -92,8 +94,8 @@ published at {{ item.created_at|datetime_user:user }}
 {% include 'include/js-scripts.html' %}
 
 <script type="text/javascript">
-teoremer.show_final({{validations|to_json}}, '{{ item.final_id }}'
-{% if item.itemtype == 'T' %}, {{ user_id }}, {{ init_proofs|safe }}{% endif %});
+teoremer.show_final({{validations|to_json}}, '{{ item.final_id }}', {{ user_id|default:'undefined' }}
+{% if item.itemtype == 'T' %}, {{ init_proofs|safe }}{% endif %});
 </script>
 
 {% endblock %}

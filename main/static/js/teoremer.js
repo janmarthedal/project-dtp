@@ -1273,16 +1273,37 @@
     var ValidationView = Backbone.View.extend({
         tagName: 'li',
         className: 'list-group-item',
+        events: {
+            'click .vote-down.vote-enabled': function() {
+                this.changeVote(this.model.get('user_vote') == 'down' ? 'none' : 'down');
+            },
+            'click .vote-up.vote-enabled': function() {
+                this.changeVote(this.model.get('user_vote') == 'up' ? 'none' : 'up');
+            }
+        },
         initialize: function() {
-            _.bindAll(this, 'render');
+            _.bindAll(this, 'render', 'changeVote');
+            this.listenTo(this.model, 'change', this.render);
             this.render();
         },
         render: function() {
-            this.$el.html(teoremer.templates.validation_item({
-                'source': typeset_source(this.model.get('source')),
-                'location': this.model.get('location')
-            }));
+            var voting_enabled = this.options.user_id !== undefined;
+            var context = {
+                source: typeset_source(this.model.get('source')),
+                location: this.model.get('location'),
+                vote_value: this.model.get('points'),
+                voting_enabled: voting_enabled
+            };
+            if (this.options.user_id !== undefined) {
+                var user_vote = this.model.get('user_vote') || 'none';
+                context.voted_up = user_vote == 'up';
+                context.voted_down = user_vote == 'down';
+            }
+            this.$el.html(teoremer.templates.validation_item(context));
             return this;
+        },
+        changeVote: function(vote) {
+            this.model.save({ user_vote: vote });
         }
     });
 
@@ -1300,7 +1321,8 @@
         // helpers
         _addOne: function(item) {
             var validationView = new ValidationView({
-                model: item
+                model: item,
+                user_id: this.options.user_id
             });
             this.$('ul').append(validationView.render().el);
         }
@@ -1746,7 +1768,8 @@
         show_final: function(validations, item_id, user_id, init_proofs) {
             new ValidationListView({
                 el: $('#validation-list'),
-                collection: new ValidationList(validations)
+                collection: new ValidationList(validations),
+                user_id: user_id
             });
 
             if (arguments.length == 4) {
