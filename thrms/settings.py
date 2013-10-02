@@ -18,7 +18,7 @@ if os.uname()[1].endswith('webfaction.com'):
         }
     }
 
-    STATIC_ROOT = '/home/jmr/webapps/thrms_static/'
+    STATIC_ROOT = '/home/jmr/webapps/thrms_static/'  # used by collectstatic
     MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
     PROJECT_BASE = '/home/jmr/webapps/thrms_django/teoremer/'
 
@@ -49,8 +49,8 @@ else:
         }
     }
 
-    #STATIC_ROOT = '/home/jmr/www/static/'
-    #MEDIA_ROOT = '/home/jmr/www/media/'
+    #STATIC_ROOT = '/home/jmr/www/static/'  # used by collectstatic
+    MEDIA_ROOT = '/home/jmr/www/media/'
     PROJECT_BASE = '/home/jmr/projects/teoremer/'
 
     MESSAGE_LEVEL = message_constants.DEBUG
@@ -190,6 +190,7 @@ INSTALLED_APPS = (
     'analysis',
     'api',
     'document',
+    'media',
 )
 
 LOGGING = {

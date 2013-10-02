@@ -60,6 +60,9 @@
           <li {% if active_nav == 'sources' %}class="active"{% endif %}>
             <a href="{% url 'sources.views.index' %}">{% trans "Sources" %}</a>
           </li>
+          <li {% if active_nav == 'media' %}class="active"{% endif %}>
+            <a href="{% url 'media.views.index' %}">{% trans "Media" %}</a>
+          </li>
           <li {% if active_nav == 'users' %}class="active"{% endif %}>
             <a href="{% url 'users.views.index' %}">{% trans "Users" %}</a>
           </li>
