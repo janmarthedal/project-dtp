@@ -40,13 +40,13 @@
 
 <h4>Meta</h4>
 
-<p>Points: {{ item.points|floatformat }}</p>
-
-<p>
+<div>
 Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>,
 published at {{ item.created_at|datetime_user:user }}
 {% if item.created_at == item.modified_at %} (unmodified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
-</p>
+</div>
+
+<div id="item-points"></div>
 
 <h4>Categories</h4>
 
@@ -94,7 +94,8 @@ published at {{ item.created_at|datetime_user:user }}
 {% include 'include/js-scripts.html' %}
 
 <script type="text/javascript">
-teoremer.show_final({{validations|to_json}}, '{{ item.final_id }}', {{ user_id|default:'undefined' }}
+teoremer.show_final({{validations|to_json}}, { id: '{{ item.final_id }}', points: {{item.points}} },
+{{ user_id|default:'undefined' }}
 {% if item.itemtype == 'T' %}, {{ init_proofs|safe }}{% endif %});
 </script>
 

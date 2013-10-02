@@ -1275,35 +1275,52 @@
         className: 'list-group-item',
         events: {
             'click .vote-down.vote-enabled': function() {
-                this.changeVote(this.model.get('user_vote') == 'down' ? 'none' : 'down');
+                this.model.set('user_vote', this.model.get('user_vote') == 'down' ? 'none' : 'down');
             },
             'click .vote-up.vote-enabled': function() {
-                this.changeVote(this.model.get('user_vote') == 'up' ? 'none' : 'up');
+                this.model.set('user_vote', this.model.get('user_vote') == 'up' ? 'none' : 'up');
             }
         },
         initialize: function() {
-            _.bindAll(this, 'render', 'changeVote');
-            this.listenTo(this.model, 'change', this.render);
+            _.bindAll(this, 'render', 'renderPoints', 'persistVote');
+            this.listenTo(this.model, 'change:user_vote', this.persistVote);
+            this.listenTo(this.model, 'change:user_vote', this.renderPoints);
+            this.listenTo(this.model, 'change:points', this.renderPoints);
             this.render();
         },
         render: function() {
-            var voting_enabled = this.options.user_id !== undefined;
-            var context = {
+            this.$el.html(teoremer.templates.validation_item({
                 source: typeset_source(this.model.get('source')),
-                location: this.model.get('location'),
+                location: this.model.get('location')
+            }));
+            this.renderPoints();
+            return this;
+        },
+        renderPoints: function() {
+            var context = {
                 vote_value: this.model.get('points'),
-                voting_enabled: voting_enabled
             };
             if (this.options.user_id !== undefined) {
                 var user_vote = this.model.get('user_vote') || 'none';
+                context.voting_enabled = true;
                 context.voted_up = user_vote == 'up';
                 context.voted_down = user_vote == 'down';
             }
-            this.$el.html(teoremer.templates.validation_item(context));
-            return this;
+            this.$('.validation-vote').html(teoremer.templates.points_with_voting(context));
         },
-        changeVote: function(vote) {
-            this.model.save({ user_vote: vote });
+        persistVote: function() {
+            var validation_model = this.model;
+            var item_data_model = this.options.item_data;
+            var data = {
+                'validation': validation_model.get('id'),
+                'vote': validation_model.get('user_vote')
+            };
+            $.post(api_prefix + 'item/' + item_data_model.get('id') + '/validation-vote',
+                   JSON.stringify(data),
+                   function(response) {
+                       validation_model.set('points', response.validation_points);
+                       item_data_model.set('points', response.item_points);
+                   });
         }
     });
 
@@ -1322,7 +1339,8 @@
         _addOne: function(item) {
             var validationView = new ValidationView({
                 model: item,
-                user_id: this.options.user_id
+                user_id: this.options.user_id,
+                item_data: this.options.item_data
             });
             this.$('ul').append(validationView.render().el);
         }
@@ -1617,6 +1635,20 @@
         }
     });
 
+    var ItemPointsView = Backbone.View.extend({
+        initialize: function() {
+            _.bindAll(this, 'render');
+            this.listenTo(this.model, 'change:points', this.render);
+            this.render();
+        },
+        render: function() {
+            this.$el.html(teoremer.templates.item_points({
+                points: '' + this.model.get('points')
+            }));
+            return this;
+        }
+    });
+
     /****************************
      * Pages
      ****************************/
@@ -1765,16 +1797,22 @@
             });
         },
 
-        show_final: function(validations, item_id, user_id, init_proofs) {
+        show_final: function(validations, item_data, user_id, init_proofs) {
+            var item_model = new Backbone.Model(item_data);
+            new ItemPointsView({
+                el: $('#item-points'),
+                model: item_model
+            });
             new ValidationListView({
                 el: $('#validation-list'),
                 collection: new ValidationList(validations),
-                user_id: user_id
+                user_id: user_id,
+                item_data: item_model
             });
 
             if (arguments.length == 4) {
                 var searchTerms = new SearchTerms({
-                    parent: item_id
+                    parent: item_data.id
                 });
                 var searchListViewData = {
                     el: $('#proof-list'),
@@ -1796,7 +1834,7 @@
 
             $('#add-to-document a').click(function(event) {
                 var doc_id = $(this).data('doc');
-                var data_to_send = JSON.stringify({ item_id: item_id });
+                var data_to_send = JSON.stringify({ item_id: item_data.id });
                 if (doc_id) {
                     $.post(api_prefix + 'document/' + doc_id + '/add-item', data_to_send,
                            function() {

@@ -60,3 +60,6 @@ div.category {
 .vote-enabled {
   cursor: pointer;
 }
+.item-points {
+  font-size: 200%;
+}

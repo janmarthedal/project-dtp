@@ -119,6 +119,7 @@ class ItemValidation(ValidationBase):
     item = models.ForeignKey(FinalItem)
     def json_data(self, user=None):
         data = {
+            'id':       self.id,
             'source':   self.source.json_data(),
             'location': self.location,
             'points':   self.points
@@ -126,7 +127,6 @@ class ItemValidation(ValidationBase):
         if user and user.is_authenticated():
             try:
                 vote = UserItemValidation.objects.filter(validation=self, created_by=user.id).exclude(value=0).get()
-                logger.debug(vote.value)
                 data.update(user_vote='up' if vote.value > 0 else 'down')
             except UserItemValidation.DoesNotExist:
                 pass
