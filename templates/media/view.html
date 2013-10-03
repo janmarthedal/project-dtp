@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}View media{% endblock %}
+
+{% block mainbar %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h4 class="panel-title">{{public_id}}</h4>
+  </div>
+  <div class="panel-body">
+    <img src="{{link}}" class="img-responsive" />
+  </div>
+</div>
+
+{% endblock %}
+
+{% block sidebar %}
+
+<h4>Actions</h4>
+
+{% endblock %}

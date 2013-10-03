@@ -4,7 +4,19 @@
 
 {% block mainbar %}
 
-<p>No media</p>
+<div class="list-group">
+{% for item in items %}
+  <a href="{% url 'media.views.view' item.public_id %}" class="list-group-item clearfix">
+    <div class="media-thumbnail">
+      {% if item.link %}<img src="{{item.link}}" />{% endif %}
+    </div>
+    <div class="media-body">
+      <h4 class="media-heading">{{item.public_id}}</h4>
+      Categories...
+    </div>
+  </a>
+{% endfor %}
+</div>
 
 {% endblock %}
 

@@ -18,9 +18,10 @@ if os.uname()[1].endswith('webfaction.com'):
         }
     }
 
+    PROJECT_BASE = '/home/jmr/webapps/thrms_django/teoremer/'
     STATIC_ROOT = '/home/jmr/webapps/thrms_static/'  # used by collectstatic
     MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
-    PROJECT_BASE = '/home/jmr/webapps/thrms_django/teoremer/'
+    MEDIA_URL = '/media/files/'
 
     EMAIL_HOST = 'smtp.webfaction.com'
     EMAIL_HOST_USER = 'jmr'
@@ -49,9 +50,10 @@ else:
         }
     }
 
-    #STATIC_ROOT = '/home/jmr/www/static/'  # used by collectstatic
-    MEDIA_ROOT = '/home/jmr/www/media/'
     PROJECT_BASE = '/home/jmr/projects/teoremer/'
+    #STATIC_ROOT = '/home/jmr/www/static/'  # not relevant - only used by collectstatic
+    MEDIA_ROOT = '/home/jmr/www/media/'
+    MEDIA_URL = 'http://localhost/media/files/'
 
     MESSAGE_LEVEL = message_constants.DEBUG
 
@@ -75,7 +77,6 @@ TEMPLATE_DIRS = (
 )
 
 STATIC_URL = '/static/'
-MEDIA_URL = '/media/files/'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

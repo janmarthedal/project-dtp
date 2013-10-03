@@ -63,3 +63,8 @@ div.category {
 .item-points {
   font-size: 200%;
 }
+.media-thumbnail {
+  float: left;
+  margin-right: 10px;
+  width: 256px;
+}

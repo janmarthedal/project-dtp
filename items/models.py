@@ -1,3 +1,4 @@
+import string
 from django.conf import settings
 from django.db import models, IntegrityError
 from django.utils import timezone
@@ -9,7 +10,7 @@ from sources.models import ValidationBase
 import logging
 logger = logging.getLogger(__name__)
 
-FINAL_NAME_CHARS = '0123456789'
+FINAL_NAME_CHARS = string.digits
 FINAL_NAME_MIN_LENGTH = 4
 FINAL_NAME_MAX_LENGTH = 10
 
@@ -22,7 +23,7 @@ class FinalItemManager(models.Manager):
                          modified_by = draft_item.created_by,
                          body        = draft_item.body,
                          parent      = draft_item.parent)
-        for length in range(FINAL_NAME_MIN_LENGTH, FINAL_NAME_MAX_LENGTH + 1):
+        for length in range(FINAL_NAME_MIN_LENGTH, FINAL_NAME_MAX_LENGTH):
             item.final_id = item.itemtype + get_random_string(length, FINAL_NAME_CHARS)
             try:
                 item.save()
