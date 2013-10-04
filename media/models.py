@@ -31,11 +31,6 @@ class MediaEntry(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     categories = models.ManyToManyField(Category)
 
-# image/gif
-# image/jpeg
-# image/png
-# image/svg+xml
-
 class MediaItem(models.Model):
     class Meta:
         db_table = 'media_item'

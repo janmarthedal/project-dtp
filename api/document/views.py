@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 @logged_in_or_404
 @api_view
 def add_concept(request, doc_id):
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user.id)
+    document = get_object_or_404(Document, pk=doc_id, created_by_id=request.user.id)
     document_view = DocumentView(document)
     tag_list = request.data['concept']
     source_id = request.data['source_id']
@@ -22,7 +22,7 @@ def add_concept(request, doc_id):
 @logged_in_or_404
 @api_view
 def add_item(request, doc_id):
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user.id)
+    document = get_object_or_404(Document, pk=doc_id, created_by_id=request.user.id)
     document_view = DocumentView(document)
     item_id = request.data['item_id']
     return document_view.add_item(item_id)
@@ -31,7 +31,7 @@ def add_item(request, doc_id):
 @logged_in_or_404
 @api_view
 def delete_item(request, doc_id):
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user.id)
+    document = get_object_or_404(Document, pk=doc_id, created_by_id=request.user.id)
     document_view = DocumentView(document)
     return document_view.delete(request.data)
 
@@ -39,7 +39,7 @@ def delete_item(request, doc_id):
 @logged_in_or_404
 @api_view
 def new(request):
-    document = Document.objects.create(created_by=request.user.id)
+    document = Document.objects.create(created_by_id=request.user.id)
     document_view = DocumentView(document)
     item_id = request.data['item_id']
     document_view.add_item(item_id)
@@ -49,7 +49,7 @@ def new(request):
 @logged_in_or_404
 @api_view
 def sync(request, doc_id):
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user.id)
+    document = get_object_or_404(Document, pk=doc_id, created_by_id=request.user.id)
     if 'title' in request.data:
         document.title = request.data['title']
     document.save()

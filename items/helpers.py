@@ -1,11 +1,15 @@
 import re
 import markdown
-from django.http import Http404
+from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.http import Http404
+from django.template import Context
+from django.template.loader import get_template
 from django.utils import crypto
 from django.utils.http import urlquote
 from drafts.models import DraftItem
 from items.models import FinalItem
+from media.models import MediaItem
 from tags.models import Tag
 from tags.helpers import normalize_tag
 
@@ -27,6 +31,7 @@ class BodyScanner:
         self._imaths = {}
         self._conceptRefs = []
         self._itemRefs = []
+        self._mediaRefs = []
         parts = body.split('$$')
         for i in range(len(parts)):
             if i % 2 == 1:
@@ -40,6 +45,7 @@ class BodyScanner:
         body = ''.join(parts)
         body = re.sub(r'\[([^#\]]*)#([\w -]+)\]', self._conceptMatch, body)
         body = re.sub(r'\[([^@\]]*)@(\w+)\]', self._itemRefMatch, body)
+        body = re.sub(r'\[([^!\]]*)!(\w+)\]', self._mediaRefMatch, body)
         body = body.replace('[', '&#91;').replace(']', '&#93;').replace('<', '&lt;').replace('>', '&gt;');
         self.body = body
         self._imaths = self._imaths.items()
@@ -72,6 +78,13 @@ class BodyScanner:
         self._itemRefs.append((key, '', name, item_id))
         return key
 
+    def _mediaRefMatch(self, match):
+        key = self._make_key()
+        name = match.group(1)
+        media_id = match.group(2)
+        self._mediaRefs.append((key, '', name, media_id))
+        return key
+
     def transformDisplayMath(self, func):
         self._dmaths = map(lambda p: (p[0], func(p[1])), self._dmaths)
 
@@ -84,17 +97,25 @@ class BodyScanner:
     def transformItemRefs(self, func):
         self._itemRefs = map(lambda p: (p[0], func(p[2], p[3]), p[2], p[3]), self._itemRefs)
 
-    def getItemRefSet(self):
-        return set([p[3] for p in self._itemRefs])
+    def transformMediaRefs(self, func):
+        self._mediaRefs = map(lambda p: (p[0], func(p[2], p[3]), p[2], p[3]), self._mediaRefs)
 
     def getConceptSet(self):
         return set([p[3] for p in self._conceptRefs])
+
+    def getItemRefSet(self):
+        return set([p[3] for p in self._itemRefs])
+
+    def getMediaRefSet(self):
+        return set([p[3] for p in self._mediaRefs])
 
     def assemble(self):
         st = self.body
         for (key, value, _1, _2) in self._conceptRefs:
             st = st.replace(key, value)
         for (key, value, _1, _2) in self._itemRefs:
+            st = st.replace(key, value)
+        for (key, value, _1, _2) in self._mediaRefs:
             st = st.replace(key, value)
         for (key, value) in self._dmaths:
             st = st.replace(key, value)
@@ -113,12 +134,20 @@ def typesetConcept(text, tag_name, tag_to_category_map):
     except KeyError:
         return '<a href="#" rel="tooltip" data-original-title="tag: %s"><i>%s</i></a>' % (tag_name, link_text)
 
-
 def typesetItemRef(text, item_id):
     link_text = make_html_safe(text or item_id)
     url = reverse('items.views.show_final', args=[item_id])
     return '<a href="%s"><b>%s</b></a>' % (url, link_text)
 
+def typesetMediaRef(text, media_id):
+    c = dict(caption = make_html_safe('%s: %s' % (media_id, text) if text else media_id))
+    try:
+        item = MediaItem.objects.get(entry__public_id=media_id, itemtype='O')
+        c.update(link = settings.MEDIA_URL + item.path)
+    except MediaItem.DoesNotExist:
+        c.update(error = 'Media does not exist')
+    template = get_template('items/item_image.html')
+    return template.render(Context(c))
 
 def typeset_body(st, tag_to_category_map):
     bs = BodyScanner(st)
@@ -127,6 +156,7 @@ def typeset_body(st, tag_to_category_map):
     bs.transformInlineMath(lambda st: '\\(' + st + '\\)')
     bs.transformConcepts(lambda text, tag_name: typesetConcept(text, tag_name, tag_to_category_map))
     bs.transformItemRefs(typesetItemRef)
+    bs.transformMediaRefs(typesetMediaRef)
     return bs.assemble()
 
 

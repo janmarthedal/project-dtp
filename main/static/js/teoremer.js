@@ -50,6 +50,20 @@
         };
     })();
 
+    var media_links = (function() {
+        var id_to_media_map = {};
+        return function(id, callback) {
+            if (id in id_to_media_map)
+                return id_to_media_map[id];
+            $.getJSON(api_prefix + 'media/getlinks',
+                      { ids: JSON.stringify([id]) },
+                      function(data) {
+                          _.extend(id_to_media_map, data);
+                          callback();
+                      });
+        };
+    })();
+
     var showdown_convert = (function() {
         var converter;
         return function(source) {
@@ -115,21 +129,18 @@
         source = pars.join('');
         // [text#tag] or [#tag]
         source = source.replace(/\[([^#\]]*)#([\w -]+)\]/g, function(full_match, text, tag) {
-            text = text || tag;
             key = 'zZ' + (++insertsCounter) + 'Zz';
             inserts[key] = typeset_tag(text, tag);
             return key;
         });
         // [text@D1234] or [@D1234]
         source = source.replace(/\[([^@\]]*)@(\w+)\]/g, function(full_match, text, item_id) {
-            text = text || item_id;
             key = 'zZ' + (++insertsCounter) + 'Zz';
             inserts[key] = typeset_item(text, item_id);
             return key;
         });
         // [text!M5742] or [!M5742]
         source = source.replace(/\[([^!\]]*)!(\w+)\]/g, function(full_match, text, media_id) {
-            text = text || media_id;
             key = 'zZ' + (++insertsCounter) + 'Zz';
             inserts[key] = typeset_media(text, media_id);
             return key;
@@ -145,6 +156,22 @@
             html = html.replace(key, mathInserts[key]);
         }
         return html;
+    }
+
+    function typeset_media_default(update_callback) {
+        return function(text, media_id) {
+            var link = media_links(media_id, update_callback);
+            var context = {
+                caption: media_id + (text ? ': ' + text : '')
+            };
+            if (link)
+                context.link = link;
+            else if (link === false)
+                context.error = 'Media does not exist';
+            else
+                context.info = 'Fetching image...';
+            return teoremer.templates.item_image(context);
+        };
     }
 
     function type_short_to_long(st) {
@@ -751,17 +778,21 @@
     });
 
     var BodyEditView = Backbone.View.extend({
+        events: {
+            'input': 'update',
+            'propertychange': 'update'
+        },
         initialize: function() {
-            _.bindAll(this, 'render');
-            var self = this;
-            this.$el.on('input propertychange', function() {
-                self.model.set('body', this.value);
-            });
+            _.bindAll(this, 'render', 'update');
             this.render();
+            this.$el.focus();
         },
         render: function() {
             this.$el.val(this.model.get('body'));
             return this;
+        },
+        update: function(event) {
+            this.model.set('body', this.$el.val());
         }
     });
 
@@ -775,13 +806,11 @@
             var source = this.model.get('body');
             var html = typeset_body(source, function(text, tag) {
                 return '<a href="#" data-toggle="tooltip" title="tag: ' + tag + '"><i>'
-                           + text + '</i></a>';
+                           + (text || tag) + '</i></a>';
             }, function(text, item_id) {
                 return '<a href="#" data-toggle="tooltip" title="item: ' + item_id + '"><b>'
-                           + text + '</b></a>';
-            }, function(text, media_id) {
-                return '<div>' + media_id + '</div>';
-            });
+                           + (text || item_id) + '</b></a>';
+            }, typeset_media_default(this.render));
             this.$el.html(html);
             this.$('a').tooltip();
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
@@ -1424,13 +1453,11 @@
             var body = typeset_body(this.model.get('body'), function(text, tag) {
                 var concept_id = tag_refs[tag];
                 return '<a href="#" class="add-concept concept-' + concept_id
-                       + '-ref" data-concept="' + concept_id + '">' + text + '</a>';
+                       + '-ref" data-concept="' + concept_id + '">' + (text || tag) + '</a>';
             }, function(text, item_id) {
                 return '<a href="#" class="add-item item-' + item_id + '-ref" data-item="'
-                       + item_id + '">' + text + '</a>';
-            }, function(text, media_id) {
-                return '<div>' + media_id + '</div>';
-            });
+                       + item_id + '">' + (text || item_id) + '</a>';
+            }, typeset_media_default(this.render));
             var html = teoremer.templates.document_item({
                 title: this.model.get('name'),
                 link:  this.model.get('link'),

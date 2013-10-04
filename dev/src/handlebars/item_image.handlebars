@@ -1,0 +1,20 @@
+<div class="row">
+  <div class="col-md-10 col-md-offset-1">
+    <div class="panel panel-default">
+      <div class="panel-body">
+{{#if link}}
+        <img src="{{link}}" class="img-responsive" />
+{{/if}}
+{{#if error}}
+        <span class="text-danger">{{error}}</span>
+{{/if}}
+{{#if info}}
+        <span class="text-info">{{info}}</span>
+{{/if}}
+      </div>
+      <div class="panel-footer">
+        {{caption}}
+      </div>
+    </div>
+  </div>
+</div>

@@ -50,7 +50,7 @@ def update_item_points(fitem):
     validation_points = sum_aggregate['points__sum'] or 0
     sum_aggregate = FinalItem.objects.filter(parent=fitem, status='F', points__gt=0).aggregate(Sum('points'))
     child_points = sum_aggregate['points__sum'] or 0
-    points = validation_points + child_points
+    points = 1 + validation_points + child_points
     if points != fitem.points:
         fitem.points = points
         fitem.save()
