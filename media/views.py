@@ -1,7 +1,6 @@
 import os
 import string
 import subprocess
-import tempfile
 import uuid
 from collections import namedtuple
 from django import forms
@@ -21,8 +20,16 @@ logger = logging.getLogger(__name__)
 THUMB_WIDTH = 256
 THUMB_HEIGHT = 128
 
+def absolute_media_path(relative_path):
+    return settings.MEDIA_ROOT + relative_path
+
+def tempfilename(extension=None):
+    name = settings.MEDIA_ROOT + uuid.uuid4().hex
+    if extension: name += '.' + extension
+    return name
+
 def handle_upload(f):
-    filepath = tempfile.gettempdir() + '/' + uuid.uuid4().hex
+    filepath = tempfilename()
     with open(filepath, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
@@ -38,9 +45,6 @@ def mkdir_p(path):
 """
 
 MediaFileMetaData = namedtuple('MediaFileMetaData', ['format', 'width', 'height'])
-
-def absolute_media_path(relative_path):
-    return settings.MEDIA_ROOT + '/' + relative_path
 
 def move_to_media_folder(tmpname, extension):
     for _ in range(0, 10):
@@ -64,7 +68,7 @@ def get_media_file_meta_data(filename):
         return MediaFileMetaData(format='unknown', width=None, height=None)
 
 def make_thumbnail(filename):
-    tmpname = tempfile.gettempdir() + '/' + uuid.uuid4().hex + '.png'
+    tmpname = tempfilename('png')
     try:
         subprocess.check_call(['convert', absolute_media_path(filename),
                                '-thumbnail', '%dx%d' % (THUMB_WIDTH, THUMB_HEIGHT), tmpname])

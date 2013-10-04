@@ -791,7 +791,7 @@
             this.$el.val(this.model.get('body'));
             return this;
         },
-        update: function(event) {
+        update: function() {
             this.model.set('body', this.$el.val());
         }
     });
@@ -827,10 +827,10 @@
         save: function() {
             this.model.save(null, {
                 wait: true,
-                success: function(model, response) {
+                success: function(model) {
                     redirect(to_url.drafts_show(model.get('id')));
                 },
-                error: function(model, error) {
+                error: function(model) {
                     console.log(model.toJSON());
                     console.log('error saving');
                 }
@@ -1035,10 +1035,10 @@
         save: function() {
             this.model.save(null, {
                 wait: true,
-                success: function(model, response) {
+                success: function(model) {
                     redirect(to_url.items_show_final(model.get('id')));
                 },
-                error: function(model, error) {
+                error: function(model) {
                     console.log(model.toJSON());
                     console.log('error saving');
                 }
@@ -1153,7 +1153,7 @@
                 var self = this;
                 this.model.save(null, {
                     wait: true,
-                    success: function(model, response) {
+                    success: function(model) {
                         if (self.options.mode[0] == 'item') {
                             redirect(to_url.sources_add_location_for_item(
                                 self.options.mode[1], model.get('id')));
@@ -1164,7 +1164,7 @@
                             redirect(to_url.source_index());
                         }
                     },
-                    error: function(model, error) {
+                    error: function(model) {
                         console.log(model.toJSON());
                         console.log('error saving source');
                     }
@@ -1438,8 +1438,7 @@
             'click a.add-item': function(e) {
                 e.preventDefault();
                 var elem = $(e.currentTarget);
-                this.options.dispatcher.trigger('add-item', elem.data('item'),
-                                                this.id.slice(10));
+                this.options.dispatcher.trigger('add-item', elem.data('item'));
             },
             'click .close': function() {
                 this.options.dispatcher.trigger('remove', this.model.get('id'));
@@ -1633,7 +1632,7 @@
                 });
             }
         },
-        fetchItem: function(item_id, source_id) {
+        fetchItem: function(item_id) {
             if (this.item_availability[item_id]) {
                 scrollTo($('#doc-entry-' + this.item_availability[item_id]));
             } else {
@@ -1870,7 +1869,7 @@
                 new SearchListView(searchListViewData);
             }
 
-            $('#add-to-document a').click(function(event) {
+            $('#add-to-document a').click(function() {
                 var doc_id = $(this).data('doc');
                 var data_to_send = JSON.stringify({ item_id: item_data.id });
                 if (doc_id) {
