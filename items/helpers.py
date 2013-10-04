@@ -45,7 +45,7 @@ class BodyScanner:
         body = ''.join(parts)
         body = re.sub(r'\[([^#\]]*)#([\w -]+)\]', self._conceptMatch, body)
         body = re.sub(r'\[([^@\]]*)@(\w+)\]', self._itemRefMatch, body)
-        body = re.sub(r'\[([^!\]]*)!(\w+)\]', self._mediaRefMatch, body)
+        body = re.sub(r'\s*\[([^!\]]*)!(\w+)\]\s*', self._mediaRefMatch, body)
         body = body.replace('[', '&#91;').replace(']', '&#93;').replace('<', '&lt;').replace('>', '&gt;');
         self.body = body
         self._imaths = self._imaths.items()
@@ -83,7 +83,7 @@ class BodyScanner:
         name = match.group(1)
         media_id = match.group(2)
         self._mediaRefs.append((key, '', name, media_id))
-        return key
+        return '\n\n' + key + '\n\n'
 
     def transformDisplayMath(self, func):
         self._dmaths = map(lambda p: (p[0], func(p[1])), self._dmaths)
@@ -274,4 +274,7 @@ def publishIssues(draft_item):
     for itemref_id in bs.getItemRefSet():
         if not FinalItem.objects.filter(final_id=itemref_id, status='F').exists():
             issues.append("Reference to non-existing item '%s'" % itemref_id)
+    for media_id in bs.getMediaRefSet():
+        if not MediaItem.objects.filter(entry__public_id=media_id, itemtype='O').exists():
+            issues.append("Reference to non-existing media '%s'" % media_id)
     return issues

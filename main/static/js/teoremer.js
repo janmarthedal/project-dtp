@@ -140,10 +140,10 @@
             return key;
         });
         // [text!M5742] or [!M5742]
-        source = source.replace(/\[([^!\]]*)!(\w+)\]/g, function(full_match, text, media_id) {
+        source = source.replace(/\s*\[([^!\]]*)!(\w+)\]\s*/g, function(full_match, text, media_id) {
             key = 'zZ' + (++insertsCounter) + 'Zz';
             inserts[key] = typeset_media(text, media_id);
-            return key;
+            return '\n\n' + key + '\n\n';
         });
         // disable markdown links and images
         source = source.replace("[", "&#91;").replace("]", "&#93;")
