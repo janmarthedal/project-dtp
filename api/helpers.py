@@ -1,7 +1,8 @@
 import json
 import logging
 from functools import wraps
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
+from main.helpers import json_response
 
 def itemtype_supported(itemtype):
     return itemtype in ['definition', 'theorem', 'proof']
@@ -24,7 +25,7 @@ def api_view(f):
             request.data = json.loads(request.body)
         try:
             result = f(request, *args, **kwds)
-            return HttpResponse(json.dumps(result), content_type="application/json")
+            return json_response(result)
         except KeyError as e:
             msg = "Key %s missing" % e
         except ValueError as e:

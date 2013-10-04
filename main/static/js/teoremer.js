@@ -92,7 +92,7 @@
         return '<span class="category">' + category + '</span>';
     }
 
-    function typeset_body(source, typeset_tag, typeset_item) {
+    function typeset_body(source, typeset_tag, typeset_item, typeset_media) {
         var insertsCounter = 0, mathInserts = {}, inserts = {}, key;
         var pars = source.split('$$');
         for (var i = 0; i < pars.length; i++) {
@@ -120,11 +120,18 @@
             inserts[key] = typeset_tag(text, tag);
             return key;
         });
-        // [@q25tY]
+        // [text@D1234] or [@D1234]
         source = source.replace(/\[([^@\]]*)@(\w+)\]/g, function(full_match, text, item_id) {
             text = text || item_id;
             key = 'zZ' + (++insertsCounter) + 'Zz';
             inserts[key] = typeset_item(text, item_id);
+            return key;
+        });
+        // [text!M5742] or [!M5742]
+        source = source.replace(/\[([^!\]]*)!(\w+)\]/g, function(full_match, text, media_id) {
+            text = text || media_id;
+            key = 'zZ' + (++insertsCounter) + 'Zz';
+            inserts[key] = typeset_media(text, media_id);
             return key;
         });
         // disable markdown links and images
@@ -772,6 +779,8 @@
             }, function(text, item_id) {
                 return '<a href="#" data-toggle="tooltip" title="item: ' + item_id + '"><b>'
                            + text + '</b></a>';
+            }, function(text, media_id) {
+                return '<div>' + media_id + '</div>';
             });
             this.$el.html(html);
             this.$('a').tooltip();
@@ -1419,6 +1428,8 @@
             }, function(text, item_id) {
                 return '<a href="#" class="add-item item-' + item_id + '-ref" data-item="'
                        + item_id + '">' + text + '</a>';
+            }, function(text, media_id) {
+                return '<div>' + media_id + '</div>';
             });
             var html = teoremer.templates.document_item({
                 title: this.model.get('name'),

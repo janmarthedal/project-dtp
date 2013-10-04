@@ -2,9 +2,6 @@ from django import template
 from django.utils.safestring import mark_safe
 from main.helpers import json_encode
 
-#import logging
-#logger = logging.getLogger(__name__)
-
 register = template.Library()
 
 @register.filter

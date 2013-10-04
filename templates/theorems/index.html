@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load utils_tags %}
 
 {% block title %}Theorems{% endblock %}
 
@@ -24,6 +25,6 @@
 {% block bodybottom %}
 {% include 'include/js-scripts.html' %}
 <script type="text/javascript">
-teoremer.item_search('T', 'FR', {{init_items|safe}});
+teoremer.item_search('T', 'FR', {{init_items|to_json}});
 </script>
 {% endblock %}

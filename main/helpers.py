@@ -2,7 +2,7 @@ import json
 from functools import wraps
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 def logged_in_or_404(view):
     @wraps(view)
@@ -71,3 +71,6 @@ def json_encode(obj):
 
 def json_decode(st):
     return json.loads(st)
+
+def json_response(data):
+    return HttpResponse(json_encode(data), content_type="application/json")

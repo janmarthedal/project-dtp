@@ -7,4 +7,5 @@ urlpatterns = patterns('',
     url(r'^item/',     include('api.item.urls')),
     url(r'^source/',   include('api.source.urls')),
     url(r'^document/', include('api.document.urls')),
+    url(r'^media/',    include('api.media.urls')),
 )

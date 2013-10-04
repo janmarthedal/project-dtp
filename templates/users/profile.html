@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load browserid %}
+{% load utils_tags %}
 
 {% block title %}{{ pageuser.get_full_name }}{% endblock %}
 
@@ -48,7 +49,7 @@
 {% block bodybottom %}
 {% include 'include/js-scripts.html' %}
 <script type="text/javascript">
-teoremer.item_search('DTP', '{{statuses}}', {{init_items|safe}}, undefined, 'FRD', {{user_id}});
+teoremer.item_search('DTP', '{{statuses}}', {{init_items|to_json}}, undefined, 'FRD', {{user_id}});
 </script>
 {% browserid_js %}
 {% endblock %}

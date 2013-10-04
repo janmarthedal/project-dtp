@@ -6,7 +6,6 @@ from django.utils import crypto
 from django.utils.http import urlquote
 from drafts.models import DraftItem
 from items.models import FinalItem
-from main.helpers import json_encode
 from tags.models import Tag
 from tags.helpers import normalize_tag
 
@@ -235,7 +234,7 @@ def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclud
     else:
         result['items'] = [_extract_draft_item_attributes(item) for item in items[:limit]]
 
-    return json_encode(result)
+    return result
 
 def publishIssues(draft_item):
     issues = []

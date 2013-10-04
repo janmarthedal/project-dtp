@@ -96,7 +96,7 @@ published at {{ item.created_at|datetime_user:user }}
 <script type="text/javascript">
 teoremer.show_final({{validations|to_json}}, { id: '{{ item.final_id }}', points: {{item.points}} },
 {{ user_id|default:'undefined' }}
-{% if item.itemtype == 'T' %}, {{ init_proofs|safe }}{% endif %});
+{% if item.itemtype == 'T' %}, {{init_proofs|to_json}}{% endif %});
 </script>
 
 {% endblock %}

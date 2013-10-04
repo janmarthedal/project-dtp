@@ -109,14 +109,13 @@ def add(request):
             MediaItem.objects.create(entry=entry, path=filepath, itemtype='O',
                                      format=meta_data.format,
                                      width=meta_data.width, height=meta_data.height)
-            if not is_thumbnail_image(meta_data):
-                tmpname = make_thumbnail(filepath)
-                meta_data = get_media_file_meta_data(tmpname)
-                assert is_thumbnail_image(meta_data)
-                filepath = move_to_media_folder(tmpname, meta_data.format)
-                MediaItem.objects.create(entry=entry, path=filepath, itemtype='T',
-                                         format=meta_data.format,
-                                         width=meta_data.width, height=meta_data.height)
+            tmpname = make_thumbnail(filepath)
+            meta_data = get_media_file_meta_data(tmpname)
+            assert is_thumbnail_image(meta_data)
+            filepath = move_to_media_folder(tmpname, meta_data.format)
+            MediaItem.objects.create(entry=entry, path=filepath, itemtype='T',
+                                     format=meta_data.format,
+                                     width=meta_data.width, height=meta_data.height)
             return HttpResponseRedirect(reverse('media.views.view', args=[entry.public_id]))
     else:
         form = UploadFileForm()

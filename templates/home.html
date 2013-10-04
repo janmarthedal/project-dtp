@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load item_tags %}
+{% load utils_tags %}
 
 {% block title %}Home{% endblock %}
 
@@ -30,7 +31,7 @@
 {% block bodybottom %}
 {% include 'include/js-scripts.html' %}
 <script type="text/javascript">
-teoremer.home({{init_items|safe}});
+teoremer.home({{init_items|to_json}});
 </script>
 
 {% endblock %}

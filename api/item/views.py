@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.http import HttpResponse, Http404
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from analysis.management.commands.analyze import update_validation_points
@@ -7,7 +7,7 @@ from api.helpers import (ApiError, api_view, api_request_user, api_request_strin
                          api_request_tag_category_list, api_request_string, api_request_int)
 from items.helpers import item_search_to_json
 from items.models import FinalItem, ItemValidation, UserItemValidation
-from main.helpers import json_decode
+from main.helpers import json_decode, json_response
 
 import logging
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ def items(request):
                                  offset=offset,
                                  limit=limit,
                                  user=list_user)
-    return HttpResponse(result, content_type="application/json")
+    return json_response(result)
 
 @require_http_methods(['PUT'])
 @api_view

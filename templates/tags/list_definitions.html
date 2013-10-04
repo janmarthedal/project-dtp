@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load browserid %}
 {% load item_tags %}
+{% load utils_tags %}
 
 {% block title %}Definitions for category{% endblock %}
 
@@ -23,6 +24,6 @@
 {% block bodybottom %}
 {% include 'include/js-scripts.html' %}
 <script type="text/javascript">
-teoremer.item_search('D', 'FR', {{init_items|safe}}, {{category}});
+teoremer.item_search('D', 'FR', {{init_items|to_json}}, {{category}});
 </script>
 {% endblock %}
