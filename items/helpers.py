@@ -140,7 +140,7 @@ def typesetItemRef(text, item_id):
     return '<a href="%s"><b>%s</b></a>' % (url, link_text)
 
 def typesetMediaRef(text, media_id):
-    c = dict(caption = make_html_safe('%s: %s' % (media_id, text) if text else media_id))
+    c = dict(name = media_id, description = text)
     try:
         item = MediaItem.objects.get(entry__public_id=media_id, itemtype='O')
         c.update(link = settings.MEDIA_URL + item.path)

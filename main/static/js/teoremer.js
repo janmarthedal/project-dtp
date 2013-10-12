@@ -162,7 +162,8 @@
         return function(text, media_id) {
             var link = media_links(media_id, update_callback);
             var context = {
-                caption: media_id + (text ? ': ' + text : '')
+                name: media_id,
+                description: text
             };
             if (link)
                 context.link = link;

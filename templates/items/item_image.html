@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-10 col-md-offset-1">
-    <div class="panel panel-default">
-      <div class="panel-body">
+    <div class="item-media">
+      <div class="item-media-body">
 {% if link %}
         <img src="{{link}}" class="img-responsive" />
 {% endif %}
@@ -12,8 +12,8 @@
         <span class="text-info">{{info}}</span>
 {% endif %}
       </div>
-      <div class="panel-footer">
-        {{caption}}
+      <div class="item-media-caption">
+        {% if description %}<b>Figure {{name}}:</b> {{description}}{% else %}<b>Figure {{name}}</b>{% endif %}
       </div>
     </div>
   </div>
