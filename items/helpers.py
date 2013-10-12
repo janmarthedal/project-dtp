@@ -17,8 +17,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 def make_html_safe(st):
-    st = st.replace('<', '%lt;')
-    st = st.replace('>', '%gt;')
+    st = st.replace('<', '&lt;')
+    st = st.replace('>', '&gt;')
     return st
 
 

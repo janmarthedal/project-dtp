@@ -571,7 +571,7 @@
 
     var RemovableTagView = Backbone.View.extend({
         tagName: 'span',
-        className: 'tag',
+        className: 'removable',
         events: {
             'click a': function() {
                 this.model.destroy();
@@ -584,6 +584,7 @@
         },
         render: function() {
             this.$el.html(teoremer.templates.item_removable({
+                spanClass: 'tag',
                 html: this.model.typeset()
             }));
             return this;
@@ -920,7 +921,7 @@
 
     var RemovableCategoryView = Backbone.View.extend({
         tagName: 'span',
-        className: 'category',
+        className: 'removable',
         events: {
             'click a': function() {
                 this.model.destroy();
@@ -933,6 +934,7 @@
         },
         render: function() {
             this.$el.html(teoremer.templates.item_removable({
+                spanClass: 'category',
                 html: this.model.typeset()
             }));
             return this;

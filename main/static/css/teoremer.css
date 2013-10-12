@@ -4,13 +4,17 @@
 }*/
 
 /* own styles */
-span.category {
+.category {
   padding: 0.1em 0.2em;
   margin: 0.1em 0.1em 1em 0.1em;
-  /*border: 2px solid #888;*/
 }
-div.category {
-  margin-bottom: 1em;
+.category:before {
+  content: '[';
+  font-size: 135%;
+}
+.category:after {
+  content: ']';
+  font-size: 135%;
 }
 .category .tag:before {
   content: ' / ';
@@ -19,11 +23,11 @@ div.category {
 .category .tag:first-child:before {
   content: '';
 }
+span.removable {
+  padding: 0em 0.5em 0em 0em;
+}
 .categories {
   line-height: 30px;
-}
-.tag-list .tag {
-  margin: 0em 1em 0em 0em;
 }
 .tag-counts {
   list-style: none;
