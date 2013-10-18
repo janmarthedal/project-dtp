@@ -1,4 +1,4 @@
-==Collections==
+## Collections
 
 *   [The On-Line Encyclopedia of Integer Sequences](http://oeis.org)
 *   [The MacTutor History of Mathematics archive](http://www-history.mcs.st-and.ac.uk)
