@@ -32,13 +32,13 @@ class RefNode(models.Model):
     isbn13     = models.CharField(max_length=255, null=True)
     note       = models.CharField(max_length=255, null=True)
     STRING_FIELDS = ['title', 'publisher', 'year', 'volume', 'number', 'series', 'address', 'edition',
-                    'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']
+                     'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']
     def __unicode__(self):
         if self.pk:
             return 'Source %d' % self.pk
         return 'New source'
     def json_data(self):
-        data = { 'id': self.pk, 'type': self.sourcetype }
+        data = dict(id=self.pk, type=self.sourcetype)
         for key in RefNode.STRING_FIELDS:
             if self.__dict__[key]:
                 data[key] = self.__dict__[key]

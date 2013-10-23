@@ -300,7 +300,7 @@
                     self.dispatcher.trigger('close');
                 },
                 'hidden.bs.modal .modal': function() {
-                    self.options.innerView.remove();
+                    self.innerView.remove();
                     self.remove();
                 }
             };
@@ -311,9 +311,9 @@
             });
             return e;
         },
-        initialize: function() {
-            _.bindAll(this, 'render', 'close', 'events');
-            this.buttons = _.map(this.options.buttons, function (item) {
+        initialize: function(options) {
+            _.extend(this, _.pick(options, 'innerView', 'title'));
+            this.buttons = _.map(options.buttons, function (item) {
                 return {
                     name: item.name,
                     id: _.uniqueId('modal-'),
@@ -321,18 +321,19 @@
                     'class': item.primary ? 'btn-primary' : 'btn-default'
                 };
             });
+            _.bindAll(this, 'render', 'close', 'events');
             this.dispatcher = _.clone(Backbone.Events);
             this.listenTo(this.dispatcher, 'close', this.close);
             this.render();
             this.$('.modal').modal('show');
-            this.options.innerView.modalReady(this.dispatcher);
+            this.innerView.modalReady(this.dispatcher);
         },
         render: function() {
             this.$el.html(teoremer.templates.modal_wrapper({
-                title: this.options.title,
+                title: this.title,
                 buttons: this.buttons
             }));
-            this.$('.modal-body').html(this.options.innerView.render().el);
+            this.$('.modal-body').html(this.innerView.render().el);
         },
         close: function() {
             this.$('.modal').modal('hide');
@@ -696,7 +697,8 @@
                 this.options.parameters.set('type', 'P');
             }
         },
-        initialize: function() {
+        initialize: function(options) {
+            this.options = options;
             _.bindAll(this, 'render', 'addOne', 'doFetch', 'fetchReset');
             this.listenTo(this.collection, 'reset', this.render);
             this.listenTo(this.collection, 'add', this.addOne);
@@ -846,7 +848,8 @@
             'click #category-plus-btn':  'plusAction',
             'keypress input':            'keyPress'
         },
-        initialize: function() {
+        initialize: function(options) {
+            this.on_select = options.add;
             _.bindAll(this, 'render', 'renderTags', 'keyPress', 'modalReady', 'resetInput',
                             'selectAction', 'minusAction', 'plusAction');
             this.collection = new TagList();
@@ -895,7 +898,7 @@
             }
         },
         selectAction: function() {
-            this.options.add(new Category({
+            this.on_select(new Category({
                 tag_list: this.collection
             }));
             this.dispatcher.trigger('close');
@@ -1087,20 +1090,21 @@
             'input': 'change',
             'propertychange': 'change'
         },
-        initialize: function() {
+        initialize: function(options) {
+            this.key = options.key;
             _.bindAll(this, 'render', 'change');
-            if (!this.model.has(this.options.key))
-                this.model.set(this.options.key, '');
+            if (!this.model.has(this.key))
+                this.model.set(this.key, '');
         },
         render: function() {
-            var context = _.extend(sourceFields[this.options.key], {
-                value: this.model.get(this.options.key)
+            var context = _.extend(sourceFields[this.key], {
+                value: this.model.get(this.key)
             });
             this.$el.html(teoremer.templates.source_string_field(context));
             return this;
         },
         change: function() {
-            this.model.set(this.options.key, this.$('input').val());
+            this.model.set(this.key, this.$('input').val());
         }
     });
 
@@ -1111,35 +1115,36 @@
             'typeahead:selected input': 'change',
             'click a': 'add'
         },
-        initialize: function() {
+        initialize: function(options) {
+            _.extend(this, _.pick(options, 'key', 'author_list'));
             _.bindAll(this, 'render', 'change', 'add');
-            if (!this.model.has(this.options.key))
-                this.model.set(this.options.key, ['']);
+            if (!this.model.has(this.key))
+                this.model.set(this.key, ['']);
         },
         render: function() {
-            var context = _.extend(sourceFields[this.options.key], {
-                key: this.options.key,
-                value: this.model.get(this.options.key)
+            var context = _.extend(sourceFields[this.key], {
+                key: this.key,
+                value: this.model.get(this.key)
             });
             this.$el.html(teoremer.templates.source_array_field(context));
             this.$('input').typeahead({
                name: 'authors',
-               local: this.options.author_list
+               local: this.author_list
             });
             return this;
         },
         change: function(event, datum) {
             var value = trim(datum ? datum.value : $(event.currentTarget).val());
             var index = $(event.currentTarget).data('idx');
-            var current = this.model.get(this.options.key);
+            var current = this.model.get(this.key);
             if (value != current[index]) {
                 var changed = _.clone(current);
                 changed[index] = value;
-                this.model.set(this.options.key, changed);
+                this.model.set(this.key, changed);
             }
         },
         add: function() {
-            this.model.get(this.options.key).push('');
+            this.model.get(this.key).push('');
             this.render();
         }
     });
@@ -1157,12 +1162,12 @@
                 this.model.save(null, {
                     wait: true,
                     success: function(model) {
-                        if (self.options.mode[0] == 'item') {
+                        if (self.mode[0] == 'item') {
                             redirect(to_url.sources_add_location_for_item(
-                                self.options.mode[1], model.get('id')));
-                        } else if (self.options.mode[0] == 'draft') {
+                                self.mode[1], model.get('id')));
+                        } else if (self.mode[0] == 'draft') {
                             redirect(to_url.sources_add_location_for_draft(
-                                self.options.mode[1], model.get('id')));
+                                self.mode[1], model.get('id')));
                         } else {
                             redirect(to_url.source_index());
                         }
@@ -1174,7 +1179,8 @@
                 });
             }
         },
-        initialize: function() {
+        initialize: function(options) {
+            _.extend(this, _.pick(options, 'mode', 'author_list'));
             _.bindAll(this, 'render', 'setType', 'addExtra');
             this.setType(this.model.get('type'));
         },
@@ -1215,7 +1221,7 @@
                 view = new SourceEditTextFieldView(options);
             } else /*if (field_config.type == 'author')*/ {
                 view = new SourceEditAuthorFieldView(_.extend(options, {
-                    author_list: this.options.author_list
+                    author_list: this.author_list
                 }));
             }
             $('#source-fields').append(view.render().el);
@@ -1238,16 +1244,17 @@
         className: 'list-group-item',
         attributes: function() {
             var url = '#';
-            if (this.options.mode[0] == 'item') {
+            if (this.mode[0] == 'item') {
                 url = to_url.sources_add_location_for_item(
-                          this.options.mode[1], this.model.get('id'));
-            } else if (this.options.mode[0] == 'draft') {
+                          this.mode[1], this.model.get('id'));
+            } else if (this.mode[0] == 'draft') {
                 url = to_url.sources_add_location_for_draft(
-                          this.options.mode[1], this.model.get('id'));
+                          this.mode[1], this.model.get('id'));
             }
             return { href: url };
         },
-        initialize: function() {
+        initialize: function(options) {
+            this.mode = options.mode;
             _.bindAll(this, 'render');
             this.render();
         },
@@ -1260,9 +1267,10 @@
     });
 
     var LiveSourceSearchView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function(options) {
+            _.extend(this, _.pick(options, 'sourceModel', 'mode'));
             _.bindAll(this, 'render', '_search', '_check', '_cancelTimer', '_addOne');
-            this.listenTo(this.options.sourceModel, 'change', this._check);
+            this.listenTo(this.sourceModel, 'change', this._check);
             this.collection = new Backbone.Collection;
             this.collection.url = api_prefix + 'source/search';
             this.listenTo(this.collection, 'reset', this.render);
@@ -1277,14 +1285,14 @@
         _addOne: function(item) {
             var itemView = new SourceSearchItemView({
                 model: item,
-                mode: this.options.mode
+                mode: this.mode
             });
             this.$('.no-matches-message').hide();
             this.$('div').append(itemView.render().el);
         },
         _search: function() {
             this._cancelTimer();
-            var attrs = cleanValues(this.options.sourceModel.attributes);
+            var attrs = cleanValues(this.sourceModel.attributes);
             for (var key in attrs) {
                 if (_.isArray(attrs[key])) {
                     attrs[key] = JSON.stringify(attrs[key]);
@@ -1322,7 +1330,8 @@
                 this.model.set('user_vote', this.model.get('user_vote') == 'up' ? 'none' : 'up');
             }
         },
-        initialize: function() {
+        initialize: function(options) {
+            _.extend(this, _.pick(options, 'user_id', 'item_data'));
             _.bindAll(this, 'render', 'renderPoints', 'persistVote');
             this.listenTo(this.model, 'change:user_vote', this.persistVote);
             this.listenTo(this.model, 'change:user_vote', this.renderPoints);
@@ -1341,7 +1350,7 @@
             var context = {
                 vote_value: this.model.get('points'),
             };
-            if (this.options.user_id !== undefined) {
+            if (this.user_id !== undefined) {
                 var user_vote = this.model.get('user_vote') || 'none';
                 context.voting_enabled = true;
                 context.voted_up = user_vote == 'up';
@@ -1351,7 +1360,7 @@
         },
         persistVote: function() {
             var validation_model = this.model;
-            var item_data_model = this.options.item_data;
+            var item_data_model = this.item_data;
             var data = {
                 'validation': validation_model.get('id'),
                 'vote': validation_model.get('user_vote')
@@ -1366,8 +1375,8 @@
     });
 
     var ValidationListView = Backbone.View.extend({
-        // standard
-        initialize: function() {
+        initialize: function(options) {
+            _.extend(this, _.pick(options, 'user_id', 'item_data'));
             _.bindAll(this, 'render', '_addOne');
             this.collection.bind('add', this._addOne);
             this.render();
@@ -1376,19 +1385,17 @@
             this.$el.html(teoremer.templates.validation_list());
             this.collection.each(this._addOne);
         },
-        // helpers
         _addOne: function(item) {
             var validationView = new ValidationView({
                 model: item,
-                user_id: this.options.user_id,
-                item_data: this.options.item_data
+                user_id: this.user_id,
+                item_data: this.item_data
             });
             this.$('ul').append(validationView.render().el);
         }
     });
 
     var SourceListView = Backbone.View.extend({
-        // standard
         initialize: function() {
             _.bindAll(this, 'render', '_addOne');
             this.collection.bind('reset', this.render);
@@ -1398,7 +1405,6 @@
             this.$el.html(teoremer.templates.source_list_container());
             this.collection.each(this._addOne);
         },
-        // helpers
         _addOne: function(item) {
             var html = teoremer.templates.source_list_item({
                 'link': to_url.source_item(item.get('id')),
@@ -1435,19 +1441,19 @@
             'click a.add-concept': function(e) {
                 e.preventDefault();
                 var elem = $(e.currentTarget);
-                this.options.dispatcher.trigger('add-concept', elem.data('concept'),
-                                                this.id.slice(10));
+                this.dispatcher.trigger('add-concept', elem.data('concept'), this.id.slice(10));
             },
             'click a.add-item': function(e) {
                 e.preventDefault();
                 var elem = $(e.currentTarget);
-                this.options.dispatcher.trigger('add-item', elem.data('item'));
+                this.dispatcher.trigger('add-item', elem.data('item'));
             },
             'click .close': function() {
-                this.options.dispatcher.trigger('remove', this.model.get('id'));
+                this.dispatcher.trigger('remove', this.model.get('id'));
             }
         },
-        initialize: function() {
+        initialize: function(options) {
+            this.dispatcher = options.dispatcher;
             _.bindAll(this, 'render');
         },
         render: function() {
@@ -1471,7 +1477,8 @@
     });
 
     var DocumentView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function(options) {
+            this.doc_id = options.doc_id;
             _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch',
                             'removeEntryView', 'updateMeta');
             this.listenTo(this.collection, {
@@ -1618,7 +1625,7 @@
         fetch: function(subpath, data) {
             this.$('.alert').remove();
             this.collection.fetch({
-                url: this.collection.url + this.options.doc_id + '/' + subpath,
+                url: this.collection.url + this.doc_id + '/' + subpath,
                 type: 'POST',
                 data: JSON.stringify(data),
                 remove: false
@@ -1830,10 +1837,10 @@
             new SearchListView(searchListViewData);
 
             includeView.collection.on('add remove', function() {
-              searchTerms.set('includeTags', includeView.getTagList());
+                searchTerms.set('includeTags', includeView.getTagList());
             });
             excludeView.collection.on('add remove', function() {
-              searchTerms.set('excludeTags', excludeView.getTagList());
+                searchTerms.set('excludeTags', excludeView.getTagList());
             });
         },
 
@@ -1917,8 +1924,8 @@
             document_data.on('change:title', set_title);
             new DocumentView({
                 el: $('#document-items'),
-                doc_id: data.id,
-                collection: new DocumentItemList(items, { parse: true })
+                collection: new DocumentItemList(items, { parse: true }),
+                doc_id: data.id
             });
             $('#rename-button').click(function() {
                 show_modal('Rename document',
