@@ -1242,16 +1242,17 @@
     var SourceSearchItemView = Backbone.View.extend({
         tagName: 'a',
         className: 'list-group-item',
-        attributes: function() {
-            var url = '#';
-            if (this.mode[0] == 'item') {
-                url = to_url.sources_add_location_for_item(
-                          this.mode[1], this.model.get('id'));
-            } else if (this.mode[0] == 'draft') {
-                url = to_url.sources_add_location_for_draft(
-                          this.mode[1], this.model.get('id'));
+        attributes: { href: '#' },
+        events: {
+            'click': function() {
+                if (this.mode[0] == 'item') {
+                    redirect(to_url.sources_add_location_for_item(
+                                this.mode[1], this.model.get('id')));
+                } else if (this.mode[0] == 'draft') {
+                    redirect(to_url.sources_add_location_for_draft(
+                                this.mode[1], this.model.get('id')));
+                }
             }
-            return { href: url };
         },
         initialize: function(options) {
             this.mode = options.mode;
