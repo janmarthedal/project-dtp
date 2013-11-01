@@ -112,7 +112,9 @@
     </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{% static 'js/vendor/jquery.min.js' %}"><\/script>')</script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>
+    <script>window.jQuery.fn.modal || document.write('<script src="{% static 'js/vendor/bootstrap.min.js' %}"><\/script>')</script>
     {% block bodybottom %}{% endblock %}
 
   </body>

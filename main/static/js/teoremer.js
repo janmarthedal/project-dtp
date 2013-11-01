@@ -116,7 +116,7 @@
                 mathInserts[key] = '\\[' + pars[i] + '\\]';
                 pars[i] = key;
             } else {
-                pars2 = pars[i].split('$');
+                var pars2 = pars[i].split('$');
                 for (var j = 0; j < pars2.length; j++) {
                     if (j % 2) {
                         key = 'zZ' + (++insertsCounter) + 'Zz';
