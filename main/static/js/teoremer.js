@@ -1,4 +1,5 @@
 (function() {
+    "use strict";
 
     var api_prefix = '/api/';
 
@@ -1943,6 +1944,7 @@
 // on load actions
 
 $(function() {
+    "use strict";
 
     function expanderToggle(elem) {
         elem.toggleClass('expander-in').toggleClass('expander-out');
