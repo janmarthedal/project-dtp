@@ -5,4 +5,6 @@ The items are split into the following main types:
   * **Theorem** (also used for axiom, lemma, corollary, proposition).
   * **Proof** (of varying rigor).
 
-Each item is given a unique name and can refer to other items.
+Each item is given a unique name and can refer to other items. This leads to a network of mathematical items with dependencies between them (a directed graph where the nodes are the math items and the edges are the references).
+
+Once a math item (which lives up to the guidelines) is published, it can never be changed or edited in any way. Not ever. A theorem can have any number of proofs and a given concept can have many definitions. Associated with each definition are categories (ordered lists of tags), which indicate what a given definition defines, e.g., a definition may define `[foo/bar]` and `[bim/bum]`.
