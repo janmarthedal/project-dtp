@@ -11,6 +11,6 @@ Associated with each definition is a number of categories, which specifies the t
 
 Once a math item (which lives up to the guidelines) is published, it can never be changed or edited in any way. Not ever. This prevents users from (accidentially) making true statements false. This also ensures that once you link to an item, you know exactly what you link to.
 
-A theorem can have any number of proofs and a given category can have many definitions. A rating/point system will ensure that a user can easily find the 'best' item.
+A theorem can have any number of proofs and a given category can have many definitions. A point system ensures that a user can easily find the 'best' item.
 
-It is recommended that any item links to all the prerequisites it may have in terms of other items. But that means that if you wish to write a theorem that refers to the real numbers, you first have to find a satisfactory definition of the real numbers. What if none exists?
+Sometimes it is not appropriate to link to a *specific* definition item. For instance, you may wish to refer to the real numbers, but the exact definition is not relevant for your theorem. This can be solved by using an *abstract definition*. An abstract definition is used by simply associating a certain category with a term you refer to.
