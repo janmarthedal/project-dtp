@@ -1,3 +1,4 @@
+import urllib
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, Http404
 from django.views.decorators.http import require_safe
@@ -25,7 +26,8 @@ def browse(request, path):
 def list_definitions(request, path):
     if not path:
         raise Http404
-    tags = path.split('/')
+    tags = map(urllib.unquote, path.split('/'))
+    logger.debug(tags)
     category = Category.objects.from_tag_names_or_404(tags)
     c = init_context('definitions',
                      init_items = item_search_to_json(itemtype='D', category=category),
