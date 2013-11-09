@@ -8,7 +8,7 @@ from drafts.models import DraftItem
 from items.helpers import publishIssues
 from items.models import FinalItem
 from main.helpers import init_context, logged_in_or_404
-from analysis.management.commands.analyze import add_final_item_dependencies, check_final_item_tag_categories
+from analysis.management.commands.deps import add_final_item_dependencies, check_final_item_tag_categories
 
 import logging
 logger = logging.getLogger(__name__)

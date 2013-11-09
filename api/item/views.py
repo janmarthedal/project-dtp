@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
-from analysis.management.commands.analyze import update_validation_points
+from analysis.management.commands.points import update_validation_points
 from api.helpers import (ApiError, api_view, api_request_user, api_request_string_list_list,
                          api_request_tag_category_list, api_request_string, api_request_int)
 from items.helpers import item_search_to_json
