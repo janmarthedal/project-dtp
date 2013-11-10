@@ -77,6 +77,10 @@
         return $.trim(st);
     }
 
+    function capitalize(st) {
+        return st.charAt(0).toUpperCase() + st.slice(1);
+    }
+
     function pluralize(base, count) {
         return count === 1 ? base : base + 's';
     }
@@ -187,10 +191,6 @@
         }
     }
 
-    function capitalize(st) {
-        return st.charAt(0).toUpperCase() + st.slice(1);
-    }
-
     var to_url = {
         drafts_show: function(arg1) {
             return '/draft/' + arg1;
@@ -235,31 +235,49 @@
         return data;
     }
 
+    var sourceTypes = {
+        book: {
+            name: 'Book',
+            show: ['author', 'title', 'publisher', 'year'],
+            extra: ['isbn10', 'isbn13', 'editor', 'volume', 'number', 'series',
+                    'address', 'edition', 'month', 'note']
+        },
+        article: {
+            name: 'Article',
+            show: ['author', 'title', 'journal', 'year'],
+            extra: ['volume', 'number', 'pages', 'month', 'note']
+        }
+    };
+
+    function typeset_authors(authors) {
+        if (authors.length === 1) {
+            return _.first(authors);
+        } else if (authors.length === 2) {
+            return _.first(authors) + ' and ' + _.last(authors);
+        } else {
+            return _.initial(authors).join(', ') + ', and ' + _.last(authors);
+        }
+    }
+
     function typeset_source(attrs) {
         var data = cleanValues(attrs, true), ret = '', type = data.type, items;
-        if (_.size(data) <= 1) {
+        if (_.size(data) <= 1)
             return '<i>(empty)</i>';
-        }
         // author
-        if (data.author) {
-            if (data.author.length === 1) {
-                ret += _.first(data.author);
-            } else if (data.author.length === 2) {
-                ret += _.first(data.author) + ' and ' + _.last(data.author);
-            } else {
-                ret += _.initial(data.author).join(', ') + ', and ' + _.last(data.author);
-            }
-            ret += '. ';
-        }
+        if (data.author)
+            ret += typeset_authors(data.author) + '. ';
         // title
-        if (data.title) {
+        if (data.title)
             ret += '<i>' + data.title + '</i>. ';
+        // editor
+        if (data.editor) {
+            ret += typeset_authors(data.editor);
+            ret += ' (' + pluralize('editor', data.editor.length) + '). ';
         }
         if (type == 'book') {
             // edition
-            if (data.edition) {
+            if (data.edition)
                 ret += data.edition + ' edition. ';
-            }
             // series, volume, number
             items = [];
             if (data.series)
@@ -268,24 +286,32 @@
                 items.push('Volume ' + data.volume);
             if (data.number)
                 items.push('Number ' + data.number);
-            if (items.length) {
+            if (items.length)
                 ret += items.join(', ') + '. ';
-            }
             // publisher, address, month, year
             items = _.compact([data.publisher, data.address, data.month, data.year]);
-            if (items.length) {
+            if (items.length)
                 ret += items.join(', ') + '. ';
-            }
             // isbn
             items = _.compact([data.isbn10, data.isbn13]);
-            if (items.length) {
+            if (items.length)
                 ret += 'ISBN: ' + items.join(', ') + '. ';
-            }
+        } else if (type == 'article') {
+            var location = '', time;
+            if (data.volume)
+                location += data.volume;
+            if (data.number)
+                location += '(' + data.number + ')';
+            if (data.pages)
+                location += ':' + data.pages;
+            time = _.compact([data.month, data.year]).join(' ');
+            items = _.compact([data.journal, location, time]);
+            if (items.length)
+                ret += items.join(', ') + '. ';
         }
         // note
-        if (data.note) {
+        if (data.note)
             ret += data.note + '.';
-        }
         return ret;
     }
 
@@ -1070,20 +1096,6 @@
         isbn10:    { type: 'text',   size: '4', maxlen: 32,  name: '10-digit ISBN' },
         isbn13:    { type: 'text',   size: '4', maxlen: 32,  name: '13-digit ISBN' },
         note:      { type: 'text',   size: '8', maxlen: 255, name: 'Note' }
-    };
-
-    var sourceTypes = {
-        book: {
-            name: 'Book',
-            show: ['author', 'title', 'publisher', 'year'],
-            extra: ['isbn10', 'isbn13', 'editor', 'volume', 'number', 'series',
-                    'address', 'edition', 'month', 'note']
-        },
-        article: {
-            name: 'Article',
-            show: ['author', 'title', 'journal', 'year'],
-            extra: ['volume', 'number', 'pages', 'month', 'note']
-        }
     };
 
     var SourceEditTextFieldView = Backbone.View.extend({
