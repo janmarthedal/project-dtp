@@ -9,6 +9,40 @@ class RefAuthor(models.Model):
     def __unicode__(self):
         return self.name
 
+def normalize_author_list(authors):
+    return sorted(set([s.strip() for s in authors]) - set(['']), key=unicode.lower)
+
+class RefNodeManager(models.Manager):
+
+    def add_node(self, created_by, sourcetype, authors, editors, field_values):
+        node = RefNode(created_by=created_by, sourcetype=sourcetype)
+        node.save()
+
+        string_values = { k: None for k in RefNode.STRING_FIELDS }
+        string_values.update({ k: field_values[k] for k in RefNode.STRING_FIELDS })
+        authors = normalize_author_list(authors)
+        editors = normalize_author_list(editors)
+
+        items = [':'.join(authors), string_values['title'], ':'.join(editors)]
+        if sourcetype == 'book':
+            for n in ['edition', 'series', 'volume', 'number', 'publisher', 'address',
+                      'month', 'year', 'isbn10', 'isbn13']:
+                items.append(string_values[n])
+        elif sourcetype == 'article':
+            for n in ['journal', 'volume', 'number', 'pages', 'month', 'year']:
+                items.append(string_values[n])
+        items.append(string_values['note'])
+
+        node.digest = (';'.join([p or '' for p in items]))[:255]
+
+        node.__dict__.update(string_values)
+        node.authors = map(lambda n: RefAuthor.objects.get_or_create(name=n)[0], authors)
+        node.editors = map(lambda n: RefAuthor.objects.get_or_create(name=n)[0], editors)
+        node.save()
+
+        return node
+
+
 class RefNode(models.Model):
     class Meta:
         db_table = 'ref_node'
@@ -31,6 +65,8 @@ class RefNode(models.Model):
     isbn10     = models.CharField(max_length=255, null=True)
     isbn13     = models.CharField(max_length=255, null=True)
     note       = models.CharField(max_length=255, null=True)
+    digest     = models.CharField(max_length=255, db_index=True, null=False, default='')
+    objects = RefNodeManager()
     STRING_FIELDS = ['title', 'publisher', 'year', 'volume', 'number', 'series', 'address', 'edition',
                      'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']
     def __unicode__(self):

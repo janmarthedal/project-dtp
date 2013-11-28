@@ -22,15 +22,12 @@ def api_string_list_clean(request, key):
 @api_view
 @require_POST
 def source(request):
-    item = RefNode(created_by=api_request_user(request),
-                   sourcetype=api_request_string(request, 'type'))
-    for key in RefNode.STRING_FIELDS:
-        item.__dict__[key] = api_string_clean(request, key)
-    item.save()
-
-    item.authors = map(lambda n: RefAuthor.objects.get_or_create(name=n)[0], api_string_list_clean(request, 'author'))
-    item.editors = map(lambda n: RefAuthor.objects.get_or_create(name=n)[0], api_string_list_clean(request, 'editor'))
-    item.save()
+    item = RefNode.objects.add_node(api_request_user(request),
+                                    api_request_string(request, 'type'),
+                                    api_string_list_clean(request, 'author'),
+                                    api_string_list_clean(request, 'editor'),
+                                    {key: api_string_clean(request, key)
+                                     for key in RefNode.STRING_FIELDS})
 
     message = u'%s successfully created' % item
     logger.debug(message)
