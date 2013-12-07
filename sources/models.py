@@ -19,7 +19,7 @@ class RefNodeManager(models.Manager):
         node.save()
 
         string_values = { k: None for k in RefNode.STRING_FIELDS }
-        string_values.update({ k: field_values[k] for k in RefNode.STRING_FIELDS })
+        string_values.update({ k: field_values[k].lower() for k in RefNode.STRING_FIELDS })
         authors = normalize_author_list(authors)
         editors = normalize_author_list(editors)
 

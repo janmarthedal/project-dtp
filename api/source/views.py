@@ -1,7 +1,7 @@
 import json
 from django.contrib import messages
 from django.views.decorators.http import require_GET, require_POST
-from sources.models import RefNode, RefAuthor
+from sources.models import RefNode
 from api.helpers import api_view, api_request_user, api_request_string, api_request_string_list
 
 import logging

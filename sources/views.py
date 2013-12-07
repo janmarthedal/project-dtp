@@ -14,7 +14,8 @@ def context_for_add_source(**kwargs):
 
 @require_safe
 def index(request):
-    c = init_context('sources', sourcelist=[source.json_data() for source in RefNode.objects.all()])
+    c = init_context('sources', sourcelist=[source.json_data()
+                                            for source in RefNode.objects.order_by('digest')])
     return render(request, 'sources/index.html', c)
 
 @require_safe
