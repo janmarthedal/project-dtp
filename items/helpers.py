@@ -16,6 +16,7 @@ from tags.helpers import normalize_tag
 import logging
 logger = logging.getLogger(__name__)
 
+
 def make_html_safe(st):
     st = st.replace('<', '&lt;')
     st = st.replace('>', '&gt;')
@@ -46,7 +47,8 @@ class BodyScanner:
         body = re.sub(r'\[([^#\]]*)#([\w -]+)\]', self._conceptMatch, body)
         body = re.sub(r'\[([^@\]]*)@(\w+)\]', self._itemRefMatch, body)
         body = re.sub(r'\s*\[([^!\]]*)!(\w+)\]\s*', self._mediaRefMatch, body)
-        body = body.replace('[', '&#91;').replace(']', '&#93;').replace('<', '&lt;').replace('>', '&gt;');
+        body = body.replace('[', '&#91;').replace(']', '&#93;')
+        body = body.replace('<', '&lt;').replace('>', '&gt;')
         self.body = body
         self._imaths = self._imaths.items()
 
@@ -61,7 +63,7 @@ class BodyScanner:
 
     def _add_inline_maths(self, st):
         key = self._make_key()
-        self._imaths[key] = st;
+        self._imaths[key] = st
         return key
 
     def _conceptMatch(self, match):
@@ -134,20 +136,23 @@ def typesetConcept(text, tag_name, tag_to_category_map):
     except KeyError:
         return '<a href="#" rel="tooltip" data-original-title="tag: %s"><i>%s</i></a>' % (tag_name, link_text)
 
+
 def typesetItemRef(text, item_id):
     link_text = make_html_safe(text or item_id)
     url = reverse('items.views.show_final', args=[item_id])
     return '<a href="%s"><b>%s</b></a>' % (url, link_text)
 
+
 def typesetMediaRef(text, media_id):
-    c = dict(name = media_id, description = text)
+    c = dict(name=media_id, description=text)
     try:
         item = MediaItem.objects.get(entry__public_id=media_id, itemtype='O')
-        c.update(link = settings.MEDIA_URL + item.path)
+        c.update(link=settings.MEDIA_URL + item.path)
     except MediaItem.DoesNotExist:
-        c.update(error = 'Media does not exist')
+        c.update(error='Media does not exist')
     template = get_template('items/item_image.html')
     return template.render(Context(c))
+
 
 def typeset_body(st, tag_to_category_map):
     bs = BodyScanner(st)
@@ -195,7 +200,7 @@ def _extract_draft_item_attributes(item):
         }
     }
     if item.parent:
-        result.update(parent = { 'id': item.parent.final_id, 'type': item.parent.itemtype })
+        result.update(parent={'id': item.parent.final_id, 'type': item.parent.itemtype})
     return result
 
 
@@ -213,7 +218,7 @@ def _extract_final_item_attributes(item):
         }
     }
     if item.parent:
-        result.update(parent = { 'id': item.parent.final_id, 'type': item.parent.itemtype })
+        result.update(parent={'id': item.parent.final_id, 'type': item.parent.itemtype})
     return result
 
 
@@ -265,6 +270,7 @@ def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclud
         result['items'] = [_extract_draft_item_attributes(item) for item in items[:limit]]
 
     return result
+
 
 def publishIssues(draft_item):
     issues = []

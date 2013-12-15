@@ -1,7 +1,7 @@
 import urllib
 import xml.etree.ElementTree as ET
 
-feed = urllib.urlopen('http://blog.teoremer.com/feed').read()
+feed = urllib.urlopen('http://blog.teoremer.com/rss/').read()
 root = ET.fromstring(feed)
 channel = root.find('channel')
 
