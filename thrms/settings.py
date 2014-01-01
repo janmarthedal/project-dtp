@@ -44,7 +44,7 @@ else:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'thrms',
             'USER': 'root',
-            'PASSWORD': 'Cas250Tor_sql',
+            'PASSWORD': 'piwe9imo',
             'HOST': '',
             'PORT': '',
         }
