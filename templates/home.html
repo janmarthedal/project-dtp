@@ -10,6 +10,7 @@
 
 {% for item in blog_feed %}
 <h4><a href="{{ item.link }}">{{ item.title }}</a></h4>
+<p>{{ item.description|safe }}</p>
 {% endfor %}
 
 <h3>Latest items</h3>
