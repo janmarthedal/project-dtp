@@ -25,6 +25,17 @@
         }, 200);
     }
 
+    // http://stackoverflow.com/a/1119324/212069
+    function confirmOnPageExit(message) {
+        return function(e) {
+            e = e || window.event;
+            if (e) {
+                e.returnValue = message;
+            }
+            return message;
+        };
+    };
+
     var concept_map = (function() {
         var id_to_concept_map = {};
         return {
@@ -854,11 +865,13 @@
         },
         initialize: function() {
             _.bindAll(this, 'save');
+            window.onbeforeunload = confirmOnPageExit('The draft has changed.');
         },
         save: function() {
             this.model.save(null, {
                 wait: true,
                 success: function(model) {
+                    window.onbeforeunload = null;
                     redirect(to_url.drafts_show(model.get('id')));
                 },
                 error: function(model) {
