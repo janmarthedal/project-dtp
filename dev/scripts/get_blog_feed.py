@@ -2,7 +2,7 @@ import urllib
 import xml.etree.ElementTree as ET
 from datetime import timedelta, datetime
 
-feed = urllib.urlopen('http://teoremer.com/blog/rss/').read()
+feed = urllib.urlopen('http://blog.teoremer.com/rss/').read()
 root = ET.fromstring(feed)
 channel = root.find('channel')
 
