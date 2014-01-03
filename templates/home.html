@@ -9,7 +9,7 @@
 <h3>teoremer blog</h3>
 
 {% for item in blog_feed %}
-<h4><a href="{{ item.link }}">{{ item.title }}</a></h4>
+<h4><a href="{{ item.link }}">{{ item.title }}</a> <small>({{ item.date }})</small></h4>
 <p>{{ item.description|safe }}</p>
 {% endfor %}
 
