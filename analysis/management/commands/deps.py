@@ -1,7 +1,7 @@
 import time
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
-from analysis.models import ItemDependency, TagCount, ItemTag
+from analysis.models import ItemDependency, ItemTag
 from items.models import FinalItem, ItemTagCategory
 from items.helpers import BodyScanner
 from tags.models import Tag, Category
@@ -99,16 +99,4 @@ class Command(BaseCommand):
         t = time.clock() - t
         self.stdout.write('  Processed %d final items' % item_count)
         self.stdout.write('  A total of %d item tags' % tag_count)
-        self.stdout.write('  Took %g seconds' % t)
-
-    def _build_tag_counts(self):
-        self.stdout.write('Build tag count')
-        t = time.clock()
-        TagCount.objects.all().delete()
-        for tag in queryset_generator(Tag.objects):
-            count = ItemTag.objects.filter(tag=tag).count()
-            tag_count = TagCount(tag=tag, count=count)
-            tag_count.save()
-        t = time.clock() - t
-        self.stdout.write('  Processed %d tags' % TagCount.objects.count())
         self.stdout.write('  Took %g seconds' % t)

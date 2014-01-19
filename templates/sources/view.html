@@ -13,10 +13,10 @@
 {% if validations %}
 <div class="list-group">
 {% for val in validations %}
-<a href="{% url 'items.views.show_final' val.item.final_id %}" class="list-group-item">
-  <b>{{val.item}}</b><br/>
-  {{val.location}}
-</a>
+  <a href="{% url 'items.views.show_final' val.item.final_id %}" class="list-group-item">
+    <b>{{val.item}}</b><br/>
+    {{val.location}}
+  </a>
 {% endfor %}
 </div>
 {% else %}

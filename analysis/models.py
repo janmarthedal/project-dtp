@@ -14,9 +14,3 @@ class ItemTag(models.Model):
         db_table = 'item_tags'
     item = models.ForeignKey(FinalItem)
     tag  = models.ForeignKey(Tag, related_name='+', db_index=True)
-
-class TagCount(models.Model):
-    class Meta:
-        db_table = 'tag_count'
-    tag   = models.OneToOneField(Tag, primary_key=True)
-    count = models.IntegerField(db_index=True)

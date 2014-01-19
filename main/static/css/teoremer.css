@@ -29,14 +29,6 @@ span.removable {
 .categories {
   line-height: 30px;
 }
-.tag-counts {
-  list-style: none;
-  padding: 0px;
-  margin: 0px;
-}
-.tag-counts>li {
-  line-height: 30px;
-}
 .expander-in, .expander-out {
   cursor: pointer;
 }

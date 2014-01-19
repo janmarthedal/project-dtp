@@ -6,12 +6,9 @@
 
 {% block mainbar %}
 
-<h3>teoremer blog</h3>
+<h3>Welcome!</h3>
 
-{% for item in blog_feed %}
-<h4><a href="{{ item.link }}">{{ item.title }}</a> <small>({{ item.date }})</small></h4>
-<p>{{ item.description|safe }}</p>
-{% endfor %}
+<p>teoremer.com is collection of mathematical definitions, theorems and proofs.</p>
 
 <h3>Latest items</h3>
 
@@ -20,12 +17,11 @@
 {% endblock %}
 
 {% block sidebar %}
-<h4>Tags</h4>
-<ul class="tag-counts">
-{% for tc in top_tags %}
-  <li><span class="tag">{{ tc.name|typeset_tag }}</span> &times; {{ tc.count }}</li>
+<h4>From the blog</h4>
+{% for item in blog_feed %}
+<h5><a href="{{ item.link }}">{{ item.title }}</a> <small>({{ item.date }})</small></h5>
+<p>{{ item.description|truncatewords:20|safe }}</p>
 {% endfor %}
-</ul>
 {% endblock %}
 
 {% block bodybottom %}
