@@ -20,9 +20,7 @@
 
     // http://www.abeautifulsite.net/blog/2010/01/smoothly-scroll-to-an-element-without-a-jquery-plugin/
     function scrollTo(element) {
-        $('body').animate({
-            scrollTop: element.offset().top
-        }, 200);
+        document.documentElement.scrollTop = element.offset().top;
     }
 
     // http://stackoverflow.com/a/1119324/212069
@@ -223,6 +221,9 @@
         },
         document_show: function(id) {
             return '/document/id/' + id;
+        },
+        definitions_categorized: function(tag_list) {
+            return '/definitions/categorized/' + _.map(tag_list, encodeURIComponent).join('/');
         }
     };
 
@@ -1481,6 +1482,7 @@
         },
         initialize: function(options) {
             this.dispatcher = options.dispatcher;
+            this.editable = options.editable;
             _.bindAll(this, 'render');
         },
         render: function() {
@@ -1488,15 +1490,16 @@
             var body = typeset_body(this.model.get('body'), function(text, tag) {
                 var concept_id = tag_refs[tag];
                 return '<a href="#" class="add-concept concept-' + concept_id
-                       + '-ref" data-concept="' + concept_id + '">' + (text || tag) + '</a>';
+                    + '-ref" data-concept="' + concept_id + '">' + (text || tag) + '</a>';
             }, function(text, item_id) {
                 return '<a href="#" class="add-item item-' + item_id + '-ref" data-item="'
-                       + item_id + '">' + (text || item_id) + '</a>';
+                    + item_id + '">' + (text || item_id) + '</a>';
             }, typeset_media_default(this.render));
             var html = teoremer.templates.document_item({
-                title: this.model.get('name'),
-                link:  this.model.get('link'),
-                body:  body
+                title:    this.model.get('name'),
+                link:     this.model.get('link'),
+                body:     body,
+                editable: this.editable
             });
             this.$el.html(html);
             return this;
@@ -1506,6 +1509,7 @@
     var DocumentView = Backbone.View.extend({
         initialize: function(options) {
             this.doc_id = options.doc_id;
+            this.editable = options.editable;
             _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch',
                             'removeEntryView', 'updateMeta');
             this.listenTo(this.collection, {
@@ -1612,21 +1616,21 @@
                     all_concepts_referenced[value] = true;
                 });
             }, this);
-            this.$('a.add-item').removeClass('text-success');
+            this.$('.add-item').addClass('text-primary');
             _.each(this.item_availability, function(value, key) {
-                this.$('a.item-' + key + '-ref').addClass('text-success');
+                this.$('.item-' + key + '-ref').removeClass('text-primary').addClass('text-success');
             }, this);
-            this.$('a.add-concept').removeClass('text-success text-warning');
+            this.$('.add-concept').addClass('text-primary');
             _.each(this.concept_availability, function(value, key) {
                 var has_concept = typeof value === 'string';
-                this.$('a.concept-' + key + '-ref').addClass(has_concept
-                                                             ? 'text-success' : 'text-warning');
+                this.$('.concept-' + key + '-ref').removeClass('text-primary')
+                    .addClass(has_concept ? 'text-success' : 'text-warning');
             }, this);
             $('#def-count').text(formatCount('definition', def_count));
             $('#thm-count').text(formatCount('theorem', thm_count));
             $('#prf-count').text(formatCount('proof', prf_count));
             _.each(all_concepts_referenced, function(value, key) {
-                this.$('a.add-concept.concept-' + key + '-ref').tooltip({
+                this.$('.add-concept.concept-' + key + '-ref').tooltip({
                     html: true,
                     title: function() {
                         return typeset_category_id(key);
@@ -1636,9 +1640,10 @@
         },
         makeItemView: function(model) {
             return new DocumentItemView({
-                id: 'doc-entry-' + model.id,
-                model: model,
-                dispatcher: this.dispatcher
+                id:         'doc-entry-' + model.id,
+                model:      model,
+                dispatcher: this.dispatcher,
+                editable:   this.editable
             });
         },
         makeMessageView: function(severity, message) {
@@ -1662,20 +1667,25 @@
             var key = '' + concept_id;
             if (this.concept_availability[key]) {
                 scrollTo($('#doc-entry-' + this.concept_availability[key]));
-            } else {
+            } else if (this.editable) {
                 this.fetch('add-concept', {
                     concept: concept_map.from_id(concept_id),
                     source_id: source_id
                 });
+            } else {
+                var tag_list = concept_map.from_id(concept_id);
+                redirect(to_url.definitions_categorized(tag_list));
             }
         },
         fetchItem: function(item_id) {
             if (this.item_availability[item_id]) {
                 scrollTo($('#doc-entry-' + this.item_availability[item_id]));
-            } else {
+            } else if (this.editable) {
                 this.fetch('add-item', {
                     item_id: item_id
                 });
+            } else {
+                redirect(to_url.items_show_final(item_id));
             }
         },
         removeEntryView: function(item_id) {
@@ -1942,23 +1952,25 @@
             });
         },
 
-        document_view: function(data, items) {
+        document_view: function(data, items, editable) {
             var document_data = new DocumentModel(data);
             var set_title = function() {
                 $('#document-title').html(document_data.escape('title') || ('Document ' + data.id));
             };
             set_title();
-            document_data.on('change:title', set_title);
             new DocumentView({
                 el: $('#document-items'),
                 collection: new DocumentItemList(items, { parse: true }),
-                doc_id: data.id
+                doc_id: data.id,
+                editable: editable
             });
-            $('#rename-button').click(function() {
-                show_modal('Rename document',
-                           new DocumentRenameView({ model: document_data }),
-                           [ { name: 'Close' }, { name: 'Save', primary: true } ]);
-            });
+            if (editable) {
+                document_data.on('change:title', set_title);
+                $('#rename-button').click(function() {
+                    show_modal('Rename document', new DocumentRenameView({ model: document_data }),
+                               [ { name: 'Close' }, { name: 'Save', primary: true } ]);
+                });
+            }
         }
     };
 

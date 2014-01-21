@@ -23,14 +23,17 @@
 
 <h4>Actions</h4>
 
-<p><a id="rename-button" href="#" class="btn btn-default">Rename document</a></p>
-
-{% if can_delete %}
-<p><form method="post" action="{% url 'document.views.delete' %}">
-  {% csrf_token %}
-  <button class="btn btn-danger" type="submit">Delete</button>
-  <input type="hidden" name="id" value="{{ document.id }}" />
-</form></p>
+{% if can_edit %}
+<p>
+  <a id="rename-button" href="#" class="btn btn-default">Rename document</a>
+</p>
+<p>
+  <form method="post" action="{% url 'document.views.delete' %}">
+    {% csrf_token %}
+    <button class="btn btn-danger" type="submit">Delete</button>
+    <input type="hidden" name="id" value="{{ document.id }}" />
+  </form>
+</p>
 {% endif %}
 
 {% endblock sidebar %}
@@ -40,7 +43,7 @@
 {% include 'include/js-scripts.html' with showdown=True %}
 
 <script type="text/javascript">
-teoremer.document_view({{document|to_json}}, {{items|to_json}});
+teoremer.document_view({{document|to_json}}, {{items|to_json}}, {{can_edit|to_json}});
 </script>
 
 {% endblock %}

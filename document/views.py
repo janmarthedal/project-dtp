@@ -29,12 +29,12 @@ def add(request, doc_id, item_id):
 
 @require_safe
 def view(request, doc_id):
-    document = get_object_or_404(Document, pk=doc_id, created_by=request.user.id)
+    document = get_object_or_404(Document, pk=doc_id)
     document_view = DocumentView(document)
     c = init_context('document',
-                     document   = document_view.document,
-                     items      = document_view.json_data(),
-                     can_delete = document_view.document.created_by == request.user)
+                     document = document_view.document,
+                     items    = document_view.json_data(),
+                     can_edit = document_view.document.created_by == request.user)
     return render(request, 'document/view.html', c)
 
 @require_POST
