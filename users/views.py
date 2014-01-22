@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, logout as auth_logout
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
@@ -24,14 +24,14 @@ def login(request):
     return render(request, 'users/login.html', c)
 
 @require_safe
-def closed_beta(request):
-    c = init_context('users')
-    return render(request, 'users/closed-beta.html', c)
+def logout(request):
+    auth_logout(request)
+    return HttpResponseRedirect(reverse('main.views.index'))
 
 @require_safe
 def login_failed(request):
     messages.warning(request, 'Login failed')
-    return HttpResponseRedirect(reverse('users.views.closed_beta'))
+    return HttpResponseRedirect(reverse('users.views.login'))
 
 @require_safe
 def profile(request, user_id):

@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
-    url(r'^browserid/',   include('django_browserid.urls')),
     url(r'^api/',         include('api.urls')),
     url(r'^user/',        include('users.urls')),
     url(r'^source/',      include('sources.urls')),
@@ -15,4 +14,5 @@ urlpatterns = patterns('',
     url(r'^document/',    include('document.urls')),
     url(r'^about$',       'main.views.about'),
     url(r'^$',            'main.views.index'),
+    url(r'^auth/',        include('social.apps.django_app.urls', namespace='social')),
 )

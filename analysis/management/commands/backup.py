@@ -14,7 +14,7 @@ class Command(management.base.BaseCommand):
     def handle(self, outname=None, *args, **options):
         if not outname:
             outname = timezone.now().strftime('%Y-%m-%d-%H-%M.tar.gz')
-        apps = ['users', 'tags', 'drafts', 'items', 'sources']
+        apps = ['users', 'tags', 'drafts', 'items', 'sources', 'default.UserSocialAuth', 'document', 'media']
         with tarfile.open(outname, "w:gz") as tar:
             tf = tempfile.NamedTemporaryFile(suffix='.json', delete=False)
             management.call_command('dumpdata', *apps, indent=2, stdout=tf)

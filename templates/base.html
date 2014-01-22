@@ -1,5 +1,4 @@
 {% load staticfiles %}
-{% load browserid %}
 {% load i18n %}
 
 <!DOCTYPE html>
@@ -26,7 +25,6 @@
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
   </head>
   <body>
-    {% browserid_info %}
     <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
       <div class="container">
       <!-- Brand and toggle get grouped for better mobile display -->
@@ -73,7 +71,7 @@
           {% if user.is_authenticated %}
             <a href="{% url 'users.views.profile' user.get_username %}">{{ user.get_full_name }}</a>
           {% else %}
-            <a href="{% url 'users.views.closed_beta' %}">log in</a>
+            <a href="{% url 'users.views.login' %}">log in</a>
           {% endif %}
         </p>
       </div>

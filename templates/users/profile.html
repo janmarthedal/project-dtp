@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load browserid %}
 {% load utils_tags %}
 
 {% block title %}{{ pageuser.get_full_name }}{% endblock %}
@@ -35,7 +34,7 @@
 
 {% if own_profile %}
 <h4>Actions</h4>
-{% browserid_logout text="log out" link_class="btn btn-primary" %}
+<a href="{% url 'users.views.logout' %}">Log out</a>
 {% endif %}
 
 <h4>Included tags</h4>
@@ -51,5 +50,4 @@
 <script type="text/javascript">
 teoremer.item_search('DTP', '{{statuses}}', {{init_items|to_json}}, undefined, 'FRD', {{user_id}});
 </script>
-{% browserid_js %}
 {% endblock %}

@@ -144,12 +144,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 #    'django.core.context_processors.static',
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
-    'django_browserid.context_processors.browserid'
-)
-
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'django_browserid.auth.BrowserIDBackend',
 )
 
 MESSAGE_TAGS = {
@@ -162,22 +156,55 @@ MESSAGE_TAGS = {
 
 ROOT_URLCONF = 'thrms.urls'
 
-BROWSERID_CREATE_USER = False
+# Users and authentication
+
+AUTH_USER_MODEL = 'users.User'
+
+AUTHENTICATION_BACKENDS = (
+    'social.backends.google.GoogleOpenId',
+    'social.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+LOGIN_URL = '/user/login'
 # Path to redirect to on successful login.
-LOGIN_REDIRECT_URL = '/users/current'
+LOGIN_REDIRECT_URL = '/user/current'
 # Path to redirect to on unsuccessful login attempt.
 LOGIN_REDIRECT_URL_FAILURE = '/user/login-failed'
 # Path to redirect to on logout.
 LOGOUT_REDIRECT_URL = '/'
 
-AUTH_USER_MODEL = 'users.User'
+SOCIAL_AUTH_USER_FIELDS = ['email', 'fullname']
+
+SOCIAL_AUTH_STRATEGY = 'social.strategies.django_strategy.DjangoStrategy'
+SOCIAL_AUTH_STORAGE = 'social.apps.django_app.default.models.DjangoStorage'
+SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = [
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/userinfo.profile'
+]
+
+SOCIAL_AUTH_TWITTER_KEY = 'H77AtaP64G1xuWvuAI61w'
+SOCIAL_AUTH_TWITTER_SECRET = 'imu1e8pl0zyXMe6oX2vJqxzCS4hcLJeAQPlfmWd3U'
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details',
+)
+
+############################
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'thrms.wsgi.application'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django_browserid',                # load after auth
+    'social.apps.django_app.default',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
