@@ -163,6 +163,8 @@ AUTH_USER_MODEL = 'users.User'
 AUTHENTICATION_BACKENDS = (
     'social.backends.google.GoogleOpenId',
     'social.backends.twitter.TwitterOAuth',
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.linkedin.LinkedinOAuth',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -174,17 +176,9 @@ LOGIN_REDIRECT_URL_FAILURE = '/user/login-failed'
 # Path to redirect to on logout.
 LOGOUT_REDIRECT_URL = '/'
 
-SOCIAL_AUTH_USER_FIELDS = ['email', 'fullname']
-
 SOCIAL_AUTH_STRATEGY = 'social.strategies.django_strategy.DjangoStrategy'
 SOCIAL_AUTH_STORAGE = 'social.apps.django_app.default.models.DjangoStorage'
-SOCIAL_AUTH_GOOGLE_OAUTH_SCOPE = [
-    'https://www.googleapis.com/auth/drive',
-    'https://www.googleapis.com/auth/userinfo.profile'
-]
-
-SOCIAL_AUTH_TWITTER_KEY = 'H77AtaP64G1xuWvuAI61w'
-SOCIAL_AUTH_TWITTER_SECRET = 'imu1e8pl0zyXMe6oX2vJqxzCS4hcLJeAQPlfmWd3U'
+SOCIAL_AUTH_USER_FIELDS = ['email', 'fullname']
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
@@ -196,6 +190,18 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.load_extra_data',
     'social.pipeline.user.user_details',
 )
+
+SOCIAL_AUTH_TWITTER_KEY = 'H77AtaP64G1xuWvuAI61w'
+SOCIAL_AUTH_TWITTER_SECRET = 'imu1e8pl0zyXMe6oX2vJqxzCS4hcLJeAQPlfmWd3U'
+
+SOCIAL_AUTH_FACEBOOK_KEY = '273595339457815'
+SOCIAL_AUTH_FACEBOOK_SECRET = '3035f23f115e5df50f20a18717432293'
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+
+SOCIAL_AUTH_LINKEDIN_KEY = '77uqs77i51tzhx'
+SOCIAL_AUTH_LINKEDIN_SECRET = 'Zbqp19aBlck2yPoi'
+SOCIAL_AUTH_LINKEDIN_SCOPE = ['r_basicprofile', 'r_emailaddress']
+SOCIAL_AUTH_LINKEDIN_FIELD_SELECTORS = ['email-address']
 
 ############################
 

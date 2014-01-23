@@ -6,8 +6,13 @@
 
 <h3>Registrered user?</h3>
 
-<p><a href="{% url 'social:begin' 'google' %}">Log in with Google</a></p>
-<p><a href="{% url 'social:begin' 'twitter' %}">Log in with Twitter</a></p>
+Choose among the following providers for authentication:
+<ul>
+  <li><a href="{% url 'social:begin' 'google' %}">Google</a></li>
+  <li><a href="{% url 'social:begin' 'twitter' %}">Twitter</a></li>
+  <li><a href="{% url 'social:begin' 'facebook' %}">Facebook</a></li>
+  <li><a href="{% url 'social:begin' 'linkedin' %}">LinkedIn</a></li>
+</ul>
 
 <h3>New user?</h3>
 
