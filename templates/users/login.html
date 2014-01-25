@@ -1,19 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}Closed beta{% endblock %}
+{% block title %}Log in{% endblock %}
 
 {% block mainbar %}
 
-<h3>Registrered user?</h3>
+<h3>{% if invited %}Welcome as a new beta user!{% else %}Registrered user?{% endif %}</h3>
 
-Choose among the following providers for authentication:
-<ul>
-  <li><a href="{% url 'social:begin' 'google' %}">Google</a></li>
-  <li><a href="{% url 'social:begin' 'twitter' %}">Twitter</a></li>
-  <li><a href="{% url 'social:begin' 'facebook' %}">Facebook</a></li>
-  <li><a href="{% url 'social:begin' 'linkedin' %}">LinkedIn</a></li>
-</ul>
+<p>{% if invited %}Choose an authentication provider to use when logging in:
+{% else %}Log in using your authentication provider:{% endif %}</p>
+<div>
+  <a href="{% url 'social:begin' 'google' %}" class="btn btn-default">Google</a>
+  <a href="{% url 'social:begin' 'twitter' %}" class="btn btn-default">Twitter</a>
+  <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-default">Facebook</a>
+  <a href="{% url 'social:begin' 'linkedin' %}" class="btn btn-default">LinkedIn</a>
+</div>
 
+{% if not invited %}
 <h3>New user?</h3>
 
 <p><b>teoremer</b> is currently in a closed beta phase. This means that the site is fairly
@@ -28,5 +30,6 @@ Choose among the following providers for authentication:
     <li>The email address you wish to use for login (if different from your sender address)</li>
     <li>Short background (only for internal use; are you a student, teacher, researcher, other?)</li>
   </ul></p>
+{% endif %}
 
 {% endblock %}

@@ -7,6 +7,7 @@ from django.views.decorators.http import require_safe
 from document.models import Document
 from items.helpers import item_search_to_json
 from main.helpers import init_context, logged_in_or_404
+from users.models import Invitations
 
 import logging
 logger = logging.getLogger(__name__)
@@ -19,19 +20,23 @@ def index(request):
 
 @require_safe
 def login(request):
-    c = init_context('users',
-                     next = request.GET.get('next', reverse('users.views.profile_current')))
+    if request.user.is_authenticated():
+        messages.info(request, 'Already logged in')
+        return HttpResponseRedirect(reverse('users.views.profile_current'))
+    c = init_context('users', next=request.GET.get('next', reverse('users.views.profile_current')))
+    token = request.GET.get('token', None)
+    if token:
+        if Invitations.objects.filter(token=token).exists():
+            request.session['invite_token'] = token
+            c['invited'] = True
+        else:
+            messages.warning(request, 'Illegal invitation token')
     return render(request, 'users/login.html', c)
 
 @require_safe
 def logout(request):
     auth_logout(request)
     return HttpResponseRedirect(reverse('main.views.index'))
-
-@require_safe
-def login_failed(request):
-    messages.warning(request, 'Login failed')
-    return HttpResponseRedirect(reverse('users.views.login'))
 
 @require_safe
 def profile(request, user_id):

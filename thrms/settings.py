@@ -134,6 +134,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'users.helpers.CustomSocialAuthExceptionMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -141,7 +142,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
-#    'django.core.context_processors.static',
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
 )
@@ -151,7 +151,7 @@ MESSAGE_TAGS = {
     message_constants.INFO:    'label label-info',
     message_constants.SUCCESS: 'label label-success',
     message_constants.WARNING: 'label label-warning',
-    message_constants.ERROR:   'label label-important'
+    message_constants.ERROR:   'label label-danger'
 }
 
 ROOT_URLCONF = 'thrms.urls'
@@ -169,11 +169,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 LOGIN_URL = '/user/login'
-# Path to redirect to on successful login.
 LOGIN_REDIRECT_URL = '/user/current'
-# Path to redirect to on unsuccessful login attempt.
-LOGIN_REDIRECT_URL_FAILURE = '/user/login-failed'
-# Path to redirect to on logout.
 LOGOUT_REDIRECT_URL = '/'
 
 SOCIAL_AUTH_STRATEGY = 'social.strategies.django_strategy.DjangoStrategy'
@@ -185,6 +181,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_uid',
     'social.pipeline.social_auth.auth_allowed',
     'social.pipeline.social_auth.social_user',
+    'users.helpers.check_new_user',
     'social.pipeline.user.create_user',
     'social.pipeline.social_auth.associate_user',
     'social.pipeline.social_auth.load_extra_data',
