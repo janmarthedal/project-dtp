@@ -1,0 +1,8 @@
+Beta user invitation from teoremer.com
+You have been invited to create an account at <a href="{{site_url}}">teoremer.com</a>.
+
+Please go to the page <a href="{{site_url}}{% url 'users.views.login' %}?token={{token}}">{{site_url}}{% url 'users.views.login' %}?token={{token}}</a> and follow the instructions.
+
+
+Kind regards,
+The teoremer.com team

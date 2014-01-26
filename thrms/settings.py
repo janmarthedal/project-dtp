@@ -23,16 +23,11 @@ if os.uname()[1].endswith('webfaction.com'):
     MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
     MEDIA_URL = '/media/files/'
 
-    EMAIL_HOST = 'smtp.webfaction.com'
-    EMAIL_HOST_USER = 'jmr'
-    EMAIL_HOST_PASSWORD = 'Knuth316'
-    DEFAULT_FROM_EMAIL = 'jmr@teoremer.com'
-    SERVER_EMAIL = 'jmr@teoremer.com'
     ALLOWED_HOSTS = ['hilbert.janmr.com', 'teoremer.com']
 
     MESSAGE_LEVEL = message_constants.INFO
 
-    SITE_URL = 'http://hilbert.janmr.com'  # used by browser_id
+    SITE_URL = 'http://hilbert.janmr.com'
 
 else:
 
@@ -57,14 +52,19 @@ else:
 
     MESSAGE_LEVEL = message_constants.DEBUG
 
-    SITE_URL = 'http://localhost:8000'  # used by browser_id
+    SITE_URL = 'http://localhost:8000'
 
 ############ Common settings ############
+
+EMAIL_HOST = 'smtp.webfaction.com'
+EMAIL_HOST_USER = 'jmr'
+EMAIL_HOST_PASSWORD = 'Knuth316'
+DEFAULT_FROM_EMAIL = 'admin@teoremer.com'
+SERVER_EMAIL = 'admin@teoremer.com'
 
 ALLOWED_INCLUDE_ROOTS = ( PROJECT_BASE, )
 
 ADMINS = (
-#    ('Jan Marthedal Rasmussen', 'jmr@kanooth.com'),
     ('Jan Marthedal Rasmussen', 'jan.marthedal@gmail.com'),
 )
 

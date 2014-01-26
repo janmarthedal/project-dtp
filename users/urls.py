@@ -7,4 +7,3 @@ urlpatterns = patterns('users.views',
     url(r'^profile/(\d+)$', 'profile'),
     url(r'^list$',          'index'),
 )
-

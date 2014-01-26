@@ -1,8 +1,11 @@
 import uuid
 from django.conf import settings
-from django.db import models
-from django.utils import timezone
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
+from django.db import models
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 class UserManager(BaseUserManager):
 
@@ -25,7 +28,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = []
 
     def get_full_name(self):
-        return self.name or 'User %d' % self.id
+        return self.name or 'User {}'.format(self.id)
 
     def get_short_name(self):
         return self.id
@@ -46,13 +49,27 @@ class User(AbstractBaseUser):
 
 class InvitationManager(models.Manager):
 
-    def make_invitation(self, user):
-        invite = self.model(invited_by=user, token=uuid.uuid4().hex)
+    def make_invitation(self, invited_by=None, target_email=None, target_name=None):
+        invite = self.model(invited_by=invited_by, token=uuid.uuid4().hex,
+                            target_email=target_email, target_name=target_name)
         invite.save()
         return invite
 
 class Invitations(models.Model):
     token = models.CharField(max_length=32, db_index=True, null=False)
-    invited_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
+    invited_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False, null=True)
     invited_at = models.DateTimeField(default=timezone.now)
+    target_email = models.EmailField(max_length=255, null=True)
+    target_name = models.CharField(max_length=255, null=True)
     objects = InvitationManager()
+
+    def send(self):
+        if not self.target_email:
+            raise ValueError('No email address present')
+        email = render_to_string('email/beta_invite.txt',
+                                 { 'site_url': settings.SITE_URL, 'token': self.token })
+        [subject, message] = email.split('\n', 1)
+        send_mail(subject, message, 'admin@teoremer.com', [self.target_email])
+
+    def __unicode__(self):
+        return u'{} for {} <{}>'.format(self.token, self.target_name, self.target_email)
