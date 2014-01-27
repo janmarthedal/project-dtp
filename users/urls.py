@@ -5,5 +5,6 @@ urlpatterns = patterns('users.views',
     url(r'^logout$',        'logout'),
     url(r'^current$',       'profile_current'),
     url(r'^profile/(\d+)$', 'profile'),
+    url(r'^profile/edit$',  'profile_edit'),
     url(r'^list$',          'index'),
 )

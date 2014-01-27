@@ -28,7 +28,7 @@ def init_context(nav, extra={}, **kwargs):
     if   nav.upper() == 'D': nav = 'definitions'
     elif nav.upper() == 'T': nav = 'theorems'
     elif nav.upper() == 'P': nav = 'proofs'
-    c = { 'active_nav': nav }
+    c = dict(active_nav=nav)
     c.update(extra)
     c.update(**kwargs)
     return c

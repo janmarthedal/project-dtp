@@ -1,9 +1,11 @@
+from django import forms
 from django.contrib import messages
 from django.contrib.auth import get_user_model, logout as auth_logout
 from django.core.urlresolvers import reverse
+from django.forms.util import ErrorList
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.http import require_safe
+from django.views.decorators.http import require_safe, require_http_methods
 from document.models import Document
 from items.helpers import item_search_to_json
 from main.helpers import init_context, logged_in_or_404
@@ -51,7 +53,40 @@ def profile(request, user_id):
                      documents   = Document.objects.filter(created_by=pageuser).all())
     return render(request, 'users/profile.html', c)
 
+class CustomErrorList(ErrorList):
+    def __unicode__(self):
+        return self.as_custom()
+    def as_custom(self):
+        if not self: return u''
+        return ''.join(u'<span class="label label-danger">{}</span>'.format(e) for e in self)
+
+class ProfileForm(forms.Form):
+    name = forms.CharField(label='Display name', max_length=255,
+                           widget=forms.TextInput(attrs={'class':'form-control'}))
+    email = forms.EmailField(label='Email address', max_length=255,
+                             widget=forms.EmailInput(attrs={'class':'form-control'}))
+    description = forms.CharField(label='Description',
+                                  widget=forms.Textarea(attrs={'class':'form-control'}))
+
+@require_http_methods(['GET', 'POST'])
 @logged_in_or_404
+def profile_edit(request):
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, error_class=CustomErrorList)
+        if form.is_valid():
+            request.user.name = form.cleaned_data['name']
+            request.user.email = form.cleaned_data['email']
+            request.user.description = form.cleaned_data['description']
+            request.user.save()
+            return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.id]))
+    else:
+        form = ProfileForm({'name': request.user.get_full_name(),
+                            'email': request.user.email,
+                            'description': request.user.description})
+    c = init_context('users', form=form)
+    return render(request, 'users/profile_edit.html', c)
+
 @require_safe
+@logged_in_or_404
 def profile_current(request):
     return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.id]))
