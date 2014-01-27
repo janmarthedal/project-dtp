@@ -2,7 +2,6 @@ import uuid
 from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -66,8 +65,9 @@ class Invitations(models.Model):
     def send(self):
         if not self.target_email:
             raise ValueError('No email address present')
-        email = render_to_string('email/beta_invite.txt',
-                                 { 'site_url': settings.SITE_URL, 'token': self.token })
+        email = render_to_string('email/beta_invite.txt', dict(site_url=settings.SITE_URL,
+                                                               token=self.token,
+                                                               name=self.target_name))
         [subject, message] = email.split('\n', 1)
         send_mail(subject, message, 'admin@teoremer.com', [self.target_email])
 
