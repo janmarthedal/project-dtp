@@ -3,7 +3,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 from drafts.models import DraftItem, DraftValidation
-from analysis.management.commands.points import update_validation_points
 from items.models import FinalItem, ItemValidation, UserItemValidation
 from main.helpers import init_context, logged_in_or_404, logged_in_or_prompt
 from sources.models import RefNode, RefAuthor
@@ -61,7 +60,7 @@ def add_location_for_item(request, item_id, source_id):
                                                         location=location)
         UserItemValidation.objects.create(created_by=request.user,
                                           validation=item_validation)
-        update_validation_points(item_validation)
+        item_validation.update_points()
         return HttpResponseRedirect(reverse('items.views.show_final', args=[item.final_id]))
 
 @logged_in_or_404

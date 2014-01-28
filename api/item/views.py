@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
-from analysis.management.commands.points import update_validation_points
 from api.helpers import (ApiError, api_view, api_request_user, api_request_string_list_list,
                          api_request_tag_category_list, api_request_string, api_request_int)
 from items.helpers import item_search_to_json
@@ -31,15 +30,10 @@ def items(request):
         limit  = int(request.GET.get('limit', 5))
     except:
         raise Http404
-    result = item_search_to_json(itemtype=itemtype,
-                                 parent=parent,
-                                 include_tag_names=include_tags,
-                                 exclude_tag_names=exclude_tags,
-                                 category=category,
-                                 status=status,
-                                 offset=offset,
-                                 limit=limit,
-                                 user=list_user)
+    result = item_search_to_json(itemtype=itemtype, parent=parent,
+                                 include_tag_names=include_tags, exclude_tag_names=exclude_tags,
+                                 category=category, status=status, offset=offset,
+                                 limit=limit, user=list_user)
     return json_response(result)
 
 @require_http_methods(['PUT'])
@@ -60,24 +54,24 @@ def final_id(request, item_id):
     item.update(user, primary_categories, secondary_categories, tag_category_map)
 
     return {
-        'id':        item.final_id,
-        'pricats':   primary_categories,
-        'seccats':   secondary_categories,
+        'id': item.final_id,
+        'pricats': primary_categories,
+        'seccats': secondary_categories,
         'tagcatmap': tag_category_map
     }
 
 @require_POST
 @api_view
 def validation_vote(request, item_id):
-    user          = api_request_user(request)
+    user = api_request_user(request)
     validation_id = api_request_int(request, 'validation')
-    vote          = api_request_string(request, 'vote')
+    vote = api_request_string(request, 'vote')
     value = -1 if vote == 'down' else 1 if vote == 'up' else 0
     validation = ItemValidation.objects.get(id=validation_id, item__final_id=item_id)
     UserItemValidation.objects.filter(created_by=user, validation=validation).delete()
     if value:
         UserItemValidation.objects.create(created_by=user, validation=validation, value=value)
-    update_validation_points(validation)
+    validation.update_points()
     return {
         'validation_points': validation.points,
         'item_points': validation.item.points

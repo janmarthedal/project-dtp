@@ -1,6 +1,7 @@
 import string
 from django.conf import settings
 from django.db import models, IntegrityError
+from django.db.models import Sum
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from tags.models import Category, Tag
@@ -17,12 +18,12 @@ FINAL_NAME_MAX_LENGTH = 10
 class FinalItemManager(models.Manager):
 
     def add_item(self, draft_item):
-        item = FinalItem(itemtype    = draft_item.itemtype,
-                         status      = 'F',
-                         created_by  = draft_item.created_by,
+        item = FinalItem(itemtype = draft_item.itemtype,
+                         status = 'F',
+                         created_by = draft_item.created_by,
                          modified_by = draft_item.created_by,
-                         body        = draft_item.body,
-                         parent      = draft_item.parent)
+                         body = draft_item.body,
+                         parent = draft_item.parent)
         for length in range(FINAL_NAME_MIN_LENGTH, FINAL_NAME_MAX_LENGTH):
             item.final_id = item.itemtype + get_random_string(length, FINAL_NAME_CHARS)
             try:
@@ -52,14 +53,14 @@ class FinalItem(BaseItem):
         ('B', 'broken')
     )
 
-    final_id    = models.CharField(max_length=FINAL_NAME_MAX_LENGTH, unique=True, db_index=True)
-    status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
-    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
-    created_at  = models.DateTimeField(default=timezone.now)
+    final_id = models.CharField(max_length=FINAL_NAME_MAX_LENGTH, unique=True, db_index=True)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
+    created_at = models.DateTimeField(default=timezone.now)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     modified_at = models.DateTimeField(default=timezone.now)
-    categories  = models.ManyToManyField(Category, through='FinalItemCategory')
-    points      = models.FloatField(default=0, null=False)
+    categories = models.ManyToManyField(Category, through='FinalItemCategory')
+    points = models.FloatField(default=0, null=False)
 
     def __unicode__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
@@ -94,20 +95,33 @@ class FinalItem(BaseItem):
         self.itemtagcategory_set.all().delete()
         self.set_item_tag_categories(tag_category_list)
 
+    def update_points(self):
+        sum_aggregate = ItemValidation.objects.filter(item=self, points__gt=0).aggregate(Sum('points'))
+        validation_points = sum_aggregate['points__sum'] or 0
+        sum_aggregate = FinalItem.objects.filter(parent=self, status='F', points__gt=0).aggregate(Sum('points'))
+        child_points = sum_aggregate['points__sum'] or 0
+        points = 1 + validation_points + child_points
+        if points != self.points:
+            self.points = points
+            self.save()
+            if self.parent:
+                self.parent.update_points()
+
+
 class FinalItemCategory(models.Model):
     class Meta:
         db_table = 'final_item_category'
         unique_together = ('item', 'category')
-    item     = models.ForeignKey(FinalItem, db_index=True)
+    item = models.ForeignKey(FinalItem, db_index=True)
     category = models.ForeignKey(Category, db_index=False)
-    primary  = models.BooleanField()
+    primary = models.BooleanField()
 
 class ItemTagCategory(models.Model):
     class Meta:
         db_table = 'item_tag_category'
         unique_together = ('item', 'tag')
-    item     = models.ForeignKey(FinalItem, db_index=True)
-    tag      = models.ForeignKey(Tag, db_index=False)
+    item = models.ForeignKey(FinalItem, db_index=True)
+    tag = models.ForeignKey(Tag, db_index=False)
     category = models.ForeignKey(Category, db_index=False)
     def __unicode__(self):
         return u'%s | %s | %s' % (self.item, self.tag, self.category)
@@ -117,7 +131,9 @@ class ItemTagCategory(models.Model):
 class ItemValidation(ValidationBase):
     class Meta:
         db_table = 'item_validation'
+
     item = models.ForeignKey(FinalItem)
+
     def json_data(self, user=None):
         data = {
             'id':       self.id,
@@ -133,6 +149,14 @@ class ItemValidation(ValidationBase):
                 pass
         return data
 
+    def update_points(self):
+        sum_aggregate = UserItemValidation.objects.filter(validation=self).aggregate(Sum('value'))
+        points = sum_aggregate['value__sum'] or 0
+        if points != self.points:
+            self.points = points
+            self.save()
+            self.item.update_points()
+
 class UserItemValidation(models.Model):
     class Meta:
         db_table = 'user_item_validation'
@@ -140,4 +164,4 @@ class UserItemValidation(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     created_at = models.DateTimeField(default=timezone.now)
     validation = models.ForeignKey(ItemValidation)
-    value      = models.IntegerField(default=1, null=False)
+    value = models.IntegerField(default=1, null=False)
