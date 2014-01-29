@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.forms.util import ErrorList
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.utils.html import escape
 from django.views.decorators.http import require_safe, require_http_methods
 from document.models import Document
 from items.helpers import item_search_to_json
@@ -44,13 +45,15 @@ def logout(request):
 def profile(request, user_id):
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
     own_profile = request.user == pageuser
+    description = '<br/>\n'.join(map(escape, (pageuser.description or '').split('\n')))
     c = init_context('users',
-                     pageuser    = pageuser,
-                     init_items  = item_search_to_json(itemtype='D', user=pageuser),
-                     statuses    = 'FRD' if own_profile else 'FR',
-                     user_id     = pageuser.id,
+                     pageuser = pageuser,
+                     description = description,
+                     init_items = item_search_to_json(itemtype='D', user=pageuser),
+                     statuses = 'FRD' if own_profile else 'FR',
+                     user_id = pageuser.id,
                      own_profile = own_profile,
-                     documents   = Document.objects.filter(created_by=pageuser).all())
+                     documents = Document.objects.filter(created_by=pageuser).all())
     return render(request, 'users/profile.html', c)
 
 class CustomErrorList(ErrorList):

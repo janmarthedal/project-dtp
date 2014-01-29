@@ -11,7 +11,7 @@
   <dt>Display name</dt><dd>{{ pageuser.get_full_name }}</dd>
   <dt>Member since</dt><dd>{{ pageuser.created_at|timesince }}</dd>
   {% if own_profile %}<dt>Email</dt><dd>{{ pageuser.email }}</dd>{% endif %}
-  <dt>Description</dt><dd>{{ pageuser.description|default:"" }}</dd>
+  <dt>Description</dt><dd>{{ description|safe }}</dd>
 </dl>
 
 <h3>Documents</h3>
