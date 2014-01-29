@@ -1,18 +1,11 @@
 import time
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
+from analysis.helpers import queryset_generator
 from analysis.models import ItemDependency, ItemTag
 from items.models import FinalItem, ItemTagCategory
 from items.helpers import BodyScanner
 from tags.models import Tag, Category
-
-def queryset_generator(queryset):
-    items = queryset.order_by('pk')[:100]
-    while items:
-        latest_pk = items[len(items) - 1].pk
-        for item in items:
-            yield item
-        items = queryset.filter(pk__gt=latest_pk).order_by('pk')[:100]
 
 def add_final_item_dependencies(from_item):
     bs = BodyScanner(from_item.body)
