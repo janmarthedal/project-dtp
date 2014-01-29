@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model, logout as auth_logout
 from django.core.urlresolvers import reverse
 from django.forms.util import ErrorList
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils.html import escape
 from django.views.decorators.http import require_safe, require_http_methods
@@ -83,8 +83,7 @@ def profile_edit(request):
             request.user.save()
             return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.id]))
     else:
-        form = ProfileForm({'name': request.user.get_full_name(),
-                            'email': request.user.email,
+        form = ProfileForm({'name': request.user.get_full_name(), 'email': request.user.email,
                             'description': request.user.description})
     c = init_context('users', form=form)
     return render(request, 'users/profile_edit.html', c)
@@ -93,3 +92,11 @@ def profile_edit(request):
 @logged_in_or_404
 def profile_current(request):
     return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.id]))
+
+@require_safe
+@logged_in_or_404
+def administration(request):
+    if not request.user.is_admin:
+        raise Http404('Must be administrator')
+    c = init_context('users')
+    return render(request, 'users/administration.html', c)

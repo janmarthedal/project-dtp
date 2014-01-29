@@ -36,7 +36,10 @@
 
 {% if own_profile %}
 <h4>Actions</h4>
-<a href="{% url 'users.views.logout' %}">Log out</a>
+<p><a class="btn btn-default" href="{% url 'users.views.logout' %}"><i class="fa fa-sign-out"></i> Log out</a></p>
+{% if pageuser.is_admin %}
+<p><a class="btn btn-default" href="{% url 'users.views.administration' %}"><i class="fa fa-cogs"></i> Administration</a></p>
+{% endif %}
 {% endif %}
 
 <h4>Included tags</h4>
