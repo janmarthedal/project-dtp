@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block headblock %}
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-social/4.0.6/bootstrap-social.min.css" />
+{% endblock %}
+
 {% block title %}Log in{% endblock %}
 
 {% block mainbar %}
@@ -8,11 +12,21 @@
 
 <p>{% if invited %}Choose an authentication provider to use when logging in:
 {% else %}Log in using your authentication provider:{% endif %}</p>
-<div>
-  <a href="{% url 'social:begin' 'google' %}" class="btn btn-default">Google</a>
-  <a href="{% url 'social:begin' 'twitter' %}" class="btn btn-default">Twitter</a>
-  <a href="{% url 'social:begin' 'facebook' %}" class="btn btn-default">Facebook</a>
-  <a href="{% url 'social:begin' 'linkedin' %}" class="btn btn-default">LinkedIn</a>
+<div class="row">
+  <div class="col-md-4">
+    <a class="btn btn-block btn-social btn-google-plus" href="{% url 'social:begin' 'google' %}">
+      <i class="fa fa-google-plus"></i> Sign in with Google
+    </a>
+    <a class="btn btn-block btn-social btn-twitter" href="{% url 'social:begin' 'twitter' %}">
+      <i class="fa fa-twitter"></i> Sign in with Twitter
+    </a>
+    <a class="btn btn-block btn-social btn-facebook" href="{% url 'social:begin' 'facebook' %}">
+      <i class="fa fa-facebook"></i> Sign in with Facebook
+    </a>
+    <a class="btn btn-block btn-social btn-linkedin" href="{% url 'social:begin' 'linkedin' %}">
+      <i class="fa fa-linkedin"></i> Sign in with LinkedIn
+    </a>
+  </div>
 </div>
 
 {% if not invited %}

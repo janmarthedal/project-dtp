@@ -7,7 +7,8 @@
     <title>teoremer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.png' %}" />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" />
 {% if debug %}
     <link href="{% static 'css/teoremer.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'css/typeahead.js-bootstrap.css' %}" rel="stylesheet" type="text/css">
@@ -23,6 +24,7 @@
       });
     </script>
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    {% block headblock %}{% endblock %}
   </head>
   <body>
     <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
