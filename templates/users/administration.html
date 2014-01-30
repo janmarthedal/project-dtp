@@ -6,4 +6,26 @@
 
 <h3>Administration area</h3>
 
+<p><form method="post" class="form-inline" role="form">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="deps" />
+  <button type="submit" class="btn btn-default">Recompute item dependencies</button>
+</form></p>
+
+<p><form method="post" class="form-inline" role="form">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="points" />
+  <button type="submit" class="btn btn-default">Recompute points</button>
+</form></p>
+
+<p><form method="post" class="form-inline" role="form">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="invite" />
+  <div class="form-group">
+    <label class="sr-only" for="idInviteEmail">Email address</label>
+    <input type="email" class="form-control" id="idInviteEmail" name="email" placeholder="Enter email" />
+  </div>
+  <button type="submit" class="btn btn-default">Invite new beta user</button>
+</form></p>
+
 {% endblock %}

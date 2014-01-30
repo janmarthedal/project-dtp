@@ -44,7 +44,6 @@ class Command(BaseCommand):
         self._rebuild_dependencies()
         self._check_item_tag_categories()
         self._build_item_tags()
-        self._build_tag_counts()
         self.stdout.write('<<<<<<<<<<')
 
     def _rebuild_dependencies(self):

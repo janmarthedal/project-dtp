@@ -1,6 +1,8 @@
+import StringIO
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import get_user_model, logout as auth_logout
+from django.core import management
 from django.core.urlresolvers import reverse
 from django.forms.util import ErrorList
 from django.http import HttpResponseRedirect, Http404
@@ -93,10 +95,24 @@ def profile_edit(request):
 def profile_current(request):
     return HttpResponseRedirect(reverse('users.views.profile', args=[request.user.id]))
 
-@require_safe
+@require_http_methods(['GET', 'POST'])
 @logged_in_or_404
 def administration(request):
     if not request.user.is_admin:
         raise Http404('Must be administrator')
     c = init_context('users')
-    return render(request, 'users/administration.html', c)
+    if request.method == 'GET':
+        return render(request, 'users/administration.html', c)
+    action = request.POST.get('action')
+    output = StringIO.StringIO()
+    if action == 'deps':
+        header = 'Recompute item dependencies'
+        management.call_command('deps', stdout=output)
+    elif action == 'points':
+        header = 'Recompute points'
+        management.call_command('points', stdout=output)
+    elif action == 'invite':
+        header = 'Invite new beta user'
+        management.call_command('invite', target_email=request.POST.get('email'), stdout=output)
+    c.update({'header': header, 'output': output.getvalue()})
+    return render(request, 'users/admin-output.html', c)
