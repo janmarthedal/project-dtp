@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
+from drafts.models import DraftItem
 
 class UserManager(BaseUserManager):
 
@@ -21,6 +22,7 @@ class User(AbstractBaseUser):
     created_at = models.DateTimeField(default=timezone.now)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    points = models.FloatField(default=0, null=False)
 
     objects = UserManager()
 
@@ -37,7 +39,14 @@ class User(AbstractBaseUser):
         return self.name
 
     def has_perm(self, perm, obj=None):
-        return True
+        if isinstance(obj, DraftItem):
+            if perm == 'view':
+                return obj.status == 'R' or (obj.status == 'D' and obj.created_by == self)
+            if perm == 'add_source' or perm == 'edit' or perm == 'delete':
+                return obj.status == 'D' and obj.created_by == self
+            if perm == 'to_final':
+                return obj.status in ['D', 'R'] and obj.created_by == self
+        return False
 
     def has_module_perms(self, app_label):
         return True

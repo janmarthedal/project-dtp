@@ -13,17 +13,6 @@ from analysis.management.commands.deps import add_final_item_dependencies, check
 import logging
 logger = logging.getLogger(__name__)
 
-def get_user_draft_permissions(user, item):
-    own_item = user == item.created_by
-    return {
-        'view':       (item.status == 'D' and own_item) or item.status == 'R',
-        'edit':       item.status == 'D' and own_item,
-        'add_source': item.status == 'D' and own_item,
-        'to_draft':   item.status == 'R' and own_item,
-        'to_review':  False, #item.status == 'D' and own_item,
-        'to_final':   item.status in ['D', 'R'] and own_item
-    }
-
 @require_GET
 def new(request, kind, parent=None):
     if not request.user.is_authenticated():
@@ -43,20 +32,17 @@ def new(request, kind, parent=None):
 @require_GET
 def show(request, item_id):
     item = get_object_or_404(DraftItem, pk=item_id)
-    permissions = get_user_draft_permissions(request.user, item)
-    if not permissions['view']:
+    if not request.user.has_perm('view', item):
         raise Http404
-    c = dict(item        = item,
-             perm        = permissions,
-             validations = [v.json_data() for v in item.draftvalidation_set.all()])
+    c = {'item': item, 'validations': [v.json_data() for v in item.draftvalidation_set.all()],
+         'allow': {p: request.user.has_perm(p, item)
+                   for p in ['add_source', 'edit', 'delete', 'to_final']}}
     return render(request, 'drafts/show_draft.html', c)
 
-@logged_in_or_404
 @require_GET
 def edit(request, item_id):
     item = get_object_or_404(DraftItem, pk=item_id)
-    item_perms = get_user_draft_permissions(request.user, item)
-    if not item_perms['edit']:
+    if not request.user.has_perms('edit', item):
         raise Http404
     c = init_context(item.itemtype, item=item)
     if item.itemtype == 'D':
