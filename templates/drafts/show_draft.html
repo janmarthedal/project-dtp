@@ -40,24 +40,24 @@
 <h4>Actions</h4>
 
 {% if allow.add_source %}
-<p><a class="btn btn-primary" href="{% url 'sources.views.add_source_for_draft' item.id %}">Add source validation</a></p>
+<p><a class="btn btn-primary" href="{% url 'sources.views.add_source_for_draft' item.id %}"><i class="fa fa-plus"></i> Add source validation</a></p>
 {% endif %}
 
 {% if allow.edit %}
-<p><a class="btn btn-primary" href="{% url 'drafts.views.edit' item.id %}">Edit</a></p>
-{% endif %}
-
-{% if allow.delete %}
-<p><form method="post" action="{% url 'drafts.views.delete_draft' item.id %}">
-  {% csrf_token %}
-  <button class="btn btn-primary" type="submit">Delete</button>
-</form></p>
+<p><a class="btn btn-primary" href="{% url 'drafts.views.edit' item.id %}"><i class="fa fa-pencil"></i> Edit</a></p>
 {% endif %}
 
 {% if allow.to_final %}
 <p><form method="post" action="{% url 'drafts.views.to_final' item.id %}">
   {% csrf_token %}
-  <button class="btn btn-primary" type="submit">Publish</button>
+  <button class="btn btn-primary" type="submit"><i class="fa fa-cloud-upload"></i> Publish</button>
+</form></p>
+{% endif %}
+
+{% if allow.delete %}
+<p><form method="post" action="{% url 'drafts.views.delete_draft' item.id %}">
+  {% csrf_token %}
+  <button class="btn btn-danger" type="submit"><i class="fa fa-trash-o"></i> Delete</button>
 </form></p>
 {% endif %}
 
