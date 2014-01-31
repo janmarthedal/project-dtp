@@ -49,14 +49,11 @@ def profile(request, user_id):
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
     own_profile = request.user == pageuser
     description = '<br/>\n'.join(map(escape, (pageuser.description or '').split('\n')))
-    c = init_context('users',
-                     pageuser = pageuser,
-                     description = description,
-                     init_items = item_search_to_json(itemtype='D', user=pageuser),
-                     statuses = 'FRD' if own_profile else 'FR',
-                     user_id = pageuser.id,
-                     own_profile = own_profile,
-                     documents = Document.objects.filter(created_by=pageuser).all())
+    c = init_context('users', pageuser=pageuser, description=description,
+                     init_items=item_search_to_json(itemtype='D', user=pageuser),
+                     statuses='FRD' if own_profile else 'FR', user_id=pageuser.id,
+                     own_profile=own_profile,
+                     documents=Document.objects.filter(created_by=pageuser).all())
     return render(request, 'users/profile.html', c)
 
 class CustomErrorList(ErrorList):
@@ -114,6 +111,7 @@ def administration(request):
         management.call_command('points', stdout=output)
     elif action == 'invite':
         header = 'Invite new beta user'
-        management.call_command('invite', target_email=request.POST.get('email'), stdout=output)
+        management.call_command('invite', target_email=request.POST.get('email'),
+                                target_name=request.POST.get('name'), stdout=output)
     c.update({'header': header, 'output': output.getvalue()})
     return render(request, 'users/admin-output.html', c)
