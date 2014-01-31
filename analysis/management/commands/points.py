@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db.models import Sum
 from analysis.helpers import queryset_generator
@@ -56,3 +57,14 @@ class Command(BaseCommand):
                 item.points = new_points
                 item.save()
         self.stdout.write('{} definitions, {} points changed'.format(total, changed))
+
+        total = 0
+        changed = 0
+        for item in queryset_generator(get_user_model().objects.all()):
+            total += 1
+            new_points = 100 if not item.is_admin else 0
+            if new_points != item.points:
+                changed += 1
+                item.points = new_points
+                item.save()
+        self.stdout.write('{} users, {} points changed'.format(total, changed))

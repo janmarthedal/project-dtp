@@ -6,6 +6,7 @@ from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
 from drafts.models import DraftItem
+from items.models import FinalItem
 
 class UserManager(BaseUserManager):
 
@@ -42,18 +43,20 @@ class User(AbstractBaseUser):
         if isinstance(obj, DraftItem):
             if perm == 'view':
                 return obj.status == 'R' or (obj.status == 'D' and obj.created_by == self)
-            if perm == 'add_source' or perm == 'edit' or perm == 'delete':
+            if perm in ['add_source', 'edit', 'delete']:
                 return obj.status == 'D' and obj.created_by == self
             if perm == 'to_final':
                 return obj.status in ['D', 'R'] and obj.created_by == self
+        elif isinstance(obj, FinalItem):
+            if perm == 'add_proof':
+                return obj.status == 'F' and obj.itemtype == 'T'
+            if perm in ['add_source', 'add_to_doc']:
+                return obj.status == 'F'
+            if perm == 'change_cats':
+                return obj.status == 'F' and self.point >= 100
+            if perm == 'delete':
+                return self.is_admin
         return False
-
-    def has_module_perms(self, app_label):
-        return True
-
-    @property
-    def is_staff(self):
-        return self.is_admin
 
 
 class InvitationManager(models.Manager):
