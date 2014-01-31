@@ -1,10 +1,15 @@
 {% extends "base.html" %}
-{% load item_tags %}
 {% load utils_tags %}
 
 {% block title %}Definitions for category{% endblock %}
 
 {% block mainbar %}
+
+<h4>Current category</h4>
+
+{% include 'include/current-category.html' %}
+
+<h4>Items</h4>
 
 <div id="search-item-list">loading...</div>
 
