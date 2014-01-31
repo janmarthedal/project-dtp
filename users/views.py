@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 @require_safe
 def index(request):
     c = init_context('users',
-                     userlist = list(get_user_model().objects.filter(is_active=True).order_by('name')))
+                     userlist=list(get_user_model().objects
+                                   .filter(is_active=True, is_admin=False).order_by('name')))
     return render(request, 'users/index.html', c)
 
 @require_safe

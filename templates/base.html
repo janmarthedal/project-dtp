@@ -73,7 +73,7 @@
           {% if user.is_authenticated %}
             <a href="{% url 'users.views.profile' user.get_username %}">{{ user.get_full_name }}</a>
           {% else %}
-            <a href="{% url 'users.views.login' %}">log in</a>
+            <a href="{% url 'users.views.login' %}"><i class="fa fa-sign-in"></i> log in</a>
           {% endif %}
         </p>
       </div>
