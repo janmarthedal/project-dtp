@@ -165,6 +165,7 @@ AUTHENTICATION_BACKENDS = (
     'social.backends.twitter.TwitterOAuth',
     'social.backends.facebook.FacebookOAuth2',
     'social.backends.linkedin.LinkedinOAuth',
+    'social.backends.persona.PersonaAuth',
     'django.contrib.auth.backends.ModelBackend',
 )
 

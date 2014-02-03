@@ -14,18 +14,23 @@
 {% else %}Log in using your authentication provider:{% endif %}</p>
 <div class="row">
   <div class="col-md-4">
-    <a class="btn btn-block btn-social btn-google-plus" href="{% url 'social:begin' 'google' %}">
+    <a class="btn btn-block btn-social btn-google-plus" rel="nofollow" href="{% url 'social:begin' 'google' %}">
       <i class="fa fa-google-plus"></i> Sign in with Google
     </a>
-    <a class="btn btn-block btn-social btn-twitter" href="{% url 'social:begin' 'twitter' %}">
+    <a class="btn btn-block btn-social btn-twitter" rel="nofollow" href="{% url 'social:begin' 'twitter' %}">
       <i class="fa fa-twitter"></i> Sign in with Twitter
     </a>
-    <a class="btn btn-block btn-social btn-facebook" href="{% url 'social:begin' 'facebook' %}">
+    <a class="btn btn-block btn-social btn-facebook" rel="nofollow" href="{% url 'social:begin' 'facebook' %}">
       <i class="fa fa-facebook"></i> Sign in with Facebook
     </a>
-    <a class="btn btn-block btn-social btn-linkedin" href="{% url 'social:begin' 'linkedin' %}">
+    <a class="btn btn-block btn-social btn-linkedin" rel="nofollow" href="{% url 'social:begin' 'linkedin' %}">
       <i class="fa fa-linkedin"></i> Sign in with LinkedIn
     </a>
+    <form method="post" action="{% url 'social:complete' 'persona' %}" style="padding-top: 5px;">
+      {% csrf_token %}
+      <input type="hidden" name="assertion" value="" />
+      <a class="btn btn-block btn-social btn-persona" rel="nofollow" id="persona" href="#"><i class="fa fa-user"></i> Sign in with Persona</a>
+    </form>
   </div>
 </div>
 
@@ -46,4 +51,29 @@
   </ul></p>
 {% endif %}
 
+{% endblock %}
+
+{% block bodybottom %}
+<script src="https://login.persona.org/include.js" type="text/javascript"></script>
+
+<!-- Mozilla Persona -->
+<script type="text/javascript">
+  $(function () {
+      $('#persona').on('click', function (e) {
+          e.preventDefault();
+          var self = $(this);
+          navigator.id.get(function (assertion) {
+              if (assertion) {
+                  self.parent('form')
+                          .find('input[type=hidden]')
+                          .attr('value', assertion)
+                          .end()
+                      .submit();
+              } else {
+                  alert('Some error occurred');
+              }
+          });
+      });
+  });
+</script>
 {% endblock %}

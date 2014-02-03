@@ -2,6 +2,12 @@
 /*.container {
   max-width: none;
 }*/
+/* adding to bootstrap social */
+.btn-persona {
+  color: #fff;
+  background-color: #484848;
+  border-color: rgba(0,0,0,0.2);
+}
 
 /* own styles */
 .category {
