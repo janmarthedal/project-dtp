@@ -7,7 +7,7 @@
     <title>{% block title %}teoremer{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.png' %}" />
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" />
 {% if debug %}
     <link href="{% static 'css/teoremer.css' %}" rel="stylesheet" type="text/css">
@@ -69,7 +69,7 @@
           </li>
         </ul>
 
-        <p class="navbar-text pull-right">
+        <p class="navbar-text navbar-right">
           {% if user.is_authenticated %}
             <a href="{% url 'users.views.profile' user.get_username %}"><i class="fa fa-user"></i> {{ user.get_full_name }}</a>
           {% else %}
@@ -114,7 +114,7 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="{% static 'js/vendor/jquery.min.js' %}"><\/script>')</script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
     <script>window.jQuery.fn.modal || document.write('<script src="{% static 'js/vendor/bootstrap.min.js' %}"><\/script>')</script>
     {% block bodybottom %}{% endblock %}
 
