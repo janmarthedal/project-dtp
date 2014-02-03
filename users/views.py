@@ -7,7 +7,8 @@ from django.core.urlresolvers import reverse
 from django.forms.util import ErrorList
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
-from django.utils.html import escape
+from django.utils.encoding import force_text
+from django.utils.html import escape, format_html_join
 from django.views.decorators.http import require_safe, require_http_methods
 from document.models import Document
 from items.helpers import item_search_to_json
@@ -61,14 +62,15 @@ class CustomErrorList(ErrorList):
         return self.as_custom()
     def as_custom(self):
         if not self: return u''
-        return ''.join(u'<span class="label label-danger">{}</span>'.format(e) for e in self)
+        return format_html_join('', '<span class="label label-danger">{0}</span>',
+                                ((force_text(e),) for e in self))
 
 class ProfileForm(forms.Form):
     name = forms.CharField(label='Display name', max_length=255,
                            widget=forms.TextInput(attrs={'class':'form-control'}))
     email = forms.EmailField(label='Email address', max_length=255,
                              widget=forms.EmailInput(attrs={'class':'form-control'}))
-    description = forms.CharField(label='Description',
+    description = forms.CharField(label='Description', required=False,
                                   widget=forms.Textarea(attrs={'class':'form-control'}))
 
 @require_http_methods(['GET', 'POST'])
