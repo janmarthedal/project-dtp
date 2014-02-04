@@ -78,9 +78,9 @@ class Invitations(models.Model):
     def send(self):
         if not self.target_email:
             raise ValueError('No email address present')
-        email = render_to_string('email/beta_invite.txt', dict(site_url=settings.SITE_URL,
-                                                               token=self.token,
-                                                               name=self.target_name))
+        email = render_to_string('email/beta_invite.txt',
+                                 {'site_url': settings.SITE_URL, 'token': self.token,
+                                  'name': self.target_name})
         [subject, message] = email.split('\n', 1)
         send_mail(subject, message, 'admin@teoremer.com', [self.target_email])
 

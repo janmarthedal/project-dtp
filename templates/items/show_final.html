@@ -55,25 +55,25 @@ published at {{ item.created_at|datetime_user:user }}
 <h4>Actions</h4>
 
 {% if allow.add_proof %}
-<p><a class="btn btn-primary" href="{% url 'drafts.views.new' kind='proof' parent=item.final_id %}"><i class="fa fa-plus"></i> Add proof</a></p>
+<p><a class="btn btn-primary" href="{% url 'drafts.views.new' kind='proof' parent=item.final_id %}"><span class="glyphicon glyphicon-plus"></span> Add proof</a></p>
 {% endif %}
 {% if allow.add_source %}
-<p><a class="btn btn-primary" href="{% url 'sources.views.add_source_for_item' item.final_id %}"><i class="fa fa-plus"></i> Add source validation</a></p>
+<p><a class="btn btn-primary" href="{% url 'sources.views.add_source_for_item' item.final_id %}"><span class="glyphicon glyphicon-plus"></span> Add source validation</a></p>
 {% endif %}
 {% if allow.change_cats %}
-<p><a class="btn btn-primary" href="{% url 'items.views.edit_final' item.final_id %}"><i class="fa fa-pencil"></i> Change categories</a></p>
+<p><a class="btn btn-primary" href="{% url 'items.views.edit_final' item.final_id %}"><span class="glyphicon glyphicon-pencil"></span> Change categories</a></p>
 {% endif %}
 {% if allow.delete %}
 <p><form method="post" action="{% url 'items.views.delete_final' item.final_id %}">
   {% csrf_token %}
-  <button class="btn btn-danger" type="submit"><i class="fa fa-trash-o"></i> Delete</button>
+  <button class="btn btn-danger" type="submit"><span class="glyphicon glyphicon-remove"></span> Delete</button>
   <input type="hidden" name="item" value="{{ item.final_id }}" />
 </form></p>
 {% endif %}
 {% if allow.add_to_doc %}
 <p><div class="btn-group">
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-    <i class="fa fa-plus"></i> Add to document <span class="caret"></span>
+    <span class="glyphicon glyphicon-plus"></span> Add to document <span class="caret"></span>
   </button>
   <ul id="add-to-document" class="dropdown-menu" role="menu">
 {% if documents %}

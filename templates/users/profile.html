@@ -36,9 +36,9 @@
 
 {% if own_profile %}
 <h4>Actions</h4>
-<p><a class="btn btn-default" href="{% url 'users.views.logout' %}"><i class="fa fa-sign-out"></i> Log out</a></p>
+<p><a class="btn btn-default" href="{% url 'users.views.logout' %}"><span class="glyphicon glyphicon-log-out"></span> Log out</a></p>
 {% if pageuser.is_admin %}
-<p><a class="btn btn-default" href="{% url 'users.views.administration' %}"><i class="fa fa-cogs"></i> Administration</a></p>
+<p><a class="btn btn-default" href="{% url 'users.views.administration' %}"><span class="glyphicon glyphicon-cog"></span> Administration</a></p>
 {% endif %}
 {% endif %}
 
