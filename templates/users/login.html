@@ -19,7 +19,7 @@
   <a class="webicon linkedin" rel="nofollow" href="{% url 'social:begin' 'linkedin' %}">LinkedIn</a>
 </p>
 
-<form method="post" action="{% url 'social:complete' 'persona' %}" style="padding-top: 5px;">
+<form method="post" action="{% url 'social:complete' 'persona' %}">
   {% csrf_token %}
   <input type="hidden" name="assertion" value="" />
   <a class="btn btn-default" rel="nofollow" id="persona" href="#"><span class="glyphicon glyphicon-user"></span> Email</a>

@@ -29,13 +29,15 @@ Edit {{ item }}
 
 <div id="modal-container"></div>
 
+<p><button id="save-draft" type="button" class="btn btn-primary">Save draft</button></p>
+
 {% endblock mainbar %}
 
 {% block sidebar %}
 
-<h4>Actions</h4>
+<h4>Help</h4>
 
-<p><button id="save-draft" type="button" class="btn btn-primary">Save draft</button></p>
+{% include 'drafts/edit_help.html' only %}
 
 {% endblock %}
 

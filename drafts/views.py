@@ -42,7 +42,7 @@ def show(request, item_id):
 @require_GET
 def edit(request, item_id):
     item = get_object_or_404(DraftItem, pk=item_id)
-    if not request.user.has_perms('edit', item):
+    if not request.user.has_perm('edit', item):
         raise Http404
     c = init_context(item.itemtype, item=item)
     if item.itemtype == 'D':
