@@ -1,4 +1,3 @@
-import six
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
@@ -20,18 +19,18 @@ class CustomSocialAuthExceptionMiddleware(object):
         if strategy is None:
             return
         if isinstance(exception, SocialAuthBaseException):
-            messages.error(request, six.text_type(exception))
+            messages.error(request, unicode(exception))
             return redirect(reverse('users.views.login'))
 
 # social auth pipeline
 def check_new_user(request, user=None, *args, **kwargs):
     if user:
         return
-    if 'invite_token' not in request.session:
-        raise AuthMissingInvitation()
-    token = request.session['invite_token']
     try:
+        token = request.session.pop('invite_token')
         invite = Invitations.objects.get(token=token)
         invite.delete()
+    except KeyError:
+        raise AuthMissingInvitation()
     except Invitations.DoesNotExist:
         raise AuthIllegalInvitation()
