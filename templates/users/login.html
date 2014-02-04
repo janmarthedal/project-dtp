@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 
 {% block headblock %}
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.0.3/css/font-awesome.min.css" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-social/4.0.6/bootstrap-social.min.css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/webicons/2.0.0/webicons.min.css" />
 {% endblock %}
 
 {% block title %}Log in{% endblock %}
@@ -13,27 +12,18 @@
 
 <p>{% if invited %}Choose an authentication provider to use when logging in:
 {% else %}Log in using your authentication provider:{% endif %}</p>
-<div class="row">
-  <div class="col-md-4">
-    <a class="btn btn-block btn-social btn-google-plus" rel="nofollow" href="{% url 'social:begin' 'google' %}">
-      <i class="fa fa-google-plus"></i> Sign in with Google
-    </a>
-    <a class="btn btn-block btn-social btn-twitter" rel="nofollow" href="{% url 'social:begin' 'twitter' %}">
-      <i class="fa fa-twitter"></i> Sign in with Twitter
-    </a>
-    <a class="btn btn-block btn-social btn-facebook" rel="nofollow" href="{% url 'social:begin' 'facebook' %}">
-      <i class="fa fa-facebook"></i> Sign in with Facebook
-    </a>
-    <a class="btn btn-block btn-social btn-linkedin" rel="nofollow" href="{% url 'social:begin' 'linkedin' %}">
-      <i class="fa fa-linkedin"></i> Sign in with LinkedIn
-    </a>
-    <form method="post" action="{% url 'social:complete' 'persona' %}" style="padding-top: 5px;">
-      {% csrf_token %}
-      <input type="hidden" name="assertion" value="" />
-      <a class="btn btn-block btn-social btn-persona" rel="nofollow" id="persona" href="#"><i class="fa fa-user"></i> Sign in with Persona</a>
-    </form>
-  </div>
-</div>
+<p class="no-svg">
+  <a class="webicon google" rel="nofollow" href="{% url 'social:begin' 'google' %}">Google</a>
+  <a class="webicon twitter" rel="nofollow" href="{% url 'social:begin' 'twitter' %}">Twitter</a>
+  <a class="webicon facebook" rel="nofollow" href="{% url 'social:begin' 'facebook' %}">Facebook</a>
+  <a class="webicon linkedin" rel="nofollow" href="{% url 'social:begin' 'linkedin' %}">LinkedIn</a>
+</p>
+
+<form method="post" action="{% url 'social:complete' 'persona' %}" style="padding-top: 5px;">
+  {% csrf_token %}
+  <input type="hidden" name="assertion" value="" />
+  <a class="btn btn-default" rel="nofollow" id="persona" href="#"><span class="glyphicon glyphicon-user"></span> Email</a>
+</form>
 
 {% if not invited %}
 <h3>New user?</h3>
@@ -44,7 +34,7 @@
   welcome to sign up as beta testers.</p>
 
 <p>If you are interested in getting an account, please send an email to
-  <a href="mailto:beta@teoremer.com">beta@teoremer.com</a> and tell us:
+  <a href="mailto:team@teoremer.com">team@teoremer.com</a> and tell us:
   <ul>
     <li>Your name</li>
     <li>The email address you wish to use for login (if different from your sender address)</li>
@@ -71,7 +61,7 @@
                           .end()
                       .submit();
               } else {
-                  alert('Some error occurred');
+                  console.log('Persona login: Some error occurred');
               }
           });
       });
