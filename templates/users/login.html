@@ -10,8 +10,7 @@
 
 <h3>{% if invited %}Welcome as a new beta user!{% else %}Registrered user?{% endif %}</h3>
 
-<p>{% if invited %}Choose an authentication provider to use when logging in:
-{% else %}Log in using your authentication provider:{% endif %}</p>
+<p>Choose your login method:</p>
 <p class="no-svg">
   <a class="webicon google" rel="nofollow" href="{% url 'social:begin' 'google' %}">Google</a>
   <a class="webicon twitter" rel="nofollow" href="{% url 'social:begin' 'twitter' %}">Twitter</a>
