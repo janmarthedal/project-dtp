@@ -1,9 +1,9 @@
 Beta user invitation from teoremer.com
-{% if name %}Dear {{name}}
+{% if name %}{{name}},
 
-{% endif %}You have been invited to create an account at <a href="{{site_url}}">teoremer.com</a>.
+{% endif %}You have been invited to create an account at teoremer.com.
 
-Please go to the page <a href="{{site_url}}{% url 'users.views.login' %}?token={{token}}">{{site_url}}{% url 'users.views.login' %}?token={{token}}</a> and follow the instructions.
+Please go to the page {{site_url}}{% url 'users.views.login' %}?token={{token}} and follow the instructions.
 
 
 Kind regards,

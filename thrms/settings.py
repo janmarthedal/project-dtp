@@ -27,7 +27,7 @@ if os.uname()[1].endswith('webfaction.com'):
 
     MESSAGE_LEVEL = message_constants.INFO
 
-    SITE_URL = 'http://hilbert.janmr.com'
+    SITE_URL = 'http://teoremer.com'
 
 else:
 
