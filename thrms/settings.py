@@ -251,7 +251,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': PROJECT_BASE + 'log/debug.log',
+            'filename': PROJECT_BASE + 'log/run.log',
             'formatter': 'verbose',
         },
         'console': {

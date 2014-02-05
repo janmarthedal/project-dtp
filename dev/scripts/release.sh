@@ -15,6 +15,7 @@ cp -r ../templates .
 cp -r ../thrms .
 cp -r ../users .
 cp ../manage.py .
+cp ../dev/scripts/maintenance.sh .
 mkdir log
 find . -name '*.pyc' -exec rm {} \;
 find . -name '.gitignore' -exec rm {} \;
