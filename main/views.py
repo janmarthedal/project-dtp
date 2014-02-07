@@ -26,3 +26,7 @@ def about(request):
                      prf_draft  = DraftItem.objects.filter(itemtype='P', status='D').count(),
                      user_count = User.objects.filter(is_active=True).count())
     return render(request, 'about.html', c)
+
+@require_safe
+def serve_raw(request):
+    return render(request, request.path[1:])

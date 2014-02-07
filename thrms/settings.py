@@ -23,7 +23,7 @@ if os.uname()[1].endswith('webfaction.com'):
     MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
     MEDIA_URL = '/media/files/'
 
-    ALLOWED_HOSTS = ['hilbert.janmr.com', 'teoremer.com']
+    ALLOWED_HOSTS = ['.janmr.com', 'teoremer.com']
 
     MESSAGE_LEVEL = message_constants.INFO
 
