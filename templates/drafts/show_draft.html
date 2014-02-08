@@ -47,6 +47,20 @@
 <p><a class="btn btn-primary" href="{% url 'drafts.views.edit' item.id %}"><span class="glyphicon glyphicon-pencil"></span> Edit</a></p>
 {% endif %}
 
+{% if allow.to_draft %}
+<p><form method="post" action="{% url 'drafts.views.to_draft' item.id %}">
+  {% csrf_token %}
+  <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-pencil"></span> Back to draft</button>
+</form></p>
+{% endif %}
+
+{% if allow.to_review %}
+<p><form method="post" action="{% url 'drafts.views.to_review' item.id %}">
+  {% csrf_token %}
+  <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-comment"></span> Submit for review</button>
+</form></p>
+{% endif %}
+
 {% if allow.to_final %}
 <p><form method="post" action="{% url 'drafts.views.to_final' item.id %}">
   {% csrf_token %}
@@ -55,7 +69,7 @@
 {% endif %}
 
 {% if allow.delete %}
-<p><form method="post" action="{% url 'drafts.views.delete_draft' item.id %}">
+<p><form method="post" action="{% url 'drafts.views.delete' item.id %}">
   {% csrf_token %}
   <button class="btn btn-danger" type="submit"><span class="glyphicon glyphicon-remove"></span> Delete</button>
 </form></p>

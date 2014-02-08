@@ -43,8 +43,10 @@ class User(AbstractBaseUser):
         if isinstance(obj, DraftItem):
             if perm == 'view':
                 return obj.status == 'R' or (obj.status == 'D' and obj.created_by == self)
-            if perm in ['add_source', 'edit', 'delete']:
+            if perm in ['add_source', 'edit', 'delete', 'to_review']:
                 return obj.status == 'D' and obj.created_by == self
+            if perm == 'to_draft':
+                return obj.status == 'R' and obj.created_by == self
             if perm == 'to_final':
                 return obj.status in ['D', 'R'] and obj.created_by == self
         elif isinstance(obj, FinalItem):

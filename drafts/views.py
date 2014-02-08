@@ -36,7 +36,7 @@ def show(request, item_id):
         raise Http404
     c = {'item': item, 'validations': [v.json_data() for v in item.draftvalidation_set.all()],
          'allow': {p: request.user.has_perm(p, item)
-                   for p in ['add_source', 'edit', 'delete', 'to_final']}}
+                   for p in ['to_draft', 'to_review', 'to_final', 'add_source', 'edit', 'delete']}}
     return render(request, 'drafts/show_draft.html', c)
 
 @require_GET
@@ -53,7 +53,7 @@ def edit(request, item_id):
 
 @logged_in_or_404
 @require_POST
-def delete_draft(request, item_id):
+def delete(request, item_id):
     item = get_object_or_404(DraftItem, pk=item_id)
     if request.user != item.created_by:
         raise Http404
@@ -62,17 +62,28 @@ def delete_draft(request, item_id):
 
 @logged_in_or_404
 @require_POST
+def to_draft(request, item_id):
+    item = get_object_or_404(DraftItem, pk=item_id)
+    if not request.user.has_perm('to_draft', item):
+        raise Http404
+    item.make_draft()
+    return HttpResponseRedirect(reverse('drafts.views.show', args=[item.id]))
+
+@logged_in_or_404
+@require_POST
 def to_review(request, item_id):
     item = get_object_or_404(DraftItem, pk=item_id)
-    if request.user == item.created_by and item.status == 'D':
-        item.make_review()
-        return HttpResponseRedirect(reverse('items.views.show', args=[item.id]))
-    raise Http404
+    if not request.user.has_perm('to_review', item):
+        raise Http404
+    item.make_review()
+    return HttpResponseRedirect(reverse('drafts.views.show', args=[item.id]))
 
 @logged_in_or_404
 @require_POST
 def to_final(request, item_id):
-    item = get_object_or_404(DraftItem, pk=item_id, created_by=request.user.id, status__in=['D', 'R'])
+    item = get_object_or_404(DraftItem, pk=item_id)
+    if not request.user.has_perm('to_final', item):
+        raise Http404
     publish_issues = publishIssues(item)
     if publish_issues:
         for issue in publish_issues:

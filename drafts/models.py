@@ -85,6 +85,13 @@ class DraftItem(BaseItem):
     def _get_item_category_set(self):
         return self.draftitemcategory_set.all()
 
+    def make_draft(self):
+        if self.status != 'D':
+            self.status = 'D'
+            self.modified_at = timezone.now()
+            self.save()
+            logger.debug("%d to draft successful" % self.id)
+
     def make_review(self):
         if self.status != 'R':
             self.status = 'R'
