@@ -13,7 +13,6 @@ urlpatterns = patterns('',
     url(r'^proofs/', include('items.proofs.urls')),
     url(r'^category/', include('tags.urls')),
     url(r'^document/', include('document.urls')),
-    url(r'^about$', 'main.views.about'),
     url(r'^auth/', include('social.apps.django_app.urls', namespace='social')),
     url(r'^$', 'main.views.index'),
 )
