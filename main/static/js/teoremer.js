@@ -1,16 +1,16 @@
-(function() {
+(function () {
     "use strict";
 
     var api_prefix = '/api/';
 
-    (function() {
+    (function () {
         var csrftoken = $.cookie('csrftoken');
         function csrfSafeMethod(method) {
             return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
         }
         $.ajaxSetup({
             crossDomain: false, // obviates need for sameOrigin test
-            beforeSend: function(xhr, settings) {
+            beforeSend: function (xhr, settings) {
                 if (!csrfSafeMethod(settings.type)) {
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
                 }
@@ -25,7 +25,7 @@
 
     // http://stackoverflow.com/a/1119324/212069
     function confirmOnPageExit(message) {
-        return function(e) {
+        return function (e) {
             e = e || window.event;
             if (e) {
                 e.returnValue = message;
@@ -34,22 +34,22 @@
         };
     };
 
-    var concept_map = (function() {
+    var concept_map = (function () {
         var id_to_concept_map = {};
         return {
-            insert: function(id, tag_list) {
+            insert: function (id, tag_list) {
                 id_to_concept_map['' + id] = tag_list;
             },
-            from_id: function(id) {
+            from_id: function (id) {
                 return id_to_concept_map[id];
             }
         };
     })();
 
-    var tag_list_to_id = (function() {
+    var tag_list_to_id = (function () {
         var id_counter = 0;
         var concept_to_id_map = {};
-        return function(tag_list) {
+        return function (tag_list) {
             var obj = concept_to_id_map, j, tag;
             for (j=0; j < tag_list.length; j++) {
                 tag = tag_list[j];
@@ -60,23 +60,23 @@
         };
     })();
 
-    var media_links = (function() {
+    var media_links = (function () {
         var id_to_media_map = {};
-        return function(id, callback) {
+        return function (id, callback) {
             if (id in id_to_media_map)
                 return id_to_media_map[id];
             $.getJSON(api_prefix + 'media/getlinks',
                       { ids: JSON.stringify([id]) },
-                      function(data) {
+                      function (data) {
                           _.extend(id_to_media_map, data);
                           callback();
                       });
         };
     })();
 
-    var showdown_convert = (function() {
+    var showdown_convert = (function () {
         var converter;
-        return function(source) {
+        return function (source) {
             converter || (converter = new Showdown.converter());
             return converter.makeHtml(source);
         };
@@ -142,19 +142,19 @@
         }
         source = pars.join('');
         // [text#tag] or [#tag]
-        source = source.replace(/\[([^#\]]*)#([\w -]+)\]/g, function(full_match, text, tag) {
+        source = source.replace(/\[([^#\]]*)#([\w -]+)\]/g, function (full_match, text, tag) {
             key = 'zZ' + (++insertsCounter) + 'Zz';
             inserts[key] = typeset_tag(text, tag);
             return key;
         });
         // [text@D1234] or [@D1234]
-        source = source.replace(/\[([^@\]]*)@(\w+)\]/g, function(full_match, text, item_id) {
+        source = source.replace(/\[([^@\]]*)@(\w+)\]/g, function (full_match, text, item_id) {
             key = 'zZ' + (++insertsCounter) + 'Zz';
             inserts[key] = typeset_item(text, item_id);
             return key;
         });
         // [text!M5742] or [!M5742]
-        source = source.replace(/\s*\[([^!\]]*)!(\w+)\]\s*/g, function(full_match, text, media_id) {
+        source = source.replace(/\s*\[([^!\]]*)!(\w+)\]\s*/g, function (full_match, text, media_id) {
             key = 'zZ' + (++insertsCounter) + 'Zz';
             inserts[key] = typeset_media(text, media_id);
             return '\n\n' + key + '\n\n';
@@ -173,7 +173,7 @@
     }
 
     function typeset_media_default(update_callback) {
-        return function(text, media_id) {
+        return function (text, media_id) {
             var link = media_links(media_id, update_callback);
             var context = {
                 name: media_id,
@@ -201,28 +201,28 @@
     }
 
     var to_url = {
-        drafts_show: function(arg1) {
+        drafts_show: function (arg1) {
             return '/draft/' + arg1;
         },
-        items_show_final: function(item) {
+        items_show_final: function (item) {
             return '/item/' + item;
         },
-        source_index: function() {
+        source_index: function () {
             return '/source/list';
         },
-        source_item: function(id) {
+        source_item: function (id) {
             return '/source/id/' + id;
         },
-        sources_add_location_for_item: function(item, source) {
+        sources_add_location_for_item: function (item, source) {
             return '/item/' + item + '/add-validation/' + source;
         },
-        sources_add_location_for_draft: function(item, source) {
+        sources_add_location_for_draft: function (item, source) {
             return '/draft/' + item + '/add-validation/' + source;
         },
-        document_show: function(id) {
+        document_show: function (id) {
             return '/document/id/' + id;
         },
-        definitions_categorized: function(tag_list) {
+        definitions_categorized: function (tag_list) {
             return '/definitions/categorized/' + _.map(tag_list, encodeURIComponent).join('/');
         }
     };
@@ -233,7 +233,7 @@
 
     function cleanValues(attrs, escape) {
         var data = {};
-        _.each(attrs, function(value, key) {
+        _.each(attrs, function (value, key) {
             if (_.isArray(value)) {
                 var v = _.compact(_.map(value, trim));
                 if (v.length)
@@ -332,25 +332,25 @@
      ***************************/
 
     var ModalWrapperView = Backbone.View.extend({
-        events: function() {
+        events: function () {
             var self = this;
             var e = {
-                'click .close': function() {
+                'click .close': function () {
                     self.dispatcher.trigger('close');
                 },
-                'hidden.bs.modal .modal': function() {
+                'hidden.bs.modal .modal': function () {
                     self.innerView.remove();
                     self.remove();
                 }
             };
-            _.each(this.buttons, function(item) {
-                e['click #' + item.id] = function() {
+            _.each(this.buttons, function (item) {
+                e['click #' + item.id] = function () {
                     self.dispatcher.trigger(item.signal);
                 };
             });
             return e;
         },
-        initialize: function(options) {
+        initialize: function (options) {
             _.extend(this, _.pick(options, 'innerView', 'title'));
             this.buttons = _.map(options.buttons, function (item) {
                 return {
@@ -367,14 +367,14 @@
             this.$('.modal').modal('show');
             this.innerView.modalReady(this.dispatcher);
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.modal_wrapper({
                 title: this.title,
                 buttons: this.buttons
             }));
             this.$('.modal-body').html(this.innerView.render().el);
         },
-        close: function() {
+        close: function () {
             this.$('.modal').modal('hide');
         }
     });
@@ -396,13 +396,13 @@
 
     var TagItem = Backbone.Model.extend({
         // name
-        typeset: function() {
+        typeset: function () {
             return typeset_tag(this.get('name'));
         },
-        toJSON: function() {
+        toJSON: function () {
             return this.get('name');
         },
-        parse: function(resp) {
+        parse: function (resp) {
             return {
                 name: resp
             };
@@ -411,8 +411,8 @@
 
     var TagList = Backbone.Collection.extend({
         model: TagItem,
-        parse: function(resp) {
-            return _.map(resp, function(item) {
+        parse: function (resp) {
+            return _.map(resp, function (item) {
                 return new TagItem(item, {
                     parse: true
                 });
@@ -422,19 +422,19 @@
 
     var Category = Backbone.Model.extend({
         // tag_list
-        typeset: function() {
+        typeset: function () {
             return teoremer.templates.tag_list({
-                tags: this.get('tag_list').map(function(tag_item) {
+                tags: this.get('tag_list').map(function (tag_item) {
                     return tag_item.typeset();
                 })
             });
         },
-        toJSON: function() {
-            return this.get('tag_list').map(function(tag_item) {
+        toJSON: function () {
+            return this.get('tag_list').map(function (tag_item) {
                 return tag_item.toJSON();
             });
         },
-        parse: function(resp) {
+        parse: function (resp) {
             return {
                 tag_list: new TagList(resp, {
                     parse: true
@@ -445,8 +445,8 @@
 
     var CategoryList = Backbone.Collection.extend({
         model: Category,
-        parse: function(resp) {
-            return _.map(resp, function(item) {
+        parse: function (resp) {
+            return _.map(resp, function (item) {
                 return new Category(item, {
                     parse: true
                 });
@@ -455,13 +455,13 @@
     });
 
     var TagAssociation = Backbone.Model.extend({
-        toJSON: function() {
+        toJSON: function () {
             return {
                 tag: this.get('tag').toJSON(),
                 category: this.get('category').toJSON()
             };
         },
-        parse: function(resp) {
+        parse: function (resp) {
             return {
                 tag: new TagItem(resp.tag, {
                     parse: true
@@ -475,8 +475,8 @@
 
     var TagAssociationList = Backbone.Collection.extend({
         model: TagAssociation,
-        parse: function(resp) {
-            return _.map(resp, function(item) {
+        parse: function (resp) {
+            return _.map(resp, function (item) {
                 return new TagAssociation(item, {
                     parse: true
                 });
@@ -488,19 +488,19 @@
 
     var TopList = Backbone.Collection.extend({
         model: MathItem,
-        parse: function(response) {
+        parse: function (response) {
             return response.items;
         }
     });
 
     var SearchList = Backbone.Collection.extend({
         has_more: false,
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'parse');
         },
         model: MathItem,
         url: api_prefix + 'item/search',
-        parse: function(response) {
+        parse: function (response) {
             this.has_more = response.meta.has_more;
             return response.items;
         }
@@ -513,7 +513,7 @@
           seccats: []
         },
         urlRoot: api_prefix + 'draft/',
-        parse: function(resp) {
+        parse: function (resp) {
             var parsed = {
                 body: resp.body,
                 pricats: new CategoryList(resp.pricats, {
@@ -537,7 +537,7 @@
 
     var FinalItem = Backbone.Model.extend({
         urlRoot: api_prefix + 'item/',
-        parse: function(resp) {
+        parse: function (resp) {
             return {
                 id: resp.id,
                 pricats: new CategoryList(resp.pricats, {
@@ -559,7 +559,7 @@
             includeTags: [],
             excludeTags: []
         },
-        toJSON: function() {
+        toJSON: function () {
             var data = _.clone(this.attributes);
             data.intags = JSON.stringify(data.includeTags);
             data.extags = JSON.stringify(data.excludeTags);
@@ -595,9 +595,9 @@
     var DocumentItemList = Backbone.Collection.extend({
         url: api_prefix + 'document/',
         model: DocumentEntry,
-        parse: function(response) {
+        parse: function (response) {
             if (response.items) {
-                _.each(response.concept_map, function(elem) {
+                _.each(response.concept_map, function (elem) {
                     concept_map.insert(elem[0], elem[1]);
                 });
                 return response.items;
@@ -614,16 +614,16 @@
         tagName: 'span',
         className: 'removable',
         events: {
-            'click a': function() {
+            'click a': function () {
                 this.model.destroy();
             }
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render');
             this.listenTo(this.model, 'change', this.render);
             this.listenTo(this.model, 'remove', this.remove);
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.item_removable({
                 spanClass: 'tag',
                 html: this.model.typeset()
@@ -636,11 +636,11 @@
         events: {
             'keypress input.tag-input': 'keyPress',
             'click button': 'addItem',
-            'typeahead:selected input.tag-input': function(event, datum) {
+            'typeahead:selected input.tag-input': function (event, datum) {
                 this.addItem(datum.value);
             }
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render', 'addItem', 'addOne', 'keyPress', 'getTagList');
             this.value = '';
             this.collection = new TagList();
@@ -651,15 +651,15 @@
                 prefetch: api_prefix + 'tags/list'
             });
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.tag_list_input());
             this.collection.each(this.addOne);
         },
-        keyPress: function(e) {
+        keyPress: function (e) {
             if (e.which == 13)
                 this.addItem();
         },
-        addItem: function(value) {
+        addItem: function (value) {
             value = trim(value || this.$('input.tag-input').val());
             if (value) {
                 this.$('input.tag-input').typeahead('setQuery', '');
@@ -667,7 +667,7 @@
                 this.collection.add(item);
             }
         },
-        addOne: function(item) {
+        addOne: function (item) {
             var removableTagView = new RemovableTagView({
                 model: item
             });
@@ -675,8 +675,8 @@
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, removableTagView.$el.get()]);
         },
         // public method
-        getTagList: function() {
-            return this.collection.map(function(item) {
+        getTagList: function () {
+            return this.collection.map(function (item) {
                 return item.get('name');
             });
         }
@@ -685,11 +685,11 @@
     var MathItemView = Backbone.View.extend({
         tagName: 'li',
         className: 'list-group-item clearfix',
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render');
             this.model.bind('change', this.render);
         },
-        render: function() {
+        render: function () {
             var categories = this.model.get('categories');
             var name = capitalize(type_short_to_long(this.model.get('type')))
                            + ' ' + this.model.get('id');
@@ -714,29 +714,29 @@
 
     var SearchListView = Backbone.View.extend({
         events: {
-            'click .search-list-more': function() {
+            'click .search-list-more': function () {
                 this.doFetch(true);
             },
-            'click .select-final': function() {
+            'click .select-final': function () {
                 this.options.parameters.set('status', 'F');
             },
-            'click .select-review': function() {
+            'click .select-review': function () {
                 this.options.parameters.set('status', 'R');
             },
-            'click .select-draft': function() {
+            'click .select-draft': function () {
                 this.options.parameters.set('status', 'D');
             },
-            'click .select-definitions': function() {
+            'click .select-definitions': function () {
                 this.options.parameters.set('type', 'D');
             },
-            'click .select-theorems': function() {
+            'click .select-theorems': function () {
                 this.options.parameters.set('type', 'T');
             },
-            'click .select-proofs': function() {
+            'click .select-proofs': function () {
                 this.options.parameters.set('type', 'P');
             }
         },
-        initialize: function(options) {
+        initialize: function (options) {
             this.options = options;
             _.bindAll(this, 'render', 'addOne', 'doFetch', 'fetchReset');
             this.listenTo(this.collection, 'reset', this.render);
@@ -745,10 +745,10 @@
             this.listenTo(this.options.parameters, 'change', this.fetchReset);
             this.render();
         },
-        postAppend: function() {
+        postAppend: function () {
             this.$('.search-list-more').toggle(this.collection.has_more);
         },
-        render: function() {
+        render: function () {
             var status = this.options.parameters.get('status');
             var type = this.options.parameters.get('type');
             var html = teoremer.templates.search_list_container({
@@ -767,14 +767,14 @@
             this.collection.each(this.addOne);
             this.postAppend();
         },
-        addOne: function(item) {
+        addOne: function (item) {
             var mathItemView = new MathItemView({
                 model: item
             });
             this.$('ul').append(mathItemView.render().el);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItemView.$el.get()]);
         },
-        doFetch: function(append) {
+        doFetch: function (append) {
             var status = this.options.parameters.get('status');
             var options = {};
             options.data = this.options.parameters.toJSON();
@@ -785,7 +785,7 @@
                 var self = this;
                 options.remove = false;
                 options.data.offset = this.collection.length;
-                options.success = function() {
+                options.success = function () {
                     self.postAppend();
                 };
             } else {
@@ -794,24 +794,24 @@
             }
             this.collection.fetch(options);
         },
-        fetchReset: function() {
+        fetchReset: function () {
             this.doFetch(false);
         }
     });
 
     var TopListView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render', 'addOne');
             this.listenTo(this.collection, 'reset', this.render);
             this.listenTo(this.collection, 'add', this.addOne);
             this.render();
         },
-        render: function() {
+        render: function () {
             var html = teoremer.templates.top_list_container();
             this.$el.html(html);
             this.collection.each(this.addOne);
         },
-        addOne: function(item) {
+        addOne: function (item) {
             var mathItemView = new MathItemView({
                 model: item
             });
@@ -825,32 +825,32 @@
             'input': 'update',
             'propertychange': 'update'
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render', 'update');
             this.render();
             this.$el.focus();
         },
-        render: function() {
+        render: function () {
             this.$el.val(this.model.get('body'));
             return this;
         },
-        update: function() {
+        update: function () {
             this.model.set('body', this.$el.val());
         }
     });
 
     var BodyPreviewView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render');
             this.listenTo(this.model, 'change:body', this.render);
             this.render();
         },
-        render: function() {
+        render: function () {
             var source = this.model.get('body');
-            var html = typeset_body(source, function(text, tag) {
+            var html = typeset_body(source, function (text, tag) {
                 return '<a href="#" data-toggle="tooltip" title="tag: ' + tag + '"><i>'
                            + (text || tag) + '</i></a>';
-            }, function(text, item_id) {
+            }, function (text, item_id) {
                 return '<a href="#" data-toggle="tooltip" title="item: ' + item_id + '"><b>'
                            + (text || item_id) + '</b></a>';
             }, typeset_media_default(this.render));
@@ -864,18 +864,18 @@
         events: {
             'click': 'save'
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'save');
             window.onbeforeunload = confirmOnPageExit('The draft has changed.');
         },
-        save: function() {
+        save: function () {
             this.model.save(null, {
                 wait: true,
-                success: function(model) {
+                success: function (model) {
                     window.onbeforeunload = null;
                     redirect(to_url.drafts_show(model.get('id')));
                 },
-                error: function(model) {
+                error: function (model) {
                     console.log(model.toJSON());
                     console.log('error saving');
                 }
@@ -889,7 +889,7 @@
             'click #category-plus-btn':  'plusAction',
             'keypress input':            'keyPress'
         },
-        initialize: function(options) {
+        initialize: function (options) {
             this.on_select = options.add;
             _.bindAll(this, 'render', 'renderTags', 'keyPress', 'modalReady', 'resetInput',
                             'selectAction', 'minusAction', 'plusAction');
@@ -897,14 +897,14 @@
             this.listenTo(this.collection, 'add remove', this.renderTags);
             this.render();
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.add_category());
             this.input_element = this.$('input');
             return this;
         },
-        resetInput: function() {
+        resetInput: function () {
             this.input_element.typeahead('destroy');
-            var tag_list = this.collection.map(function(model) {
+            var tag_list = this.collection.map(function (model) {
                 return model.get('name');
             });
             var path = _.map(tag_list, encodeURIComponent).join('/');
@@ -915,21 +915,21 @@
             this.input_element.typeahead('setQuery', '');
             this.input_element.focus();
         },
-        modalReady: function(dispatcher) {
+        modalReady: function (dispatcher) {
             this.listenTo(dispatcher, 'add', this.selectAction);
             this.dispatcher = dispatcher;
             this.resetInput();
         },
-        renderTags: function() {
+        renderTags: function () {
             var html = teoremer.templates.tag_list({
-                tags: this.collection.map(function(model) {
+                tags: this.collection.map(function (model) {
                     return model.typeset();
                 })
             });
             this.$('div.category').html(html);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, this.$el.get()]);
         },
-        keyPress: function(e) {
+        keyPress: function (e) {
             if (e.which == 13) {
                 if (this.input_element.val()) {
                     this.plusAction();
@@ -938,18 +938,18 @@
                 }
             }
         },
-        selectAction: function() {
+        selectAction: function () {
             this.on_select(new Category({
                 tag_list: this.collection
             }));
             this.dispatcher.trigger('close');
         },
-        minusAction: function() {
+        minusAction: function () {
             if (!this.input_element.val())
                 this.collection.pop();
             this.resetInput();
         },
-        plusAction: function() {
+        plusAction: function () {
             var value = trim(this.input_element.val());
             if (value)
                 this.collection.push({ name: value });
@@ -968,16 +968,16 @@
         tagName: 'span',
         className: 'removable',
         events: {
-            'click a': function() {
+            'click a': function () {
                 this.model.destroy();
             }
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render');
             this.listenTo(this.model, 'change', this.render);
             this.listenTo(this.model, 'remove', this.remove);
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.item_removable({
                 spanClass: 'category',
                 html: this.model.typeset()
@@ -988,18 +988,18 @@
 
     var EditableCategoryListView = Backbone.View.extend({
         // standard
-        events: function() {
+        events: function () {
             var e = {};
             e['click #category-add-' + this.uid] = '_promptCategory';
             return e;
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render', '_addOne', '_promptCategory');
             this.uid = _.uniqueId();
             this.collection.bind('add', this._addOne);
             this.render();
         },
-        render: function() {
+        render: function () {
             var html = teoremer.templates.editable_category_list({
                 uid: this.uid
             });
@@ -1007,16 +1007,16 @@
             this.collection.each(this._addOne);
         },
         // helpers
-        _addOne: function(item) {
+        _addOne: function (item) {
             var categoryView = new RemovableCategoryView({
                 model: item
             });
             this.$('#category-list-' + this.uid).append(categoryView.render().el);
             MathJax.Hub.Queue(["Typeset", MathJax.Hub, categoryView.$el.get()]);
         },
-        _promptCategory: function() {
+        _promptCategory: function () {
             var collection = this.collection;
-            show_add_category_modal(function(category) {
+            show_add_category_modal(function (category) {
                 collection.add(category);
             });
         }
@@ -1028,11 +1028,11 @@
         events: {
             'click button': '_change'
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render', '_change');
             this.listenTo(this.model, 'change', this.render);
         },
-        render: function() {
+        render: function () {
             var html = teoremer.templates.tag_association({
                 tag: this.model.get('tag').typeset(),
                 category: this.model.get('category').typeset()
@@ -1042,9 +1042,9 @@
             return this;
         },
         // helpers
-        _change: function() {
+        _change: function () {
             var model = this.model;
-            show_add_category_modal(function(category) {
+            show_add_category_modal(function (category) {
                 model.set('category', category);
             });
         }
@@ -1052,18 +1052,18 @@
 
     var ChangableTagAssociationListView = Backbone.View.extend({
         // standard
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render', '_addOne');
             this.collection.bind('add', this._addOne);
             this.render();
         },
-        render: function() {
+        render: function () {
             var html = teoremer.templates.tag_association_list();
             this.$el.html(html);
             this.collection.each(this._addOne);
         },
         // helpers
-        _addOne: function(item) {
+        _addOne: function (item) {
             var tagAssociation = new ChangableTagAssociationView({
                 model: item
             });
@@ -1076,16 +1076,16 @@
         events: {
             'click': 'save'
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'save');
         },
-        save: function() {
+        save: function () {
             this.model.save(null, {
                 wait: true,
-                success: function(model) {
+                success: function (model) {
                     redirect(to_url.items_show_final(model.get('id')));
                 },
-                error: function(model) {
+                error: function (model) {
                     console.log(model.toJSON());
                     console.log('error saving');
                 }
@@ -1117,20 +1117,20 @@
             'input': 'change',
             'propertychange': 'change'
         },
-        initialize: function(options) {
+        initialize: function (options) {
             this.key = options.key;
             _.bindAll(this, 'render', 'change');
             if (!this.model.has(this.key))
                 this.model.set(this.key, '');
         },
-        render: function() {
+        render: function () {
             var context = _.extend(sourceFields[this.key], {
                 value: this.model.get(this.key)
             });
             this.$el.html(teoremer.templates.source_string_field(context));
             return this;
         },
-        change: function() {
+        change: function () {
             this.model.set(this.key, this.$('input').val());
         }
     });
@@ -1142,13 +1142,13 @@
             'typeahead:selected input': 'change',
             'click a': 'add'
         },
-        initialize: function(options) {
+        initialize: function (options) {
             _.extend(this, _.pick(options, 'key', 'author_list'));
             _.bindAll(this, 'render', 'change', 'add');
             if (!this.model.has(this.key))
                 this.model.set(this.key, ['']);
         },
-        render: function() {
+        render: function () {
             var context = _.extend(sourceFields[this.key], {
                 key: this.key,
                 value: this.model.get(this.key)
@@ -1160,7 +1160,7 @@
             });
             return this;
         },
-        change: function(event, datum) {
+        change: function (event, datum) {
             var value = trim(datum ? datum.value : $(event.currentTarget).val());
             var index = $(event.currentTarget).data('idx');
             var current = this.model.get(this.key);
@@ -1170,7 +1170,7 @@
                 this.model.set(this.key, changed);
             }
         },
-        add: function() {
+        add: function () {
             this.model.get(this.key).push('');
             this.render();
         }
@@ -1178,17 +1178,17 @@
 
     var SourceEditView = Backbone.View.extend({
         events: {
-            'change #select-source': function(event) {
+            'change #select-source': function (event) {
                 this.setType($(event.currentTarget).val());
             },
-            'click #extra-fields a': function(event) {
+            'click #extra-fields a': function (event) {
                 this.addExtra($(event.currentTarget).data('key'));
             },
-            'click #add-source': function() {
+            'click #add-source': function () {
                 var self = this;
                 this.model.save(null, {
                     wait: true,
-                    success: function(model) {
+                    success: function (model) {
                         if (self.mode[0] == 'item') {
                             redirect(to_url.sources_add_location_for_item(
                                 self.mode[1], model.get('id')));
@@ -1199,37 +1199,37 @@
                             redirect(to_url.source_index());
                         }
                     },
-                    error: function(model) {
+                    error: function (model) {
                         console.log(model.toJSON());
                         console.log('error saving source');
                     }
                 });
             }
         },
-        initialize: function(options) {
+        initialize: function (options) {
             _.extend(this, _.pick(options, 'mode', 'author_list'));
             _.bindAll(this, 'render', 'setType', 'addExtra');
             this.setType(this.model.get('type'));
         },
-        setType: function(type) {
+        setType: function (type) {
             var attrs = cleanValues(this.model.attributes);
             attrs.type = type;
             this.model.clear({ silent: true });
             this.model.set(attrs);
             this.render();
         },
-        render: function() {
+        render: function () {
             var type = this.model.get('type');
             var type_data = sourceTypes[type];
-            var extras_to_show = _.filter(type_data.extra, function(element) {
+            var extras_to_show = _.filter(type_data.extra, function (element) {
                 return this.model.has(element);
             }, this);
 
             var html = teoremer.templates.source_edit({
-                types: _.map(sourceTypes, function(value, key) {
+                types: _.map(sourceTypes, function (value, key) {
                     return { key: key, name: sourceTypes[key].name };
                 }),
-                extra: _.map(_.difference(type_data.extra, extras_to_show), function(key) {
+                extra: _.map(_.difference(type_data.extra, extras_to_show), function (key) {
                     return { key: key, name: sourceFields[key].name };
                 })
             });
@@ -1241,7 +1241,7 @@
             $('#select-source').val(type);
             this.$('input[type="text"]').first().focus();
         },
-        addExtra: function(field_key) {
+        addExtra: function (field_key) {
             var field_config = sourceFields[field_key], view;
             var options = { model: this.model, key: field_key };
             if (field_config.type == 'text') {
@@ -1256,12 +1256,12 @@
     });
 
     var SourceRenderView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render');
             this.listenTo(this.model, 'change', this.render);
             this.render();
         },
-        render: function() {
+        render: function () {
             this.$el.html(typeset_source(this.model.attributes));
         }
     });
@@ -1271,7 +1271,7 @@
         className: 'list-group-item',
         attributes: { href: '#' },
         events: {
-            'click': function() {
+            'click': function () {
                 if (this.mode[0] == 'item') {
                     redirect(to_url.sources_add_location_for_item(
                                 this.mode[1], this.model.get('id')));
@@ -1281,12 +1281,12 @@
                 }
             }
         },
-        initialize: function(options) {
+        initialize: function (options) {
             this.mode = options.mode;
             _.bindAll(this, 'render');
             this.render();
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.source_search_item({
                 'source': typeset_source(this.model.attributes)
             }));
@@ -1295,7 +1295,7 @@
     });
 
     var LiveSourceSearchView = Backbone.View.extend({
-        initialize: function(options) {
+        initialize: function (options) {
             _.extend(this, _.pick(options, 'sourceModel', 'mode'));
             _.bindAll(this, 'render', '_search', '_check', '_cancelTimer', '_addOne');
             this.listenTo(this.sourceModel, 'change', this._check);
@@ -1306,11 +1306,11 @@
             this.render();
             this._search();
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.source_search_container());
             this.collection.each(this._addOne);
         },
-        _addOne: function(item) {
+        _addOne: function (item) {
             var itemView = new SourceSearchItemView({
                 model: item,
                 mode: this.mode
@@ -1318,7 +1318,7 @@
             this.$('.no-matches-message').hide();
             this.$('div').append(itemView.render().el);
         },
-        _search: function() {
+        _search: function () {
             this._cancelTimer();
             var attrs = cleanValues(this.sourceModel.attributes);
             for (var key in attrs) {
@@ -1335,11 +1335,11 @@
                 });
             }
         },
-        _check: function() {
+        _check: function () {
             this._cancelTimer();
             this.timeoutID = window.setTimeout(this._search, 1000);
         },
-        _cancelTimer: function() {
+        _cancelTimer: function () {
             if (typeof this.timeoutID == "number") {
                 window.clearTimeout(this.timeoutID);
                 delete this.timeoutID;
@@ -1351,14 +1351,14 @@
         tagName: 'li',
         className: 'list-group-item',
         events: {
-            'click .vote-down.vote-enabled': function() {
+            'click .vote-down.vote-enabled': function () {
                 this.model.set('user_vote', this.model.get('user_vote') == 'down' ? 'none' : 'down');
             },
-            'click .vote-up.vote-enabled': function() {
+            'click .vote-up.vote-enabled': function () {
                 this.model.set('user_vote', this.model.get('user_vote') == 'up' ? 'none' : 'up');
             }
         },
-        initialize: function(options) {
+        initialize: function (options) {
             _.extend(this, _.pick(options, 'user_id', 'item_data'));
             _.bindAll(this, 'render', 'renderPoints', 'persistVote');
             this.listenTo(this.model, 'change:user_vote', this.persistVote);
@@ -1366,7 +1366,7 @@
             this.listenTo(this.model, 'change:points', this.renderPoints);
             this.render();
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.validation_item({
                 source: typeset_source(this.model.get('source')),
                 location: this.model.get('location')
@@ -1374,7 +1374,7 @@
             this.renderPoints();
             return this;
         },
-        renderPoints: function() {
+        renderPoints: function () {
             var context = {
                 vote_value: this.model.get('points'),
             };
@@ -1386,7 +1386,7 @@
             }
             this.$('.validation-vote').html(teoremer.templates.points_with_voting(context));
         },
-        persistVote: function() {
+        persistVote: function () {
             var validation_model = this.model;
             var item_data_model = this.item_data;
             var data = {
@@ -1395,7 +1395,7 @@
             };
             $.post(api_prefix + 'item/' + item_data_model.get('id') + '/validation-vote',
                    JSON.stringify(data),
-                   function(response) {
+                   function (response) {
                        validation_model.set('points', response.validation_points);
                        item_data_model.set('points', response.item_points);
                    });
@@ -1403,17 +1403,17 @@
     });
 
     var ValidationListView = Backbone.View.extend({
-        initialize: function(options) {
+        initialize: function (options) {
             _.extend(this, _.pick(options, 'user_id', 'item_data'));
             _.bindAll(this, 'render', '_addOne');
             this.collection.bind('add', this._addOne);
             this.render();
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.validation_list());
             this.collection.each(this._addOne);
         },
-        _addOne: function(item) {
+        _addOne: function (item) {
             var validationView = new ValidationView({
                 model: item,
                 user_id: this.user_id,
@@ -1424,16 +1424,16 @@
     });
 
     var SourceListView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render', '_addOne');
             this.collection.bind('reset', this.render);
             this.render();
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.source_list_container());
             this.collection.each(this._addOne);
         },
-        _addOne: function(item) {
+        _addOne: function (item) {
             var html = teoremer.templates.source_list_item({
                 'link': to_url.source_item(item.get('id')),
                 'source': typeset_source(item.attributes)
@@ -1443,19 +1443,19 @@
     });
 
     var DocumentMessageView = Backbone.View.extend({
-        id: function() {
+        id: function () {
             return 'doc-entry-' + this.model.cid;
         },
-        className: function() {
+        className: function () {
             return 'alert alert-dismissable alert-' + this.model.get('severity');
         },
         events: {
             'click .close': 'remove'
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render');
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.document_message({
                message: this.model.get('message')
             }));
@@ -1466,32 +1466,32 @@
     var DocumentItemView = Backbone.View.extend({
         className: 'panel panel-default',
         events: {
-            'click a.add-concept': function(e) {
+            'click a.add-concept': function (e) {
                 e.preventDefault();
                 var elem = $(e.currentTarget);
                 this.dispatcher.trigger('add-concept', elem.data('concept'), this.id.slice(10));
             },
-            'click a.add-item': function(e) {
+            'click a.add-item': function (e) {
                 e.preventDefault();
                 var elem = $(e.currentTarget);
                 this.dispatcher.trigger('add-item', elem.data('item'));
             },
-            'click .close': function() {
+            'click .close': function () {
                 this.dispatcher.trigger('remove', this.model.get('id'));
             }
         },
-        initialize: function(options) {
+        initialize: function (options) {
             this.dispatcher = options.dispatcher;
             this.editable = options.editable;
             _.bindAll(this, 'render');
         },
-        render: function() {
+        render: function () {
             var tag_refs = this.model.get('tag_refs');
-            var body = typeset_body(this.model.get('body'), function(text, tag) {
+            var body = typeset_body(this.model.get('body'), function (text, tag) {
                 var concept_id = tag_refs[tag];
                 return '<a href="#" class="add-concept concept-' + concept_id
                     + '-ref" data-concept="' + concept_id + '">' + (text || tag) + '</a>';
-            }, function(text, item_id) {
+            }, function (text, item_id) {
                 return '<a href="#" class="add-item item-' + item_id + '-ref" data-item="'
                     + item_id + '">' + (text || item_id) + '</a>';
             }, typeset_media_default(this.render));
@@ -1507,7 +1507,7 @@
     });
 
     var DocumentView = Backbone.View.extend({
-        initialize: function(options) {
+        initialize: function (options) {
             this.doc_id = options.doc_id;
             this.editable = options.editable;
             _.bindAll(this, 'render', 'onAdd', 'makeItemView', 'fetchConcept', 'fetchItem', 'fetch',
@@ -1525,9 +1525,9 @@
             this.concepts_unavailable = {};
             this.render();
         },
-        render: function() {
+        render: function () {
             var container = document.createDocumentFragment();
-            this.collection.each(function(model) {
+            this.collection.each(function (model) {
                 var view = this.makeItemView(model);
                 model.set('view', view);
                 container.appendChild(view.render().el);
@@ -1536,7 +1536,7 @@
             this.$el.append(container);
             this.updateMeta();
         },
-        insertItemView: function(model, view) {
+        insertItemView: function (model, view) {
             this.collection.remove(model);
             var pos = 0, model_order = model.get('order');
             while (pos < this.collection.length &&
@@ -1551,7 +1551,7 @@
             model.set('view', view);
             this.collection.add(model, { at: pos, silent: true });
         },
-        onAdd: function(model) {
+        onAdd: function (model) {
             var msgView;
             switch (model.get('type')) {
                 case 'item':
@@ -1595,33 +1595,33 @@
             this.updateMeta();
             scrollTo(msgView.$el);
         },
-        updateMeta: function() {
+        updateMeta: function () {
             var def_count = 0, thm_count = 0, prf_count = 0;
             var all_concepts_referenced = {};
             this.item_availability = {};
             this.concept_availability = _.clone(this.concepts_unavailable);
-            this.collection.each(function(model) {
+            this.collection.each(function (model) {
                 switch (model.get('itemtype')) {
                     case 'D': def_count++; break;
                     case 'T': thm_count++; break;
                     case 'P': prf_count++; break;
                 }
-                _.each(model.get('item_defs'), function(item_id) {
+                _.each(model.get('item_defs'), function (item_id) {
                     this.item_availability[item_id] = model.get('id');
                 }, this);
-                _.each(model.get('concept_defs'), function(concept_id) {
+                _.each(model.get('concept_defs'), function (concept_id) {
                     this.concept_availability['' + concept_id] = model.get('id');
                 }, this);
-                _.each(model.get('tag_refs'), function(value) {
+                _.each(model.get('tag_refs'), function (value) {
                     all_concepts_referenced[value] = true;
                 });
             }, this);
             this.$('.add-item').addClass('text-primary');
-            _.each(this.item_availability, function(value, key) {
+            _.each(this.item_availability, function (value, key) {
                 this.$('.item-' + key + '-ref').removeClass('text-primary').addClass('text-success');
             }, this);
             this.$('.add-concept').addClass('text-primary');
-            _.each(this.concept_availability, function(value, key) {
+            _.each(this.concept_availability, function (value, key) {
                 var has_concept = typeof value === 'string';
                 this.$('.concept-' + key + '-ref').removeClass('text-primary')
                     .addClass(has_concept ? 'text-success' : 'text-warning');
@@ -1629,16 +1629,16 @@
             $('#def-count').text(formatCount('definition', def_count));
             $('#thm-count').text(formatCount('theorem', thm_count));
             $('#prf-count').text(formatCount('proof', prf_count));
-            _.each(all_concepts_referenced, function(value, key) {
+            _.each(all_concepts_referenced, function (value, key) {
                 this.$('.add-concept.concept-' + key + '-ref').tooltip({
                     html: true,
-                    title: function() {
+                    title: function () {
                         return typeset_category_id(key);
                     }
                 });
             }, this);
         },
-        makeItemView: function(model) {
+        makeItemView: function (model) {
             return new DocumentItemView({
                 id:         'doc-entry-' + model.id,
                 model:      model,
@@ -1646,7 +1646,7 @@
                 editable:   this.editable
             });
         },
-        makeMessageView: function(severity, message) {
+        makeMessageView: function (severity, message) {
             return new DocumentMessageView({
                 model: new Backbone.Model({
                     severity: severity,
@@ -1654,7 +1654,7 @@
                 })
             });
         },
-        fetch: function(subpath, data) {
+        fetch: function (subpath, data) {
             this.$('.alert').remove();
             this.collection.fetch({
                 url: this.collection.url + this.doc_id + '/' + subpath,
@@ -1663,7 +1663,7 @@
                 remove: false
             });
         },
-        fetchConcept: function(concept_id, source_id) {
+        fetchConcept: function (concept_id, source_id) {
             var key = '' + concept_id;
             if (this.concept_availability[key]) {
                 scrollTo($('#doc-entry-' + this.concept_availability[key]));
@@ -1677,7 +1677,7 @@
                 redirect(to_url.definitions_categorized(tag_list));
             }
         },
-        fetchItem: function(item_id) {
+        fetchItem: function (item_id) {
             if (this.item_availability[item_id]) {
                 scrollTo($('#doc-entry-' + this.item_availability[item_id]));
             } else if (this.editable) {
@@ -1688,7 +1688,7 @@
                 redirect(to_url.items_show_final(item_id));
             }
         },
-        removeEntryView: function(item_id) {
+        removeEntryView: function (item_id) {
             this.fetch('delete', item_id);
         }
     });
@@ -1697,35 +1697,35 @@
         events: {
             'keypress input': 'keyPress'
         },
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render', 'modalReady', 'keyPress', 'save');
             this.render();
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.document_name_input());
             return this;
         },
-        modalReady: function(dispatcher) {
+        modalReady: function (dispatcher) {
             this.dispatcher = dispatcher;
             this.listenTo(dispatcher, 'save', this.save);
             this.$('input').focus();
         },
-        keyPress: function(e) {
+        keyPress: function (e) {
             if (e.which == 13) this.save();
         },
-        save: function() {
+        save: function () {
             this.model.save({ title: this.$('input').val() }, { wait: true });
             this.dispatcher.trigger('close');
         }
     });
 
     var ItemPointsView = Backbone.View.extend({
-        initialize: function() {
+        initialize: function () {
             _.bindAll(this, 'render');
             this.listenTo(this.model, 'change:points', this.render);
             this.render();
         },
-        render: function() {
+        render: function () {
             this.$el.html(teoremer.templates.item_points({
                 points: '' + this.model.get('points')
             }));
@@ -1757,21 +1757,21 @@
      ****************************/
 
     var teoremer = {
-        home: function(init_items) {
+        home: function (init_items) {
             new TopListView({
                 el: $('#top-item-list'),
                 collection: new TopList(init_items, { parse: true })
             });
         },
 
-        source_list: function(items) {
+        source_list: function (items) {
             new SourceListView({
                 el: $('#source-list'),
                 collection: new SourceList(items)
             });
         },
 
-        new_draft: function(kind, show_primcats, parent) {
+        new_draft: function (kind, show_primcats, parent) {
             var draft_data = { type: kind };
             if (parent) draft_data.parent = parent;
             var item = new DraftItem(draft_data, { parse: true });
@@ -1800,7 +1800,7 @@
             });
         },
 
-        edit_draft: function(id, body, pricats, seccats, show_primcats) {
+        edit_draft: function (id, body, pricats, seccats, show_primcats) {
             var item = new DraftItem({ id: id, body: body, pricats: pricats, seccats: seccats },
                                      { parse: true });
             new BodyEditView({
@@ -1827,8 +1827,8 @@
             });
         },
 
-        show_draft: function(validations) {
-            $(function() {
+        show_draft: function (validations) {
+            $(function () {
                 $('div.draft-view').tooltip({
                   selector: "a[rel=tooltip]"
                 });
@@ -1844,7 +1844,7 @@
             });
         },
 
-        edit_final: function(id, pricats, seccats, tagcatmap, show_primcats) {
+        edit_final: function (id, pricats, seccats, tagcatmap, show_primcats) {
             var item = new FinalItem({
                 id: id,
                 pricats: pricats,
@@ -1872,7 +1872,7 @@
             });
         },
 
-        item_search: function(itemtypes, statuses, init_items, category, restrict, user_id) {
+        item_search: function (itemtypes, statuses, init_items, category, restrict, user_id) {
             var includeView = new TagListView({
                 el: $('#include-tags')
             });
@@ -1897,15 +1897,15 @@
             }
             new SearchListView(searchListViewData);
 
-            includeView.collection.on('add remove', function() {
+            includeView.collection.on('add remove', function () {
                 searchTerms.set('includeTags', includeView.getTagList());
             });
-            excludeView.collection.on('add remove', function() {
+            excludeView.collection.on('add remove', function () {
                 searchTerms.set('excludeTags', excludeView.getTagList());
             });
         },
 
-        show_final: function(validations, item_data, user_id, init_proofs) {
+        show_final: function (validations, item_data, user_id, init_proofs) {
             var item_model = new Backbone.Model(item_data);
             new ItemPointsView({
                 el: $('#item-points'),
@@ -1940,24 +1940,24 @@
                 new SearchListView(searchListViewData);
             }
 
-            $('#add-to-document a').click(function() {
+            $('#add-to-document a').click(function () {
                 var doc_id = $(this).data('doc');
                 var data_to_send = JSON.stringify({ item_id: item_data.id });
                 if (doc_id) {
                     $.post(api_prefix + 'document/' + doc_id + '/add-item', data_to_send,
-                           function() {
+                           function () {
                                redirect(to_url.document_show(doc_id));
                            });
                 } else {
                     $.post(api_prefix + 'document/', data_to_send,
-                           function(data) {
+                           function (data) {
                                redirect(to_url.document_show(data.id));
                            });
                 }
             });
         },
 
-        source_add: function(mode, author_list) {
+        source_add: function (mode, author_list) {
             var source = new SourceItem();
             new SourceEditView({
                 el: $('#source-edit'),
@@ -1969,16 +1969,16 @@
             new LiveSourceSearchView({ el: $('#source-search'), sourceModel: source, mode: mode });
         },
 
-        source_preview: function(source) {
+        source_preview: function (source) {
             new SourceRenderView({
                 el: $('#source-preview'),
                 model: new SourceItem(source)
             });
         },
 
-        document_view: function(data, items, editable) {
+        document_view: function (data, items, editable) {
             var document_data = new DocumentModel(data);
-            var set_title = function() {
+            var set_title = function () {
                 $('#document-title').html(document_data.escape('title') || ('Document ' + data.id));
             };
             set_title();
@@ -1990,7 +1990,7 @@
             });
             if (editable) {
                 document_data.on('change:title', set_title);
-                $('#rename-button').click(function() {
+                $('#rename-button').click(function () {
                     show_modal('Rename document', new DocumentRenameView({ model: document_data }),
                                [ { name: 'Close' }, { name: 'Save', primary: true } ]);
                 });
@@ -2004,7 +2004,7 @@
 
 // on load actions
 
-$(function() {
+$(function () {
     "use strict";
 
     function expanderToggle(elem) {
@@ -2014,21 +2014,21 @@ $(function() {
         elem.next().toggle();
     }
 
-    $('.expander-in').each(function() {
+    $('.expander-in').each(function () {
         $(this).next().hide();
         $(this).find('span.glyphicon').addClass('glyphicon-chevron-down');
-    }).click(function() {
+    }).click(function () {
         expanderToggle($(this));
     });
 
-    $('expander-out').each(function() {
+    $('expander-out').each(function () {
         $(this).find('span.glyphicon').addClass('glyphicon-chevron-up');
         $(this).next().show();
-    }).click(function() {
+    }).click(function () {
         expanderToggle($(this));
     });
 
-    $(function() {
+    $(function () {
         $('input.focus').first().focus();
     });
 
