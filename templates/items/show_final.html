@@ -60,7 +60,7 @@ published at {{ item.created_at|datetime_user:user }}
 {% if allow.add_source %}
 <p><a class="btn btn-primary" href="{% url 'sources.views.add_source_for_item' item.final_id %}"><span class="glyphicon glyphicon-plus"></span> Add source validation</a></p>
 {% endif %}
-{% if allow.change_cats %}
+{% if allow.edit %}
 <p><a class="btn btn-primary" href="{% url 'items.views.edit_final' item.final_id %}"><span class="glyphicon glyphicon-pencil"></span> Change categories</a></p>
 {% endif %}
 {% if allow.delete %}

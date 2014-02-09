@@ -54,8 +54,8 @@ class User(AbstractBaseUser):
                 return obj.status == 'F' and obj.itemtype == 'T'
             if perm in ['add_source', 'add_to_doc']:
                 return obj.status == 'F'
-            if perm == 'change_cats':
-                return obj.status == 'F' and self.point >= 100
+            if perm == 'edit':
+                return obj.status == 'F' and self.points >= 100
             if perm == 'delete':
                 return self.is_admin
         return False
