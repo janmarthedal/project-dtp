@@ -25,6 +25,12 @@
 <h4>No validations</h4>
 {% endif %}
 
+{% if item.status == 'R' %}
+<h4>Review</h4>
+<p>Ready to publish? <a href="#"><span class="glyphicon glyphicon-ok text-muted"></span></a></p>
+<button class="btn btn-primary" id="review-reject">Reject with reason</button>
+{% endif %}
+
 {% endblock mainbar %}
 
 {% block sidebar %}

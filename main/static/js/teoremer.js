@@ -1733,6 +1733,25 @@
         }
     });
 
+    var ReviewCommentView = Backbone.View.extend({
+        initialize: function () {
+            _.bindAll(this, 'render', 'modalReady', 'add');
+            this.render();
+        },
+        render: function () {
+            this.$el.html(teoremer.templates.review_reject());
+            return this;
+        },
+        modalReady: function (dispatcher) {
+            this.dispatcher = dispatcher;
+            this.listenTo(dispatcher, 'add', this.add);
+            this.$('textarea').focus();
+        },
+        add: function () {
+            this.dispatcher.trigger('close');
+        }
+    });
+
     /****************************
      * Pages
      ****************************/
@@ -1812,6 +1831,11 @@
             $(function() {
                 $('div.draft-view').tooltip({
                   selector: "a[rel=tooltip]"
+                });
+                $('#review-reject').click(function () {
+                    show_modal('Reason for rejection', new ReviewCommentView(),
+                               [{ name: 'Add', signal: 'add', primary: true },
+                                { name: 'Cancel', signal: 'close' }]);
                 });
             });
             new ValidationListView({

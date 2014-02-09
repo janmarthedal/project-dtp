@@ -70,3 +70,6 @@ span.removable {
   margin-right: 10px;
   width: 256px;
 }
+textarea.review-reject {
+  height: 8em;
+}

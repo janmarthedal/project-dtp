@@ -9,7 +9,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 class BaseItem(models.Model):
-
     class Meta:
         abstract = True
 
@@ -51,7 +50,6 @@ class BaseItem(models.Model):
         return self._cache['secondary_categories']
 
 class DraftItemManager(models.Manager):
-
     def add_item(self, user, itemtype, body, primary_categories, secondary_categories, parent):
         type_key = filter(lambda kc: kc[1] == itemtype, DraftItem.TYPE_CHOICES)[0][0]
         item = DraftItem.objects.create(itemtype   = type_key,
@@ -63,7 +61,6 @@ class DraftItemManager(models.Manager):
         return item
 
 class DraftItem(BaseItem):
-
     class Meta:
         db_table = 'draft_items'
 
@@ -74,10 +71,10 @@ class DraftItem(BaseItem):
         ('R', 'under review'),
     )
 
-    status      = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
-    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     modified_at = models.DateTimeField(default=timezone.now)
-    categories  = models.ManyToManyField(Category, through='DraftItemCategory')
+    categories = models.ManyToManyField(Category, through='DraftItemCategory')
 
     def __unicode__(self):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
@@ -112,16 +109,33 @@ class DraftItem(BaseItem):
         self._add_category_lists(primary_categories, secondary_categories)
 
 class DraftItemCategory(models.Model):
-
     class Meta:
         db_table = 'draft_item_category'
         unique_together = ('item', 'category')
-
-    item     = models.ForeignKey(DraftItem, db_index=True)
+    item = models.ForeignKey(DraftItem, db_index=True)
     category = models.ForeignKey(Category, db_index=False)
-    primary  = models.BooleanField()
+    primary = models.BooleanField()
 
 class DraftValidation(ValidationBase):
     class Meta:
         db_table = 'draft_validation'
     item = models.ForeignKey(DraftItem)
+
+class ReviewEntry(models.Model):
+    class Meta:
+        db_table = 'review_entry'
+    item = models.ForeignKey(DraftItem)
+    item_modified_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    comment = models.TextField()
+    weight = models.FloatField()
+    points = models.FloatField()
+
+class ReviewEntryVote(models.Model):
+    class Meta:
+        db_table = 'review_entry_vote'
+    review_comment = models.ForeignKey(ReviewEntry)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
+    created_at = models.DateTimeField(default=timezone.now)
+    value = models.IntegerField(default=1, null=False)
