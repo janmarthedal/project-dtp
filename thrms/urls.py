@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
-    url(r'^google61bd58f8909bdef9.html$', 'main.views.serve_raw'),
     url(r'^api/', include('api.urls')),
     url(r'^user/', include('users.urls')),
     url(r'^source/', include('sources.urls')),
