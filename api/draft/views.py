@@ -29,14 +29,14 @@ def drafts(request):
 
     item = DraftItem.objects.add_item(user, itemtype, body, primary_categories, secondary_categories, parent)
 
-    message = u'%s successfully created' % item
+    message = '{} successfully created'.format(item)
     logger.debug(message)
     messages.success(request, message)
 
     result = {
-        'id':      item.pk,
-        'type':    itemtype,
-        'body':    body,
+        'id': item.pk,
+        'type': itemtype,
+        'body': body,
         'pricats': primary_categories,
         'seccats': secondary_categories
     }
@@ -62,13 +62,13 @@ def drafts_id(request, item_id):
 
     item.update(body, primary_categories, secondary_categories)
 
-    message = u'%s successfully updated' % item
+    message = '{} successfully updated'.format(item)
     logger.debug(message)
     messages.success(request, message)
 
     return {
-        'id':      item.pk,
-        'body':    body,
+        'id': item.pk,
+        'body': body,
         'pricats': primary_categories,
         'seccats': secondary_categories
     }

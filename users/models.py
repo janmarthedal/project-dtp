@@ -36,7 +36,7 @@ class User(AbstractBaseUser):
     def get_short_name(self):
         return self.id
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def has_perm(self, perm, obj=None):
@@ -86,5 +86,5 @@ class Invitations(models.Model):
         [subject, message] = email.split('\n', 1)
         send_mail(subject, message, 'admin@teoremer.com', [self.target_email])
 
-    def __unicode__(self):
-        return u'{} for {} <{}>'.format(self.token, self.target_name, self.target_email)
+    def __str__(self):
+        return '{} for {} <{}>'.format(self.token, self.target_name, self.target_email)

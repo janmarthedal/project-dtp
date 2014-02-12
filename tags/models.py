@@ -14,7 +14,7 @@ class Tag(models.Model):
     objects    = TagManager()
     name       = models.CharField(max_length=255, db_index=True, unique=True)
     normalized = models.CharField(max_length=255, db_index=True, unique=False)
-    def __unicode__(self):
+    def __str__(self):
         return self.name
     def json_data(self):
         return self.name
@@ -47,7 +47,7 @@ class Category(models.Model):
         if self.parent:
             return self.parent.get_tag_list() + [self.tag]
         return [self.tag]
-    def __unicode__(self):
-        return u'%d:[%s]' % (self.pk, u','.join(map(unicode, self.get_tag_list())))
+    def __str__(self):
+        return '{}:[{}]'.format(self.pk, ','.join(map(str, self.get_tag_list())))
     def json_data(self):
         return [t.json_data() for t in self.get_tag_list()]

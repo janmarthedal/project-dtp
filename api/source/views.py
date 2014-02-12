@@ -29,7 +29,7 @@ def source(request):
                                     {key: api_string_clean(request, key)
                                      for key in RefNode.STRING_FIELDS})
 
-    message = u'%s successfully created' % item
+    message = '{} successfully created'.format(item)
     logger.debug(message)
     messages.success(request, message)
 

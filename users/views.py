@@ -1,4 +1,4 @@
-import StringIO
+from io import StringIO
 from django import forms
 from django.contrib import messages
 from django.contrib.auth import get_user_model, logout as auth_logout
@@ -58,10 +58,10 @@ def profile(request, user_id):
     return render(request, 'users/profile.html', c)
 
 class CustomErrorList(ErrorList):
-    def __unicode__(self):
+    def __str__(self):
         return self.as_custom()
     def as_custom(self):
-        if not self: return u''
+        if not self: return ''
         return format_html_join('', '<span class="label label-danger">{0}</span>',
                                 ((force_text(e),) for e in self))
 

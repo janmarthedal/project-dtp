@@ -1,8 +1,8 @@
-import urllib
+from urllib import request
 import xml.etree.ElementTree as ET
 from datetime import timedelta, datetime
 
-feed = urllib.urlopen('http://blog.teoremer.com/rss/').read()
+feed = request.urlopen('http://blog.teoremer.com/rss/').read()
 root = ET.fromstring(feed)
 channel = root.find('channel')
 
@@ -17,12 +17,12 @@ def parse_date(st):
 
 for item in channel.findall('item'):
     result.append({
-                   'title':       item.find('title').text,
-                   'link':        item.find('link').text,
-                   'date':        parse_date(item.find('pubDate').text),
-                   'description': item.find('description').text
-                   })
+        'title': item.find('title').text,
+        'link': item.find('link').text,
+        'date': parse_date(item.find('pubDate').text),
+        'description': item.find('description').text
+    })
 
-print 'def get_blog_feed():'
-print '    return ' + str(result)
-print ''
+print('def get_blog_feed():')
+print('    return ' + str(result))
+print()

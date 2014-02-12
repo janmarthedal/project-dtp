@@ -9,10 +9,10 @@ if os.uname()[1].endswith('webfaction.com'):
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'jmr_thrms_django',
-            'USER': 'jmr_thrms_django',
-            'PASSWORD': 'Cas250Tor_sql',
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'teoremer',
+            'USER': 'jmr',
+            'PASSWORD': 'JBfk40AM',
             'HOST': '',
             'PORT': '',
         }

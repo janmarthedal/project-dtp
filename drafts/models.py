@@ -76,7 +76,7 @@ class DraftItem(BaseItem):
     modified_at = models.DateTimeField(default=timezone.now)
     categories = models.ManyToManyField(Category, through='DraftItemCategory')
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
 
     def _get_item_category_set(self):

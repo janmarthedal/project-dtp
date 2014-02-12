@@ -13,7 +13,7 @@ class Document(models.Model):
     created_at  = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)
     title       = models.CharField(max_length=255, null=True)
-    def __unicode__(self):
+    def __str__(self):
         if self.title: return self.title
         return "Document %d" % self.id
     def json_data(self):
@@ -54,7 +54,7 @@ class DocumentItemEntry(models.Model):
                       itemtype     = self.item.itemtype,
                       order        = self.order,
                       id           = self.key,
-                      name         = unicode(self.item),
+                      name         = str(self.item),
                       body         = self.item.body,
                       item_defs    = list(self.item_defs),
                       item_uses    = list(self.item_uses),

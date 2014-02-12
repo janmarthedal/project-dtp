@@ -62,7 +62,7 @@ class FinalItem(BaseItem):
     categories = models.ManyToManyField(Category, through='FinalItemCategory')
     points = models.FloatField(default=0, null=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
 
     def _get_item_category_set(self):
@@ -123,8 +123,8 @@ class ItemTagCategory(models.Model):
     item = models.ForeignKey(FinalItem, db_index=True)
     tag = models.ForeignKey(Tag, db_index=False)
     category = models.ForeignKey(Category, db_index=False)
-    def __unicode__(self):
-        return u'%s | %s | %s' % (self.item, self.tag, self.category)
+    def __str__(self):
+        return '{} | {} | {}'.format(self.item, self.tag, self.category)
     def json_data(self):
         return dict(tag=self.tag, category=self.category)
 

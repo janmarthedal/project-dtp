@@ -19,7 +19,7 @@ class CustomSocialAuthExceptionMiddleware(object):
         if strategy is None:
             return
         if isinstance(exception, SocialAuthBaseException):
-            messages.error(request, unicode(exception))
+            messages.error(request, str(exception))
             return redirect(reverse('users.views.login'))
 
 # social auth pipeline

@@ -6,11 +6,11 @@ class RefAuthor(models.Model):
     class Meta:
         db_table = 'ref_author'
     name = models.CharField(max_length=255, unique=True)
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 def normalize_author_list(authors):
-    return sorted(set([s.strip() for s in authors]) - set(['']), key=unicode.lower)
+    return sorted(set([s.strip() for s in authors]) - set(['']), key=str.lower)
 
 class RefNodeManager(models.Manager):
 
@@ -69,7 +69,7 @@ class RefNode(models.Model):
     objects = RefNodeManager()
     STRING_FIELDS = ['title', 'publisher', 'year', 'volume', 'number', 'series', 'address', 'edition',
                      'month', 'journal', 'pages', 'isbn10', 'isbn13', 'note']
-    def __unicode__(self):
+    def __str__(self):
         if self.pk:
             return 'Source %d' % self.pk
         return 'New source'
