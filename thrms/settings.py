@@ -7,18 +7,7 @@ if os.uname()[1].endswith('webfaction.com'):
 
     DEBUG = False
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'teoremer',
-            'USER': 'jmr',
-            'PASSWORD': 'JBfk40AM',
-            'HOST': '',
-            'PORT': '',
-        }
-    }
-
-    PROJECT_BASE = '/home/jmr/webapps/thrms_django/teoremer/'
+    PROJECT_BASE = '/home/jmr/webapps/teoremer_django/teoremer/'
     STATIC_ROOT = '/home/jmr/webapps/thrms_static/'  # used by collectstatic
     MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
     MEDIA_URL = '/media/files/'
@@ -34,17 +23,6 @@ else:
     DEBUG = True
     INTERNAL_IPS = ('127.0.0.1', )  # to enable the debug variable in templates
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'thrms',
-            'USER': 'root',
-            'PASSWORD': 'piwe9imo',
-            'HOST': '',
-            'PORT': '',
-        }
-    }
-
     PROJECT_BASE = '/home/jmr/projects/teoremer/'
     #STATIC_ROOT = '/home/jmr/www/static/'  # not relevant - only used by collectstatic
     MEDIA_ROOT = '/home/jmr/www/media/'
@@ -55,6 +33,15 @@ else:
     SITE_URL = 'http://localhost:8000'
 
 ############ Common settings ############
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'teoremer',
+        'USER': 'jmr',
+        'PASSWORD': 'JBfk40AM',
+    }
+}
 
 EMAIL_HOST = 'smtp.webfaction.com'
 EMAIL_HOST_USER = 'jmr'
@@ -69,7 +56,6 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-
 TEMPLATE_DEBUG = DEBUG
 
 TEMPLATE_DIRS = (
