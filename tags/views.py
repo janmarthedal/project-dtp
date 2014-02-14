@@ -1,4 +1,4 @@
-import urllib
+from urllib.parse import unquote
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, Http404
 from django.views.decorators.http import require_safe
@@ -31,7 +31,7 @@ def list_definitions(request, path):
     if not path:
         raise Http404
     category_items = path_to_category_items(path)
-    tags = map(urllib.unquote, path.split('/'))
+    tags = map(unquote, path.split('/'))
     logger.debug(tags)
     category = Category.objects.from_tag_names_or_404(tags)
     c = init_context('definitions', category_items=category_items, category=category.pk,
