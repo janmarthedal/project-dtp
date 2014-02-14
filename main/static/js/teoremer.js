@@ -606,6 +606,13 @@
         }
     });
 
+    var ReviewItem = Backbone.Model;
+
+    var ReviewList = Backbone.Collection.extend({
+        url: api_prefix + 'review/',
+        model: ReviewItem
+    });
+
     /***************************
      * Views
      ***************************/
@@ -1733,8 +1740,9 @@
         }
     });
 
-    var ReviewCommentView = Backbone.View.extend({
-        initialize: function () {
+    var AddReviewCommentView = Backbone.View.extend({
+        initialize: function (options) {
+            this.collection = options.collection;
             _.bindAll(this, 'render', 'modalReady', 'add');
             this.render();
         },
@@ -1749,6 +1757,45 @@
         },
         add: function () {
             this.dispatcher.trigger('close');
+            this.collection.create({
+                comment: this.$('textarea').val(),
+                author_link: '#',
+                author_name: 'Svend'
+            });
+        }
+    });
+
+    var ReviewView = Backbone.View.extend({
+        tagName: 'li',
+        className: 'list-group-item clearfix',
+        initialize: function (options) {
+            _.bindAll(this, 'render');
+            this.render();
+        },
+        render: function () {
+            this.$el.html(teoremer.templates.review_item({
+                comment: showdown_convert(this.model.get('comment')),
+                author_link: this.model.get('author_link'),
+                author_name: this.model.get('author_name'),
+                timestamp: this.model.get('timestamp'),
+            }));
+            return this;
+        }
+    });
+
+    var ReviewListView = Backbone.View.extend({
+        initialize: function (options) {
+            _.bindAll(this, 'render', '_addOne');
+            this.collection.bind('add', this._addOne);
+            this.render();
+        },
+        render: function () {
+            this.$el.html(teoremer.templates.review_list());
+            this.collection.each(this._addOne);
+        },
+        _addOne: function (item) {
+            var reviewView = new ReviewView({model: item});
+            this.$('ul').append(reviewView.render().el);
         }
     });
 
@@ -1827,16 +1874,24 @@
             });
         },
 
-        show_draft: function (validations) {
+        show_draft: function (validations, comments) {
             $(function () {
                 $('div.draft-view').tooltip({
                   selector: "a[rel=tooltip]"
                 });
-                $('#review-reject').click(function () {
-                    show_modal('Reason for rejection', new ReviewCommentView(),
-                               [{ name: 'Add', signal: 'add', primary: true },
-                                { name: 'Cancel', signal: 'close' }]);
-                });
+                if (comments) {
+                    var collection = new ReviewList(comments);
+                    $('#review-reject').click(function () {
+                        show_modal('Reason for rejection',
+                                   new AddReviewCommentView({collection: collection}),
+                                   [{ name: 'Add', signal: 'add', primary: true },
+                                    { name: 'Cancel', signal: 'close' }]);
+                    });
+                    new ReviewListView({
+                        el: $('#review-list'),
+                        collection: collection
+                    });
+                }
             });
             new ValidationListView({
                 el: $('#validation-list'),

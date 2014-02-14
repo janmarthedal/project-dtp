@@ -26,8 +26,8 @@
 {% endif %}
 
 {% if item.status == 'R' %}
-<h4>Review</h4>
-<p>Ready to publish? <a href="#"><span class="glyphicon glyphicon-ok text-muted"></span></a></p>
+<h4 class="expander-out">Comments <span class="glyphicon"></span></h4>
+<div id="review-list"></div>
 <button class="btn btn-primary" id="review-reject">Reject with reason</button>
 {% endif %}
 
@@ -85,10 +85,10 @@
 
 {% block bodybottom %}
 
-{% include 'include/js-scripts.html' %}
+{% include 'include/js-scripts.html' with showdown=True %}
 
 <script type="text/javascript">
-teoremer.show_draft({{validations|to_json}});
+teoremer.show_draft({{validations|to_json}}{% if item.status == 'R' %}, []{% endif %});
 </script>
 
 {% endblock %}
