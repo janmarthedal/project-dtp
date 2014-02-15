@@ -1,13 +1,16 @@
 import os
 from django.contrib.messages import constants as message_constants
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
 ############ Site specific settings ############
 
 if os.uname()[1].endswith('webfaction.com'):
 
     DEBUG = False
 
-    PROJECT_BASE = '/home/jmr/webapps/teoremer_django/teoremer/'
+    LOG_FILE = os.path.join(BASE_DIR, '..', 'logs', 'info.log')
     STATIC_ROOT = '/home/jmr/webapps/thrms_static/'  # used by collectstatic
     MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
     MEDIA_URL = '/media/files/'
@@ -23,7 +26,7 @@ else:
     DEBUG = True
     INTERNAL_IPS = ('127.0.0.1', )  # to enable the debug variable in templates
 
-    PROJECT_BASE = '/home/jmr/projects/teoremer/'
+    LOG_FILE = os.path.join(BASE_DIR, 'log', 'debug.log')
     #STATIC_ROOT = '/home/jmr/www/static/'  # not relevant - only used by collectstatic
     MEDIA_ROOT = '/home/jmr/www/media/'
     MEDIA_URL = 'http://localhost/media/files/'
@@ -49,8 +52,6 @@ EMAIL_HOST_PASSWORD = 'Knuth316'
 DEFAULT_FROM_EMAIL = 'admin@teoremer.com'
 SERVER_EMAIL = 'admin@teoremer.com'
 
-ALLOWED_INCLUDE_ROOTS = ( PROJECT_BASE, )
-
 ADMINS = (
     ('Jan Marthedal Rasmussen', 'jan.marthedal@gmail.com'),
 )
@@ -58,9 +59,7 @@ ADMINS = (
 MANAGERS = ADMINS
 TEMPLATE_DEBUG = DEBUG
 
-TEMPLATE_DIRS = (
-    PROJECT_BASE + 'templates',
-)
+TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'), )
 
 STATIC_URL = '/static/'
 
@@ -236,7 +235,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': PROJECT_BASE + 'log/run.log',
+            'filename': LOG_FILE,
             'formatter': 'verbose',
         },
         'console': {

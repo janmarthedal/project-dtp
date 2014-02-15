@@ -8,11 +8,14 @@ from django.utils import timezone
 from drafts.models import DraftItem
 from items.models import FinalItem
 
-class UserManager(BaseUserManager):
+import logging
+logger = logging.getLogger(__name__)
 
+class UserManager(BaseUserManager):
     def create_user(self, fullname=None, email=None, **kwargs):
         user = self.model(name=fullname, email=UserManager.normalize_email(email))
         user.save(using=self._db)
+        logging.info('User {} created'.format(user))
         return user
 
 
@@ -37,7 +40,7 @@ class User(AbstractBaseUser):
         return self.id
 
     def __str__(self):
-        return self.name
+        return '{} <{}>'.format(self.id, self.name)
 
     def has_perm(self, perm, obj=None):
         if isinstance(obj, DraftItem):
@@ -62,7 +65,6 @@ class User(AbstractBaseUser):
 
 
 class InvitationManager(models.Manager):
-
     def make_invitation(self, invited_by=None, target_email=None, target_name=None):
         invite = self.model(invited_by=invited_by, token=uuid.uuid4().hex,
                             target_email=target_email, target_name=target_name)

@@ -104,7 +104,7 @@ def administration(request):
     if request.method == 'GET':
         return render(request, 'users/administration.html', c)
     action = request.POST.get('action')
-    output = StringIO.StringIO()
+    output = StringIO()
     if action == 'deps':
         header = 'Recompute item dependencies'
         management.call_command('deps', stdout=output)
