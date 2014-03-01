@@ -3,7 +3,7 @@ If you distill any book or article on some mathematical subject, then what you a
 *teoremer* is a collection of such mathematical items. The items are split into the following main types:
 *   **Definitions** (also used for notation and algorithms).
 *   **Theorems** (also used for axioms, lemmas, corollaries, propositions).
-*   **Proofs (of varying rigor).
+*   **Proofs** (of varying rigor).
 
 Each item can refer to other items. This leads to a network of mathematical items with dependencies between them, or a directed graph where the nodes are the math items and the edges are the references, to put it another way.
 
