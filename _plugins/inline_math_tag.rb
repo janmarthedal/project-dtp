@@ -7,7 +7,9 @@ module Jekyll
     end
 
     def render(context)
-      "foo #{@source} bar"
+      #t = @source.gsub(/([\\{}\[\]*_+.!-])/, '\\ \1')
+      #print t
+      "\\\\\(#{@source}\\\\\)"
     end
   end
 end

@@ -1,3 +1,7 @@
+---
+title: Introducing teoremer
+categories: [information]
+---
 If you distill any book or article on some mathematical subject, then what you are left with is usually a lot of notation, definitions, algorithms, theorems, lemmas, corollaries, and proofs.
 
 *teoremer* is a collection of such mathematical items. The items are split into the following main types:

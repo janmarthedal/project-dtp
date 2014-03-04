@@ -1,5 +1,6 @@
 name: Your New Jekyll Site
 markdown: redcarpet
 pygments: true
-baseurl: /teoremer-meta
+baseurl: /
+permalink: /:year/:month/:title
 
