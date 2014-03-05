@@ -10,3 +10,7 @@
 ## Libraries
 
 *   [JSXGraph](http://jsxgraph.uni-bayreuth.de)
+*   [Raphaël](http://raphaeljs.com)
+
+## About mathematics
+*   [What makes a mathematical proof "elegant"?](http://www.quora.com/Mathematics/What-makes-a-mathematical-proof-elegant)
