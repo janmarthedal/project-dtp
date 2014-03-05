@@ -1,5 +1,5 @@
 module Jekyll
-  class InlineMathTag < Liquid::Tag
+  class DisplayMathTag < Liquid::Tag
 
     def initialize(tag_name, source, tokens)
       super
@@ -7,10 +7,10 @@ module Jekyll
     end
 
     def render(context)
-      "\\\\\(#{@source}\\\\\)"
+      "\\\\\[#{@source}\\\\\]"
     end
   end
 end
 
-Liquid::Template.register_tag('inline_math', Jekyll::InlineMathTag)
+Liquid::Template.register_tag('display_math', Jekyll::DisplayMathTag)
 

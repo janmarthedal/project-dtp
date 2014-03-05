@@ -1,11 +1,12 @@
 ---
+layout: post
 title: On categories
 categories: [information]
 ---
-A category, as used on teoremer, can be seen as a [tag][1] with another category as parent. A special root tag is used to represent top-level categories and no cycles are allowed. This way all categories represent a rooted tree, or heirarchy, of tags.
+A category, as used on teoremer, can be seen as a [tag][1] with another category as parent. A special root tag is used to represent top-level categories and no cycles are allowed. This way all categories represent a rooted tree, or heirarchy, of tags.<span/>
 
 Categories are useful for browsing or searching. Each tag may contain spaces and even inline math. For instance,
-> `/` calculus `/` indefinite integrals `/` integrals involving {% inline_math bla %}
+> `/` calculus `/` indefinite integrals `/` integrals involving {% inline_math \sqrt{a x + b} %}
 is a valid category.
 
 [1]: http://en.wikipedia.org/wiki/Tag_(metadata)

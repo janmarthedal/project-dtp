@@ -1,6 +1,6 @@
-name: Your New Jekyll Site
+name: teoremer blog
 markdown: redcarpet
 pygments: true
-baseurl: /
 permalink: /:year/:month/:title
+excerpt_separator: <span/>
 
