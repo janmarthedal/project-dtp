@@ -1,4 +1,5 @@
 name: teoremer blog
+url: http://blog.teoremer.com
 markdown: redcarpet
 pygments: true
 permalink: /:year/:month/:title
