@@ -1,57 +1,66 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Your New Jekyll Site</title>
-        <meta name="viewport" content="width=device-width">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>teoremer blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ["\\(","\\)"] ],
+          displayMath: [ ["\\[","\\]"] ],
+        },
+      });
+    </script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10">
+          <h1><a href="/">teoremer blog</a></h1>
 
-        <!-- syntax highlighting CSS -->
-        <link rel="stylesheet" href="/css/syntax.css">
+            
+    <h4><a href="/2014/02/beta-now-live">Beta now live</a> <small>05 Feb 2014</small></h4>
+    <blockquote>
+      <p>The site is now live! Note, however, that the software is still being heavily developed and many more features are still in the pipeline. There will be things that misbehave and there will probably be crashes.</p>
 
-        <!-- Custom CSS -->
-        <link rel="stylesheet" href="/css/main.css">
+<p>We do need users, though. To test and, most importantly, to add content because <a href="http://teoremer.com">teoremer.com</a> is nothing without content. And many users are needed to collectively create <em>quality</em> content.</p>
 
-    </head>
-    <body>
+    </blockquote>
+  
+    <h4><a href="/2014/01/math-item-markup">Math item markup</a> <small>03 Jan 2014</small></h4>
+    <blockquote>
+      <p>The markup to use when editing math items is based on <a href="http://daringfireball.net/projects/markdown/">Markdown</a>. All the markup of Markdown is supported, except for inline HTML, links and images.</p>
 
-        <div class="site">
-          <div class="header">
-            <h1 class="title"><a href="/">Your New Jekyll Site</a></h1>
-            <a class="extra" href="/">home</a>
-          </div>
+    </blockquote>
+  
+    <h4><a href="/2013/12/on-categories">On categories</a> <small>03 Dec 2013</small></h4>
+    <blockquote>
+      <p>A category, as used on teoremer, can be seen as a <a href="http://en.wikipedia.org/wiki/Tag_(metadata)">tag</a> with another category as parent. A special root tag is used to represent top-level categories and no cycles are allowed. This way all categories represent a rooted tree, or heirarchy, of tags.</p>
 
-          <div id="home">
-  <h1>Blog Posts</h1>
-  <ul class="posts">
-    
-      <li><span>05 Feb 2014</span> &raquo; <a href="/2014/02/beta-now-live">Beta now live</a></li>
-    
-      <li><span>03 Jan 2014</span> &raquo; <a href="/2014/01/math-item-markup">Math item markup</a></li>
-    
-      <li><span>03 Dec 2013</span> &raquo; <a href="/2013/12/on-categories">On categories</a></li>
-    
-      <li><span>03 Nov 2013</span> &raquo; <a href="/2013/11/introducing-teoremer">Introducing teoremer</a></li>
-    
-  </ul>
-</div>
+    </blockquote>
+  
+    <h4><a href="/2013/11/introducing-teoremer">Introducing teoremer</a> <small>03 Nov 2013</small></h4>
+    <blockquote>
+      <p>If you distill any book or article on some mathematical subject, then what you are left with is usually a lot of notation, definitions, algorithms, theorems, lemmas, corollaries, and proofs.</p>
 
-          <div class="footer">
-            <div class="contact">
-              <p>
-                Your Name<br />
-                What You Are<br />
-                you@example.com
-              </p>
-            </div>
-            <div class="contact">
-              <p>
-                <a href="https://github.com/yourusername">github.com/yourusername</a><br />
-                <a href="https://twitter.com/yourusername">twitter.com/yourusername</a><br />
-              </p>
-            </div>
-          </div>
+<p><em>teoremer</em> is a collection of such mathematical items.</p>
+
+    </blockquote>
+  
+
+
         </div>
+      </div>
 
-    </body>
+      <hr>
+
+      <footer>
+        site design &copy; sputsoft 2014<br/>
+      </footer>
+    </div>
+  </body>
 </html>

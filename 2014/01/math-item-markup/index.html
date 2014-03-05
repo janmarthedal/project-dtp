@@ -1,46 +1,105 @@
-The markup to use when editing math items is based on <a title="Markdown" href="http://daringfireball.net/projects/markdown/" target="_blank">Markdown</a>. All the markup of Markdown is supported, except for inline HTML, links and images.
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Math item markup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" />
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ["\\(","\\)"] ],
+          displayMath: [ ["\\[","\\]"] ],
+        },
+      });
+    </script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10">
+          <h1><a href="/">teoremer blog</a></h1>
+
+          <h2>Math item markup <small>03 Jan 2014</small></h2>
+
+<div class="post">
+<p>The markup to use when editing math items is based on <a href="http://daringfireball.net/projects/markdown/">Markdown</a>. All the markup of Markdown is supported, except for inline HTML, links and images.<span/></p>
 
 <h3>Basics</h3>
-A paragraph is simply one or more consecutive lines of text, separated by one or more blank lines.
 
-Words can be in <em>italics</em> or <strong>boldface</strong> by using <code>*single asterisks*</code> or <code>**double asterisks**</code><span style="line-height: 1.5;">, respectively.</span>
+<p>A paragraph is simply one or more consecutive lines of text, separated by one or more blank lines.</p>
 
-Section headers can be written as
-<pre><code># This is a level 1 header
+<p>Words can be in <em>italics</em> or <strong>boldface</strong> by using <code>*single asterisks*</code> or <code>**double asterisks**</code>, respectively.</p>
 
-</code><code>## This is a level 2 header
+<p>Section headers can be written as</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text"># This is a level 1 header
 
-</code><code>###### This is a level 6 header</code></pre>
-where one to six hash characters determine the header level.
+## This is a level 2 header
 
-Lists can be written as
-<pre>* Item one
+###### This is a level 6 header
+</code></pre></div>
+<p>where one to six hash characters determine the header level.</p>
+
+<p>Lists can be written as</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">* Item one
 * Item two
-* Item three</pre>
-or using numbering,
-<pre>1. Item one
+* Item three
+</code></pre></div>
+<p>or using numbering,</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">1. Item one
 2. Item two
-3. Item three</pre>
+3. Item three
+</code></pre></div>
 <h3>Mathematics</h3>
-Mathematics can be included like it would be in a (La)TeX document using $-signs. This includes inline math
-<pre>this formula $e^{-x^2}$ is an example of inline math</pre>
-which will render as
-<blockquote>this formula \(e^{-x^2} \) contains inline math</blockquote>
-and display math
-<pre>... from which we obtain
+
+<p>Mathematics can be included like it would be in a (La)TeX document using $-signs. This includes inline math</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">this formula $e^{-x^2}$ is an example of inline math
+</code></pre></div>
+<p>which will render as</p>
+
+<blockquote>
+<p>this formula \(e^{-x^2} \) is an example of inline math</p>
+</blockquote>
+
+<p>and display math</p>
+<div class="highlight"><pre><code class="text language-text" data-lang="text">... from which we obtain
 $$
 \sum_{k=1}^n \frac{1}{k^2}
 $$
-for positive $n$.</pre>
-which will render as
-<blockquote>... from which we obtain
+for positive $n$.
+</code></pre></div>
+<p>which will render as</p>
 
-\[\sum_{k=1}^n \]
+<blockquote>
+<p>... from which we obtain</p>
 
-for positive \(n \).</blockquote>
+<p>\[\sum_{k=1}^n \]</p>
+
+<p>for positive \(n \).</p>
+</blockquote>
+
 <h3>References</h3>
-References to other math items can be inserted using <code>[@T3456]</code> or <code>[Text to display@T3456]</code>. Both examples will link to item "T3456", but the displayed link text will be <em>abcd</em> and <em>Text to display</em>, respectively.
 
-Abstract definitions can be referenced as <code>[#bounded set]</code> or <code>[bounded#bounded set]</code>. Both examples will link to a definition <a href="http://blog.teoremer.com/2013/12/03/on-categories.html">category</a> through the keyword <em>bounded set</em>, but the displayed text will be <em>bounded set</em> and <em>bounded</em>, respectively.
+<p>References to other math items can be inserted using <code>[@T3456]</code> or <code>[Text to display@T3456]</code>. Both examples will link to item &quot;T3456&quot;, but the displayed link text will be <em>abcd</em> and <em>Text to display</em>, respectively.</p>
+
+<p>Abstract definitions can be referenced as <code>[#bounded set]</code> or <code>[bounded#bounded set]</code>. Both examples will link to a definition <a href="http://blog.teoremer.com/2013/12/03/on-categories.html">category</a> through the keyword <em>bounded set</em>, but the displayed text will be <em>bounded set</em> and <em>bounded</em>, respectively.</p>
+
 <h3>Media</h3>
-Media can be inserted using <code>[!M1234]</code> or <code>[Figure 1!M1243]</code>. Both examples will link to the media item "M1234", but the displayed link text will be <em>M1234</em> and <em>Figure 1</em>, respectively.
+
+<p>Media can be inserted using <code>[!M1234]</code> or <code>[Figure 1!M1243]</code>. Both examples will link to the media item &quot;M1234&quot;, but the displayed link text will be <em>M1234</em> and <em>Figure 1</em>, respectively.</p>
+
+</div>
+
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        site design &copy; sputsoft 2014<br/>
+      </footer>
+    </div>
+  </body>
+</html>
