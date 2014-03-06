@@ -11,42 +11,42 @@
     <pubDate>Wed, 05 Feb 2014 00:00:00 +0100</pubDate>
     <item>
       <title>Beta now live</title>
-      <link>http://blog.teoremer.com/2014/02/beta-now-live</link>
+      <link>http://blog.teoremer.com/2014/02/05/beta-now-live</link>
       <description>&lt;p&gt;The site is now live! Note, however, that the software is still being heavily developed and many more features are still in the pipeline. There will be things that misbehave and there will probably be crashes.&lt;/p&gt;
 
 &lt;p&gt;We do need users, though. To test and, most importantly, to add content because &lt;a href=&quot;http://teoremer.com&quot;&gt;teoremer.com&lt;/a&gt; is nothing without content. And many users are needed to collectively create &lt;em&gt;quality&lt;/em&gt; content.&lt;/p&gt;
 </description>
       <pubDate>Wed, 05 Feb 2014 00:00:00 +0100</pubDate>
-      <guid>http://blog.teoremer.com/2014/02/beta-now-live</guid>
+      <guid>http://blog.teoremer.com/2014/02/05/beta-now-live</guid>
       <dc:date>2014-02-05T00:00:00+01:00</dc:date>
     </item>
     <item>
       <title>Math item markup</title>
-      <link>http://blog.teoremer.com/2014/01/math-item-markup</link>
+      <link>http://blog.teoremer.com/2014/01/03/math-item-markup</link>
       <description>&lt;p&gt;The markup to use when editing math items is based on &lt;a href=&quot;http://daringfireball.net/projects/markdown/&quot;&gt;Markdown&lt;/a&gt;. All the markup of Markdown is supported, except for inline HTML, links and images.&lt;/p&gt;
 </description>
       <pubDate>Fri, 03 Jan 2014 00:00:00 +0100</pubDate>
-      <guid>http://blog.teoremer.com/2014/01/math-item-markup</guid>
+      <guid>http://blog.teoremer.com/2014/01/03/math-item-markup</guid>
       <dc:date>2014-01-03T00:00:00+01:00</dc:date>
     </item>
     <item>
       <title>On categories</title>
-      <link>http://blog.teoremer.com/2013/12/on-categories</link>
+      <link>http://blog.teoremer.com/2013/12/03/on-categories</link>
       <description>&lt;p&gt;A category, as used on teoremer, can be seen as a &lt;a href=&quot;http://en.wikipedia.org/wiki/Tag_(metadata)&quot;&gt;tag&lt;/a&gt; with another category as parent. A special root tag is used to represent top-level categories and no cycles are allowed. This way all categories represent a rooted tree, or heirarchy, of tags.&lt;/p&gt;
 </description>
       <pubDate>Tue, 03 Dec 2013 00:00:00 +0100</pubDate>
-      <guid>http://blog.teoremer.com/2013/12/on-categories</guid>
+      <guid>http://blog.teoremer.com/2013/12/03/on-categories</guid>
       <dc:date>2013-12-03T00:00:00+01:00</dc:date>
     </item>
     <item>
       <title>Introducing teoremer</title>
-      <link>http://blog.teoremer.com/2013/11/introducing-teoremer</link>
+      <link>http://blog.teoremer.com/2013/11/03/introducing-teoremer</link>
       <description>&lt;p&gt;If you distill any book or article on some mathematical subject, then what you are left with is usually a lot of notation, definitions, algorithms, theorems, lemmas, corollaries, and proofs.&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;teoremer&lt;/em&gt; is a collection of such mathematical items.&lt;/p&gt;
 </description>
       <pubDate>Sun, 03 Nov 2013 00:00:00 +0100</pubDate>
-      <guid>http://blog.teoremer.com/2013/11/introducing-teoremer</guid>
+      <guid>http://blog.teoremer.com/2013/11/03/introducing-teoremer</guid>
       <dc:date>2013-11-03T00:00:00+01:00</dc:date>
     </item>
     <dc:date>2014-02-05T00:00:00+01:00</dc:date>
