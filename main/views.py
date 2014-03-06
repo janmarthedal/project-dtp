@@ -17,5 +17,5 @@ def prepare_final_items(queryset, max_length):
 @require_safe
 def index(request):
     latest_items = prepare_final_items(FinalItem.objects.filter(status='F').order_by('-created_at'), 5)
-    c = init_context('home', blog_feed=get_blog_feed(), latest_items=latest_items)
+    c = init_context('home', blog_feed=get_blog_feed(), latest_items=latest_items['items'])
     return render(request, 'home.html', c)

@@ -22,16 +22,17 @@
 
 <p class="lead">We very much encourage users to create new content: definitions, theorems, proofs
     and illustrations, to add validations and to vote on other user's contributions. The joint
-    effort of many users is what makes this site useful.
-    {% if not user.is_authenticated %}For this you need an account, though. The site is currently in
+    effort of many users is what makes this site useful.</p>
+
+{% if not user.is_authenticated %}<p class="lead">For this you need an account, though. The site is currently in
     a closed beta state, meaning that new accounts are created by invitation only. Read more
-    <a href="http://blog.teoremer.com/2014/02/05/beta-now-live.html">on the blog</a>.{% endif %}</p>
+    <a href="http://blog.teoremer.com/2014/02/05/beta-now-live.html">on the blog</a>.</p>{% endif %}
 
 <hr/>
 
 <h3>Latest items</h3>
 
-{% include 'include/item_list.html' with items=latest_items.items more=latest_items.more moretext='Show all' morelink='#' only %}
+{% include 'include/item_list.html' with items=latest_items more=True moretext='Show all' morelink='#' only %}
 
 {% endblock %}
 
