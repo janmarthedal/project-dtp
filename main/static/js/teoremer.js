@@ -1804,13 +1804,6 @@
      ****************************/
 
     var teoremer = {
-        home: function (init_items) {
-            new TopListView({
-                el: $('#top-item-list'),
-                collection: new TopList(init_items, { parse: true })
-            });
-        },
-
         source_list: function (items) {
             new SourceListView({
                 el: $('#source-list'),

@@ -2,6 +2,7 @@ import uuid
 from django.conf import settings
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -38,6 +39,9 @@ class User(AbstractBaseUser):
 
     def get_short_name(self):
         return self.id
+
+    def get_link(self):
+        return reverse('users.views.profile', args=[self.get_username()])
 
     def __str__(self):
         return '{} <{}>'.format(self.id, self.name)

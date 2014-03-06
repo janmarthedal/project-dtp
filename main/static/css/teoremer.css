@@ -73,3 +73,15 @@ span.removable {
 textarea.review-reject {
   height: 8em;
 }
+.lead-tag-list:before {
+  content: '(';
+}
+.lead-tag-list:after {
+  content: ')';
+}
+.lead-tag-list .tag:before {
+  content: ', ';
+}
+.lead-tag-list .tag:first-child:before {
+  content: '';
+}

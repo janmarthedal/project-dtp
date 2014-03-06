@@ -1,5 +1,6 @@
 import string
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models, IntegrityError
 from django.db.models import Sum
 from django.utils import timezone
@@ -63,7 +64,7 @@ class FinalItem(BaseItem):
     points = models.FloatField(default=0, null=False)
 
     def __str__(self):
-        return "%s %s" % (self.get_itemtype_display().capitalize(), self.final_id)
+        return ''.join([self.get_itemtype_display().capitalize(), ' ', self.final_id])
 
     def _get_item_category_set(self):
         return self.finalitemcategory_set.all()
@@ -106,6 +107,16 @@ class FinalItem(BaseItem):
             self.save()
             if self.parent:
                 self.parent.update_points()
+
+    def get_name(self):
+        items = [self.get_itemtype_display().capitalize(), ' ', self.final_id]
+        if self.parent:
+            items.extend(' of ', self.parent.get_name())
+        return ''.join(items)
+
+    def get_link(self):
+        return reverse('items.views.show_final', args=[self.final_id])
+
 
 
 class FinalItemCategory(models.Model):

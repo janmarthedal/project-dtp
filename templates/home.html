@@ -31,22 +31,17 @@
 
 <h3>Latest items</h3>
 
-<div id="top-item-list"><i>loading...</i></div>
+{% include 'include/item_list.html' with items=latest_items.items more=latest_items.more moretext='Show all' morelink='#' only %}
 
 {% endblock %}
 
 {% block sidebar %}
-<h4>From the blog</h4>
-{% for item in blog_feed %}
-<h5><a href="{{ item.link }}">{{ item.title }}</a> <small>({{ item.date }})</small></h5>
-<p>{{ item.description|truncatewords:20|safe }}</p>
-{% endfor %}
-{% endblock %}
 
-{% block bodybottom %}
-{% include 'include/js-scripts.html' %}
-<script type="text/javascript">
-teoremer.home({{init_items|to_json}});
-</script>
+<h4>From the blog</h4>
+
+{% for item in blog_feed %}
+  <h5><a href="{{item.link}}">{{item.title}}</a> <small>({{item.date}})</small></h5>
+  <p>{{item.description|truncatewords:20|safe}}</p>
+{% endfor %}
 
 {% endblock %}

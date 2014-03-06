@@ -10,6 +10,6 @@
   </span>
 {% endfor %}
 </div>
-{% else %}
-<i>{{ no_categories_text}}</i>
+{% elif no_categories_text %}
+<em>{{no_categories_text}}</em>
 {% endif %}

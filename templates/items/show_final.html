@@ -9,7 +9,7 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h4 class="panel-title">{{ item }}{% if item.parent %} of <a href="{% url 'items.views.show_final' item.parent.final_id %}">{{ item.parent }}</a>{% endif %}</h4>
+    <h4 class="panel-title">{{item}}{% if item.parent %} of <a href="{% url 'items.views.show_final' item.parent.final_id %}">{{item.parent}}</a>{% endif %}</h4>
   </div>
   <div class="panel-body">
 {{ item|typeset_body }}
