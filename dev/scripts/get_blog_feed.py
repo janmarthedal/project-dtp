@@ -1,18 +1,16 @@
 from urllib import request
 import xml.etree.ElementTree as ET
-from datetime import timedelta, datetime
+from datetime import datetime
 
-feed = request.urlopen('http://blog.teoremer.com/rss/').read()
+feed = request.urlopen('http://blog.teoremer.com/rss.xml').read()
 root = ET.fromstring(feed)
 channel = root.find('channel')
 
 result = []
 
 def parse_date(st):
-    offset = int(st[-5:])
-    delta = timedelta(hours = offset / 100)
     time = datetime.strptime(st[:-6], '%a, %d %b %Y %H:%M:%S')
-    time -= delta
+    #time -= timedelta(hours = int(st[-5:]) / 100)
     return time.strftime('%Y-%m-%d')
 
 for item in channel.findall('item'):
