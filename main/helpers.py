@@ -3,6 +3,7 @@ from functools import wraps
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.utils.http import urlquote 
 
 def logged_in_or_404(view):
     @wraps(view)
@@ -71,3 +72,10 @@ def json_decode(st):
 
 def json_response(data):
     return HttpResponse(json_encode(data), content_type="application/json")
+
+def make_get_url(view, **params):
+    url = reverse(view)
+    if params:
+        items = ['{}={}'.format(urlquote(k), urlquote(v)) for k, v in params.items()]
+        url = '{}?{}'.format(url, '&'.join(items))
+    return url

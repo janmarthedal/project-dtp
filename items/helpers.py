@@ -284,3 +284,9 @@ def publishIssues(draft_item):
         if not MediaItem.objects.filter(entry__public_id=media_id, itemtype='O').exists():
             issues.append("Reference to non-existing media '%s'" % media_id)
     return issues
+
+def prepare_list_items(queryset, page_size, page_num=1):
+    offset = (page_num - 1) * page_size
+    item_list = queryset[offset:(offset + page_size + 1)]
+    logger.info('offset {}, page_size {}, len {}'.format(offset, page_size, len(item_list)))
+    return (item_list[0:page_size], len(item_list) > page_size)

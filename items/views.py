@@ -1,9 +1,11 @@
+import json
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST, require_GET
 from document.models import Document
-from items.helpers import item_search_to_json
+from items.helpers import item_search_to_json, prepare_list_items
 from items.models import FinalItem
 from main.helpers import init_context, logged_in_or_404
 
@@ -46,3 +48,25 @@ def delete_final(request, item_id):
         raise Http404
     item.delete()
     return HttpResponseRedirect(reverse('main.views.index'))
+
+@require_GET
+def search(request):
+    queryset = FinalItem.objects.filter(status='F').order_by('-created_at')
+    page = int(request.GET.get('page', 1))
+    items, more = prepare_list_items(queryset, 1, page)
+    results = {'items': items}
+    if more and page == 1:
+        results.update({'more': {'text': 'More', 'link': '#'}})
+    c = init_context('search', results=results)
+    return render(request, 'items/search.html', c)
+
+@require_GET
+def search_fragment(request):
+    queryset = FinalItem.objects.filter(status='F').order_by('-created_at')
+    page = int(request.GET.get('page', 1))
+    items, more = prepare_list_items(queryset, 1, page)
+    result = {'items': render_to_string('include/item_list_items.html', {'items': items})}
+    if more:
+        result.update({'more': render_to_string('include/item_list_more.html',
+                                                {'more': {'text': 'Even more', 'link': '#'}})})
+    return HttpResponse(json.dumps(result), content_type="application/json")

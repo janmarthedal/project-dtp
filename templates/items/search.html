@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}teoremer.com | search{% endblock %}
+
+{% block mainbar %}
+
+<div id="search-container">
+{% include 'include/item_list.html' with items=results only %}
+</div>
+
+{% endblock %}
+
+{% block bodybottom %}
+<script type="text/javascript">
+(function attach_clicker(current_page) {
+    $('.more-clicker').click(function () {
+        this.remove();
+        $.get("{% url 'items.views.search_fragment' %}", {page: current_page + 1},
+            function (data) {
+                $('#search-container ul').append(data.items);
+                if (data.more) {
+                    $('#search-container').append(data.more);
+                    attach_clicker(current_page + 1);
+                }
+        });
+    });        
+})(1);
+</script>
+{% endblock %}
