@@ -75,6 +75,7 @@ def json_response(data):
 
 def make_get_url(view, params={}):
     url = reverse(view)
+    params = {k: v for k, v in params.items() if v is not None}
     if params:
         items = ['{}={}'.format(urlquote(k), urlquote(v)) for k, v in params.items()]
         url = '{}?{}'.format(url, '&'.join(items))

@@ -50,35 +50,78 @@ def delete_final(request, item_id):
     item.delete()
     return HttpResponseRedirect(reverse('main.views.index'))
 
-def search_data(request, is_fragment):
-    page = int(request.GET.get('page', 1))
-    page_data = {}
-    if page != 1:
-        page_data.update(page=page)
-    queryset = FinalItem.objects.filter(status='F').order_by('-created_at')
-    items, more = prepare_list_items(queryset, 10, page)
+class BadRequest(Exception):
+    pass
+
+def search_data(request):
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        raise BadRequest
+    if page < 1:
+        raise BadRequest
+
+    itemtype = request.GET.get('type')
+    if itemtype and itemtype not in ['D', 'T', 'P']:
+        raise BadRequest
+
+    status = request.GET.get('status')
+    if status and status not in ['R', 'F']:
+        raise BadRequest
+
+    queryset = FinalItem.objects
+    if status:
+        queryset = queryset.filter(status=status)
+    if itemtype:
+        queryset = queryset.filter(itemtype=itemtype)
+    queryset = queryset.order_by('-created_at')
+
+    items, more = prepare_list_items(queryset, 20, page)
+    page_data = {
+        'type': itemtype,
+        'status': status,
+        'page': page if page != 1 else None
+    }
     current_url = make_get_url('items.views.search', page_data)
+
     return {
         'items': items,
         'current_url': current_url,
         'prev_data_url': make_get_url('items.views.search_fragment', {'page': page - 1}) if page > 1 else '',
-        'next_data_url': make_get_url('items.views.search_fragment', {'page': page + 1}) if more else ''
+        'next_data_url': make_get_url('items.views.search_fragment', {'page': page + 1}) if more else '',
+        'data': page_data
     }
 
 @require_GET
 def search(request):
     try:
         itempage = search_data(request)
-    except ValueError:
+    except BadRequest:
         return bad_request(request)
-    c = init_context('search', itempage=itempage)
+    page_data = dict(itempage['data'], page=None)
+    links = {'type': {}, 'status': {}}
+    if page_data['type'] is not None:
+        links['type']['all'] = make_get_url('items.views.search', dict(page_data, type=None))
+    if page_data['type'] != 'D':
+        links['type']['D'] = make_get_url('items.views.search', dict(page_data, type='D'))
+    if page_data['type'] != 'T':
+        links['type']['T'] = make_get_url('items.views.search', dict(page_data, type='T'))
+    if page_data['type'] != 'P':
+        links['type']['P'] = make_get_url('items.views.search', dict(page_data, type='P'))
+    if page_data['status'] is not None:
+        links['status']['all'] = make_get_url('items.views.search', dict(page_data, status=None))
+    if page_data['status'] != 'R':
+        links['status']['R'] = make_get_url('items.views.search', dict(page_data, status='R'))
+    if page_data['status'] != 'F':
+        links['status']['F'] = make_get_url('items.views.search', dict(page_data, status='F'))
+    c = init_context('search', itempage=itempage, links=links)
     return render(request, 'items/search.html', c)
 
 @require_GET
 def search_fragment(request):
     try:
         itempage = search_data(request)
-    except ValueError:
+    except BadRequest:
         return bad_request(request)
     itempage['items'] = render_to_string('include/item_list_items.html',
                                          {'items': itempage['items'],

@@ -85,3 +85,6 @@ textarea.review-reject {
 .lead-tag-list .tag:first-child:before {
   content: '';
 }
+.transparent {
+  color: transparent;
+}
