@@ -5,25 +5,57 @@
 {% block mainbar %}
 
 <div id="search-container">
-{% include 'include/item_list.html' with items=results only %}
+{% include 'include/item_list.html' with itempage=itempage only %}
 </div>
 
 {% endblock %}
 
 {% block bodybottom %}
 <script type="text/javascript">
-(function attach_clicker(current_page) {
-    $('.more-clicker').click(function () {
-        this.remove();
-        $.get("{% url 'items.views.search_fragment' %}", {page: current_page + 1},
-            function (data) {
-                $('#search-container ul').append(data.items);
-                if (data.more) {
-                    $('#search-container').append(data.more);
-                    attach_clicker(current_page + 1);
+(function ($container) {
+    $container.find('button').each(function () {
+        var $elem = $(this);
+        var data_url = $elem.data('url');
+        if (data_url) {
+            $elem.removeClass('hidden');
+            $elem.click(function () {
+                $elem.addClass('hidden');
+                $.getJSON(data_url)
+                    .done(function (data) {
+                        if ($elem.data('dir') === 'up') {
+                            $container.find('ul').prepend(data.items);
+                            data_url = data.prev_data_url;
+                        } else {
+                            $container.find('ul').append(data.items);
+                            data_url = data.next_data_url;
+                        }
+                        $elem.data('url', data_url);
+                        //history.replaceState(null, null, data.current_url);
+                        if (data_url)
+                            $elem.removeClass('hidden');
+                    });
+            });
+        }
+    });
+
+    var last_scroll = 0;
+    $(window).scroll(function () {
+        var scroll_pos = $(window).scrollTop();
+        var window_height = $(window).height();
+        var window_middle = scroll_pos + 0.5 * window_height;
+        if (Math.abs(scroll_pos - last_scroll) > 0.1 * window_height) {
+            last_scroll = scroll_pos;
+            $container.find('.itempage').each(function (index) {
+                var el_top = $(this).offset().top;
+                var el_height = $(this).height();
+                if (window_middle >= el_top && window_middle < el_top + el_height) {
+                    history.replaceState(null, null, $(this).data("url"));
+                    return(false);
                 }
-        });
-    });        
-})(1);
+            });
+        }
+    });
+
+})($('#search-container'));
 </script>
 {% endblock %}

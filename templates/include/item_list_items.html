@@ -1,6 +1,6 @@
 {% load item_tags %}
 {% load utils_tags %}
-
+<div class="itempage" data-url="{{current_url}}">
 {% for item in items %}
 <li class="list-group-item clearfix">
     <div><a href="{{item.get_link}}">{{item.get_name}}</a>{% if item.primary_categories %} <span class="lead-tag-list">{% for category in item.primary_categories %}<span class="tag">{{category.tag|typeset_tag}}</span>{% endfor %}</span>{% endif %}</div>
@@ -9,3 +9,4 @@
     </div>
 </li>
 {% endfor %}
+</div>

@@ -4,10 +4,11 @@ from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST, require_GET
+from django.views.defaults import bad_request
 from document.models import Document
 from items.helpers import item_search_to_json, prepare_list_items
 from items.models import FinalItem
-from main.helpers import init_context, logged_in_or_404
+from main.helpers import init_context, logged_in_or_404, make_get_url
 
 import logging
 logger = logging.getLogger(__name__)
@@ -49,24 +50,37 @@ def delete_final(request, item_id):
     item.delete()
     return HttpResponseRedirect(reverse('main.views.index'))
 
+def search_data(request, is_fragment):
+    page = int(request.GET.get('page', 1))
+    page_data = {}
+    if page != 1:
+        page_data.update(page=page)
+    queryset = FinalItem.objects.filter(status='F').order_by('-created_at')
+    items, more = prepare_list_items(queryset, 10, page)
+    current_url = make_get_url('items.views.search', page_data)
+    return {
+        'items': items,
+        'current_url': current_url,
+        'prev_data_url': make_get_url('items.views.search_fragment', {'page': page - 1}) if page > 1 else '',
+        'next_data_url': make_get_url('items.views.search_fragment', {'page': page + 1}) if more else ''
+    }
+
 @require_GET
 def search(request):
-    queryset = FinalItem.objects.filter(status='F').order_by('-created_at')
-    page = int(request.GET.get('page', 1))
-    items, more = prepare_list_items(queryset, 1, page)
-    results = {'items': items}
-    if more and page == 1:
-        results.update({'more': {'text': 'More', 'link': '#'}})
-    c = init_context('search', results=results)
+    try:
+        itempage = search_data(request)
+    except ValueError:
+        return bad_request(request)
+    c = init_context('search', itempage=itempage)
     return render(request, 'items/search.html', c)
 
 @require_GET
 def search_fragment(request):
-    queryset = FinalItem.objects.filter(status='F').order_by('-created_at')
-    page = int(request.GET.get('page', 1))
-    items, more = prepare_list_items(queryset, 1, page)
-    result = {'items': render_to_string('include/item_list_items.html', {'items': items})}
-    if more:
-        result.update({'more': render_to_string('include/item_list_more.html',
-                                                {'more': {'text': 'Even more', 'link': '#'}})})
-    return HttpResponse(json.dumps(result), content_type="application/json")
+    try:
+        itempage = search_data(request)
+    except ValueError:
+        return bad_request(request)
+    itempage['items'] = render_to_string('include/item_list_items.html',
+                                         {'items': itempage['items'],
+                                          'current_url': itempage['current_url']})
+    return HttpResponse(json.dumps(itempage), content_type="application/json")

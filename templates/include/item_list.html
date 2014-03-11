@@ -1,4 +1,13 @@
+{% if itempage.items %}
+<div class="clearfix">
+    <button class="btn btn-link pull-right hidden" data-url="{{itempage.prev_data_url}}" data-dir="up">Load previous</button>
+</div>
 <ul class="list-group">
-{% include 'include/item_list_items.html' with items=items.items only %}
+{% include 'include/item_list_items.html' with current_url=itempage.current_url items=itempage.items only %}
 </ul>
-{% include 'include/item_list_more.html' with more=items.more only %}
+<div class="clearfix">
+    <button class="btn btn-link pull-right hidden" data-url="{{itempage.next_data_url}}" data-dir="down">Load more</button>
+</div>
+{% else %}
+<em>No results found</em>
+{% endif %}
