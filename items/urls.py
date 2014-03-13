@@ -2,7 +2,6 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('items.views',
     url(r'^search$', 'search'),
-    url(r'^search_fragment$', 'search_fragment'),    
     url(r'^(\w+)$', 'show_final'),
     url(r'^(\w+)/edit$', 'edit_final'),
     url(r'^(\w+)/delete$', 'delete_final'),
