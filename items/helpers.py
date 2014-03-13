@@ -317,6 +317,6 @@ def search_items(page_size, search_data):
     return {
         'items': items,
         'current_url': current_url,
-        'prev_data_url': change_search_url(search_data, page=page-1, fragment='true') if page > 1 else '',
-        'next_data_url': change_search_url(search_data, page=page+1, fragment='true') if more else ''
+        'prev_data_url': change_search_url(search_data, page=page-1) if page > 1 else '',
+        'next_data_url': change_search_url(search_data, page=page+1) if more else ''
     }

@@ -69,29 +69,38 @@
 {% block bodybottom %}
 <script type="text/javascript">
 (function ($container) {
-    $container.find('button').each(function () {
-        var $elem = $(this);
-        var data_url = $elem.data('url');
-        if (data_url) {
+    function add_to_query(url) {
+        return url + (url.indexOf("?") < 0 ? "?" : "&") + "fragment=true";
+    }
+    function init_load_handler($elem, direction) {
+        if ($elem.attr('href')) {
             $elem.removeClass('hidden');
-            $elem.click(function () {
+            $elem.click(function (event) {
+                event.preventDefault();
                 $elem.addClass('hidden');
+                var data_url = add_to_query($elem.attr('href'));
                 $.getJSON(data_url)
                     .done(function (data) {
-                        if ($elem.data('dir') === 'up') {
+                        if (direction === 'up') {
                             $container.find('ul').prepend(data.items);
                             data_url = data.prev_data_url;
                         } else {
                             $container.find('ul').append(data.items);
                             data_url = data.next_data_url;
                         }
-                        $elem.data('url', data_url);
-                        //history.replaceState(null, null, data.current_url);
+                        $elem.attr('href', data_url);
                         if (data_url)
                             $elem.removeClass('hidden');
                     });
             });
         }
+    }
+
+    $container.find('a.prev-link').each(function () {
+        init_load_handler($(this), 'up');
+    });
+    $container.find('a.next-link').each(function () {
+        init_load_handler($(this), 'down');
     });
 
     var last_scroll = 0;
