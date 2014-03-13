@@ -32,7 +32,12 @@
 
 <h3>Latest items</h3>
 
-{% include 'include/item_list.html' with items=items only %}
+<ul class="list-group">
+{% include 'include/item_list_items.html' with items=itempage.items only %}
+</ul>
+<div class="clearfix">
+    <a class="pull-right" href="{{latest_link}}">See all</a>
+</div>
 
 {% endblock %}
 

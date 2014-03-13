@@ -6,9 +6,9 @@ from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST, require_GET
 from django.views.defaults import bad_request
 from document.models import Document
-from items.helpers import item_search_to_json, prepare_list_items
+from items.helpers import item_search_to_json, search_items, change_search_url
 from items.models import FinalItem
-from main.helpers import init_context, logged_in_or_404, make_get_url
+from main.helpers import init_context, logged_in_or_404
 
 import logging
 logger = logging.getLogger(__name__)
@@ -68,45 +68,21 @@ def request_get_string(request, key, default, validator):
         raise BadRequest
     return value
 
-def change_search_url(data, **kwargs):
-    for k, v in kwargs.items():
-        if data.get(k) != v:
-            return make_get_url('items.views.search', dict(data, **kwargs))
-    return None
-
-def search_items(request):
-    page = request_get_int(request, 'page', 1, lambda v: v >= 1)
-    itemtype = request_get_string(request, 'type', None, lambda v: v in [None, 'D', 'T', 'P'])
-    status = request_get_string(request, 'status', None, lambda v: v in [None, 'R', 'F'])
-
-    queryset = FinalItem.objects
-    if status:
-        queryset = queryset.filter(status=status)
-    if itemtype:
-        queryset = queryset.filter(itemtype=itemtype)
-    queryset = queryset.order_by('-created_at')
-
-    items, more = prepare_list_items(queryset, 20, page)
-    search_data = {
-        'type': itemtype,
-        'status': status,
-        'page': page if page != 1 else None
+def request_to_search_data(request):
+    return {
+        'type': request_get_string(request, 'type', None, lambda v: v in [None, 'D', 'T', 'P']),
+        'status': request_get_string(request, 'status', None, lambda v: v in [None, 'R', 'F']),
+        'page': request_get_int(request, 'page', 1, lambda v: v >= 1)
     }
-    current_url = change_search_url({}, **search_data)
-
-    return ({
-        'items': items,
-        'current_url': current_url,
-        'prev_data_url': change_search_url(search_data, page=page-1, req='frag') if page > 1 else '',
-        'next_data_url': change_search_url(search_data, page=page+1, req='frag') if more else ''
-    }, search_data)
 
 @require_GET
 def search(request):
     try:
-        itempage, search_data = search_items(request)
+        search_data = request_to_search_data(request)
     except BadRequest:
         return bad_request(request)
+    itempage = search_items(page_size=20, **search_data)
+
     if request.GET.get('req') == 'frag':
         itempage['items'] = render_to_string('include/item_list_items.html',
                                              {'items': itempage['items'],
