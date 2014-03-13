@@ -1,31 +1,24 @@
 {% extends "base.html" %}
-{% load item_tags %}
-{% load utils_tags %}
 
 {% block title %}Definitions{% endblock %}
 
 {% block mainbar %}
 
-<div id="search-item-list">loading...</div>
+<h3>Latest definitions</h3>
+
+<ul class="list-group">
+{% include 'include/item_list_items.html' with items=itempage.items only %}
+</ul>
+<div class="clearfix">
+    <a class="pull-right" href="{{see_all_link}}">See all</a>
+</div>
 
 {% endblock %}
 
 {% block sidebar %}
 
 <h4>Actions</h4>
+
 <p><a class="btn btn-primary" href="{% url 'drafts.views.new' kind='definition' %}"><span class="glyphicon glyphicon-plus"></span> Add definition</a></p>
 
-<h4>Included tags</h4>
-<div id="include-tags"></div>
-
-<h4>Excluded tags</h4>
-<div id="exclude-tags"></div>
-
-{% endblock %}
-
-{% block bodybottom %}
-{% include 'include/js-scripts.html' %}
-<script type="text/javascript">
-teoremer.item_search('D', 'FR', {{init_items|to_json}});
-</script>
 {% endblock %}

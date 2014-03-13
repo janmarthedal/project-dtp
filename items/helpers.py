@@ -289,10 +289,9 @@ def publishIssues(draft_item):
 def prepare_list_items(queryset, page_size, page_num=1):
     offset = (page_num - 1) * page_size
     item_list = queryset[offset:(offset + page_size + 1)]
-    logger.info('offset {}, page_size {}, len {}'.format(offset, page_size, len(item_list)))
     return (item_list[0:page_size], len(item_list) > page_size)
 
-def make_search_url(**data):
+def make_search_url(data):
     if data.get('page') == 1:
         data = dict(data, page=None)
     return make_get_url('items.views.search', data)
@@ -300,10 +299,10 @@ def make_search_url(**data):
 def change_search_url(data, **kwargs):
     for k, v in kwargs.items():
         if data.get(k) != v:
-            return make_search_url(**dict(data, **kwargs))
+            return make_search_url(dict(data, **kwargs))
     return None
 
-def search_items(page_size, **search_data):
+def search_items(page_size, search_data):
     queryset = FinalItem.objects
     if search_data.get('status'):
         queryset = queryset.filter(status=search_data['status'])
@@ -311,13 +310,13 @@ def search_items(page_size, **search_data):
         queryset = queryset.filter(itemtype=search_data['type'])
     queryset = queryset.order_by('-created_at')
 
-    current_url = make_search_url(**search_data)
+    current_url = make_search_url(search_data)
     page = search_data.get('page') or 1
     items, more = prepare_list_items(queryset, page_size, page)
 
     return {
         'items': items,
         'current_url': current_url,
-        'prev_data_url': change_search_url(search_data, page=page-1, req='frag') if page > 1 else '',
-        'next_data_url': change_search_url(search_data, page=page+1, req='frag') if more else ''
+        'prev_data_url': change_search_url(search_data, page=page-1, fragment='true') if page > 1 else '',
+        'next_data_url': change_search_url(search_data, page=page+1, fragment='true') if more else ''
     }

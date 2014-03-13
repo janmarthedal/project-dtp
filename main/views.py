@@ -6,6 +6,6 @@ from items.helpers import search_items, make_search_url
 
 @require_safe
 def index(request):
-    c = init_context('home', blog_feed=get_blog_feed(), itempage=search_items(5),
-                     latest_link=make_search_url())
+    c = init_context('home', blog_feed=get_blog_feed(), itempage=search_items(5, {}),
+                     see_all_link=make_search_url({}))
     return render(request, 'home.html', c)

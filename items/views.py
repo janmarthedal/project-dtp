@@ -81,7 +81,7 @@ def search(request):
         search_data = request_to_search_data(request)
     except BadRequest:
         return bad_request(request)
-    itempage = search_items(page_size=20, **search_data)
+    itempage = search_items(20, search_data)
 
     if request.GET.get('req') == 'frag':
         itempage['items'] = render_to_string('include/item_list_items.html',

@@ -1,25 +1,16 @@
 {% extends "base.html" %}
-{% load utils_tags %}
 
 {% block title %}Proofs{% endblock %}
 
 {% block mainbar %}
 
-<div id="search-item-list">loading...</div>
+<h3>Latest proofs</h3>
 
-{% endblock %}
+<ul class="list-group">
+{% include 'include/item_list_items.html' with items=itempage.items only %}
+</ul>
+<div class="clearfix">
+    <a class="pull-right" href="{{see_all_link}}">See all</a>
+</div>
 
-{% block sidebar %}
-<h4>Included tags</h4>
-<div id="include-tags"></div>
-
-<h4>Excluded tags</h4>
-<div id="exclude-tags"></div>
-{% endblock %}
-
-{% block bodybottom %}
-{% include 'include/js-scripts.html' %}
-<script type="text/javascript">
-teoremer.item_search('P', 'FR', {{init_items|to_json}});
-</script>
 {% endblock %}
