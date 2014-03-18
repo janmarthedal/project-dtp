@@ -23,12 +23,49 @@
 {%  endfor %}
 </ul>
 {% else %}
-<i>None</i>
+<em>None</em>
 {% endif %}
 
-<h3>Items</h3>
+<h3>Published items</h3>
 
-<div id="search-item-list">loading...</div>
+{% if finalpage.items %}
+<ul class="list-group">
+{% include 'include/item_list_items.html' with items=finalpage.items only %}
+</ul>
+<div class="clearfix">
+  <a class="pull-right" href="{{see_all_final}}">See all</a>
+</div>
+{% else %}
+<em>None</em>
+{% endif %}
+
+<h3>Items submitted for review</h3>
+
+{% if reviewpage.items %}
+<ul class="list-group">
+{% include 'include/item_list_items.html' with items=reviewpage.items only %}
+</ul>
+<div class="clearfix">
+  <a class="pull-right" href="{{see_all_review}}">See all</a>
+</div>
+{% else %}
+<em>None</em>
+{% endif %}
+
+{% if own_profile %}
+<h3>Items drafts</h3>
+
+{% if draftpage.items %}
+<ul class="list-group">
+{% include 'include/item_list_items.html' with items=draftpage.items only %}
+</ul>
+<div class="clearfix">
+  <a class="pull-right" href="{{see_all_draft}}">See all</a>
+</div>
+{% else %}
+<em>None</em>
+{% endif %}
+{% endif %}
 
 {% endblock %}
 
@@ -36,23 +73,11 @@
 
 {% if own_profile %}
 <h4>Actions</h4>
+
 <p><a class="btn btn-default" href="{% url 'users.views.logout' %}"><span class="glyphicon glyphicon-log-out"></span> Log out</a></p>
 {% if pageuser.is_admin %}
 <p><a class="btn btn-default" href="{% url 'users.views.administration' %}"><span class="glyphicon glyphicon-cog"></span> Administration</a></p>
 {% endif %}
 {% endif %}
 
-<h4>Included tags</h4>
-<div id="include-tags"></div>
-
-<h4>Excluded tags</h4>
-<div id="exclude-tags"></div>
-
-{% endblock %}
-
-{% block bodybottom %}
-{% include 'include/js-scripts.html' %}
-<script type="text/javascript">
-teoremer.item_search('DTP', '{{statuses}}', {{init_items|to_json}}, undefined, 'FRD', {{user_id}});
-</script>
 {% endblock %}

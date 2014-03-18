@@ -1,15 +1,18 @@
-import re
+import json
 import markdown
+import re
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import Http404
+from django.http import Http404, HttpResponse
+from django.shortcuts import render
 from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 from django.utils import crypto
 from django.utils.http import urlquote
 from drafts.models import DraftItem
 from items.models import FinalItem
-from main.helpers import make_get_url
+from main.badrequest import BadRequest
+from main.helpers import init_context, make_get_url
 from media.models import MediaItem
 from tags.models import Tag
 from tags.helpers import normalize_tag
@@ -291,21 +294,36 @@ def prepare_list_items(queryset, page_size, page_num=1):
     item_list = queryset[offset:(offset + page_size + 1)]
     return (item_list[0:page_size], len(item_list) > page_size)
 
+# Remove defaults
+def clean_search_data(data):
+    defaults = [('page', 1), ('status', 'F')]
+    return dict(kv for kv in data.items() if kv not in defaults)
+
 def make_search_url(data):
-    if data.get('page') == 1:
-        data = dict(data, page=None)
-    return make_get_url('items.views.search', data)
+    if data.get('user'):
+        data = data.copy()
+        user = data.pop('user')
+        url = reverse('users.views.items', args=[user.pk])
+    else:
+        url = reverse('items.views.search')
+    return make_get_url(url, data)
 
 def change_search_url(data, **kwargs):
-    newdata = dict(data, **kwargs)
+    data = clean_search_data(data)
+    newdata = clean_search_data(dict(data, **kwargs))
     return {'link': make_search_url(newdata), 'changed': data != newdata}
 
 def search_items(page_size, search_data):
-    queryset = FinalItem.objects
+    if search_data.get('status') in ['R', 'D']:
+        queryset = DraftItem.objects
+    else:
+        queryset = FinalItem.objects
     if search_data.get('status'):
         queryset = queryset.filter(status=search_data['status'])
     if search_data.get('type'):
         queryset = queryset.filter(itemtype=search_data['type'])
+    if search_data.get('user'):
+        queryset = queryset.filter(created_by=search_data['user'])
     queryset = queryset.order_by('-created_at')
 
     current_url = make_search_url(search_data)
@@ -318,3 +336,53 @@ def search_items(page_size, search_data):
         'prev_data_url': change_search_url(search_data, page=page-1)['link'] if page > 1 else '',
         'next_data_url': change_search_url(search_data, page=page+1)['link'] if more else ''
     }
+
+def request_get_int(request, key, default, validator):
+    try:
+        value = int(request.GET.get(key, default))
+    except ValueError:
+        raise BadRequest
+    if not validator(value):
+        raise BadRequest
+    return value
+
+def request_get_string(request, key, default, validator):
+    value = request.GET.get(key, default)
+    if not validator(value):
+        raise BadRequest
+    return value
+
+def request_to_search_data(request):
+    return {
+        'type': request_get_string(request, 'type', None, lambda v: v in [None, 'D', 'T', 'P']),
+        'status': request_get_string(request, 'status', 'F', lambda v: v in ['F', 'R', 'D']),
+        'page': request_get_int(request, 'page', 1, lambda v: v >= 1)
+    }
+
+def render_search(request, search_data):
+    itempage = search_items(2, search_data)
+
+    if request.GET.get('partial') is not None:
+        itempage['items'] = render_to_string('include/item_list_items.html',
+                                             {'items': itempage['items'],
+                                              'current_url': itempage['current_url']})
+        return HttpResponse(json.dumps(itempage), content_type="application/json")
+    else:
+        search_data['page'] = None
+        links = {
+            'type': {
+                'all': change_search_url(search_data, type=None),
+                'D': change_search_url(search_data, type='D'),
+                'T': change_search_url(search_data, type='T'),
+                'P': change_search_url(search_data, type='P')
+            },
+            'status': {
+                'F': change_search_url(search_data, status='F'),
+                'R': change_search_url(search_data, status='R'),
+            }
+        }
+        pageuser = search_data.get('user')
+        if pageuser == request.user:
+            links['status']['D'] = change_search_url(search_data, status='D')
+        c = init_context('search', itempage=itempage, links=links, pageuser=pageuser)
+        return render(request, 'items/search.html', c)

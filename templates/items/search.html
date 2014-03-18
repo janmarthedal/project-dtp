@@ -4,6 +4,10 @@
 
 {% block mainbar %}
 
+{% if pageuser %}
+<h4>Items for user {{pageuser.get_full_name}}</h4>
+{% endif %}
+
 <div id="search-container">
 {% include 'include/item_list.html' with itempage=itempage only %}
 </div>
@@ -28,12 +32,14 @@
 <h4>Status</h4>
 
 <ul class="list-unstyled">
-    <li><span class="glyphicon glyphicon-ok{% if links.status.all.changed %} transparent{% endif %}"></span>
-        <a href="{{links.status.all.link}}">All</a></li>
     <li><span class="glyphicon glyphicon-ok{% if links.status.F.changed %} transparent{% endif %}"></span>
         <a href="{{links.status.F.link}}">Published</a></li>
     <li><span class="glyphicon glyphicon-ok{% if links.status.R.changed %} transparent{% endif %}"></span>
         <a href="{{links.status.R.link}}">Under review</a></li>
+{% if links.status.D %}
+    <li><span class="glyphicon glyphicon-ok{% if links.status.D.changed %} transparent{% endif %}"></span>
+        <a href="{{links.status.D.link}}">Drafts</a></li>
+{% endif %}
 </ul>
 
 {% comment %}
@@ -51,7 +57,7 @@
 <script type="text/javascript">
 (function ($container) {
     function add_to_query(url) {
-        return url + (url.indexOf("?") < 0 ? "?" : "&") + "fragment=true";
+        return url + (url.indexOf("?") < 0 ? "?" : "&") + "partial=true";
     }
     function init_load_handler($elem, direction) {
         if ($elem.attr('href')) {

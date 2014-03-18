@@ -119,6 +119,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'users.helpers.CustomSocialAuthExceptionMiddleware',
+    'main.badrequest.HandleBadRequest',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

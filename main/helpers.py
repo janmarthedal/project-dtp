@@ -73,8 +73,7 @@ def json_decode(st):
 def json_response(data):
     return HttpResponse(json_encode(data), content_type="application/json")
 
-def make_get_url(view, params={}):
-    url = reverse(view)
+def make_get_url(url, params={}):
     params = {k: v for k, v in params.items() if v is not None}
     if params:
         items = ['{}={}'.format(urlquote(k), urlquote(v)) for k, v in params.items()]

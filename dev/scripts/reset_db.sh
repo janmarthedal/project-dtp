@@ -1,2 +1,3 @@
-echo "drop database if exists thrms; create database thrms character set utf8;" | mysql -u root -p
+dropdb teoremer
+createdb teoremer
 python ../../manage.py syncdb --noinput

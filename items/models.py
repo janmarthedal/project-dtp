@@ -57,9 +57,7 @@ class FinalItem(BaseItem):
     final_id = models.CharField(max_length=FINAL_NAME_MAX_LENGTH, unique=True, db_index=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
-    created_at = models.DateTimeField(default=timezone.now)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
-    modified_at = models.DateTimeField(default=timezone.now)
     categories = models.ManyToManyField(Category, through='FinalItemCategory')
     points = models.FloatField(default=0, null=False)
 

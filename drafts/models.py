@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 from tags.models import Category
@@ -19,9 +20,11 @@ class BaseItem(models.Model):
         ('I', 'info')
     )
 
+    created_at = models.DateTimeField(default=timezone.now)
+    modified_at = models.DateTimeField(default=timezone.now)
     itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
-    parent   = models.ForeignKey('items.FinalItem', null=True, db_index=False)
-    body     = models.TextField(null=True)
+    parent = models.ForeignKey('items.FinalItem', null=True, db_index=False)
+    body = models.TextField(null=True)
 
     def __init__(self, *args, **kwargs):
         super(BaseItem, self).__init__(*args, **kwargs)
@@ -73,7 +76,6 @@ class DraftItem(BaseItem):
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
-    modified_at = models.DateTimeField(default=timezone.now)
     categories = models.ManyToManyField(Category, through='DraftItemCategory')
 
     def __str__(self):
@@ -107,6 +109,15 @@ class DraftItem(BaseItem):
         self.save()
         self.draftitemcategory_set.all().delete()
         self._add_category_lists(primary_categories, secondary_categories)
+
+    def get_name(self):
+        items = [self.get_itemtype_display().capitalize(), ' ', str(self.pk)]
+        if self.parent:
+            items.extend(' of ', self.parent.get_name())
+        return ''.join(items)
+
+    def get_link(self):
+        return reverse('drafts.views.show', args=[self.pk])
 
 class DraftItemCategory(models.Model):
     class Meta:
