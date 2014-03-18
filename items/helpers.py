@@ -14,7 +14,7 @@ from items.models import FinalItem
 from main.badrequest import BadRequest
 from main.helpers import init_context, make_get_url
 from media.models import MediaItem
-from tags.models import Tag
+from tags.models import Tag, Category
 from tags.helpers import normalize_tag
 
 import logging
@@ -304,6 +304,17 @@ def make_search_url(data):
         data = data.copy()
         user = data.pop('user')
         url = reverse('users.views.items', args=[user.pk])
+    elif data.get('pricat') and data.get('type') == 'D':
+        data = data.copy()
+        del data['type']
+        pricat = int(data.pop('pricat'))
+        try:
+            category = Category.objects.get(pk=pricat)
+        except Category.DoesNotExist:
+            raise BadRequest
+        tags = map(str, category.get_tag_list())
+        reqpath = '/'.join(tags)
+        url = reverse('tags.views.list_definitions', args=[reqpath])
     else:
         url = reverse('items.views.search')
     return make_get_url(url, data)
@@ -314,10 +325,8 @@ def change_search_url(data, **kwargs):
     return {'link': make_search_url(newdata), 'changed': data != newdata}
 
 def search_items(page_size, search_data):
-    if search_data.get('status') in ['R', 'D']:
-        queryset = DraftItem.objects
-    else:
-        queryset = FinalItem.objects
+    drafts = search_data.get('status') in ['R', 'D']
+    queryset = DraftItem.objects if drafts else FinalItem.objects
     if search_data.get('status'):
         queryset = queryset.filter(status=search_data['status'])
     if search_data.get('type'):
@@ -326,6 +335,14 @@ def search_items(page_size, search_data):
         queryset = queryset.filter(created_by=search_data['user'])
     if search_data.get('parent'):
         queryset = queryset.filter(parent__final_id=search_data['parent'])
+    if search_data.get('pricat'):
+        cat_id = search_data['pricat']
+        if drafts:
+            queryset = queryset.filter(draftitemcategory__primary=True,
+                                       draftitemcategory__category__id=cat_id)
+        else:
+            queryset = queryset.filter(finalitemcategory__primary=True,
+                                       finalitemcategory__category__id=cat_id)
     queryset = queryset.order_by('-created_at')
 
     current_url = make_search_url(search_data)
@@ -339,12 +356,12 @@ def search_items(page_size, search_data):
         'next_data_url': change_search_url(search_data, page=page+1)['link'] if more else ''
     }
 
-def request_get_int(request, key, default, validator):
+def request_get_int(request, key, default=None, validator=None):
     try:
-        value = int(request.GET.get(key, default))
-    except ValueError:
+        value = int(request.GET[key]) if key in request.GET else default
+    except (ValueError, TypeError):
         raise BadRequest
-    if not validator(value):
+    if validator and not validator(value):
         raise BadRequest
     return value
 
@@ -360,10 +377,11 @@ def request_to_search_data(request):
         'status': request_get_string(request, 'status', 'F', lambda v: v in ['F', 'R', 'D']),
         'page': request_get_int(request, 'page', 1, lambda v: v >= 1),
         'parent': request.GET.get('parent'),
+        'pricat': request_get_int(request, 'pricat'),
     }
 
 def render_search(request, search_data):
-    itempage = search_items(2, search_data)
+    itempage = search_items(20, search_data)
 
     if request.GET.get('partial') is not None:
         itempage['items'] = render_to_string('include/item_list_items.html',
