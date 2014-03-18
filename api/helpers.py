@@ -22,7 +22,7 @@ def api_view(f):
         if request.method == 'GET':
             request.data = request.GET
         else:
-            request.data = json.loads(request.body)
+            request.data = json.loads(request.body.decode())
         try:
             result = f(request, *args, **kwds)
             return json_response(result)
@@ -39,7 +39,7 @@ def api_view(f):
 
 
 def is_string(value):
-    return isinstance(value, basestring)
+    return isinstance(value, str)
 
 def is_int(value):
     return isinstance(value, int)

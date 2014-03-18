@@ -1953,7 +1953,7 @@
             });
         },
 
-        show_final: function (validations, item_data, user_id, init_proofs) {
+        show_final: function (validations, item_data, user_id) {
             var item_model = new Backbone.Model(item_data);
             new ItemPointsView({
                 el: $('#item-points'),
@@ -1965,28 +1965,6 @@
                 user_id: user_id,
                 item_data: item_model
             });
-
-            if (arguments.length == 4) {
-                var searchTerms = new SearchTerms({
-                    parent: item_data.id
-                });
-                var searchListViewData = {
-                    el: $('#proof-list'),
-                    collection: new SearchList(init_proofs, { parse: true }),
-                    itemtypes: 'P',
-                    parameters: searchTerms
-                };
-                if (user_id) {
-                    searchListViewData.statuses = 'FRD';
-                    searchListViewData.restrict = {
-                        user: user_id,
-                        statuses: 'D'
-                    };
-                } else {
-                    searchListViewData.statuses = 'FR';
-                }
-                new SearchListView(searchListViewData);
-            }
 
             $('#add-to-document a').click(function () {
                 var doc_id = $(this).data('doc');

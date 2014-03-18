@@ -54,7 +54,7 @@ class BaseItem(models.Model):
 
 class DraftItemManager(models.Manager):
     def add_item(self, user, itemtype, body, primary_categories, secondary_categories, parent):
-        type_key = filter(lambda kc: kc[1] == itemtype, DraftItem.TYPE_CHOICES)[0][0]
+        type_key = [kc[0] for kc in DraftItem.TYPE_CHOICES if kc[1] == itemtype][0]
         item = DraftItem.objects.create(itemtype   = type_key,
                                         status     = 'D',
                                         created_by = user,

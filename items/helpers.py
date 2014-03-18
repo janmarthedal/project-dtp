@@ -324,6 +324,8 @@ def search_items(page_size, search_data):
         queryset = queryset.filter(itemtype=search_data['type'])
     if search_data.get('user'):
         queryset = queryset.filter(created_by=search_data['user'])
+    if search_data.get('parent'):
+        queryset = queryset.filter(parent__final_id=search_data['parent'])
     queryset = queryset.order_by('-created_at')
 
     current_url = make_search_url(search_data)
@@ -356,7 +358,8 @@ def request_to_search_data(request):
     return {
         'type': request_get_string(request, 'type', None, lambda v: v in [None, 'D', 'T', 'P']),
         'status': request_get_string(request, 'status', 'F', lambda v: v in ['F', 'R', 'D']),
-        'page': request_get_int(request, 'page', 1, lambda v: v >= 1)
+        'page': request_get_int(request, 'page', 1, lambda v: v >= 1),
+        'parent': request.GET.get('parent'),
     }
 
 def render_search(request, search_data):
@@ -385,4 +388,9 @@ def render_search(request, search_data):
         if pageuser == request.user:
             links['status']['D'] = change_search_url(search_data, status='D')
         c = init_context('search', itempage=itempage, links=links, pageuser=pageuser)
+        if search_data.get('parent'):
+            try:
+                c.update(parent=FinalItem.objects.get(final_id=search_data['parent']))
+            except FinalItem.DoesNotExist:
+                raise BadRequest
         return render(request, 'items/search.html', c)

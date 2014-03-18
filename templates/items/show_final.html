@@ -28,7 +28,14 @@
 {% if item.itemtype == "T" %}
 {% if proof_count %}
 <h4 class="expander-in">{{ proof_count }} proof{{ proof_count|pluralize }} <span class="glyphicon"></span></h4>
-<div id="proof-list"></div>
+<div>
+  <ul class="list-group">
+  {% include 'include/item_list_items.html' with items=proofpage.items only %}
+  </ul>
+  <div class="clearfix">
+    <a class="pull-right" href="{{see_all_proofs}}">See all</a>
+  </div>
+</div>
 {% else %}
 <h4>No proofs</h4>
 {% endif %}
@@ -95,8 +102,7 @@ published at {{ item.created_at|datetime_user:user }}
 
 <script type="text/javascript">
 teoremer.show_final({{validations|to_json}}, { id: '{{ item.final_id }}', points: {{item.points}} },
-{{ user_id|default:'undefined' }}
-{% if item.itemtype == 'T' %}, {{init_proofs|to_json}}{% endif %});
+{{ user_id|default:'undefined' }});
 </script>
 
 {% endblock %}

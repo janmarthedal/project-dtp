@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from document.models import Document
-from items.helpers import item_search_to_json, request_to_search_data, render_search
+from items.helpers import request_to_search_data, render_search, search_items, make_search_url
 from items.models import FinalItem
 from main.helpers import init_context, logged_in_or_404
 
@@ -19,8 +19,10 @@ def show_final(request, final_id):
                      validations=[v.json_data(request.user) for v in item.itemvalidation_set.all()],
                      documents=Document.objects.filter(created_by=request.user.id).exclude(documentitementry__item=item).all())
     if item.itemtype == 'T':
+        search_args = {'type': 'P', 'status': 'F', 'parent': item.final_id}
         c.update(proof_count=item.finalitem_set.filter(itemtype='P', status='F').count(),
-                 init_proofs=item_search_to_json(itemtype='P', parent=final_id))
+                 proofpage=search_items(5, search_args),
+                 see_all_proofs=make_search_url(search_args))
     if request.user.is_authenticated():
         c.update(user_id=request.user.id)
     return render(request, 'items/show_final.html', c)
