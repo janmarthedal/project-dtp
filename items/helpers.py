@@ -297,10 +297,8 @@ def make_search_url(data):
     return make_get_url('items.views.search', data)
 
 def change_search_url(data, **kwargs):
-    for k, v in kwargs.items():
-        if data.get(k) != v:
-            return make_search_url(dict(data, **kwargs))
-    return None
+    newdata = dict(data, **kwargs)
+    return {'link': make_search_url(newdata), 'changed': data != newdata}
 
 def search_items(page_size, search_data):
     queryset = FinalItem.objects
@@ -317,6 +315,6 @@ def search_items(page_size, search_data):
     return {
         'items': items,
         'current_url': current_url,
-        'prev_data_url': change_search_url(search_data, page=page-1) if page > 1 else '',
-        'next_data_url': change_search_url(search_data, page=page+1) if more else ''
+        'prev_data_url': change_search_url(search_data, page=page-1)['link'] if page > 1 else '',
+        'next_data_url': change_search_url(search_data, page=page+1)['link'] if more else ''
     }

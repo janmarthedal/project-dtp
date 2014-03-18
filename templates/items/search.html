@@ -15,54 +15,35 @@
 <h4>Type</h4>
 
 <ul class="list-unstyled">
-    <li>{% if links.type.all %}
-      <span class="glyphicon glyphicon-ok transparent"></span> <a href="{{links.type.all}}">All</a>
-    {% else %}
-      <span class="glyphicon glyphicon-ok"></span> All
-    {% endif %}</li>
-    <li>{% if links.type.D %}
-      <span class="glyphicon glyphicon-ok transparent"></span> <a href="{{links.type.D}}">Definitions</a>
-    {% else %}
-      <span class="glyphicon glyphicon-ok"></span> Definitions
-    {% endif %}</li>
-    <li>{% if links.type.T %}
-      <span class="glyphicon glyphicon-ok transparent"></span> <a href="{{links.type.T}}">Theorems</a>
-    {% else %}
-      <span class="glyphicon glyphicon-ok"></span> Theorems
-    {% endif %}</li>
-    <li>{% if links.type.P %}
-      <span class="glyphicon glyphicon-ok transparent"></span> <a href="{{links.type.P}}">Proofs</a>
-    {% else %}
-      <span class="glyphicon glyphicon-ok"></span> Proofs
-    {% endif %}</li>
+    <li><span class="glyphicon glyphicon-ok{% if links.type.all.changed %} transparent{% endif %}"></span>
+        <a href="{{links.type.all.link}}">All</a></li>
+    <li><span class="glyphicon glyphicon-ok{% if links.type.D.changed %} transparent{% endif %}"></span>
+        <a href="{{links.type.D.link}}">Definitions</a></li>
+    <li><span class="glyphicon glyphicon-ok{% if links.type.T.changed %} transparent{% endif %}"></span>
+        <a href="{{links.type.T.link}}">Theorems</a></li>
+    <li><span class="glyphicon glyphicon-ok{% if links.type.P.changed %} transparent{% endif %}"></span>
+        <a href="{{links.type.P.link}}">Proofs</a></li>
 </ul>
 
 <h4>Status</h4>
 
 <ul class="list-unstyled">
-    <li>{% if links.status.all %}
-      <span class="glyphicon glyphicon-ok transparent"></span> <a href="{{links.status.all}}">All</a>
-    {% else %}
-      <span class="glyphicon glyphicon-ok"></span> All
-    {% endif %}</li>
-    <li>{% if links.status.F %}
-      <span class="glyphicon glyphicon-ok transparent"></span> <a href="{{links.status.F}}">Published</a>
-    {% else %}
-      <span class="glyphicon glyphicon-ok"></span> Published
-    {% endif %}</li>
-    <li>{% if links.status.R %}
-      <span class="glyphicon glyphicon-ok transparent"></span> <a href="{{links.status.R}}">Under review</a>
-    {% else %}
-      <span class="glyphicon glyphicon-ok"></span> Under review
-    {% endif %}</li>
+    <li><span class="glyphicon glyphicon-ok{% if links.status.all.changed %} transparent{% endif %}"></span>
+        <a href="{{links.status.all.link}}">All</a></li>
+    <li><span class="glyphicon glyphicon-ok{% if links.status.F.changed %} transparent{% endif %}"></span>
+        <a href="{{links.status.F.link}}">Published</a></li>
+    <li><span class="glyphicon glyphicon-ok{% if links.status.R.changed %} transparent{% endif %}"></span>
+        <a href="{{links.status.R.link}}">Under review</a></li>
 </ul>
 
+{% comment %}
 <h4>Sorting</h4>
 
 <ul class="list-unstyled">
     <li><span class="glyphicon glyphicon-ok"></span> Date</li>
     <li><span class="glyphicon glyphicon-ok transparent"></span> <a href="">Points</a></li>
 </ul>
+{% endcomment %}
 
 {% endblock %}
 
