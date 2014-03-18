@@ -135,7 +135,7 @@ def typesetConcept(text, tag_name, tag_to_category_map):
     try:
         tag_list = tag_to_category_map[tag_name]
         path = '/'.join(map(lambda tag: urlquote(tag, safe=''), tag_list))
-        href = reverse('tags.views.list_definitions', args=[path])
+        href = reverse('tags.views.definitions_in_category', args=[path])
         return '<a href="%s"><i>%s</i></a>' % (href, link_text)
     except KeyError:
         return '<a href="#" rel="tooltip" data-original-title="tag: %s"><i>%s</i></a>' % (tag_name, link_text)
@@ -304,9 +304,9 @@ def make_search_url(data):
         data = data.copy()
         user = data.pop('user')
         url = reverse('users.views.items', args=[user.pk])
-    elif data.get('pricat') and data.get('type') == 'D':
+    elif data.get('pricat'):
         data = data.copy()
-        del data['type']
+        itemtype = data.pop('type')
         pricat = int(data.pop('pricat'))
         try:
             category = Category.objects.get(pk=pricat)
@@ -314,7 +314,12 @@ def make_search_url(data):
             raise BadRequest
         tags = map(str, category.get_tag_list())
         reqpath = '/'.join(tags)
-        url = reverse('tags.views.list_definitions', args=[reqpath])
+        if itemtype == 'D':
+            url = reverse('tags.views.definitions_in_category', args=[reqpath])
+        elif itemtype == 'T':
+            url = reverse('tags.views.theorems_in_category', args=[reqpath])
+        else:
+            raise BadRequest
     else:
         url = reverse('items.views.search')
     return make_get_url(url, data)
@@ -392,20 +397,23 @@ def render_search(request, search_data):
         search_data['page'] = None
         links = {
             'type': {
-                'all': change_search_url(search_data, type=None),
                 'D': change_search_url(search_data, type='D'),
                 'T': change_search_url(search_data, type='T'),
-                'P': change_search_url(search_data, type='P')
             },
             'status': {
                 'F': change_search_url(search_data, status='F'),
                 'R': change_search_url(search_data, status='R'),
             }
         }
-        pageuser = search_data.get('user')
-        if pageuser == request.user:
+        if not search_data['pricat']:
+            links['type'].update({
+                'all': change_search_url(search_data, type=None),
+                'P': change_search_url(search_data, type='P'),
+            })
+        search_user = search_data.get('user')
+        if search_user == request.user:
             links['status']['D'] = change_search_url(search_data, status='D')
-        c = init_context('search', itempage=itempage, links=links, pageuser=pageuser)
+        c = init_context('search', itempage=itempage, links=links, search_user=search_user)
         if search_data.get('parent'):
             try:
                 c.update(parent=FinalItem.objects.get(final_id=search_data['parent']))

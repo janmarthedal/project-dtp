@@ -4,8 +4,8 @@
 
 {% block mainbar %}
 
-{% if pageuser %}
-<h4>Items for user {{pageuser.get_full_name}}</h4>
+{% if search_user %}
+<h4>Items for user {{search_user.get_full_name}}</h4>
 {% endif %}
 
 {% if parent %}
@@ -23,14 +23,18 @@
 <h4>Type</h4>
 
 <ul class="list-unstyled">
+{% if links.type.all %}
     <li><span class="glyphicon glyphicon-ok{% if links.type.all.changed %} transparent{% endif %}"></span>
         <a href="{{links.type.all.link}}">All</a></li>
+{% endif %}
     <li><span class="glyphicon glyphicon-ok{% if links.type.D.changed %} transparent{% endif %}"></span>
         <a href="{{links.type.D.link}}">Definitions</a></li>
     <li><span class="glyphicon glyphicon-ok{% if links.type.T.changed %} transparent{% endif %}"></span>
         <a href="{{links.type.T.link}}">Theorems</a></li>
+{% if links.type.P %}
     <li><span class="glyphicon glyphicon-ok{% if links.type.P.changed %} transparent{% endif %}"></span>
         <a href="{{links.type.P.link}}">Proofs</a></li>
+{% endif %}
 </ul>
 
 <h4>Status</h4>

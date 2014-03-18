@@ -25,9 +25,24 @@
 
 {% block sidebar %}
 
-{% if path %}
-<h4>Actions</h4>
-<a href="{% url 'tags.views.list_definitions' path %}" class="btn btn-primary">View definitions</a>
+<h4>Definitions</h4>
+
+<p>{{def_count}} published</p>
+
+{% if def_count %}
+<a href="{% url 'tags.views.definitions_in_category' path %}" class="btn btn-primary">View definitions</a>
+{% else %}
+<button class="btn btn-primary" disabled="disabled">View definitions</button>
+{% endif %}
+
+<h4>Theorems</h4>
+
+<p>{{thm_count}} published</p>
+
+{% if thm_count %}
+<a href="{% url 'tags.views.theorems_in_category' path %}" class="btn btn-primary">View theorems</a>
+{% else %}
+<button class="btn btn-primary" disabled="disabled">View theorems</button>
 {% endif %}
 
 {% endblock sidebar %}
