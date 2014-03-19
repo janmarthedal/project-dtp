@@ -1,40 +1,7 @@
-from django.contrib.auth import get_user_model
-from django.http import Http404
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_GET, require_POST, require_http_methods
+from django.views.decorators.http import require_POST, require_http_methods
 from api.helpers import (ApiError, api_view, api_request_user, api_request_string_list_list,
                          api_request_tag_category_list, api_request_string, api_request_int)
-from items.helpers import item_search_to_json
 from items.models import FinalItem, ItemValidation, UserItemValidation
-from main.helpers import json_decode, json_response
-
-import logging
-logger = logging.getLogger(__name__)
-
-@require_GET
-def items(request):
-    try:
-        itemtype = request.GET.get('type')
-        status = request.GET.get('status', 'F')
-        parent = request.GET.get('parent')
-        list_user = None
-        user_id = request.GET.get('user')
-        category = request.GET.get('category')
-        if user_id:
-            list_user = get_object_or_404(get_user_model(), pk=user_id)
-            if status == 'D' and request.user != list_user:
-                raise Http404
-        include_tags = json_decode(request.GET.get('intags', '[]'))
-        exclude_tags = json_decode(request.GET.get('extags', '[]'))
-        offset = int(request.GET.get('offset', 0))
-        limit  = int(request.GET.get('limit', 5))
-    except:
-        raise Http404
-    result = item_search_to_json(itemtype=itemtype, parent=parent,
-                                 include_tag_names=include_tags, exclude_tag_names=exclude_tags,
-                                 category=category, status=status, offset=offset,
-                                 limit=limit, user=list_user)
-    return json_response(result)
 
 @require_http_methods(['PUT'])
 @api_view

@@ -3,7 +3,7 @@ import markdown
 import re
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import Context
 from django.template.loader import get_template, render_to_string
@@ -14,8 +14,7 @@ from items.models import FinalItem
 from main.badrequest import BadRequest
 from main.helpers import init_context, make_get_url
 from media.models import MediaItem
-from tags.models import Tag, Category
-from tags.helpers import normalize_tag
+from tags.models import Category
 
 import logging
 logger = logging.getLogger(__name__)
@@ -129,7 +128,6 @@ class BodyScanner:
             st = st.replace(key, value)
         return st
 
-
 def typesetConcept(text, tag_name, tag_to_category_map):
     link_text = typeset_tag(text or tag_name)
     try:
@@ -140,12 +138,10 @@ def typesetConcept(text, tag_name, tag_to_category_map):
     except KeyError:
         return '<a href="#" rel="tooltip" data-original-title="tag: %s"><i>%s</i></a>' % (tag_name, link_text)
 
-
 def typesetItemRef(text, item_id):
     link_text = make_html_safe(text or item_id)
     url = reverse('items.views.show_final', args=[item_id])
     return '<a href="%s"><b>%s</b></a>' % (url, link_text)
-
 
 def typesetMediaRef(text, media_id):
     c = dict(name=media_id, description=text)
@@ -157,7 +153,6 @@ def typesetMediaRef(text, media_id):
     template = get_template('items/item_image.html')
     return template.render(Context(c))
 
-
 def typeset_body(st, tag_to_category_map):
     bs = BodyScanner(st)
     bs.body = markdown.markdown(bs.body)
@@ -168,113 +163,12 @@ def typeset_body(st, tag_to_category_map):
     bs.transformMediaRefs(typesetMediaRef)
     return bs.assemble()
 
-
 def typeset_tag(st):
     parts = st.split('$')
     for i in range(len(parts)):
         if i % 2 == 1:
             parts[i] = '\(' + parts[i] + '\)'
     return make_html_safe(''.join(parts))
-
-
-def tag_names_to_tag_objects(tag_names):
-    found = []
-    not_found = []
-    tag_names = set(map(normalize_tag, tag_names)) - set([''])
-    for tag_name in tag_names:
-        try:
-            tag = Tag.objects.get(normalized=tag_name)
-            found.append(tag)
-        except Tag.DoesNotExist:
-            not_found.append(tag_name)
-    return (found, not_found)
-
-
-def _extract_draft_item_attributes(item):
-    result = {
-        'id':          item.pk,
-        'item_link':   reverse('drafts.views.show', args=[item.pk]),
-        'type':        item.itemtype,
-        'author':      item.created_by.get_full_name(),
-        'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
-        'timestamp':   str(item.modified_at),
-        'categories':  {
-            'primary':   item.primary_categories,
-            'secondary': item.secondary_categories
-        }
-    }
-    if item.parent:
-        result.update(parent={'id': item.parent.final_id, 'type': item.parent.itemtype})
-    return result
-
-
-def _extract_final_item_attributes(item):
-    result = {
-        'id':          item.final_id,
-        'item_link':   reverse('items.views.show_final', args=[item.final_id]),
-        'type':        item.itemtype,
-        'author':      item.created_by.get_full_name(),
-        'author_link': reverse('users.views.profile', args=[item.created_by.get_username()]),
-        'timestamp':   str(item.created_at),
-        'categories':  {
-            'primary':   item.primary_categories,
-            'secondary': item.secondary_categories
-        }
-    }
-    if item.parent:
-        result.update(parent={'id': item.parent.final_id, 'type': item.parent.itemtype})
-    return result
-
-
-def item_search_to_json(itemtype=None, parent=None, include_tag_names=[], exclude_tag_names=[],
-                        status='F', category=None, offset=0, limit=5, user=None):
-    if itemtype and itemtype not in ['D', 'T', 'P']:
-        raise Http404
-    if status == 'F':
-        query = FinalItem.objects.filter(status='F')
-    elif (status == 'R') or (user and status == 'D'):
-        query = DraftItem.objects.filter(status=status)
-    else:
-        raise Http404
-
-    if itemtype:
-        query = query.filter(itemtype=itemtype)
-    if parent:
-        query = query.filter(parent__final_id=parent)
-    if user:
-        query = query.filter(created_by=user)
-
-    (include_tags, not_found) = tag_names_to_tag_objects(include_tag_names)
-    if not not_found:
-        (exclude_tags, not_found) = tag_names_to_tag_objects(exclude_tag_names)
-        for tag in include_tags:
-            query = query.filter(itemtag__tag=tag)
-        for tag in exclude_tags:
-            query = query.exclude(itemtag__tag=tag)
-
-    if category:
-        query = query.filter(finalitemcategory__primary=True, finalitemcategory__category=category)
-
-    if status == 'F':
-        query = query.order_by('-created_at')
-    else:
-        query = query.order_by('-modified_at')
-
-    items = query[offset:(offset+limit+1)]
-    result = {
-        'meta': {
-            'offset':   offset,
-            'count':    min(len(items), limit),
-            'has_more': len(items) > limit
-        }
-    }
-    if status == 'F':
-        result['items'] = [_extract_final_item_attributes(item) for item in items[:limit]]
-    else:
-        result['items'] = [_extract_draft_item_attributes(item) for item in items[:limit]]
-
-    return result
-
 
 def publishIssues(draft_item):
     issues = []

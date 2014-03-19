@@ -493,19 +493,6 @@
         }
     });
 
-    var SearchList = Backbone.Collection.extend({
-        has_more: false,
-        initialize: function () {
-            _.bindAll(this, 'parse');
-        },
-        model: MathItem,
-        url: api_prefix + 'item/search',
-        parse: function (response) {
-            this.has_more = response.meta.has_more;
-            return response.items;
-        }
-    });
-
     var DraftItem = Backbone.Model.extend({
         defaults: {
           body: '',
@@ -550,22 +537,6 @@
                     parse: true
                 })
             };
-        }
-    });
-
-    var SearchTerms = Backbone.Model.extend({
-        defaults: {
-            status: 'F',
-            includeTags: [],
-            excludeTags: []
-        },
-        toJSON: function () {
-            var data = _.clone(this.attributes);
-            data.intags = JSON.stringify(data.includeTags);
-            data.extags = JSON.stringify(data.excludeTags);
-            delete data.includeTags;
-            delete data.excludeTags;
-            return data;
         }
     });
 
@@ -716,93 +687,6 @@
             });
             this.$el.html(html);
             return this;
-        }
-    });
-
-    var SearchListView = Backbone.View.extend({
-        events: {
-            'click .search-list-more': function () {
-                this.doFetch(true);
-            },
-            'click .select-final': function () {
-                this.options.parameters.set('status', 'F');
-            },
-            'click .select-review': function () {
-                this.options.parameters.set('status', 'R');
-            },
-            'click .select-draft': function () {
-                this.options.parameters.set('status', 'D');
-            },
-            'click .select-definitions': function () {
-                this.options.parameters.set('type', 'D');
-            },
-            'click .select-theorems': function () {
-                this.options.parameters.set('type', 'T');
-            },
-            'click .select-proofs': function () {
-                this.options.parameters.set('type', 'P');
-            }
-        },
-        initialize: function (options) {
-            this.options = options;
-            _.bindAll(this, 'render', 'addOne', 'doFetch', 'fetchReset');
-            this.listenTo(this.collection, 'reset', this.render);
-            this.listenTo(this.collection, 'add', this.addOne);
-            this.options.parameters.set('type', this.options.itemtypes.charAt(0));
-            this.listenTo(this.options.parameters, 'change', this.fetchReset);
-            this.render();
-        },
-        postAppend: function () {
-            this.$('.search-list-more').toggle(this.collection.has_more);
-        },
-        render: function () {
-            var status = this.options.parameters.get('status');
-            var type = this.options.parameters.get('type');
-            var html = teoremer.templates.search_list_container({
-                enable_definitions: this.options.itemtypes.indexOf('D') != -1,
-                enable_theorems:    this.options.itemtypes.indexOf('T') != -1,
-                enable_proofs:      this.options.itemtypes.indexOf('P') != -1,
-                type_definition:    type == 'D',
-                type_theorem:       type == 'T',
-                type_proof:         type == 'P',
-                status_final:       status == 'F',
-                status_review:      status == 'R',
-                status_draft:       status == 'D',
-                enable_drafts:      this.options.statuses.indexOf('D') != -1
-            });
-            this.$el.html(html);
-            this.collection.each(this.addOne);
-            this.postAppend();
-        },
-        addOne: function (item) {
-            var mathItemView = new MathItemView({
-                model: item
-            });
-            this.$('ul').append(mathItemView.render().el);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItemView.$el.get()]);
-        },
-        doFetch: function (append) {
-            var status = this.options.parameters.get('status');
-            var options = {};
-            options.data = this.options.parameters.toJSON();
-            if (this.options.restrict && (this.options.restrict.statuses.indexOf(status) != -1)) {
-                options.data.user = this.options.restrict.user;
-            }
-            if (append) {
-                var self = this;
-                options.remove = false;
-                options.data.offset = this.collection.length;
-                options.success = function () {
-                    self.postAppend();
-                };
-            } else {
-                options.reset = true;
-                options.data.offset = 0;
-            }
-            this.collection.fetch(options);
-        },
-        fetchReset: function () {
-            this.doFetch(false);
         }
     });
 
@@ -1920,37 +1804,19 @@
             });
         },
 
-        item_search: function (itemtypes, statuses, init_items, category, restrict, user_id) {
+        item_search: function () {
             var includeView = new TagListView({
                 el: $('#include-tags')
             });
             var excludeView = new TagListView({
                 el: $('#exclude-tags')
             });
-            var searchTerms = new SearchTerms();
-            if (typeof category != 'undefined')
-                searchTerms.set('category', category);
-            var searchListViewData = {
-                el: $('#search-item-list'),
-                collection: new SearchList(init_items, { parse: true }),
-                itemtypes: itemtypes,
-                statuses: statuses,
-                parameters: searchTerms
-            };
-            if (restrict) {
-                searchListViewData.restrict = {
-                    user: user_id,
-                    statuses: restrict
-                };
-            }
-            new SearchListView(searchListViewData);
-
-            includeView.collection.on('add remove', function () {
+            /*includeView.collection.on('add remove', function () {
                 searchTerms.set('includeTags', includeView.getTagList());
             });
             excludeView.collection.on('add remove', function () {
                 searchTerms.set('excludeTags', excludeView.getTagList());
-            });
+            });*/
         },
 
         show_final: function (validations, item_data, user_id) {
