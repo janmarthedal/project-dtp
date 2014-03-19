@@ -59,63 +59,19 @@
 </ul>
 {% endcomment %}
 
+<h4>Include tags</h4>
+
+<div id="include-tags"></div>
+
+<h4>Exclude tags</h4>
+
+<div id="exclude-tags"></div>
+
 {% endblock %}
 
 {% block bodybottom %}
+{% include 'include/js-scripts.html' %}
 <script type="text/javascript">
-(function ($container) {
-    function add_to_query(url) {
-        return url + (url.indexOf("?") < 0 ? "?" : "&") + "partial=true";
-    }
-    function init_load_handler($elem, direction) {
-        if ($elem.attr('href')) {
-            $elem.removeClass('hidden');
-            $elem.click(function (event) {
-                event.preventDefault();
-                $elem.addClass('hidden');
-                var data_url = add_to_query($elem.attr('href'));
-                $.getJSON(data_url)
-                    .done(function (data) {
-                        if (direction === 'up') {
-                            $container.find('ul').prepend(data.items);
-                            data_url = data.prev_data_url;
-                        } else {
-                            $container.find('ul').append(data.items);
-                            data_url = data.next_data_url;
-                        }
-                        $elem.attr('href', data_url);
-                        if (data_url)
-                            $elem.removeClass('hidden');
-                    });
-            });
-        }
-    }
-
-    $container.find('a.prev-link').each(function () {
-        init_load_handler($(this), 'up');
-    });
-    $container.find('a.next-link').each(function () {
-        init_load_handler($(this), 'down');
-    });
-
-    var last_scroll = 0;
-    $(window).scroll(function () {
-        var scroll_pos = $(window).scrollTop();
-        var window_height = $(window).height();
-        var window_middle = scroll_pos + 0.5 * window_height;
-        if (Math.abs(scroll_pos - last_scroll) > 0.1 * window_height) {
-            last_scroll = scroll_pos;
-            $container.find('.itempage').each(function (index) {
-                var el_top = $(this).offset().top;
-                var el_height = $(this).height();
-                if (window_middle >= el_top && window_middle < el_top + el_height) {
-                    history.replaceState(null, null, $(this).data("url"));
-                    return(false);
-                }
-            });
-        }
-    });
-
-})($('#search-container'));
+teoremer.item_search();
 </script>
 {% endblock %}

@@ -18,6 +18,10 @@
         });
     })();
 
+    function add_to_query(url) {
+        return url + (url.indexOf("?") < 0 ? "?" : "&") + "partial=true";
+    }
+
     // http://www.abeautifulsite.net/blog/2010/01/smoothly-scroll-to-an-element-without-a-jquery-plugin/
     function scrollTo(element) {
         document.documentElement.scrollTop = element.offset().top;
@@ -327,6 +331,57 @@
         return ret;
     }
 
+    function init_scroll_view($container) {
+        function init_load_handler($elem, direction) {
+            if ($elem.attr('href')) {
+                $elem.removeClass('hidden');
+                $elem.click(function (event) {
+                    event.preventDefault();
+                    $elem.addClass('hidden');
+                    var data_url = add_to_query($elem.attr('href'));
+                    $.getJSON(data_url)
+                        .done(function (data) {
+                            if (direction === 'up') {
+                                $container.find('ul').prepend(data.items);
+                                data_url = data.prev_data_url;
+                            } else {
+                                $container.find('ul').append(data.items);
+                                data_url = data.next_data_url;
+                            }
+                            $elem.attr('href', data_url);
+                            if (data_url)
+                                $elem.removeClass('hidden');
+                        });
+                });
+            }
+        }
+    
+        $container.find('a.prev-link').each(function () {
+            init_load_handler($(this), 'up');
+        });
+        $container.find('a.next-link').each(function () {
+            init_load_handler($(this), 'down');
+        });
+    
+        var last_scroll = 0;
+        $(window).scroll(function () {
+            var scroll_pos = $(window).scrollTop();
+            var window_height = $(window).height();
+            var window_middle = scroll_pos + 0.5 * window_height;
+            if (Math.abs(scroll_pos - last_scroll) > 0.1 * window_height) {
+                last_scroll = scroll_pos;
+                $container.find('.itempage').each(function (index) {
+                    var el_top = $(this).offset().top;
+                    var el_height = $(this).height();
+                    if (window_middle >= el_top && window_middle < el_top + el_height) {
+                        history.replaceState(null, null, $(this).data("url"));
+                        return(false);
+                    }
+                });
+            }
+        });            
+    }
+
     /***************************
      * Modal wrapper
      ***************************/
@@ -625,6 +680,9 @@
             this.listenTo(this.collection, 'add', this.addOne);
             this.render();
             this.$('input.tag-input').typeahead({
+                minLength: 1,
+                highlight: true,
+            }, {
                 name: 'tags',
                 prefetch: api_prefix + 'tags/list'
             });
@@ -657,57 +715,6 @@
             return this.collection.map(function (item) {
                 return item.get('name');
             });
-        }
-    });
-
-    var MathItemView = Backbone.View.extend({
-        tagName: 'li',
-        className: 'list-group-item clearfix',
-        initialize: function () {
-            _.bindAll(this, 'render');
-            this.model.bind('change', this.render);
-        },
-        render: function () {
-            var categories = this.model.get('categories');
-            var name = capitalize(type_short_to_long(this.model.get('type')))
-                           + ' ' + this.model.get('id');
-            if (this.model.has('parent')) {
-                var parent = this.model.get('parent');
-                name += ' of ' + capitalize(type_short_to_long(parent.type)) + ' ' + parent.id;
-            }
-            var html = teoremer.templates.search_list_item({
-                id:          this.model.get('id'),
-                item_name:   name,
-                item_link:   this.model.get('item_link'),
-                pritags:     _.map(_.map(categories.primary, _.last), typeset_tag).join(', '),
-                sectags:     _.map(categories.secondary, typeset_tag_list),
-                author_name: this.model.get('author'),
-                author_link: this.model.get('author_link'),
-                timestamp:   this.model.get('timestamp')
-            });
-            this.$el.html(html);
-            return this;
-        }
-    });
-
-    var TopListView = Backbone.View.extend({
-        initialize: function () {
-            _.bindAll(this, 'render', 'addOne');
-            this.listenTo(this.collection, 'reset', this.render);
-            this.listenTo(this.collection, 'add', this.addOne);
-            this.render();
-        },
-        render: function () {
-            var html = teoremer.templates.top_list_container();
-            this.$el.html(html);
-            this.collection.each(this.addOne);
-        },
-        addOne: function (item) {
-            var mathItemView = new MathItemView({
-                model: item
-            });
-            this.$('tbody').append(mathItemView.render().el);
-            MathJax.Hub.Queue(["Typeset", MathJax.Hub, mathItemView.$el.get()]);
         }
     });
 
@@ -1805,6 +1812,8 @@
         },
 
         item_search: function () {
+            init_scroll_view($('#search-container'));
+
             var includeView = new TagListView({
                 el: $('#include-tags')
             });
