@@ -299,7 +299,7 @@ def render_search(request, search_data):
                 'R': change_search_url(search_data, status='R'),
             }
         }
-        if not search_data['pricat']:
+        if not search_data.get('pricat'):
             links['type'].update({
                 'all': change_search_url(search_data, type=None),
                 'P': change_search_url(search_data, type='P'),
@@ -313,5 +313,11 @@ def render_search(request, search_data):
             try:
                 c.update(parent=FinalItem.objects.get(final_id=search_data['parent']))
             except FinalItem.DoesNotExist:
+                raise BadRequest
+        if search_data.get('pricat'):
+            c['pricat_text'] = {'D': "Definitions in", 'T': "Theorems for"}[search_data['type']]
+            try:
+                c['category'] = Category.objects.get(pk=search_data['pricat'])
+            except Category.DoesNotExist:
                 raise BadRequest
         return render(request, 'items/search.html', c)

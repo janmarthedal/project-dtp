@@ -9,6 +9,14 @@
 
 {% block mainbar %}
 
+{% if pricat_text %}
+<h4>{{ pricat_text }} <span class="category">
+  {% for tag in category.get_tag_list %}
+    <span class="tag">{{ tag|typeset_tag }}</span>
+  {% endfor %}
+</span></h4>
+{% endif %}
+
 {% if search_user %}
 <h4>Items for user {{search_user.get_full_name}}</h4>
 {% endif %}
