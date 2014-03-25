@@ -1,6 +1,11 @@
 {% extends "base.html" %}
+{% load item_tags %}
 
 {% block title %}teoremer.com | search{% endblock %}
+
+{% block headblock %}
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.8.5/css/selectize.bootstrap3.css">
+{% endblock %}
 
 {% block mainbar %}
 
@@ -57,21 +62,32 @@
     <li><span class="glyphicon glyphicon-ok"></span> Date</li>
     <li><span class="glyphicon glyphicon-ok transparent"></span> <a href="">Points</a></li>
 </ul>
-{% endcomment %}
 
 <h4>Include tags</h4>
 
-<div id="include-tags"></div>
+<div class="input-group">
+    <select id="include-tags" class="form-control" placeholder="Tag to include...">
+        <option value="">Tag to include...</option>
+    {% for tag in tag_list %}
+        <option value="{{tag.id}}">{{tag.name}}</option>{% endfor %}
+    </select>
+    <span class="input-group-btn">
+        <button class="btn btn-default" type="button">Add</button>
+    </span>
+</div>
 
 <h4>Exclude tags</h4>
 
 <div id="exclude-tags"></div>
+{% endcomment %}
 
 {% endblock %}
 
 {% block bodybottom %}
 {% include 'include/js-scripts.html' %}
+{# <script src="//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.8.5/js/standalone/selectize.min.js"></script> #}
 <script type="text/javascript">
 teoremer.item_search();
+{# $('#include-tags').selectize(); #}
 </script>
 {% endblock %}

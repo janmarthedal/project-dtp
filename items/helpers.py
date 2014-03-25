@@ -308,6 +308,7 @@ def render_search(request, search_data):
         if search_user == request.user:
             links['status']['D'] = change_search_url(search_data, status='D')
         c = init_context('search', itempage=itempage, links=links, search_user=search_user)
+        #tag_list=Tag.objects.order_by('name'))
         if search_data.get('parent'):
             try:
                 c.update(parent=FinalItem.objects.get(final_id=search_data['parent']))

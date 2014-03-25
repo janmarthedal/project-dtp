@@ -1814,13 +1814,13 @@
         item_search: function () {
             init_scroll_view($('#search-container'));
 
-            var includeView = new TagListView({
+            /*var includeView = new TagListView({
                 el: $('#include-tags')
             });
             var excludeView = new TagListView({
                 el: $('#exclude-tags')
             });
-            /*includeView.collection.on('add remove', function () {
+            includeView.collection.on('add remove', function () {
                 searchTerms.set('includeTags', includeView.getTagList());
             });
             excludeView.collection.on('add remove', function () {
