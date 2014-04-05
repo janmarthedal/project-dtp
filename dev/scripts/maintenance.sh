@@ -1,10 +1,10 @@
 #!/bin/bash
 
-PYTHON=/usr/local/bin/python2.7
-export PYTHONPATH=/home/jmr/webapps/thrms_django/teoremer:/home/jmr/lib/python2.7
-LOG=/home/jmr/webapps/thrms_django/log/cron.log
+PYTHON=/usr/local/bin/python3.3
+export PYTHONPATH=/home/jmr/webapps/teoremer_django/teoremer:/home/jmr/lib/python3.3
+LOG=/home/jmr/webapps/teoremer_django/logs/cron.log
 
-cd /home/jmr/webapps/thrms_django/teoremer
+cd /home/jmr/webapps/teoremer_django/teoremer
 echo >> $LOG
 echo "Maintenance `date`" >> $LOG
 echo "* clearsessions" >> $LOG
