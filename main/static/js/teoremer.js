@@ -90,10 +90,6 @@
         return $.trim(st);
     }
 
-    function capitalize(st) {
-        return st.charAt(0).toUpperCase() + st.slice(1);
-    }
-
     function pluralize(base, count) {
         return count === 1 ? base : base + 's';
     }
@@ -191,17 +187,6 @@
                 context.info = 'Fetching image...';
             return teoremer.templates.item_image(context);
         };
-    }
-
-    function type_short_to_long(st) {
-        switch (st.toUpperCase()) {
-            case 'D':
-                return 'definition';
-            case 'T':
-                return 'theorem';
-            case 'P':
-                return 'proof';
-        }
     }
 
     var to_url = {
@@ -539,15 +524,6 @@
         }
     });
 
-    var MathItem = Backbone.Model;
-
-    var TopList = Backbone.Collection.extend({
-        model: MathItem,
-        parse: function (response) {
-            return response.items;
-        }
-    });
-
     var DraftItem = Backbone.Model.extend({
         defaults: {
           body: '',
@@ -643,7 +619,7 @@
      * Views
      ***************************/
 
-    var RemovableTagView = Backbone.View.extend({
+    /*var RemovableTagView = Backbone.View.extend({
         tagName: 'span',
         className: 'removable',
         events: {
@@ -716,7 +692,7 @@
                 return item.get('name');
             });
         }
-    });
+    });*/
 
     var BodyEditView = Backbone.View.extend({
         events: {
