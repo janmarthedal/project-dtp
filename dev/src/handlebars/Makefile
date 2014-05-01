@@ -3,7 +3,7 @@ templates := $(patsubst %.handlebars,../../../static/js/%.js,$(wildcard *.handle
 all: $(templates)
 
 ../../../static/js/%.js: %.handlebars
-	handlebars $< -k each -k if -k foreach -n "teoremer.templates" -f $@
+	handlebars $< -k each -k if -k foreach -f $@
 
 clean:
 	rm -f $(templates)

@@ -119,6 +119,7 @@ PIPELINE_JS = {
         'output_filename': 'teoremer.js',
     },
 }
+PIPELINE_DISABLE_WRAPPER = True
 #PIPELINE_ENABLED = True
 
 # Make this unique, and don't share it with anybody.

@@ -6,25 +6,25 @@
 
 {% block mainbar %}
 
-<h1>Welcome</h1>
+<h3>Welcome</h3>
 
-<p class="lead">teoremer.com is collection of mathematical definitions, theorems, proofs
+<p>teoremer.com is collection of mathematical definitions, theorems, proofs
   and illustrations. All content is contributed by users.
   <a href="http://blog.teoremer.com/2013/11/03/introducing-teoremer.html">Read more.</a></p>
 
-<h1>Where to go from here?</h1>
+<h3>Where to go from here?</h3>
 
-<p class="lead">Look around and browse and search for the
+<p>Look around and browse and search for the
   <a href="{% url 'items.definitions.views.index' %}">definitions</a>,
   <a href="{% url 'items.theorems.views.index' %}">theorems</a>,
   <a href="{% url 'items.proofs.views.index' %}">proofs</a> and
   <a href="{% url 'media.views.index' %}">illustrations</a> that are on this site.</p>
 
-<p class="lead">We very much encourage users to create new content: definitions, theorems, proofs
+<p>We very much encourage users to create new content: definitions, theorems, proofs
     and illustrations, to add validations and to vote on other user's contributions. The joint
     effort of many users is what makes this site useful.</p>
 
-{% if not user.is_authenticated %}<p class="lead">For this you need an account, though. The site is currently in
+{% if not user.is_authenticated %}<p>For this you need an account, though. The site is currently in
     a closed beta state, meaning that new accounts are created by invitation only. Read more
     <a href="http://blog.teoremer.com/2014/02/05/beta-now-live.html">on the blog</a>.</p>{% endif %}
 
