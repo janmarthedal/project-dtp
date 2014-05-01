@@ -14,7 +14,8 @@ cp -r ../tags .
 cp -r ../templates .
 cp -r ../thrms .
 cp -r ../users .
-cp -r ../static .
+mkdir static
+cp -r ~/www/static/* static/
 cp ../manage.py .
 cp ../dev/scripts/maintenance.sh .
 find . -name '*.pyc' -exec rm {} \;
