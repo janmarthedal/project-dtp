@@ -35,8 +35,8 @@
 
 <p>
   Created by <a href="{% url 'users.views.profile' item.created_by.get_username %}">{{ item.created_by.get_full_name }}</a>,
-  published at {{ item.created_at|datetime_user:user }}
-  {% if item.created_at == item.modified_at %} (unmodified){% else %}, modified at {{ item.modified_at|datetime_user:user }}{% endif %}
+  published at {{ item.created_at|datetime_user:user }}{% if item.created_at == item.modified_at %} (unmodified){% else %},
+  modified at {{ item.modified_at|datetime_user:user }}{% endif %}
 </p>
 
 <h4>Actions</h4>

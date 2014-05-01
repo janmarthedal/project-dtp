@@ -782,11 +782,24 @@
                 return model.get('name');
             });
             var path = _.map(tag_list, encodeURIComponent).join('/');
-            this.input_element.typeahead({
-                name: 'category-' + tag_list_to_id(tag_list),
-                prefetch: api_prefix + 'category/list/' + path
+            console.log(api_prefix + 'category/list/' + path);
+            var tags = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                prefetch: {
+                    url: api_prefix + 'category/list/' + path,
+                    filter: function (list) {
+                        return $.map(list, function (tag) { console.log(tag); return { name: tag }; });
+                    }
+                }
             });
-            this.input_element.typeahead('setQuery', '');
+            tags.initialize();
+            this.input_element.typeahead(null, {
+                name: 'category-' + tag_list_to_id(tag_list),
+                displayKey: 'name',
+                source: tags.ttAdapter()
+            });
+            this.input_element.typeahead('val', '');
             this.input_element.focus();
         },
         modalReady: function (dispatcher) {

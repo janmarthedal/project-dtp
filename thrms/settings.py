@@ -106,7 +106,7 @@ PIPELINE_CSS = {
     'maincss': {
         'source_filenames': (
             'css/teoremer.css',
-            'css/typeahead.js-bootstrap.css',
+            'css/typeahead.js-bootstrap3.css',
         ),
         'output_filename': 'teoremer.css',
     },
