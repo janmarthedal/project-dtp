@@ -11,7 +11,8 @@ if os.uname()[1].endswith('webfaction.com'):
     DEBUG = False
 
     LOG_FILE = os.path.join(BASE_DIR, '..', 'logs', 'info.log')
-    STATIC_ROOT = '/home/jmr/webapps/thrms_static/'  # used by collectstatic
+    STATIC_ROOT = '/home/jmr/webapps/thrms_static/'
+    STATIC_URL = '/static/'
     MEDIA_ROOT = '/home/jmr/webapps/thrms_media/'
     MEDIA_URL = '/media/files/'
 
@@ -27,9 +28,10 @@ else:
     INTERNAL_IPS = ('127.0.0.1', )  # to enable the debug variable in templates
 
     LOG_FILE = os.path.join(BASE_DIR, 'log', 'debug.log')
-    #STATIC_ROOT = '/home/jmr/www/static/'  # not relevant - only used by collectstatic
+    STATIC_ROOT = '/home/jmr/www/static/'
+    STATIC_URL = 'http://localhost/jmr/static/'
     MEDIA_ROOT = '/home/jmr/www/media/'
-    MEDIA_URL = 'http://localhost/media/files/'
+    MEDIA_URL = 'http://localhost/jmr/media/'
 
     MESSAGE_LEVEL = message_constants.DEBUG
 
@@ -61,8 +63,6 @@ TEMPLATE_DEBUG = DEBUG
 
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'), )
 
-STATIC_URL = '/static/'
-
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -91,16 +91,35 @@ USE_TZ = True
 # Additional locations of static files
 # requires django.contrib.staticfiles.finders.FileSystemFinder in STATICFILES_FINDERS
 STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
+    os.path.join(BASE_DIR, 'static'),
 )
 
 # List of finder classes that know how to find static files in
 # various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
+#STATICFILES_FINDERS = (
+#    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#)
+
+# pipeline
+STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
+PIPELINE_CSS = {
+    'maincss': {
+        'source_filenames': (
+            'css/teoremer.css',
+            'css/typeahead.js-bootstrap.css',
+        ),
+        'output_filename': 'teoremer.css',
+    },
+}
+PIPELINE_JS = {
+    'mainjs': {
+        'source_filenames': (
+            'js/*.js',
+        ),
+        'output_filename': 'teoremer.js',
+    },
+}
+#PIPELINE_ENABLED = True
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'iw55d!*)!nw06xb1f-u@0c-nqga$6q1wm27_k^zo*a5^klyrq@'
@@ -198,6 +217,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'pipeline',
     'main',
     'drafts',
     'items',

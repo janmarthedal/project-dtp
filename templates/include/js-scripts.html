@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load compressed %}
 <script src="//cdnjs.cloudflare.com/ajax/libs/json2/20121008/json2.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.0/backbone-min.js"></script>
@@ -7,9 +8,4 @@
 {% if showdown %}
 <script src="//cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
 {% endif %}
-{% if debug %}
-<script src="{% static 'js/teoremer.js' %}"></script>
-<script src="{% static 'js/templates.js' %}"></script>
-{% else %}
-<script src="{% static 'teoremer.js' %}"></script>
-{% endif %}
+{% compressed_js 'mainjs' %}

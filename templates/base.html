@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load i18n %}
+{% load compressed %}
 
 <!DOCTYPE html>
 <html>
@@ -9,12 +10,7 @@
     <title>{% block title %}teoremer{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
-{% if debug %}
-    <link href="{% static 'css/teoremer.css' %}" rel="stylesheet" type="text/css">
-    <link href="{% static 'css/typeahead.js-bootstrap.css' %}" rel="stylesheet" type="text/css">
-{% else %}
-    <link href="{% static 'teoremer.css' %}" rel="stylesheet" type="text/css">
-{% endif %}
+    {% compressed_css 'maincss' %}
     <script type="text/x-mathjax-config">
       MathJax.Hub.Config({
         tex2jax: {

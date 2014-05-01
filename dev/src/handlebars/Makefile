@@ -1,8 +1,11 @@
-all: teoremer_templates.js
+templates := $(patsubst %.handlebars,../../../static/js/%.js,$(wildcard *.handlebars))
 
-teoremer_templates.js: *.handlebars helpers.js
-	handlebars *.handlebars -k each -k if -k foreach -n "teoremer.templates" > $@
-	cat helpers.js >> $@
+all: $(templates)
+
+../../../static/js/%.js: %.handlebars
+	handlebars $< -k each -k if -k foreach -n "teoremer.templates" -f $@
 
 clean:
-	rm -f teoremer_templates.js
+	rm -f $(templates)
+
+.PHONY: all clean
