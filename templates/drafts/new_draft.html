@@ -8,7 +8,7 @@ New {{ kind }}
 
 <div class="panel panel-default draft-edit">
   <div class="panel-heading">
-    <h4 class="panel-title">New {{ kind }}{% if parent %} of {{ parent }}{% endif %}</h4>
+    <h4 class="panel-title">New {{kind}}{% if parent %} of {{parent}}{% endif %}</h4>
   </div>
   <div class="panel-body">
     <textarea id="body-input" class="form-control">
@@ -26,7 +26,8 @@ New {{ kind }}
 <h4>Categories</h4>
 <div id="secondary-categories"></div>
 
-<p><button id="save-draft" type="button" class="btn btn-primary">Save draft</button></p>
+<p><button id="save-draft" type="button" class="btn btn-primary">Save draft</button>
+   <a class="btn btn-warning" href="{{cancel_link}}">Cancel</a></p>
 
 {% endblock mainbar %}
 

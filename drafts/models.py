@@ -20,6 +20,10 @@ class BaseItem(models.Model):
         ('I', 'info')
     )
 
+    @staticmethod
+    def type_name_to_type_key(type_name):
+        return [kc[0] for kc in BaseItem.TYPE_CHOICES if kc[1] == type_name][0]
+
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)
     itemtype = models.CharField(max_length=1, choices=TYPE_CHOICES)
@@ -54,12 +58,8 @@ class BaseItem(models.Model):
 
 class DraftItemManager(models.Manager):
     def add_item(self, user, itemtype, body, primary_categories, secondary_categories, parent):
-        type_key = [kc[0] for kc in DraftItem.TYPE_CHOICES if kc[1] == itemtype][0]
-        item = DraftItem.objects.create(itemtype   = type_key,
-                                        status     = 'D',
-                                        created_by = user,
-                                        body       = body,
-                                        parent     = parent)
+        type_key = BaseItem.type_name_to_type_key(itemtype)
+        item = self.create(itemtype=type_key, status='D', created_by=user, body=body, parent=parent)
         item._add_category_lists(primary_categories, secondary_categories)
         return item
 

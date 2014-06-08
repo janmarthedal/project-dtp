@@ -321,3 +321,7 @@ def render_search(request, search_data):
             except Category.DoesNotExist:
                 raise BadRequest
         return render(request, 'items/search.html', c)
+
+def get_primary_text(type_key):
+    vals = {'D': 'Terms defined', 'T': 'Name(s) for theorem'}
+    return vals.get(type_key)
