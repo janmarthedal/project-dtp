@@ -97,4 +97,4 @@ def to_final(request, item_id):
         check_final_item_tag_categories(fitem)
         item.delete()
         messages.success(request, '%s successfully published' % fitem)
-        return HttpResponseRedirect(reverse('items.views.show_final', args=[fitem.final_id]))
+        return HttpResponseRedirect(reverse('items.views.edit_final', args=[fitem.final_id]))
