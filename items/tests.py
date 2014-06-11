@@ -1,7 +1,7 @@
-from django.utils import unittest
+from django.utils.unittest import TestCase
 from items.helpers import BodyScanner
 
-class BodyScannerTestCase(unittest.TestCase):
+class BodyScannerTestCase(TestCase):
 
     def setUp(self):
         self.bs = BodyScanner("""
