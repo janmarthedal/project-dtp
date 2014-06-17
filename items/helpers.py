@@ -249,8 +249,9 @@ def search_items(page_size, search_data):
     items, more = prepare_list_items(queryset, page_size, page)
 
     return {
-        'items': items,
-        'current_url': current_url,
+        'rendered': render_to_string('include/item_list_items.html',
+                                     {'items': items, 'current_url': current_url}),
+        #'current_url': current_url,
         'prev_data_url': change_search_url(search_data, page=page-1)['link'] if page > 1 else '',
         'next_data_url': change_search_url(search_data, page=page+1)['link'] if more else ''
     }
@@ -283,9 +284,6 @@ def render_search(request, search_data):
     itempage = search_items(20, search_data)
 
     if request.GET.get('partial') is not None:
-        itempage['items'] = render_to_string('include/item_list_items.html',
-                                             {'items': itempage['items'],
-                                              'current_url': itempage['current_url']})
         return HttpResponse(json.dumps(itempage), content_type="application/json")
     else:
         search_data['page'] = None
@@ -315,7 +313,7 @@ def render_search(request, search_data):
             except FinalItem.DoesNotExist:
                 raise BadRequest
         if search_data.get('pricat'):
-            c['pricat_text'] = {'D': "Definitions in", 'T': "Theorems for"}[search_data['type']]
+            c['pricat_text'] = {'D': 'Definitions in', 'T': 'Theorems for'}[search_data['type']]
             try:
                 c['category'] = Category.objects.get(pk=search_data['pricat'])
             except Category.DoesNotExist:

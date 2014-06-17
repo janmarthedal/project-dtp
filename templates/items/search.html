@@ -3,16 +3,12 @@
 
 {% block title %}teoremer.com | search{% endblock %}
 
-{% block headblock %}
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.8.5/css/selectize.bootstrap3.css">
-{% endblock %}
-
 {% block mainbar %}
 
 {% if pricat_text %}
 <h4>{{ pricat_text }} <span class="category">
   {% for tag in category.get_tag_list %}
-    <span class="tag">{{ tag|typeset_tag }}</span>
+    <span class="tag">{{tag|typeset_tag}}</span>
   {% endfor %}
 </span></h4>
 {% endif %}
@@ -26,7 +22,7 @@
 {% endif %}
 
 <div id="search-container">
-{% include 'include/item_list.html' with itempage=itempage only %}
+{% include 'include/search_results.html' with itempage=itempage only %}
 </div>
 
 {% endblock %}
@@ -93,9 +89,7 @@
 
 {% block bodybottom %}
 {% include 'include/js-scripts.html' %}
-{# <script src="//cdnjs.cloudflare.com/ajax/libs/selectize.js/0.8.5/js/standalone/selectize.min.js"></script> #}
 <script type="text/javascript">
 teoremer.item_search();
-{# $('#include-tags').selectize(); #}
 </script>
 {% endblock %}

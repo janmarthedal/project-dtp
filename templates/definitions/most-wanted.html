@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}teoremer.com | search{% endblock %}
+
+{% block mainbar %}
+
+<div id="search-container">
+{% include 'include/search_results.html' with itempage=itempage renderedpage=renderedpage only %}
+</div>
+
+{% endblock %}
+
+{% block sidebar %}
+{% endblock %}
+
+{% block bodybottom %}
+{% include 'include/js-scripts.html' %}
+<script type="text/javascript">
+teoremer.most_wanted();
+</script>
+{% endblock %}

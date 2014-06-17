@@ -1,0 +1,13 @@
+{% if itempage.items %}
+<div class="clearfix">
+  <a class="btn btn-link pull-right prev-link{% if not itempage.prev_data_url %} hidden{% endif %}" href="{{itempage.prev_data_url|default:''}}">Load previous</a>
+</div>
+<ul class="list-group">
+{{itempage.rendered}}
+</ul>
+<div class="clearfix">
+  <a class="btn btn-link pull-right next-link{% if not itempage.next_data_url %} hidden{% endif %}" href="{{itempage.next_data_url|default:''}}">Load more</a>
+</div>
+{% else %}
+<em>No results found</em>
+{% endif %}

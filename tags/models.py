@@ -54,9 +54,12 @@ class Category(models.Model):
         if self.parent:
             return self.parent.get_tag_list() + [self.tag]
         return [self.tag]
+    
+    def get_tag_str_list(self):
+        return map(str, self.get_tag_list())
 
     def __str__(self):
-        return '{}:[{}]'.format(self.pk, ','.join(map(str, self.get_tag_list())))
+        return '{}:[{}]'.format(self.pk, ','.join(self.get_tag_str_list()))
 
     def json_data(self):
         return [t.json_data() for t in self.get_tag_list()]

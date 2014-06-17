@@ -33,7 +33,7 @@
 <h3>Latest items</h3>
 
 <ul class="list-group">
-{% include 'include/item_list_items.html' with items=itempage.items only %}
+{{itempage.rendered}}
 </ul>
 <div class="clearfix">
     <a class="pull-right" href="{{see_all_link}}">See all</a>

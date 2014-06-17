@@ -1,7 +1,11 @@
 from math import expm1, atan, pi
+from django.core.urlresolvers import reverse
 from django.db import models
 from tags.models import Tag, Category
 from items.models import FinalItem
+
+import logging
+logger = logging.getLogger(__name__)
 
 class ItemDependency(models.Model):
     class Meta:
@@ -31,6 +35,10 @@ class CategoryDefinitionUsage(models.Model):
         self.score = compute_score(self.refer_count, self.max_points)
         super(CategoryDefinitionUsage, self).save(*args, **kwargs)
     
+    def link_to_definitions_for(self):
+        path = '/'.join(self.category.get_tag_str_list())
+        return reverse('tags.views.definitions_in_category', args=[path])
+
     category = models.OneToOneField(Category)
     refer_count = models.IntegerField(null=False)
     max_points = models.FloatField(null=True)

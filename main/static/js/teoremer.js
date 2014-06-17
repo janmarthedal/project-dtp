@@ -321,16 +321,17 @@
             if ($elem.attr('href')) {
                 $elem.removeClass('hidden');
                 $elem.click(function (event) {
+                    console.log('clicked!');
                     event.preventDefault();
                     $elem.addClass('hidden');
                     var data_url = add_to_query($elem.attr('href'));
                     $.getJSON(data_url)
                         .done(function (data) {
                             if (direction === 'up') {
-                                $container.find('ul').prepend(data.items);
+                                $container.find('ul').prepend(data.rendered);
                                 data_url = data.prev_data_url;
                             } else {
-                                $container.find('ul').append(data.items);
+                                $container.find('ul').append(data.rendered);
                                 data_url = data.next_data_url;
                             }
                             $elem.attr('href', data_url);
@@ -1815,6 +1816,10 @@
             excludeView.collection.on('add remove', function () {
                 searchTerms.set('excludeTags', excludeView.getTagList());
             });*/
+        },
+
+        most_wanted: function () {
+            init_scroll_view($('#search-container'));
         },
 
         show_final: function (validations, item_data, user_id) {

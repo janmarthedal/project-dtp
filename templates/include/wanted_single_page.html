@@ -1,0 +1,17 @@
+{% load item_tags %}
+{% load utils_tags %}
+<div class="itempage" data-url="{{current_url}}">
+{% for cdu in items %}
+<li class="list-group-item clearfix">
+  <span class="category">
+  {% for tag in cdu.category.get_tag_list %}
+    <span class="tag">{{tag|typeset_tag}}</span>
+  {% endfor %}
+  </span>
+  <div class="pull-right">
+      <button title="Items linking to this category" class="btn btn-default"><span class="glyphicon glyphicon-link"></span> {{cdu.refer_count}}</button>
+      <a title="Best definition available" class="btn btn-default" href="{{cdu.link_to_definitions_for}}"><span class="glyphicon glyphicon-ok"></span> {{cdu.max_points|default_if_none:"-"}}</a>
+  </div>
+</li>
+{% endfor %}
+</div>
