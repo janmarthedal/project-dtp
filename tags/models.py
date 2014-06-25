@@ -23,8 +23,19 @@ class Tag(models.Model):
         return self.name
 
 class CategoryManager(models.Manager):
+
+    def __init__(self):
+        super().__init__()
+        self._root = None
+
+    @property
+    def root(self):
+        if self._root is None:
+            self._root = self.get(tag__name='')
+        return self._root
+
     def from_tag_list(self, tag_list):
-        category = None
+        category = self.root
         for tag in tag_list:
             if not isinstance(tag, Tag):
                 tag = Tag.objects.fetch(tag)
@@ -32,7 +43,7 @@ class CategoryManager(models.Manager):
         return category
 
     def from_tag_names_or_404(self, tags):
-        category = None
+        category = self.root
         for tag_name in tags:
             tag = get_object_or_404(Tag, name=tag_name)
             category = get_object_or_404(Category, tag=tag, parent=category)
@@ -53,8 +64,8 @@ class Category(models.Model):
     def get_tag_list(self):
         if self.parent:
             return self.parent.get_tag_list() + [self.tag]
-        return [self.tag]
-    
+        return []
+
     def get_tag_str_list(self):
         return map(str, self.get_tag_list())
 

@@ -23,15 +23,11 @@ def browse(request, path):
     category = Category.objects.from_tag_names_or_404(tags)
     listing = Category.objects.filter(parent=category).order_by('tag__name').values_list('tag__name', flat=True)
     result_list = [{'name': name, 'link': category_link_from_tags(tags + [name])} for name in listing]
-    category_pk = category.pk if category else -1
-    logging.debug('1')
-    def_search = ItemPagedSearch(status='F', type='D', pricat=category_pk)
-    thm_search = ItemPagedSearch(status='F', type='T', pricat=category_pk)
-    logging.debug('2')
+    def_search = ItemPagedSearch(status='F', type='D', pricat=category.pk)
+    thm_search = ItemPagedSearch(status='F', type='T', pricat=category.pk)
     c = init_context('categories', category_items=category_items, result_list=result_list, path=path,
                      def_count=def_search.get_count(), def_link=def_search.get_url(),
                      thm_count=thm_search.get_count(), thm_link=thm_search.get_url())
-    logging.debug('3')
     return render(request, 'tags/browse.html', c)
 
 def _finals_in_category(request, path, itemtype):

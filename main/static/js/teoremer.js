@@ -341,14 +341,14 @@
                 });
             }
         }
-    
+
         $container.find('a.prev-link').each(function () {
             init_load_handler($(this), 'up');
         });
         $container.find('a.next-link').each(function () {
             init_load_handler($(this), 'down');
         });
-    
+
         var last_scroll = 0;
         $(window).scroll(function () {
             var scroll_pos = $(window).scrollTop();
@@ -365,7 +365,7 @@
                     }
                 });
             }
-        });            
+        });
     }
 
     /***************************
@@ -794,7 +794,7 @@
                     }
                 }
             });
-            tags.initialize();
+            tags.initialize(true);
             this.input_element.typeahead(null, {
                 name: 'category-' + tag_list_to_id(tag_list),
                 displayKey: 'name',

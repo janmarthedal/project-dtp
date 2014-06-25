@@ -108,8 +108,8 @@ class FinalItem(BaseItem):
 
     def get_name(self):
         items = [self.get_itemtype_display().capitalize(), ' ', self.final_id]
-        #if self.parent:
-        #    items.extend(' of ', self.parent.get_name())
+        if self.parent:
+            items.extend([' of ', self.parent.get_name()])
         return ''.join(items)
 
     def get_link(self):
