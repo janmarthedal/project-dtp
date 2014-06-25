@@ -2,9 +2,7 @@ from urllib.parse import unquote
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, Http404
 from django.views.decorators.http import require_safe
-from items.helpers import request_to_search_data
-from items.models import FinalItem
-from items.views import render_search
+from items.helpers import ItemPagedSearch
 from main.helpers import init_context
 from tags.models import Category
 
@@ -25,12 +23,15 @@ def browse(request, path):
     category = Category.objects.from_tag_names_or_404(tags)
     listing = Category.objects.filter(parent=category).order_by('tag__name').values_list('tag__name', flat=True)
     result_list = [{'name': name, 'link': category_link_from_tags(tags + [name])} for name in listing]
-    definition_count = FinalItem.objects.filter(status='F', itemtype='D', finalitemcategory__primary=True,
-                                                finalitemcategory__category=category).count()
-    theorem_count = FinalItem.objects.filter(status='F', itemtype='T', finalitemcategory__primary=True,
-                                                finalitemcategory__category=category).count()
-    c = init_context('categories', category_items=category_items, result_list=result_list,
-                     path=path, def_count=definition_count, thm_count=theorem_count)
+    category_pk = category.pk if category else -1
+    logging.debug('1')
+    def_search = ItemPagedSearch(status='F', type='D', pricat=category_pk)
+    thm_search = ItemPagedSearch(status='F', type='T', pricat=category_pk)
+    logging.debug('2')
+    c = init_context('categories', category_items=category_items, result_list=result_list, path=path,
+                     def_count=def_search.get_count(), def_link=def_search.get_url(),
+                     thm_count=thm_search.get_count(), thm_link=thm_search.get_url())
+    logging.debug('3')
     return render(request, 'tags/browse.html', c)
 
 def _finals_in_category(request, path, itemtype):
@@ -38,10 +39,8 @@ def _finals_in_category(request, path, itemtype):
         raise Http404
     tags = map(unquote, path.split('/'))
     category = Category.objects.from_tag_names_or_404(tags)
-    search_data = request_to_search_data(request)
-    search_data['type'] = itemtype
-    search_data['pricat'] = category.pk
-    return render_search(request, search_data)
+    search = ItemPagedSearch(request=request, type=itemtype, pricat=category.pk)
+    return search.render(request)
 
 @require_safe
 def definitions_in_category(request, path):

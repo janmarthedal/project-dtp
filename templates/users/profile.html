@@ -28,9 +28,9 @@
 
 <h3>Published items</h3>
 
-{% if finalpage.items %}
+{% if finalpage.rendered %}
 <ul class="list-group">
-{% include 'include/item_list_items.html' with items=finalpage.items only %}
+{{finalpage.rendered}}
 </ul>
 <div class="clearfix">
   <a class="pull-right" href="{{see_all_final}}">See all</a>
@@ -41,9 +41,9 @@
 
 <h3>Items submitted for review</h3>
 
-{% if reviewpage.items %}
+{% if reviewpage.rendered %}
 <ul class="list-group">
-{% include 'include/item_list_items.html' with items=reviewpage.items only %}
+{{reviewpage.rendered}}
 </ul>
 <div class="clearfix">
   <a class="pull-right" href="{{see_all_review}}">See all</a>
@@ -55,9 +55,9 @@
 {% if own_profile %}
 <h3>Items drafts</h3>
 
-{% if draftpage.items %}
+{% if draftpage.rendered %}
 <ul class="list-group">
-{% include 'include/item_list_items.html' with items=draftpage.items only %}
+{{draftpage.rendered}}
 </ul>
 <div class="clearfix">
   <a class="pull-right" href="{{see_all_draft}}">See all</a>

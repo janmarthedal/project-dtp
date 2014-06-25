@@ -3,8 +3,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from document.models import Document
-from items.helpers import (request_to_search_data, render_search, search_items, make_search_url,
-                           get_primary_text)
+from items.helpers import get_primary_text, ItemPagedSearch
 from items.models import FinalItem
 from main.helpers import init_context, logged_in_or_404
 
@@ -20,10 +19,10 @@ def show_final(request, final_id):
                      validations=[v.json_data(request.user) for v in item.itemvalidation_set.all()],
                      documents=Document.objects.filter(created_by=request.user.id).exclude(documentitementry__item=item).all())
     if item.itemtype == 'T':
-        search_args = {'type': 'P', 'status': 'F', 'parent': item.final_id}
+        search = ItemPagedSearch(type='P', status='F', parent=item.final_id)
         c.update(proof_count=item.finalitem_set.filter(itemtype='P', status='F').count(),
-                 proofpage=search_items(5, search_args),
-                 see_all_proofs=make_search_url(search_args))
+                 proofpage=search.make_search(5),
+                 see_all_proofs=search.get_url())
     if request.user.is_authenticated():
         c.update(user_id=request.user.id)
     return render(request, 'items/show_final.html', c)
@@ -48,5 +47,5 @@ def delete_final(request, item_id):
 
 @require_GET
 def search(request):
-    search_data = request_to_search_data(request)
-    return render_search(request, search_data)
+    search = ItemPagedSearch(request=request)
+    return search.render(request)

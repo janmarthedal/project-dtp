@@ -1,4 +1,4 @@
-{% if itempage.items %}
+{% if itempage.rendered %}
 <div class="clearfix">
   <a class="btn btn-link pull-right prev-link{% if not itempage.prev_data_url %} hidden{% endif %}" href="{{itempage.prev_data_url|default:''}}">Load previous</a>
 </div>

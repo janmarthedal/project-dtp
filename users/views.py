@@ -11,8 +11,7 @@ from django.utils.encoding import force_text
 from django.utils.html import escape, format_html_join
 from django.views.decorators.http import require_safe, require_http_methods
 from document.models import Document
-from items.helpers import search_items, make_search_url, request_to_search_data
-from items.views import render_search
+from items.helpers import ItemPagedSearch
 from main.badrequest import BadRequest
 from main.helpers import init_context, logged_in_or_404
 from users.models import Invitations
@@ -52,28 +51,27 @@ def profile(request, user_id):
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
     own_profile = request.user == pageuser
     description = '<br/>\n'.join(map(escape, (pageuser.description or '').split('\n')))
-    final_search = {'user': pageuser, 'status': 'F'}
-    review_search = {'user': pageuser, 'status': 'R'}
-    draft_search = {'user': pageuser, 'status': 'D'}
+    final_search = ItemPagedSearch(user=pageuser, status='F')
+    review_search = ItemPagedSearch(user=pageuser, status='R')
+    draft_search = ItemPagedSearch(user=pageuser, status='D')
     c = init_context('users', pageuser=pageuser, description=description,
                      user_id=pageuser.id, own_profile=own_profile,
                      documents=Document.objects.filter(created_by=pageuser).all(),
-                     finalpage=search_items(5, final_search),
-                     see_all_final=make_search_url(final_search),
-                     reviewpage=search_items(5, review_search),
-                     see_all_review=make_search_url(review_search),
-                     draftpage=search_items(5, draft_search),
-                     see_all_draft=make_search_url(draft_search))
+                     finalpage=final_search.make_search(5),
+                     see_all_final=final_search.get_url(),
+                     reviewpage=review_search.make_search(5),
+                     see_all_review=review_search.get_url(),
+                     draftpage=draft_search.make_search(5),
+                     see_all_draft=draft_search.get_url())
     return render(request, 'users/profile.html', c)
 
 @require_safe
 def items(request, user_id):
     pageuser = get_object_or_404(get_user_model(), pk=user_id)
-    search_data = request_to_search_data(request)
-    if search_data.get('status') == 'D' and request.user != pageuser:
+    search = ItemPagedSearch(request=request, user=pageuser)
+    if search.search_data.get('status') == 'D' and request.user != pageuser:
         raise BadRequest
-    search_data.update(user=pageuser)
-    return render_search(request, search_data)
+    return search.render(request)
 
 class CustomErrorList(ErrorList):
     def __str__(self):
