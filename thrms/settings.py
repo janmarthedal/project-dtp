@@ -50,7 +50,7 @@ DATABASES = {
 
 EMAIL_HOST = 'smtp.webfaction.com'
 EMAIL_HOST_USER = 'jmr'
-EMAIL_HOST_PASSWORD = 'Knuth316'
+EMAIL_HOST_PASSWORD = 'vXArlNjctC3P'
 DEFAULT_FROM_EMAIL = 'admin@teoremer.com'
 SERVER_EMAIL = 'admin@teoremer.com'
 

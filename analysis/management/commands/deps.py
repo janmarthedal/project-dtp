@@ -2,7 +2,7 @@ import time
 from django.core.management.base import BaseCommand
 import analysis.helpers
 from analysis.models import ItemDependency, ItemTag
-from items.models import FinalItem
+from items.models import FinalItem, add_final_item_dependencies, check_final_item_tag_categories
 
 class Command(BaseCommand):
     help = 'Builds (redundant) analysis information'
@@ -17,7 +17,7 @@ class Command(BaseCommand):
         t = time.clock()
         item_count = 0
         for fitem in analysis.helpers.queryset_generator(FinalItem.objects.filter(status='F')):
-            analysis.helpers.add_final_item_dependencies(fitem)
+            add_final_item_dependencies(fitem)
             item_count += 1
         t = time.clock() - t
         self.stdout.write('  Processed %d final items' % item_count)
@@ -31,7 +31,7 @@ class Command(BaseCommand):
         added = 0
         removed = 0
         for fitem in analysis.helpers.queryset_generator(FinalItem.objects.filter(status='F')):
-            changes = analysis.helpers.check_final_item_tag_categories(fitem)
+            changes = check_final_item_tag_categories(fitem)
             added += changes[0]
             removed += changes[1]
             item_count += 1

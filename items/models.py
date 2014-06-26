@@ -1,17 +1,241 @@
+import json
 import string
 from django.conf import settings
+from django.core.management.base import CommandError
 from django.core.urlresolvers import reverse
 from django.db import models, IntegrityError
-from django.db.models import Sum
+from django.db.models import Max, Sum
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from drafts.models import BaseItem
-import items.helpers
+from analysis.models import ItemDependency, DecorateCategory
+from drafts.models import BaseItem, DraftItem
+from items.helpers import BodyScanner, request_get_int, request_get_string
+from main.badrequest import BadRequest
+from main.helpers import init_context, make_get_url
 from sources.models import ValidationBase
 from tags.models import Category, Tag
 
 import logging
 logger = logging.getLogger(__name__)
+
+# Helpers
+
+def prepare_list_items(queryset, page_size, page_num=1):
+    offset = (page_num - 1) * page_size
+    item_list = queryset[offset:(offset + page_size + 1)]
+    return (item_list[0:page_size], len(item_list) > page_size)
+
+class PagedSearch(object):
+    defaults = []
+
+    def __init__(self, request=None, **kwargs):
+        self.search_data = {}
+        if request:
+            self.update_from_request(request)
+        self.search_data.update(kwargs)
+
+    def update_from_request(self, request):
+        self.search_data.update(page=request_get_int(request, 'page', 1, lambda v: v >= 1))
+
+    def make_search(self, page_size):
+        current_url = self.get_url()
+        page = self.search_data.get('page') or 1
+        queryset = self.get_queryset()
+        items, more = prepare_list_items(queryset, page_size, page)
+        pagedata = {'rendered': '', 'prev_data_url': '', 'next_data_url': ''}
+        if items:
+            pagedata['rendered'] = render_to_string(self.template_name, {'items': items, 'current_url': current_url})
+        if page > 1:
+            pagedata['prev_data_url'] = self.get_url(page=page-1)
+        if more:
+            pagedata['next_data_url'] = self.get_url(page=page+1)
+        return pagedata
+
+    def get_count(self):
+        return self.get_queryset().count()
+
+    def get_url(self, **changed):
+        url = self.get_base_url()
+        defaults = set(self.defaults) | {('page', 1)}
+        data = dict(self.search_data, **changed)
+        params = dict(kv for kv in data.items() if kv not in defaults)
+        return make_get_url(url, params)
+
+
+class ItemPagedSearch(PagedSearch):
+    template_name = 'include/item_list_items.html'
+    defaults = [('status', 'F')]
+
+    def __init__(self, user=None, pricat=None, **kwargs):
+        self.user = user
+        self.pricat = pricat
+        super(ItemPagedSearch, self).__init__(**kwargs)
+
+    def get_queryset(self):
+        drafts = self.search_data.get('status') in ['R', 'D']
+        queryset = DraftItem.objects if drafts else FinalItem.objects
+        if self.search_data.get('status'):
+            queryset = queryset.filter(status=self.search_data['status'])
+        if self.search_data.get('type'):
+            queryset = queryset.filter(itemtype=self.search_data['type'])
+        if self.user:
+            queryset = queryset.filter(created_by=self.user)
+        if self.search_data.get('parent'):
+            queryset = queryset.filter(parent__final_id=self.search_data['parent'])
+        if self.pricat:
+            if drafts:
+                if self.pricat >= 0:
+                    queryset = queryset.filter(draftitemcategory__primary=True, draftitemcategory__category__id=self.pricat)
+                else:
+                    queryset = queryset.filter(draftitemcategory__primary=True, draftitemcategory__category=None)
+            else:
+                if self.pricat >= 0:
+                    queryset = queryset.filter(finalitemcategory__primary=True, finalitemcategory__category__id=self.pricat)
+                else:
+                    queryset = queryset.filter(finalitemcategory__primary=True, finalitemcategory__category=None)
+        return queryset.order_by('-created_at')
+
+    def get_base_url(self):
+        if self.user:
+            url = reverse('users.views.items', args=[self.user.pk])
+        elif self.pricat:
+            tags = []
+            if self.pricat >= 0:
+                try:
+                    category = Category.objects.get(pk=self.pricat)
+                except Category.DoesNotExist:
+                    raise BadRequest
+                tags = map(str, category.get_tag_list())
+            reqpath = '/'.join(tags)
+            if self.search_data['type'] == 'D':
+                url = reverse('tags.views.definitions_in_category', args=[reqpath])
+            elif self.search_data['type'] == 'T':
+                url = reverse('tags.views.theorems_in_category', args=[reqpath])
+            else:
+                raise BadRequest
+        else:
+            url = reverse('items.views.search')
+        return url
+
+    def update_from_request(self, request):
+        #self.pricat = request_get_int(request, 'pricat')
+        self.search_data.update({
+            'type': request_get_string(request, 'type', None, lambda v: v in [None, 'D', 'T', 'P']),
+            'status': request_get_string(request, 'status', 'F', lambda v: v in ['F', 'R', 'D']),
+            'parent': request.GET.get('parent'),
+        })
+        super().update_from_request(request)
+
+    def change_search_url(self, **kwargs):
+        cururl = self.get_url()
+        newurl = self.get_url(**kwargs)
+        return {'link': newurl, 'changed': cururl != newurl}
+
+    def render(self, request):
+        itempage = self.make_search(20)
+
+        if request.GET.get('partial') is not None:
+            return HttpResponse(json.dumps(itempage), content_type="application/json")
+        else:
+            self.search_data['page'] = None
+            links = {
+                'type': {
+                    'D': self.change_search_url(type='D'),
+                    'T': self.change_search_url(type='T'),
+                },
+                'status': {
+                    'F': self.change_search_url(status='F'),
+                    'R': self.change_search_url(status='R'),
+                }
+            }
+            if not self.pricat:
+                links['type'].update({
+                    'all': self.change_search_url(type=None),
+                    'P': self.change_search_url(type='P'),
+                })
+            if self.user == request.user:
+                links['status']['D'] = self.change_search_url(status='D')
+            c = init_context('search', itempage=itempage, links=links, search_user=self.user)
+            if self.search_data.get('parent'):
+                try:
+                    c.update(parent=FinalItem.objects.get(final_id=self.search_data['parent']))
+                except FinalItem.DoesNotExist:
+                    raise BadRequest
+            if self.pricat:
+                c['pricat_text'] = {'D': 'Definitions in', 'T': 'Theorems for'}[self.search_data['type']]
+                try:
+                    c['category'] = Category.objects.get(pk=self.pricat)
+                except Category.DoesNotExist:
+                    raise BadRequest
+            return render(request, 'items/search.html', c)
+
+def check_final_item_tag_categories(fitem):
+    bs = BodyScanner(fitem.body)
+
+    tags_in_item = set([Tag.objects.fetch(tag_name) for tag_name in bs.getConceptSet()])
+    tags_in_db = set([itc.tag for itc in fitem.itemtagcategory_set.all()])
+    tags_to_remove = tags_in_db - tags_in_item
+    tags_to_add = tags_in_item - tags_in_db
+
+    for tag in tags_to_remove:
+        ItemTagCategory.objects.filter(item=fitem, tag=tag).delete()
+
+    for tag in tags_to_add:
+        category = Category.objects.default_category_for_tag(tag)
+        ItemTagCategory.objects.create(item=fitem, tag=tag, category=category)
+
+    return len(tags_to_add), len(tags_to_remove)
+
+def add_final_item_dependencies(from_item):
+    bs = BodyScanner(from_item.body)
+    try:
+        to_item_list = [FinalItem.objects.get(final_id=itemref_id) for itemref_id in bs.getItemRefSet()]
+    except ValueError:
+        raise CommandError("add_final_item_dependencies: illegal item name '%s'" % itemref_id)
+    except FinalItem.DoesNotExist:
+        raise CommandError("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
+    ItemDependency.objects.filter(from_item=from_item).delete()
+    ItemDependency.objects.bulk_create([ItemDependency(from_item=from_item, to_item=to_item)
+                                        for to_item in to_item_list])
+
+def decorate_category(dc):
+    pre_refer_count, pre_max_points = dc.refer_count, dc.max_points
+    dc.refer_count = FinalItem.objects.filter(status='F', itemtagcategory__category=dc.category).count()
+    dc.max_points = FinalItem.objects.filter(status='F', itemtype='D', finalitemcategory__primary=True,
+                                             finalitemcategory__category=dc.category).aggregate(Max('points'))['points__max']
+    return dc.refer_count != pre_refer_count or dc.max_points != pre_max_points
+
+def update_for_categories(categories):
+    for category in categories:
+        try:
+            cdu = DecorateCategory.objects.get(category=category)
+        except DecorateCategory.DoesNotExist:
+            cdu = DecorateCategory(category=category)
+        if decorate_category(cdu) or cdu.pk is None:
+            cdu.save()
+
+def categories_to_redecorate(fitem):
+    return fitem.categories_defined() | fitem.categories_defined()
+
+def pre_update_finalitem(fitem):
+    return categories_to_redecorate(fitem)
+
+def post_update_finalitem(fitem, categories_before):
+    categories_after = categories_to_redecorate(fitem)
+    update_for_categories(categories_before | categories_after)
+
+def post_create_finalitem(fitem):
+    add_final_item_dependencies(fitem)
+    check_final_item_tag_categories(fitem)
+    update_for_categories(categories_to_redecorate(fitem))
+
+def post_update_finalitem_points(fitem):
+    update_for_categories(fitem.categories_defined())
+
+# Managers
 
 FINAL_NAME_CHARS = string.digits
 FINAL_NAME_MIN_LENGTH = 4
@@ -41,6 +265,7 @@ class FinalItemManager(models.Manager):
                 pass
         raise Exception('FinalItemManager.add_item')
 
+# Models
 
 class FinalItem(BaseItem):
 
@@ -85,7 +310,7 @@ class FinalItem(BaseItem):
             ItemTagCategory.objects.create(item=self, tag=tag, category=category)
 
     def update(self, user, primary_categories, secondary_categories, tag_category_list):
-        pre_update_data = items.helpers.pre_update_finalitem(self)
+        pre_update_data = pre_update_finalitem(self)
 
         self.modified_by = user
         self.modified_at = timezone.now()
@@ -97,7 +322,7 @@ class FinalItem(BaseItem):
         self.itemtagcategory_set.all().delete()
         self.set_item_tag_categories(tag_category_list)
 
-        items.helpers.post_update_finalitem(self, pre_update_data)
+        post_update_finalitem(self, pre_update_data)
 
     def categories_defined(self):
         if self.itemtype == 'D' and self.status == 'F':
@@ -118,7 +343,7 @@ class FinalItem(BaseItem):
             self.save()
             if self.parent:
                 self.parent.update_points()
-            items.helpers.post_update_finalitem_points(self)
+            post_update_finalitem_points(self)
 
     def get_name(self):
         items = [self.get_itemtype_display().capitalize(), ' ', self.final_id]

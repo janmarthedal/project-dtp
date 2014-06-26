@@ -11,7 +11,7 @@ from django.utils.encoding import force_text
 from django.utils.html import escape, format_html_join
 from django.views.decorators.http import require_safe, require_http_methods
 from document.models import Document
-from items.helpers import ItemPagedSearch
+from items.models import ItemPagedSearch
 from main.badrequest import BadRequest
 from main.helpers import init_context, logged_in_or_404
 from users.models import Invitations

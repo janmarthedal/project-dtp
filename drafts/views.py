@@ -5,12 +5,26 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from api.helpers import itemtype_has_parent
 from drafts.models import DraftItem
-from items.helpers import publishIssues, get_primary_text, post_create_finalitem
-from items.models import FinalItem
+from items.helpers import get_primary_text, BodyScanner
+from items.models import FinalItem, post_create_finalitem
 from main.helpers import init_context, logged_in_or_404
+from media.models import MediaItem
 
 import logging
 logger = logging.getLogger(__name__)
+
+def publishIssues(draft_item):
+    issues = []
+    if not draft_item.body.strip():
+        issues.append('No contents')
+    bs = BodyScanner(draft_item.body)
+    for itemref_id in bs.getItemRefSet():
+        if not FinalItem.objects.filter(final_id=itemref_id, status='F').exists():
+            issues.append("Reference to non-existing item '%s'" % itemref_id)
+    for media_id in bs.getMediaRefSet():
+        if not MediaItem.objects.filter(entry__public_id=media_id, itemtype='O').exists():
+            issues.append("Reference to non-existing media '%s'" % media_id)
+    return issues
 
 @require_GET
 def new(request, kind, parent=None):

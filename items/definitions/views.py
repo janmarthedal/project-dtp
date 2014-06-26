@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
 from analysis.models import DecorateCategory
-from items.helpers import PagedSearch, ItemPagedSearch
+from items.models import PagedSearch, ItemPagedSearch
 from main.helpers import init_context
 
 class WantedPagedSearch(PagedSearch):

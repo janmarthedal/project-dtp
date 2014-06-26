@@ -1,21 +1,13 @@
-import json
 import markdown
 import re
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
-from django.shortcuts import render
 from django.template import Context
-from django.template.loader import get_template, render_to_string
+from django.template.loader import get_template
 from django.utils import crypto
 from django.utils.http import urlquote
-from drafts.models import DraftItem
-import analysis.helpers
-import items.models
 from main.badrequest import BadRequest
-from main.helpers import init_context, make_get_url
 from media.models import MediaItem
-from tags.models import Category
 
 import logging
 logger = logging.getLogger(__name__)
@@ -171,20 +163,6 @@ def typeset_tag(st):
             parts[i] = '\(' + parts[i] + '\)'
     return make_html_safe(''.join(parts))
 
-def publishIssues(draft_item):
-    issues = []
-    if not draft_item.body.strip():
-        issues.append('No contents')
-    bs = BodyScanner(draft_item.body)
-    for itemref_id in bs.getItemRefSet():
-        if not items.models.FinalItem.objects.filter(final_id=itemref_id, status='F').exists():
-            issues.append("Reference to non-existing item '%s'" % itemref_id)
-    for media_id in bs.getMediaRefSet():
-        if not MediaItem.objects.filter(entry__public_id=media_id, itemtype='O').exists():
-            issues.append("Reference to non-existing media '%s'" % media_id)
-    return issues
-
-
 def request_get_int(request, key, default=None, validator=None):
     try:
         value = int(request.GET[key]) if key in request.GET else default
@@ -200,171 +178,6 @@ def request_get_string(request, key, default, validator):
         raise BadRequest
     return value
 
-def prepare_list_items(queryset, page_size, page_num=1):
-    offset = (page_num - 1) * page_size
-    item_list = queryset[offset:(offset + page_size + 1)]
-    return (item_list[0:page_size], len(item_list) > page_size)
-
-
-class PagedSearch(object):
-    defaults = []
-
-    def __init__(self, request=None, **kwargs):
-        self.search_data = {}
-        if request:
-            self.update_from_request(request)
-        self.search_data.update(kwargs)
-
-    def update_from_request(self, request):
-        self.search_data.update(page=request_get_int(request, 'page', 1, lambda v: v >= 1))
-
-    def make_search(self, page_size):
-        current_url = self.get_url()
-        page = self.search_data.get('page') or 1
-        queryset = self.get_queryset()
-        items, more = prepare_list_items(queryset, page_size, page)
-        pagedata = {'rendered': '', 'prev_data_url': '', 'next_data_url': ''}
-        if items:
-            pagedata['rendered'] = render_to_string(self.template_name, {'items': items, 'current_url': current_url})
-        if page > 1:
-            pagedata['prev_data_url'] = self.get_url(page=page-1)
-        if more:
-            pagedata['next_data_url'] = self.get_url(page=page+1)
-        return pagedata
-
-    def get_count(self):
-        return self.get_queryset().count()
-
-    def get_url(self, **changed):
-        url = self.get_base_url()
-        defaults = set(self.defaults) | {('page', 1)}
-        data = dict(self.search_data, **changed)
-        params = dict(kv for kv in data.items() if kv not in defaults)
-        return make_get_url(url, params)
-
-
-class ItemPagedSearch(PagedSearch):
-    template_name = 'include/item_list_items.html'
-    defaults = [('status', 'F')]
-
-    def __init__(self, user=None, pricat=None, **kwargs):
-        self.user = user
-        self.pricat = pricat
-        super(ItemPagedSearch, self).__init__(**kwargs)
-
-    def get_queryset(self):
-        drafts = self.search_data.get('status') in ['R', 'D']
-        queryset = DraftItem.objects if drafts else items.models.FinalItem.objects
-        if self.search_data.get('status'):
-            queryset = queryset.filter(status=self.search_data['status'])
-        if self.search_data.get('type'):
-            queryset = queryset.filter(itemtype=self.search_data['type'])
-        if self.user:
-            queryset = queryset.filter(created_by=self.user)
-        if self.search_data.get('parent'):
-            queryset = queryset.filter(parent__final_id=self.search_data['parent'])
-        if self.pricat:
-            if drafts:
-                if self.pricat >= 0:
-                    queryset = queryset.filter(draftitemcategory__primary=True, draftitemcategory__category__id=self.pricat)
-                else:
-                    queryset = queryset.filter(draftitemcategory__primary=True, draftitemcategory__category=None)
-            else:
-                if self.pricat >= 0:
-                    queryset = queryset.filter(finalitemcategory__primary=True, finalitemcategory__category__id=self.pricat)
-                else:
-                    queryset = queryset.filter(finalitemcategory__primary=True, finalitemcategory__category=None)
-        return queryset.order_by('-created_at')
-
-    def get_base_url(self):
-        if self.user:
-            url = reverse('users.views.items', args=[self.user.pk])
-        elif self.pricat:
-            tags = []
-            if self.pricat >= 0:
-                try:
-                    category = Category.objects.get(pk=self.pricat)
-                except Category.DoesNotExist:
-                    raise BadRequest
-                tags = map(str, category.get_tag_list())
-            reqpath = '/'.join(tags)
-            if self.search_data['type'] == 'D':
-                url = reverse('tags.views.definitions_in_category', args=[reqpath])
-            elif self.search_data['type'] == 'T':
-                url = reverse('tags.views.theorems_in_category', args=[reqpath])
-            else:
-                raise BadRequest
-        else:
-            url = reverse('items.views.search')
-        return url
-
-    def update_from_request(self, request):
-        #self.pricat = request_get_int(request, 'pricat')
-        self.search_data.update({
-            'type': request_get_string(request, 'type', None, lambda v: v in [None, 'D', 'T', 'P']),
-            'status': request_get_string(request, 'status', 'F', lambda v: v in ['F', 'R', 'D']),
-            'parent': request.GET.get('parent'),
-        })
-        super().update_from_request(request)
-
-    def change_search_url(self, **kwargs):
-        cururl = self.get_url()
-        newurl = self.get_url(**kwargs)
-        return {'link': newurl, 'changed': cururl != newurl}
-
-    def render(self, request):
-        itempage = self.make_search(20)
-
-        if request.GET.get('partial') is not None:
-            return HttpResponse(json.dumps(itempage), content_type="application/json")
-        else:
-            self.search_data['page'] = None
-            links = {
-                'type': {
-                    'D': self.change_search_url(type='D'),
-                    'T': self.change_search_url(type='T'),
-                },
-                'status': {
-                    'F': self.change_search_url(status='F'),
-                    'R': self.change_search_url(status='R'),
-                }
-            }
-            if not self.pricat:
-                links['type'].update({
-                    'all': self.change_search_url(type=None),
-                    'P': self.change_search_url(type='P'),
-                })
-            if self.user == request.user:
-                links['status']['D'] = self.change_search_url(status='D')
-            c = init_context('search', itempage=itempage, links=links, search_user=self.user)
-            if self.search_data.get('parent'):
-                try:
-                    c.update(parent=items.models.FinalItem.objects.get(final_id=self.search_data['parent']))
-                except items.models.FinalItem.DoesNotExist:
-                    raise BadRequest
-            if self.pricat:
-                c['pricat_text'] = {'D': 'Definitions in', 'T': 'Theorems for'}[self.search_data['type']]
-                try:
-                    c['category'] = Category.objects.get(pk=self.pricat)
-                except Category.DoesNotExist:
-                    raise BadRequest
-            return render(request, 'items/search.html', c)
-
 def get_primary_text(type_key):
     vals = {'D': 'Terms defined', 'T': 'Name(s) for theorem'}
     return vals.get(type_key)
-
-def pre_update_finalitem(fitem):
-    return analysis.helpers.categories_to_redecorate(fitem)
-
-def post_update_finalitem(fitem, categories_before):
-    categories_after = analysis.helpers.categories_to_redecorate(fitem)
-    analysis.helpers.update_for_categories(categories_before | categories_after)
-
-def post_create_finalitem(fitem):
-    analysis.helpers.add_final_item_dependencies(fitem)
-    analysis.helpers.check_final_item_tag_categories(fitem)
-    analysis.helpers.update_for_categories(analysis.helpers.categories_to_redecorate(fitem))
-
-def post_update_finalitem_points(fitem):
-    analysis.helpers.update_for_categories(fitem.categories_defined())

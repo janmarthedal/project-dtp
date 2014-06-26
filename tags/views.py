@@ -2,7 +2,7 @@ from urllib.parse import unquote
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, Http404
 from django.views.decorators.http import require_safe
-from items.helpers import ItemPagedSearch
+from items.models import ItemPagedSearch
 from main.helpers import init_context
 from tags.models import Category
 

@@ -8,20 +8,6 @@ class TagManager(models.Manager):
         tag = self.get_or_create(name=name, defaults={'normalized': normalized})[0]
         return tag
 
-class Tag(models.Model):
-    class Meta:
-        db_table = 'tags'
-
-    objects = TagManager()
-    name = models.CharField(max_length=255, db_index=True, unique=True)
-    normalized = models.CharField(max_length=255, db_index=True, unique=False)
-
-    def __str__(self):
-        return self.name
-
-    def json_data(self):
-        return self.name
-
 class CategoryManager(models.Manager):
 
     def __init__(self):
@@ -52,14 +38,30 @@ class CategoryManager(models.Manager):
     def default_category_for_tag(self, tag):
         return self.from_tag_list(['unspecified'])
 
+class Tag(models.Model):
+    name = models.CharField(max_length=255, db_index=True, unique=True)
+    normalized = models.CharField(max_length=255, db_index=True, unique=False)
+
+    objects = TagManager()
+
+    class Meta:
+        db_table = 'tags'
+
+    def __str__(self):
+        return self.name
+
+    def json_data(self):
+        return self.name
+
 class Category(models.Model):
+    tag = models.ForeignKey(Tag, related_name='+', db_index=False)
+    parent = models.ForeignKey('self', null=True, related_name='+', db_index=False)
+
+    objects = CategoryManager()
+
     class Meta:
         db_table = 'categories'
         unique_together = ('tag', 'parent')
-
-    objects = CategoryManager()
-    tag = models.ForeignKey(Tag, related_name='+', db_index=False)
-    parent = models.ForeignKey('self', null=True, related_name='+', db_index=False)
 
     def get_tag_list(self):
         if self.parent:

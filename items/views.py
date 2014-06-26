@@ -3,8 +3,8 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from document.models import Document
-from items.helpers import get_primary_text, ItemPagedSearch
-from items.models import FinalItem
+from items.helpers import get_primary_text
+from items.models import FinalItem, ItemPagedSearch
 from main.helpers import init_context, logged_in_or_404
 
 import logging

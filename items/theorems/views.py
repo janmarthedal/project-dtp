@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_safe
-from items.helpers import ItemPagedSearch
+from items.models import ItemPagedSearch
 from main.helpers import init_context
 
 @require_safe

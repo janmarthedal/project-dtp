@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_safe
 from main.helpers import init_context
 from main.blog_feed import get_blog_feed
-from items.helpers import ItemPagedSearch
+from items.models import ItemPagedSearch
 
 @require_safe
 def index(request):
