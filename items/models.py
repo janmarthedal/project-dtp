@@ -5,9 +5,10 @@ from django.db import models, IntegrityError
 from django.db.models import Sum
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from tags.models import Category, Tag
 from drafts.models import BaseItem
+import items.helpers
 from sources.models import ValidationBase
+from tags.models import Category, Tag
 
 import logging
 logger = logging.getLogger(__name__)
@@ -84,6 +85,8 @@ class FinalItem(BaseItem):
             ItemTagCategory.objects.create(item=self, tag=tag, category=category)
 
     def update(self, user, primary_categories, secondary_categories, tag_category_list):
+        pre_update_data = items.helpers.pre_update_finalitem(self)
+
         self.modified_by = user
         self.modified_at = timezone.now()
         self.save()
@@ -93,6 +96,16 @@ class FinalItem(BaseItem):
 
         self.itemtagcategory_set.all().delete()
         self.set_item_tag_categories(tag_category_list)
+
+        items.helpers.post_update_finalitem(self, pre_update_data)
+
+    def categories_defined(self):
+        if self.itemtype == 'D' and self.status == 'F':
+            return set(Category.objects.filter(finalitemcategory__item=self, finalitemcategory__primary=True))
+        return set()
+
+    def categories_referenced(self):
+        return set(Category.objects.filter(itemtagcategory__item=self))
 
     def update_points(self):
         sum_aggregate = ItemValidation.objects.filter(item=self, points__gt=0).aggregate(Sum('points'))
@@ -105,6 +118,7 @@ class FinalItem(BaseItem):
             self.save()
             if self.parent:
                 self.parent.update_points()
+            items.helpers.post_update_finalitem_points(self)
 
     def get_name(self):
         items = [self.get_itemtype_display().capitalize(), ' ', self.final_id]
@@ -114,7 +128,6 @@ class FinalItem(BaseItem):
 
     def get_link(self):
         return reverse('items.views.show_final', args=[self.final_id])
-
 
 
 class FinalItemCategory(models.Model):

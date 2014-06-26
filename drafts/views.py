@@ -5,10 +5,9 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST, require_GET
 from api.helpers import itemtype_has_parent
 from drafts.models import DraftItem
-from items.helpers import publishIssues, get_primary_text
+from items.helpers import publishIssues, get_primary_text, post_create_finalitem
 from items.models import FinalItem
 from main.helpers import init_context, logged_in_or_404
-from analysis.management.commands.deps import add_final_item_dependencies, check_final_item_tag_categories
 
 import logging
 logger = logging.getLogger(__name__)
@@ -93,8 +92,7 @@ def to_final(request, item_id):
         return HttpResponseRedirect(reverse('drafts.views.show', args=[item_id]))
     else:
         fitem = FinalItem.objects.add_item(item)
-        add_final_item_dependencies(fitem)
-        check_final_item_tag_categories(fitem)
+        post_create_finalitem(fitem)
         item.delete()
         messages.success(request, '%s successfully published' % fitem)
         return HttpResponseRedirect(reverse('items.views.edit_final', args=[fitem.final_id]))

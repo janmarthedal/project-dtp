@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
-from items.helpers import BodyScanner
+import items.helpers
 from items.models import FinalItem, ItemTagCategory
 from tags.models import Category
 
@@ -33,7 +33,7 @@ class DocumentItemEntry(models.Model):
         # item defs
         self.item_defs = set([self.item.final_id])
         # item uses
-        bs = BodyScanner(self.item.body)
+        bs = items.helpers.BodyScanner(self.item.body)
         self.item_uses = set(bs.getItemRefSet())
         if self.item.parent:
             self.item_uses.add(self.item.parent.final_id)

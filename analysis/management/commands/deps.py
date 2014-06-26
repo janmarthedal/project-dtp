@@ -1,39 +1,8 @@
 import time
-from django.core.management.base import BaseCommand, CommandError
-from analysis.helpers import queryset_generator
+from django.core.management.base import BaseCommand
+import analysis.helpers
 from analysis.models import ItemDependency, ItemTag
-from items.models import FinalItem, ItemTagCategory
-from items.helpers import BodyScanner
-from tags.models import Tag, Category
-
-def add_final_item_dependencies(from_item):
-    bs = BodyScanner(from_item.body)
-    try:
-        to_item_list = [FinalItem.objects.get(final_id=itemref_id) for itemref_id in bs.getItemRefSet()] 
-    except ValueError:
-        raise CommandError("add_final_item_dependencies: illegal item name '%s'" % itemref_id)
-    except FinalItem.DoesNotExist:
-        raise CommandError("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
-    ItemDependency.objects.filter(from_item=from_item).delete()
-    ItemDependency.objects.bulk_create([ItemDependency(from_item=from_item, to_item=to_item)
-                                        for to_item in to_item_list])
-
-def check_final_item_tag_categories(fitem):
-    bs = BodyScanner(fitem.body)
-
-    tags_in_item = set([Tag.objects.fetch(tag_name) for tag_name in bs.getConceptSet()])
-    tags_in_db = set([itc.tag for itc in fitem.itemtagcategory_set.all()])
-    tags_to_remove = tags_in_db - tags_in_item
-    tags_to_add = tags_in_item - tags_in_db
-
-    for tag in tags_to_remove:
-        ItemTagCategory.objects.filter(item=fitem, tag=tag).delete()
-
-    for tag in tags_to_add:
-        category = Category.objects.default_category_for_tag(tag)
-        ItemTagCategory.objects.create(item=fitem, tag=tag, category=category)
-
-    return len(tags_to_add), len(tags_to_remove)
+from items.models import FinalItem
 
 class Command(BaseCommand):
     help = 'Builds (redundant) analysis information'
@@ -47,8 +16,8 @@ class Command(BaseCommand):
         self.stdout.write('Rebuild dependencies')
         t = time.clock()
         item_count = 0
-        for fitem in queryset_generator(FinalItem.objects.filter(status='F')):
-            add_final_item_dependencies(fitem)
+        for fitem in analysis.helpers.queryset_generator(FinalItem.objects.filter(status='F')):
+            analysis.helpers.add_final_item_dependencies(fitem)
             item_count += 1
         t = time.clock() - t
         self.stdout.write('  Processed %d final items' % item_count)
@@ -61,8 +30,8 @@ class Command(BaseCommand):
         item_count = 0
         added = 0
         removed = 0
-        for fitem in queryset_generator(FinalItem.objects.filter(status='F')):
-            changes = check_final_item_tag_categories(fitem)
+        for fitem in analysis.helpers.queryset_generator(FinalItem.objects.filter(status='F')):
+            changes = analysis.helpers.check_final_item_tag_categories(fitem)
             added += changes[0]
             removed += changes[1]
             item_count += 1
@@ -77,7 +46,7 @@ class Command(BaseCommand):
         t = time.clock()
         item_count = 0
         tag_count = 0
-        for item in queryset_generator(FinalItem.objects.filter(status='F')):
+        for item in analysis.helpers.queryset_generator(FinalItem.objects.filter(status='F')):
             tags = set([tag for itemtag in item.finalitemcategory_set.all()
                             for tag in itemtag.category.get_tag_list()])
             for tag in tags:

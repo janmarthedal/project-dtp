@@ -10,7 +10,8 @@ from django.template.loader import get_template, render_to_string
 from django.utils import crypto
 from django.utils.http import urlquote
 from drafts.models import DraftItem
-from items.models import FinalItem
+import analysis.helpers
+import items.models
 from main.badrequest import BadRequest
 from main.helpers import init_context, make_get_url
 from media.models import MediaItem
@@ -176,7 +177,7 @@ def publishIssues(draft_item):
         issues.append('No contents')
     bs = BodyScanner(draft_item.body)
     for itemref_id in bs.getItemRefSet():
-        if not FinalItem.objects.filter(final_id=itemref_id, status='F').exists():
+        if not items.models.FinalItem.objects.filter(final_id=itemref_id, status='F').exists():
             issues.append("Reference to non-existing item '%s'" % itemref_id)
     for media_id in bs.getMediaRefSet():
         if not MediaItem.objects.filter(entry__public_id=media_id, itemtype='O').exists():
@@ -253,7 +254,7 @@ class ItemPagedSearch(PagedSearch):
 
     def get_queryset(self):
         drafts = self.search_data.get('status') in ['R', 'D']
-        queryset = DraftItem.objects if drafts else FinalItem.objects
+        queryset = DraftItem.objects if drafts else items.models.FinalItem.objects
         if self.search_data.get('status'):
             queryset = queryset.filter(status=self.search_data['status'])
         if self.search_data.get('type'):
@@ -338,8 +339,8 @@ class ItemPagedSearch(PagedSearch):
             c = init_context('search', itempage=itempage, links=links, search_user=self.user)
             if self.search_data.get('parent'):
                 try:
-                    c.update(parent=FinalItem.objects.get(final_id=self.search_data['parent']))
-                except FinalItem.DoesNotExist:
+                    c.update(parent=items.models.FinalItem.objects.get(final_id=self.search_data['parent']))
+                except items.models.FinalItem.DoesNotExist:
                     raise BadRequest
             if self.pricat:
                 c['pricat_text'] = {'D': 'Definitions in', 'T': 'Theorems for'}[self.search_data['type']]
@@ -352,3 +353,18 @@ class ItemPagedSearch(PagedSearch):
 def get_primary_text(type_key):
     vals = {'D': 'Terms defined', 'T': 'Name(s) for theorem'}
     return vals.get(type_key)
+
+def pre_update_finalitem(fitem):
+    return analysis.helpers.categories_to_redecorate(fitem)
+
+def post_update_finalitem(fitem, categories_before):
+    categories_after = analysis.helpers.categories_to_redecorate(fitem)
+    analysis.helpers.update_for_categories(categories_before | categories_after)
+
+def post_create_finalitem(fitem):
+    analysis.helpers.add_final_item_dependencies(fitem)
+    analysis.helpers.check_final_item_tag_categories(fitem)
+    analysis.helpers.update_for_categories(analysis.helpers.categories_to_redecorate(fitem))
+
+def post_update_finalitem_points(fitem):
+    analysis.helpers.update_for_categories(fitem.categories_defined())

@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
-from analysis.models import CategoryDefinitionUsage
+from analysis.models import DecorateCategory
 from items.helpers import PagedSearch, ItemPagedSearch
 from main.helpers import init_context
 
@@ -11,7 +11,7 @@ class WantedPagedSearch(PagedSearch):
     template_name = 'include/wanted_single_page.html'
 
     def get_queryset(self):
-        return CategoryDefinitionUsage.objects.order_by('score')
+        return DecorateCategory.objects.exclude(refer_count=0, max_points=None).order_by('score')
 
     def get_base_url(self):
         return reverse('items.definitions.views.most_wanted')
