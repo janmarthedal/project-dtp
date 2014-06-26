@@ -321,7 +321,6 @@
             if ($elem.attr('href')) {
                 $elem.removeClass('hidden');
                 $elem.click(function (event) {
-                    console.log('clicked!');
                     event.preventDefault();
                     $elem.addClass('hidden');
                     var data_url = add_to_query($elem.attr('href'));
@@ -334,6 +333,7 @@
                                 $container.find('ul').append(data.rendered);
                                 data_url = data.next_data_url;
                             }
+                            MathJax.Hub.Queue(["Typeset", MathJax.Hub, $container.get()]);
                             $elem.attr('href', data_url);
                             if (data_url)
                                 $elem.removeClass('hidden');
