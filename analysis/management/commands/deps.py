@@ -1,8 +1,8 @@
 import time
 from django.core.management.base import BaseCommand
-import analysis.helpers
-from analysis.models import ItemDependency, ItemTag
-from items.models import FinalItem, add_final_item_dependencies, check_final_item_tag_categories
+from analysis.helpers import queryset_generator
+from analysis.models import ItemDependency, ItemTag, add_final_item_dependencies
+from items.models import FinalItem, check_final_item_tag_categories
 
 class Command(BaseCommand):
     help = 'Builds (redundant) analysis information'
@@ -16,7 +16,7 @@ class Command(BaseCommand):
         self.stdout.write('Rebuild dependencies')
         t = time.clock()
         item_count = 0
-        for fitem in analysis.helpers.queryset_generator(FinalItem.objects.filter(status='F')):
+        for fitem in queryset_generator(FinalItem.objects.filter(status='F')):
             add_final_item_dependencies(fitem)
             item_count += 1
         t = time.clock() - t
@@ -30,7 +30,7 @@ class Command(BaseCommand):
         item_count = 0
         added = 0
         removed = 0
-        for fitem in analysis.helpers.queryset_generator(FinalItem.objects.filter(status='F')):
+        for fitem in queryset_generator(FinalItem.objects.filter(status='F')):
             changes = check_final_item_tag_categories(fitem)
             added += changes[0]
             removed += changes[1]
@@ -46,7 +46,7 @@ class Command(BaseCommand):
         t = time.clock()
         item_count = 0
         tag_count = 0
-        for item in analysis.helpers.queryset_generator(FinalItem.objects.filter(status='F')):
+        for item in queryset_generator(FinalItem.objects.filter(status='F')):
             tags = set([tag for itemtag in item.finalitemcategory_set.all()
                             for tag in itemtag.category.get_tag_list()])
             for tag in tags:

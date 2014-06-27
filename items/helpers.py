@@ -3,10 +3,11 @@ import re
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template import Context
-from django.template.loader import get_template
+from django.template.loader import render_to_string, get_template
 from django.utils import crypto
 from django.utils.http import urlquote
 from main.badrequest import BadRequest
+from main.helpers import make_get_url
 from media.models import MediaItem
 
 import logging
@@ -181,3 +182,45 @@ def request_get_string(request, key, default, validator):
 def get_primary_text(type_key):
     vals = {'D': 'Terms defined', 'T': 'Name(s) for theorem'}
     return vals.get(type_key)
+
+def prepare_list_items(queryset, page_size, page_num=1):
+    offset = (page_num - 1) * page_size
+    item_list = queryset[offset:(offset + page_size + 1)]
+    return (item_list[0:page_size], len(item_list) > page_size)
+
+class PagedSearch(object):
+    defaults = []
+
+    def __init__(self, request=None, **kwargs):
+        self.search_data = {}
+        if request:
+            self.update_from_request(request)
+        self.search_data.update(kwargs)
+
+    def update_from_request(self, request):
+        self.search_data.update(page=request_get_int(request, 'page', 1, lambda v: v >= 1))
+
+    def make_search(self, page_size):
+        current_url = self.get_url()
+        page = self.search_data.get('page') or 1
+        queryset = self.get_queryset()
+        items, more = prepare_list_items(queryset, page_size, page)
+        pagedata = {'rendered': '', 'prev_data_url': '', 'next_data_url': ''}
+        if items:
+            pagedata['rendered'] = render_to_string(self.template_name, {'items': items, 'current_url': current_url})
+        if page > 1:
+            pagedata['prev_data_url'] = self.get_url(page=page-1)
+        if more:
+            pagedata['next_data_url'] = self.get_url(page=page+1)
+        return pagedata
+
+    def get_count(self):
+        return self.get_queryset().count()
+
+    def get_url(self, **changed):
+        url = self.get_base_url()
+        defaults = set(self.defaults) | {('page', 1)}
+        data = dict(self.search_data, **changed)
+        params = dict(kv for kv in data.items() if kv not in defaults)
+        return make_get_url(url, params)
+

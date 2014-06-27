@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
-from tags.models import Category
+import tags.models
 from tags.helpers import CategoryCollection
 from sources.models import ValidationBase
 
@@ -76,7 +76,7 @@ class DraftItem(BaseItem):
 
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='D')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
-    categories = models.ManyToManyField(Category, through='DraftItemCategory')
+    categories = models.ManyToManyField('tags.Category', through='DraftItemCategory')
 
     def __str__(self):
         return "%s %d" % (self.get_itemtype_display().capitalize(), self.id)
@@ -100,7 +100,7 @@ class DraftItem(BaseItem):
 
     def _add_category_list(self, categories, is_primary):
         for tag_list in categories:
-            category = Category.objects.from_tag_list(tag_list)
+            category = tags.models.Category.objects.from_tag_list(tag_list)
             DraftItemCategory.objects.create(item=self, category=category, primary=is_primary)
 
     def update(self, body, primary_categories, secondary_categories):
@@ -124,7 +124,7 @@ class DraftItemCategory(models.Model):
         db_table = 'draft_item_category'
         unique_together = ('item', 'category')
     item = models.ForeignKey(DraftItem, db_index=True)
-    category = models.ForeignKey(Category, db_index=False)
+    category = models.ForeignKey('tags.Category', db_index=False)
     primary = models.BooleanField()
 
 class DraftValidation(ValidationBase):

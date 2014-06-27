@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand
 from analysis.helpers import queryset_generator
-from analysis.models import DecorateCategory
-from items.models import decorate_category
-from tags.models import Category
+from analysis.models import DecorateCategory, decorate_category
+import tags.models
 
 class Command(BaseCommand):
     help = 'Category definitions'
@@ -11,7 +10,7 @@ class Command(BaseCommand):
         DecorateCategory.objects.all().delete()
         total_category_count = 0
         nontrivial_category_count = 0
-        for cat in queryset_generator(Category.objects.all()):
+        for cat in queryset_generator(tags.models.Category.objects.all()):
             total_category_count += 1
             dc = DecorateCategory(category=cat)
             decorate_category(dc)

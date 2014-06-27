@@ -3,7 +3,6 @@ from django.conf import settings
 from django.db import models, IntegrityError
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from tags.models import Category
 
 PUBLIC_ID_CHARS = string.digits
 PUBLIC_ID_MIN_LENGTH = 4
@@ -29,7 +28,7 @@ class MediaEntry(models.Model):
     public_id  = models.CharField(max_length=10, unique=True, db_index=True, null=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     created_at = models.DateTimeField(default=timezone.now)
-    categories = models.ManyToManyField(Category)
+    categories = models.ManyToManyField('tags.Category')
 
 class MediaItem(models.Model):
     class Meta:

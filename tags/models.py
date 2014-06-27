@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import Max
 from django.shortcuts import get_object_or_404
+import items.models
 from tags.helpers import normalize_tag
 
 class TagManager(models.Manager):
@@ -63,6 +65,9 @@ class Category(models.Model):
         db_table = 'categories'
         unique_together = ('tag', 'parent')
 
+    def __str__(self):
+        return '{}:[{}]'.format(self.pk, ','.join(self.get_tag_str_list()))
+
     def get_tag_list(self):
         if self.parent:
             return self.parent.get_tag_list() + [self.tag]
@@ -71,8 +76,12 @@ class Category(models.Model):
     def get_tag_str_list(self):
         return map(str, self.get_tag_list())
 
-    def __str__(self):
-        return '{}:[{}]'.format(self.pk, ','.join(self.get_tag_str_list()))
+    def count_references_to_this(self):
+        return items.models.FinalItem.objects.filter(status='F', itemtagcategory__category=self).distinct().count()
+
+    def best_definition_for_this(self):
+        return items.models.FinalItem.objects.filter(status='F', itemtype='D', finalitemcategory__primary=True,
+                                                     finalitemcategory__category=self).aggregate(Max('points'))['points__max']
 
     def json_data(self):
         return [t.json_data() for t in self.get_tag_list()]

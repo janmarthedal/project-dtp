@@ -4,66 +4,23 @@ from django.conf import settings
 from django.core.management.base import CommandError
 from django.core.urlresolvers import reverse
 from django.db import models, IntegrityError
-from django.db.models import Max, Sum
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from analysis.models import ItemDependency, DecorateCategory
+from analysis.models import add_final_item_dependencies, categories_to_redecorate, update_for_categories
 from drafts.models import BaseItem, DraftItem
-from items.helpers import BodyScanner, request_get_int, request_get_string
+from items.helpers import BodyScanner, request_get_string, PagedSearch
 from main.badrequest import BadRequest
-from main.helpers import init_context, make_get_url
+from main.helpers import init_context
 from sources.models import ValidationBase
-from tags.models import Category, Tag
+import tags.models
 
 import logging
 logger = logging.getLogger(__name__)
 
 # Helpers
-
-def prepare_list_items(queryset, page_size, page_num=1):
-    offset = (page_num - 1) * page_size
-    item_list = queryset[offset:(offset + page_size + 1)]
-    return (item_list[0:page_size], len(item_list) > page_size)
-
-class PagedSearch(object):
-    defaults = []
-
-    def __init__(self, request=None, **kwargs):
-        self.search_data = {}
-        if request:
-            self.update_from_request(request)
-        self.search_data.update(kwargs)
-
-    def update_from_request(self, request):
-        self.search_data.update(page=request_get_int(request, 'page', 1, lambda v: v >= 1))
-
-    def make_search(self, page_size):
-        current_url = self.get_url()
-        page = self.search_data.get('page') or 1
-        queryset = self.get_queryset()
-        items, more = prepare_list_items(queryset, page_size, page)
-        pagedata = {'rendered': '', 'prev_data_url': '', 'next_data_url': ''}
-        if items:
-            pagedata['rendered'] = render_to_string(self.template_name, {'items': items, 'current_url': current_url})
-        if page > 1:
-            pagedata['prev_data_url'] = self.get_url(page=page-1)
-        if more:
-            pagedata['next_data_url'] = self.get_url(page=page+1)
-        return pagedata
-
-    def get_count(self):
-        return self.get_queryset().count()
-
-    def get_url(self, **changed):
-        url = self.get_base_url()
-        defaults = set(self.defaults) | {('page', 1)}
-        data = dict(self.search_data, **changed)
-        params = dict(kv for kv in data.items() if kv not in defaults)
-        return make_get_url(url, params)
-
 
 class ItemPagedSearch(PagedSearch):
     template_name = 'include/item_list_items.html'
@@ -105,8 +62,8 @@ class ItemPagedSearch(PagedSearch):
             tags = []
             if self.pricat >= 0:
                 try:
-                    category = Category.objects.get(pk=self.pricat)
-                except Category.DoesNotExist:
+                    category = tags.models.Category.objects.get(pk=self.pricat)
+                except tags.models.Category.DoesNotExist:
                     raise BadRequest
                 tags = map(str, category.get_tag_list())
             reqpath = '/'.join(tags)
@@ -167,15 +124,15 @@ class ItemPagedSearch(PagedSearch):
             if self.pricat:
                 c['pricat_text'] = {'D': 'Definitions in', 'T': 'Theorems for'}[self.search_data['type']]
                 try:
-                    c['category'] = Category.objects.get(pk=self.pricat)
-                except Category.DoesNotExist:
+                    c['category'] = tags.models.Category.objects.get(pk=self.pricat)
+                except tags.models.Category.DoesNotExist:
                     raise BadRequest
             return render(request, 'items/search.html', c)
 
 def check_final_item_tag_categories(fitem):
     bs = BodyScanner(fitem.body)
 
-    tags_in_item = set([Tag.objects.fetch(tag_name) for tag_name in bs.getConceptSet()])
+    tags_in_item = set([tags.models.Tag.objects.fetch(tag_name) for tag_name in bs.getConceptSet()])
     tags_in_db = set([itc.tag for itc in fitem.itemtagcategory_set.all()])
     tags_to_remove = tags_in_db - tags_in_item
     tags_to_add = tags_in_item - tags_in_db
@@ -184,41 +141,10 @@ def check_final_item_tag_categories(fitem):
         ItemTagCategory.objects.filter(item=fitem, tag=tag).delete()
 
     for tag in tags_to_add:
-        category = Category.objects.default_category_for_tag(tag)
+        category = tags.models.Category.objects.default_category_for_tag(tag)
         ItemTagCategory.objects.create(item=fitem, tag=tag, category=category)
 
     return len(tags_to_add), len(tags_to_remove)
-
-def add_final_item_dependencies(from_item):
-    bs = BodyScanner(from_item.body)
-    try:
-        to_item_list = [FinalItem.objects.get(final_id=itemref_id) for itemref_id in bs.getItemRefSet()]
-    except ValueError:
-        raise CommandError("add_final_item_dependencies: illegal item name '%s'" % itemref_id)
-    except FinalItem.DoesNotExist:
-        raise CommandError("add_final_item_dependencies: non-existent item '%s'" % str(itemref_id))
-    ItemDependency.objects.filter(from_item=from_item).delete()
-    ItemDependency.objects.bulk_create([ItemDependency(from_item=from_item, to_item=to_item)
-                                        for to_item in to_item_list])
-
-def decorate_category(dc):
-    pre_refer_count, pre_max_points = dc.refer_count, dc.max_points
-    dc.refer_count = FinalItem.objects.filter(status='F', itemtagcategory__category=dc.category).count()
-    dc.max_points = FinalItem.objects.filter(status='F', itemtype='D', finalitemcategory__primary=True,
-                                             finalitemcategory__category=dc.category).aggregate(Max('points'))['points__max']
-    return dc.refer_count != pre_refer_count or dc.max_points != pre_max_points
-
-def update_for_categories(categories):
-    for category in categories:
-        try:
-            cdu = DecorateCategory.objects.get(category=category)
-        except DecorateCategory.DoesNotExist:
-            cdu = DecorateCategory(category=category)
-        if decorate_category(cdu) or cdu.pk is None:
-            cdu.save()
-
-def categories_to_redecorate(fitem):
-    return fitem.categories_defined() | fitem.categories_defined()
 
 def pre_update_finalitem(fitem):
     return categories_to_redecorate(fitem)
@@ -284,7 +210,7 @@ class FinalItem(BaseItem):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='F')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='+', db_index=False)
-    categories = models.ManyToManyField(Category, through='FinalItemCategory')
+    categories = models.ManyToManyField('tags.Category', through='FinalItemCategory')
     points = models.FloatField(default=0, null=False)
 
     def __str__(self):
@@ -298,15 +224,15 @@ class FinalItem(BaseItem):
 
     def _add_category_list(self, categories, is_primary):
         for tag_list in categories:
-            category = Category.objects.from_tag_list(tag_list)
+            category = tags.models.Category.objects.from_tag_list(tag_list)
             FinalItemCategory.objects.create(item=self, category=category, primary=is_primary)
 
     def set_item_tag_categories(self, tag_category_list):
         for tag_category in tag_category_list:
-            tag = Tag.objects.fetch(tag_category['tag'])
+            tag = tags.models.Tag.objects.fetch(tag_category['tag'])
             category = tag_category['category']
-            if not isinstance(category, Category):
-                category = Category.objects.from_tag_list(category)
+            if not isinstance(category, tags.models.Category):
+                category = tags.models.Category.objects.from_tag_list(category)
             ItemTagCategory.objects.create(item=self, tag=tag, category=category)
 
     def update(self, user, primary_categories, secondary_categories, tag_category_list):
@@ -326,11 +252,11 @@ class FinalItem(BaseItem):
 
     def categories_defined(self):
         if self.itemtype == 'D' and self.status == 'F':
-            return set(Category.objects.filter(finalitemcategory__item=self, finalitemcategory__primary=True))
+            return set(tags.models.Category.objects.filter(finalitemcategory__item=self, finalitemcategory__primary=True))
         return set()
 
     def categories_referenced(self):
-        return set(Category.objects.filter(itemtagcategory__item=self))
+        return set(tags.models.Category.objects.filter(itemtagcategory__item=self))
 
     def update_points(self):
         sum_aggregate = ItemValidation.objects.filter(item=self, points__gt=0).aggregate(Sum('points'))
@@ -344,6 +270,18 @@ class FinalItem(BaseItem):
             if self.parent:
                 self.parent.update_points()
             post_update_finalitem_points(self)
+
+    def referenced_items_in_body(self):
+        bs = BodyScanner(self.body)
+        ref_items = []
+        for ref_id in bs.getItemRefSet():
+            try:
+                ref_items.append(FinalItem.objects.get(final_id=ref_id))
+            except ValueError:
+                raise CommandError("add_final_item_dependencies: illegal item name '{}'".format(ref_id))
+            except FinalItem.DoesNotExist:
+                raise CommandError("add_final_item_dependencies: non-existent item '{}'".format(ref_id))
+        return ref_items
 
     def get_name(self):
         items = [self.get_itemtype_display().capitalize(), ' ', self.final_id]
@@ -360,7 +298,7 @@ class FinalItemCategory(models.Model):
         db_table = 'final_item_category'
         unique_together = ('item', 'category')
     item = models.ForeignKey(FinalItem, db_index=True)
-    category = models.ForeignKey(Category, db_index=False)
+    category = models.ForeignKey('tags.Category', db_index=False)
     primary = models.BooleanField()
 
 class ItemTagCategory(models.Model):
@@ -368,8 +306,8 @@ class ItemTagCategory(models.Model):
         db_table = 'item_tag_category'
         unique_together = ('item', 'tag')
     item = models.ForeignKey(FinalItem, db_index=True)
-    tag = models.ForeignKey(Tag, db_index=False)
-    category = models.ForeignKey(Category, db_index=False)
+    tag = models.ForeignKey('tags.Tag', db_index=False)
+    category = models.ForeignKey('tags.Category', db_index=False)
     def __str__(self):
         return '{} | {} | {}'.format(self.item, self.tag, self.category)
     def json_data(self):
