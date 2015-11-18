@@ -1,8 +1,0 @@
-<div class="form-group">
-  <label class="control-label col-md-2" for="input-{{key}}">{{name}} (<a href="#">add</a>)</label>
-  <div class="col-md-{{size}}">
-{{#foreach value}}
-    <input type="text" class="form-control" data-idx="{{@index}}" {{#if @first}}id="input-{{../../key}}" {{/if}}value="{{this}}" maxlength="{{../max}}">
-{{/foreach}}
-  </div>
-</div>
