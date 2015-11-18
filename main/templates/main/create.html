@@ -1,4 +1,5 @@
 {% extends 'main/base.html' %}
+{% load staticfiles %}
 
 {% block title %}Create Math Item{% endblock %}
 
@@ -6,13 +7,18 @@
 <h1>Create</h1>
 
 <form class="pure-form">
-    <textarea class="pure-input-1 math-item-input" placeholder="Math item source"></textarea>
+    <textarea id="input" class="pure-input-1 math-item-input" placeholder="Math item source"></textarea>
 
-    <div class="math-item-preview">
+    <div id="preview" class="math-item-preview">
         &nbsp;
     </div>
 
     <button type="submit" class="pure-button pure-button-primary">Create</button>
 </form>
 
+{% endblock %}
+
+{% block bodyend %}
+<script src="{% static 'js/marked.min.js' %}"></script>
+<script src="{% static 'js/create.js' %}"></script>
 {% endblock %}

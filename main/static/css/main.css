@@ -20,3 +20,8 @@
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+
+.math-item-preview span.defined {
+    font-style: italic;
+    color: #31708f;
+}

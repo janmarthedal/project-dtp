@@ -9,12 +9,19 @@
         {% load staticfiles %}
         <link rel="stylesheet" href="{% static 'css/pure-min.css' %}">
         <link rel="stylesheet" href="{% static 'css/main.css' %}">
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                'messageStyle': 'none',
+                'CHTML-preview': {disabled: true}
+            });
+        </script>
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
     </head>
     <body>
         <div id="wrap">
-            {% block content %}{% endblock %}
+{% block content %}{% endblock %}
         </div>
         <script src="{% static 'js/jquery-2.1.4.min.js' %}"></script>
-        <script src="{% static 'js/main.js' %}"></script>
+{% block bodyend %}{% endblock %}
     </body>
 </html>
