@@ -1,0 +1,9 @@
+#wrap {
+    width: 100%;
+    max-width: 50em;
+    margin: 0 auto;
+}
+
+.math-item-input {
+    height: 10em;
+}
