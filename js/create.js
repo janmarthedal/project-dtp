@@ -1,4 +1,5 @@
 (function (window, undefined) {
+
     let $ = window.jQuery,
         input = $('#input'),
         preview = $('#preview'),
