@@ -9,7 +9,6 @@
 }
 
 .math-item-preview {
-    margin: 1em 0;
     /* Taken from pure-form input styling */
     padding: .5em .6em;
     border: 1px solid #ccc;
@@ -24,4 +23,8 @@
 .math-item-preview span.defined {
     font-style: italic;
     color: #31708f;
+}
+
+.pure-form > .math-item-preview, .pure-form > .math-item-info {
+    margin: .5em 0;
 }
