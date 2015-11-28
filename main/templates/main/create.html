@@ -1,30 +1,14 @@
 {% extends 'main/base.html' %}
 {% load staticfiles %}
 
-{% block title %}Create Math Item{% endblock %}
+{% block title %}Create {{itemtype}}{% endblock %}
 
 {% block content %}
 <h1>Create {{itemtype}}</h1>
 
-<form class="pure-form">
+<form class="pure-form" method="post">
     <textarea id="input" class="pure-input-1 math-item-input" name="body" placeholder="Math item source"></textarea>
-
-    <div id="preview" class="math-item-preview">
-        &nbsp;
-    </div>
-
-    {% if itemtype == 'definition' %}
-    <div class="math-item-info">
-        <strong>Terms defined</strong>:
-    </div>
-    {% endif %}
-    <div class="math-item-info">
-        <strong>Terms referenced</strong>:
-    </div>
-    <div class="math-item-info">
-        <strong>Items referenced</strong>:
-    </div>
-
+    <div id="preview" class="math-item-preview">&nbsp;</div>
     <button type="submit" class="pure-button pure-button-primary">Create</button>
 </form>
 
