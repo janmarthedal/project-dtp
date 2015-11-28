@@ -11,11 +11,14 @@ ALLOWED_HOSTS = ['localhost']
 
 INSTALLED_APPS = (
     'django.contrib.staticfiles',
+    'django.contrib.messages',
     'main',
 )
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 ROOT_URLCONF = 'project.urls'
@@ -29,6 +32,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
