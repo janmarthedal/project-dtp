@@ -1,0 +1,19 @@
+{% extends 'main/base.html' %}
+{% load staticfiles %}
+
+{% block title %}Drafts{% endblock %}
+
+{% block content %}
+<h1>Drafts</h1>
+
+{% if items %}
+<ul>
+    {% for item in items %}
+    <li><a href="{{item.get_absolute_url}}">{{item.get_title}}</a></li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No drafts</p>
+{% endif %}
+
+{% endblock %}
