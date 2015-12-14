@@ -1,7 +1,8 @@
-var express = require('express'),
-    consolidate = require('consolidate'),
-    handlebars = require('handlebars'),
-    app = express();
+import express from 'express';
+import consolidate from 'consolidate';
+import handlebars from 'handlebars';
+
+var app = express();
 
 handlebars.registerPartial({
     header: handlebars.compile('<!doctype html>' +
@@ -12,7 +13,7 @@ handlebars.registerPartial({
 
 app.engine('html', consolidate.handlebars);
 app.set('view engine', 'html');
-app.set('views', __dirname + '/views');
+app.set('views', __dirname + '/../views');
 
 app.get('/', function(req, res){
   res.render('index', {title: 'Test title'});
