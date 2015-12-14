@@ -1,6 +1,9 @@
 import express from 'express';
 import consolidate from 'consolidate';
 import handlebars from 'handlebars';
+import EditItemBox from './edit-item-box';
+import React from 'react';
+import ReactDOMServer from 'react-dom/server';
 
 var app = express();
 
@@ -16,7 +19,10 @@ app.set('view engine', 'html');
 app.set('views', __dirname + '/../views');
 
 app.get('/', function(req, res){
-  res.render('index', {title: 'Test title'});
+  res.render('index', {
+      title: 'Test title',
+      editItemBox: ReactDOMServer.renderToString(<EditItemBox />)
+  });
 });
 
 app.listen(3000);
