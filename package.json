@@ -1,0 +1,16 @@
+{
+  "name": "teoremer",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jan Marthedal Rasmussen",
+  "license": "ISC",
+  "devDependencies": {
+    "consolidate": "^0.13.1",
+    "express": "^4.13.3",
+    "handlebars": "^4.0.5"
+  }
+}
