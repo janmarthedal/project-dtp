@@ -12,11 +12,23 @@ module.exports = function(grunt) {
                     'dist/edit-item-box.js': 'src/edit-item-box.js'
                 }
             }
+        },
+        browserify: {
+            options: {
+                ignore: 'react'
+            },
+            client: {
+                files: {
+                    'dist/client.js': ['dist/edit-item-box.js']
+                },
+                exclude: 'react'
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-babel');
+    grunt.loadNpmTasks('grunt-browserify');
 
-    grunt.registerTask('default', ['babel']);
+    grunt.registerTask('default', ['babel', 'browserify']);
 
 };

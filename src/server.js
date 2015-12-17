@@ -1,22 +1,23 @@
 import express from 'express';
+import fs from 'fs';
 import consolidate from 'consolidate';
 import handlebars from 'handlebars';
 import EditItemBox from './edit-item-box';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
-var app = express();
+var app = express(),
+    base_dir = __dirname + '/..';
 
-handlebars.registerPartial({
-    header: handlebars.compile('<!doctype html>' +
-                '<html><head><title>{{title}}</title></head>' +
-                '<body><h1>{{title}}</h1>'),
-    footer: handlebars.compile('</body></html>')
+['header', 'footer'].forEach(function (name) {
+    var content = fs.readFileSync(base_dir + '/views/' + name + '.html', 'utf8');
+    handlebars.registerPartial(name, handlebars.compile(content));
 });
 
 app.engine('html', consolidate.handlebars);
 app.set('view engine', 'html');
-app.set('views', __dirname + '/../views');
+app.set('views', base_dir + '/views');
+app.use('/static', express.static(base_dir + '/static'));
 
 app.get('/', function(req, res){
   res.render('index', {

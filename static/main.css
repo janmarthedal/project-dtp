@@ -1,0 +1,27 @@
+#wrap {
+    width: 100%;
+    max-width: 50em;
+    margin: 0 auto;
+}
+
+.edit-item-box {
+    height: 10em;
+}
+
+.item-view {
+    margin: .5em 0;
+    /* Taken from pure-form input styling */
+    padding: .5em .6em;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px #ddd;
+    border-radius: 4px;
+    vertical-align: middle;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.item-view span.defined {
+    font-style: italic;
+    color: #31708f;
+}
