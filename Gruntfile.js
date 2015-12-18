@@ -7,10 +7,14 @@ module.exports = function(grunt) {
                 presets: ['es2015', 'react']
             },
             server: {
-                files: {
-                    'dist/server.js': 'src/server.js',
-                    'dist/edit-item-box.js': 'src/edit-item-box.js'
-                }
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'src/',
+                        src: ['*.js'],
+                        dest: 'dist/'
+                    }
+                ]
             }
         },
         browserify: {
@@ -19,9 +23,8 @@ module.exports = function(grunt) {
             },
             client: {
                 files: {
-                    'dist/client.js': ['dist/edit-item-box.js']
-                },
-                exclude: 'react'
+                    'static/client.js': ['dist/client.js']
+                }
             }
         }
     });

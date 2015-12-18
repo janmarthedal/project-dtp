@@ -2,9 +2,9 @@ import express from 'express';
 import fs from 'fs';
 import consolidate from 'consolidate';
 import handlebars from 'handlebars';
-import EditItemBox from './edit-item-box';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
+import EditItemForm from './edit-item-form';
 
 var app = express(),
     base_dir = __dirname + '/..';
@@ -21,10 +21,10 @@ app.use('/static', express.static(base_dir + '/static'));
 
 app.get('/', function(req, res){
   res.render('index', {
-      title: 'Test title',
-      editItemBox: ReactDOMServer.renderToString(<EditItemBox />)
+      title: 'Edit Item',
+      editItemForm: ReactDOMServer.renderToString(<EditItemForm />),
   });
 });
 
 app.listen(3000);
-console.log('Express server listening on port 3000');
+console.log('Listening on port 3000');
