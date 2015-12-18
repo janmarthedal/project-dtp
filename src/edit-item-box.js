@@ -1,13 +1,16 @@
 import React from 'react';
 
 export default React.createClass({
-    onChange: function (ev) {
-        console.log('change');
+    setValue: function (value) {
+        this.textarea.value = value;
+        this.props.onChange(value);
     },
-
-    render: function() {
+    render: function () {
         return (
-            <textarea onChange={this.onChange} className="edit-item-box pure-input-1" name="body" placeholder="Math item source"></textarea>
+            <textarea onChange={(event) => this.props.onChange(event.target.value)}
+                ref={(ref) => this.textarea=ref}
+                className="edit-item-box pure-input-1" name="body"
+                placeholder="Math item source" />
         );
     }
 });
