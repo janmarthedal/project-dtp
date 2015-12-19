@@ -5,17 +5,18 @@ marked.setOptions({
   sanitize: true,
 });
 
-export default React.createClass({
-    getInitialState: function() {
-        return {body: this.props.source || ''};
-    },
-    setBody: function(value) {
+export default class extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {body: props.source || ''};
+    }
+    setBody(value) {
         this.setState({body: value});
-    },
-    render: function() {
+    }
+    render() {
         var markup = {__html: marked(this.state.body)};
         return (
             <div className="item-view" dangerouslySetInnerHTML={markup} />
         );
     }
-});
+}

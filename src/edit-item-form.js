@@ -2,11 +2,11 @@ import React from 'react';
 import EditItemBox from './edit-item-box';
 import RenderItemBox from './render-item-box';
 
-export default React.createClass({
-    setBody: function (value) {
+export default class extends React.Component {
+    setBody(value) {
         this.refs.editor.setValue(value);
-    },
-    render: function () {
+    }
+    render() {
         return (
             <form className="pure-form" method="post">
                 <EditItemBox ref='editor'
@@ -16,4 +16,4 @@ export default React.createClass({
             </form>
         );
     }
-});
+}
