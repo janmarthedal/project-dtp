@@ -8,10 +8,10 @@ marked.setOptions({
 export default class extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {body: props.source || ''};
+        this.state = props.data || {body: ''};
     }
-    setBody(value) {
-        this.setState({body: value});
+    setItemData(data) {
+        this.setState(data);
     }
     render() {
         var markup = {__html: marked(this.state.body)};
