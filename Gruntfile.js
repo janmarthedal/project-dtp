@@ -4,7 +4,8 @@ module.exports = function(grunt) {
         babel: {
             options: {
                 sourceMap: true,
-                presets: ['es2015', 'react']
+                presets: ['es2015', 'react'],
+                plugins: ['transform-runtime']
             },
             server: {
                 files: [
