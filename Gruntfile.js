@@ -21,7 +21,8 @@ module.exports = function(grunt) {
         browserify: {
             client: {
                 files: {
-                    'static/client.js': ['dist/client.js']
+                    'static/core.js': ['dist/core.js'],
+                    'static/create.js': ['dist/create.js'],
                 }
             }
         }
