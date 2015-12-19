@@ -18,9 +18,6 @@ module.exports = function(grunt) {
             }
         },
         browserify: {
-            options: {
-                ignore: 'react'
-            },
             client: {
                 files: {
                     'static/client.js': ['dist/client.js']
