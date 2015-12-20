@@ -4,7 +4,9 @@ marked.setOptions({
   sanitize: true,
 });
 
-var img_re = new RegExp('<img src="([^"]*)".*?>', 'g');
+var img_re = new RegExp('<img src="([^"]*)".*?>', 'g'),
+    anchor_re = new RegExp('<a href="([^"]*)">(.*?)</a>', 'g'),
+    slug_re = new RegExp('^[-0-9a-zA-Z_]+$');
 
 function normalizeTeX(tex) {
    return tex.trim().replace(/(\\[a-zA-Z]+) +([a-zA-Z])/g , '$1{\\\\}$2').replace(/ +/g, '').replace(/\{\\\\\}/g, ' ')
@@ -25,8 +27,9 @@ function prepareEquations(eqns) {
 
 export function itemDataToHtml(data) {
     var eqns = prepareEquations(data.eqns || {}),
-        html = marked(data.body),
-        mathjax = false;
+        mathjax = false, html;
+
+    html = marked(data.body);
     html = html.replace(img_re, function (_, m) {
         if (m.indexOf('eqn/') == 0) {
             let eqn = eqns[m.substring(4)];
@@ -37,6 +40,16 @@ export function itemDataToHtml(data) {
         }
         return '<em>error</em>';
     });
+    html = html.replace(anchor_re, function (_, ref, txt) {
+        if (ref.indexOf('=') == 0 && ref.length > 1
+                && ref.substring(1).search(slug_re) === 0) {
+            ref = ref.substring(1);
+            txt = txt || ref;
+            return '<span class="defined" data-concept="' + ref + '">' + txt + '</span>';
+        }
+        return '<em>error</em>';
+    });
+
     return {html: html, mathjax: mathjax};
 }
 
@@ -54,10 +67,10 @@ export function textToItemData(text) {
         return eqnCounter;
     }
 
-    body = text.split(/\s*\$\$\s*/).map(function (p, j) {
-        return (j % 2) ? '![](eqn/' + getEqnId(p, true) + ')' :
-            p.split('$').map(function (t, k) {
-                return (k % 2) ? '![](eqn/' + getEqnId(t, false) + ')' : t;
+    body = text.split(/\s*\$\$\s*/).map(function (para, j) {
+        return (j % 2) ? '![](eqn/' + getEqnId(para, true) + ')' :
+            para.split('$').map(function (item, k) {
+                return (k % 2) ? '![](eqn/' + getEqnId(item, false) + ')' : item;
             }).join('');
     }).join('\n\n');
 
