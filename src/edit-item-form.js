@@ -13,6 +13,7 @@ export default class extends React.Component {
     }
     onChange(text) {
         var data = textToItemData(text);
+        console.log('defined', data.defined, 'references', data.item_refs);
         this.refs.viewer.setItemData(data);
     }
     render() {
