@@ -1,4 +1,5 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import fs from 'fs';
 import consolidate from 'consolidate';
 import handlebars from 'handlebars';
@@ -20,6 +21,7 @@ var app = express(),
 app.engine('html', consolidate.handlebars);
 app.set('view engine', 'html');
 app.set('views', base_dir + '/views');
+app.use(bodyParser.urlencoded({extended: true}));
 app.use('/static', express.static(base_dir + '/static'));
 
 app.get('/', function(req, res) {
@@ -32,6 +34,13 @@ app.get('/create/:type', function(req, res) {
             extrajs: ['create'],
             editItemForm: ReactDOMServer.renderToString(<EditItemForm />),
         });
+    } else
+        res.sendStatus(404);
+});
+app.post('/create/:type', function(req, res) {
+    if (req.params.type in create_types) {
+        console.log(req.body);
+        res.redirect('/');
     } else
         res.sendStatus(404);
 });
