@@ -1,8 +1,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import fs from 'fs';
+import http from 'http';
 import consolidate from 'consolidate';
 import handlebars from 'handlebars';
+import Promise from 'promise';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import EditItemForm from './edit-item-form';
@@ -17,6 +19,44 @@ var app = express(),
     var content = fs.readFileSync(base_dir + '/views/' + name + '.html', 'utf8');
     handlebars.registerPartial(name, handlebars.compile(content));
 });
+
+function post_json(host, port, path, data) {
+    return new Promise(function (resolve, reject) {
+        var postData = JSON.stringify(data);
+
+        var options = {
+            hostname: host,
+            port: port,
+            path: path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': postData.length
+            }
+        };
+
+        var req = http.request(options, function(res) {
+            var body = '';
+            if (res.statusCode >= 200 && res.statusCode < 300) {
+                res.setEncoding('utf8');
+                res.on('data', function (chunk) {
+                    body += chunk;
+                });
+                res.on('end', function() {
+                    resolve(body);
+                });
+            } else
+                reject();
+        });
+
+        req.on('error', function(e) {
+          reject();
+        });
+
+        req.write(postData);
+        req.end();
+    });
+}
 
 app.engine('html', consolidate.handlebars);
 app.set('view engine', 'html');
@@ -53,6 +93,14 @@ app.get('/show', function(req, res) {
         ),
     });
 });
+
+post_json('localhost', 8000, '/api/drafts/', {msg: 'Message', foo: 'bar'})
+    .then(function (result) {
+        console.log('response: ', result);
+    })
+    .catch(function () {
+        console.log('error');
+    });
 
 app.listen(3000);
 console.log('Listening on port 3000');
