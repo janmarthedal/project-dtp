@@ -43,7 +43,11 @@ function post_json(host, port, path, data) {
                     body += chunk;
                 });
                 res.on('end', function() {
-                    resolve(body);
+                    try {
+                        resolve(JSON.parse(body));
+                    } catch (ex) {
+                        reject(ex);
+                    }
                 });
             } else
                 reject();
@@ -75,14 +79,21 @@ app.get('/create/:type', function(req, res) {
             editItemForm: ReactDOMServer.renderToString(<EditItemForm />),
         });
     } else
-        res.sendStatus(404);
+        res.sendStatus(400);
 });
 app.post('/create/:type', function(req, res) {
     if (req.params.type in create_types) {
-        console.log(req.body);
-        res.redirect('/');
+        post_json('localhost', 8000, '/api/drafts/', {
+            type: req.params.type,
+            body: req.body
+        }).then(function (result) {
+            console.log('Created draft', result.id);
+            res.redirect('/');
+        }).catch(function () {
+            res.sendStatus(500);
+        });
     } else
-        res.sendStatus(404);
+        res.sendStatus(400);
 });
 app.get('/show', function(req, res) {
     var data = textToItemData('foobar');
@@ -93,14 +104,6 @@ app.get('/show', function(req, res) {
         ),
     });
 });
-
-post_json('localhost', 8000, '/api/drafts/', {msg: 'Message', foo: 'bar'})
-    .then(function (result) {
-        console.log('response: ', result);
-    })
-    .catch(function () {
-        console.log('error');
-    });
 
 app.listen(3000);
 console.log('Listening on port 3000');
