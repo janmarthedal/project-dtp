@@ -8,21 +8,10 @@
         <link rel="stylesheet" href="/static/pure.css">
         <link rel="stylesheet" href="/static/main.css">
         <script type="text/javascript" src="/static/core.js" defer></script>
-{{#each extrajs}}
+        {{#each extrajs}}
         <script type="text/javascript" src="/static/{{this}}.js" defer></script>
-{{/each}}
-        <script type="text/x-mathjax-config">
-            MathJax.Hub.Config({
-                messageStyle: 'none',
-                skipStartupTypeset: false,
-                jax: ["input/TeX","output/CommonHTML"],
-                extensions: ["tex2jax.js","MathMenu.js","MathZoom.js"],
-                TeX: {
-                    extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
-                }
-            });
-        </script>
-        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js" async></script>
+        {{/each}}
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js" defer></script>
     </head>
     <body>
         <div id="wrap">

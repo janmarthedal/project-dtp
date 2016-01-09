@@ -1,8 +1,10 @@
-(function (React, ReactDOM, EditItemForm) {
+(function (scope) {
+    var React = scope.React,
+        chtml_cache = new scope.CHtmlCache();
 
-    ReactDOM.render(
-        <EditItemForm />,
+    scope.ReactDOM.render(
+        <scope.EditItemForm chtml_cache={chtml_cache} />,
         document.getElementById('edit-item-form')
     );
 
-})(window.teoremer.React, window.teoremer.ReactDOM, window.teoremer.EditItemForm);
+})(window.teoremer);

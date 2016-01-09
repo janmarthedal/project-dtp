@@ -14,15 +14,22 @@ function normalizeTeX(tex) {
    return tex.trim().replace(/(\\[a-zA-Z]+) +([a-zA-Z])/g , '$1{\\\\}$2').replace(/ +/g, '').replace(/\{\\\\\}/g, ' ')
 }
 
-function prepareEquations(eqns) {
-    var peqns = {};
-    for (let key in eqns) {
-        let eqn = eqns[key];
-        peqns[key] = {
-            html: '<script type="math/tex' + (eqn.block ? '; mode=display' : '') + '">' + eqn.source + '</script>',
-            mathjax: true
-        };
+function prepareEquation(eqn, chtml_cache) {
+    if (chtml_cache) {
+        let html = chtml_cache.get_html(eqn.source, eqn.block);
+        if (html)
+            return {html: html};
     }
+    return {
+        html: '<script type="math/tex' + (eqn.block ? '; mode=display' : '') + '">' + eqn.source + '</script>',
+        mathjax: true
+    };
+}
+
+function prepareEquations(eqns, chtml_cache) {
+    var peqns = {};
+    for (let key in eqns)
+        peqns[key] = prepareEquation(eqns[key], chtml_cache);
     return peqns;
 }
 
@@ -42,7 +49,7 @@ export function textToItemData(text) {
     }
 
     if (paragraphs.length % 2 === 0)
-        paragraphs.pop;
+        paragraphs.pop();
     body = paragraphs.map(function (para, j) {
         if (j % 2) {
             return '![](eqn/' + getEqnId(para, true) + ')';
@@ -77,8 +84,8 @@ export function textToItemData(text) {
     };
 }
 
-export function itemDataToHtml(data) {
-    var eqns = prepareEquations(data.eqns || {}),
+export function itemDataToHtml(data, chtml_cache) {
+    var eqns = prepareEquations(data.eqns || {}, chtml_cache),
         mathjax = false, html;
 
     html = marked(data.body);

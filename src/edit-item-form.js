@@ -13,14 +13,14 @@ export default class extends React.Component {
     }
     onChange(text) {
         var data = textToItemData(text);
-        console.log('defined', data.defined, 'references', data.item_refs);
+        //console.log('defined', data.defined, 'references', data.item_refs);
         this.refs.viewer.setItemData(data);
     }
     render() {
         return (
             <form className="pure-form" method="post">
                 <EditItemBox ref='editor' onChange={this.onChange} />
-                <RenderItemBox ref='viewer' />
+                <RenderItemBox ref='viewer' chtml_cache={this.props.chtml_cache} />
                 <button type="submit" className="pure-button pure-button-primary">Create</button>
             </form>
         );

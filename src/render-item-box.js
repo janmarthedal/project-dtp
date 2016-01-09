@@ -23,8 +23,8 @@ export default class extends React.Component {
         }
     }
     render() {
-        var output = itemDataToHtml(this.state);
-        var markup = {__html: output.html};
+        let output = itemDataToHtml(this.state, this.props.chtml_cache),
+            markup = {__html: output.html};
         this.updateMathJax = output.mathjax;
         return (
             <div ref='viewer' className="item-view" dangerouslySetInnerHTML={markup} />
