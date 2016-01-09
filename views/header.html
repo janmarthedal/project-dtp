@@ -15,10 +15,14 @@
             MathJax.Hub.Config({
                 messageStyle: 'none',
                 skipStartupTypeset: false,
-                'CHTML-preview': {disabled: true}
+                jax: ["input/TeX","output/CommonHTML"],
+                extensions: ["tex2jax.js","MathMenu.js","MathZoom.js"],
+                TeX: {
+                    extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+                }
             });
         </script>
-        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" defer></script>
+        <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js" async></script>
     </head>
     <body>
         <div id="wrap">

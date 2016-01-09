@@ -21,7 +21,7 @@ function defineDraftItem(sequelize) {
     });
 }
 
-class DataStore {
+export default class DataStore {
     constructor() {
         var sequelize = new Sequelize('teoremer', null, null, {
           dialect: 'sqlite',
@@ -33,7 +33,9 @@ class DataStore {
         return 'D';
     }
     init() {
-        return this.DraftItem.sync();
+        return Promise.all([
+            this.DraftItem.sync(),
+        ]);
     }
     create_draft(item_type, body) {
         return this.DraftItem.create({
@@ -42,14 +44,3 @@ class DataStore {
         }).then(item => item.id);
     }
 }
-
-var datastore = new DataStore();
-
-datastore.init().then(() => {
-    console.log('init ok');
-    return datastore.create_draft(DataStore.DEFINITION, 'Hula bula');
-}).then(id =>
-    console.log('create ok', id)
-).catch(() => {
-    console.log('db fail');
-});

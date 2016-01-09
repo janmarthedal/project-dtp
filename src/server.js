@@ -10,6 +10,7 @@ import ReactDOMServer from 'react-dom/server';
 import EditItemForm from './edit-item-form';
 import RenderItemBox from './render-item-box';
 import {textToItemData} from './item-data';
+import DataStore from './data-store';
 
 const base_dir = __dirname + '/..';
 
@@ -85,6 +86,10 @@ function setup_express() {
 Promise.resolve(true).then(() => {
     console.log('Initializing handlebars');
     return setup_handlebars();
+}).then(() => {
+    var datastore = new DataStore();
+    console.log('Initializing data store');
+    return datastore.init();
 }).then(() => {
     console.log('Initializing express');
     return setup_express();

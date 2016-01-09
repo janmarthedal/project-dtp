@@ -27,8 +27,8 @@ function prepareEquations(eqns) {
 }
 
 export function textToItemData(text) {
-    var idToEqn = {}, eqnToId = {}, eqnCounter = 0,
-        defined = {}, refs = {}, body;
+    var idToEqn = {}, eqnToId = {}, eqnCounter = 0, defined = {}, refs = {},
+        paragraphs = text.split(/\s*\$\$\s*/), body, items;
 
     function getEqnId(tex, block) {
         tex = normalizeTeX(tex);
@@ -41,9 +41,16 @@ export function textToItemData(text) {
         return eqnCounter;
     }
 
-    body = text.split(/\s*\$\$\s*/).map(function (para, j) {
-        return (j % 2) ? '![](eqn/' + getEqnId(para, true) + ')' :
-            para.split('$').map(function (item, k) {
+    if (paragraphs.length % 2 === 0)
+        paragraphs.pop;
+    body = paragraphs.map(function (para, j) {
+        if (j % 2) {
+            return '![](eqn/' + getEqnId(para, true) + ')';
+        } else {
+            items = para.split('$');
+            if (items.length % 2 === 0)
+                items.pop();
+            return items.map(function (item, k) {
                 return (k % 2) ? '![](eqn/' + getEqnId(item, false) + ')'
                     : item.replace(md_link_re, function(all, text, link) {
                         var match = link.match(con_def_re);
@@ -59,6 +66,7 @@ export function textToItemData(text) {
                         return '\\[' + text + '\\]\\(' + link + '\\)';
                     });
             }).join('');
+        }
     }).join('\n\n');
 
     return {
