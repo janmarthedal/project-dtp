@@ -1,5 +1,6 @@
 (function (scope) {
-    var React = scope.React,
+
+    const React = scope.React,
         chtml_cache = new scope.CHtmlCache();
 
     scope.ReactDOM.render(

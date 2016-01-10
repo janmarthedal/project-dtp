@@ -13,6 +13,16 @@ import {textToItemData} from './item-data';
 import DataStore from './data-store';
 
 const base_dir = __dirname + '/..';
+const create_types = {
+    definition: {
+        title: 'Definition',
+        db_type: DataStore.DEFINITION
+    },
+    theorem: {
+        title: 'Theorem',
+        db_type: DataStore.THEOREM
+    }
+}
 
 function load_handlebars_partial(name) {
     new Promise((resolve, reject) => {
@@ -28,13 +38,14 @@ function load_handlebars_partial(name) {
 }
 
 function setup_handlebars() {
+    console.log('Initializing handlebars');
     return Promise.all(['header', 'footer'].map(load_handlebars_partial));
 }
 
-function setup_express() {
-    const create_types = {'definition': 'Definition', 'theorem': 'Theorem'};
-    var app = express();
+function setup_express(datastore) {
+    console.log('Initializing express');
 
+    let app = express();
     app.engine('html', consolidate.handlebars);
     app.set('view engine', 'html');
     app.set('views', base_dir + '/views');
@@ -47,7 +58,7 @@ function setup_express() {
     app.get('/create/:type', function(req, res) {
         if (req.params.type in create_types) {
             res.render('create', {
-                title: 'New ' + create_types[req.params.type],
+                title: 'New ' + create_types[req.params.type].title,
                 extrajs: ['create'],
                 editItemForm: ReactDOMServer.renderToString(<EditItemForm />),
             });
@@ -56,20 +67,20 @@ function setup_express() {
     });
     app.post('/create/:type', function(req, res) {
         if (req.params.type in create_types) {
-            post_json('localhost', 8000, '/api/drafts/', {
-                type: req.params.type,
-                body: req.body
-            }).then(function (result) {
-                console.log('Created draft', result.id);
+            const item_type = create_types[req.params.type].db_type,
+                body = req.body.body;
+            datastore.create_draft(item_type, body).then(id => {
+                console.log('Created draft', create_types[req.params.type].title, id);
                 res.redirect('/');
-            }).catch(function () {
+            }).catch(err => {
+                console.log('Error creating draft', err);
                 res.sendStatus(500);
             });
         } else
             res.sendStatus(400);
     });
     app.get('/show', function(req, res) {
-        var data = textToItemData('foobar');
+        const data = textToItemData('foobar');
         res.render('show', {
             title: 'Show Item',
             showItem: ReactDOMServer.renderToStaticMarkup(
@@ -83,16 +94,18 @@ function setup_express() {
     return 3000;
 }
 
-Promise.resolve(true).then(() => {
-    console.log('Initializing handlebars');
-    return setup_handlebars();
-}).then(() => {
-    var datastore = new DataStore();
+function create_datastore() {
     console.log('Initializing data store');
-    return datastore.init();
-}).then(() => {
-    console.log('Initializing express');
-    return setup_express();
-}).then(port =>
-    console.log('Listening on port ' + port)
+    var datastore = new DataStore();
+    return datastore.init().then(() => datastore);
+}
+
+Promise.resolve(true).then(
+    setup_handlebars
+).then(
+    create_datastore
+).then(
+    datastore => setup_express(datastore)
+).then(
+    port => console.log('Listening on port ' + port)
 );

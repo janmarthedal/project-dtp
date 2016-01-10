@@ -23,7 +23,7 @@ function defineDraftItem(sequelize) {
 
 export default class DataStore {
     constructor() {
-        var sequelize = new Sequelize('teoremer', null, null, {
+        let sequelize = new Sequelize('teoremer', null, null, {
           dialect: 'sqlite',
           storage: './db.sqlite'
         });
@@ -32,6 +32,12 @@ export default class DataStore {
     static get DEFINITION() {
         return 'D';
     }
+    static get THEOREM() {
+        return 'T';
+    }
+    static get PROOF() {
+        return 'P';
+    }
     init() {
         return Promise.all([
             this.DraftItem.sync(),
@@ -39,8 +45,8 @@ export default class DataStore {
     }
     create_draft(item_type, body) {
         return this.DraftItem.create({
-            item_type: item_type,
-            body: body
+            item_type,
+            body
         }).then(item => item.id);
     }
 }

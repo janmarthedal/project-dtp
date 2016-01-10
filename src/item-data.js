@@ -4,7 +4,7 @@ marked.setOptions({
   sanitize: true,
 });
 
-var img_re = new RegExp('<img src="([^"]*)".*?>', 'g'),
+const img_re = new RegExp('<img src="([^"]*)".*?>', 'g'),
     anchor_re = new RegExp('<a href="([^"]*)">(.*?)</a>', 'g'),
     con_def_re = new RegExp('^=([-0-9a-zA-Z_]+)$'),
     item_ref = new RegExp('^([^#]+)(?:#([-0-9a-zA-Z_]+))?$'),
@@ -16,7 +16,7 @@ function normalizeTeX(tex) {
 
 function prepareEquation(eqn, chtml_cache) {
     if (chtml_cache) {
-        let html = chtml_cache.get_html(eqn.source, eqn.block);
+        const html = chtml_cache.get_html(eqn.source, eqn.block);
         if (html)
             return {html: html};
     }
@@ -27,15 +27,16 @@ function prepareEquation(eqn, chtml_cache) {
 }
 
 function prepareEquations(eqns, chtml_cache) {
-    var peqns = {};
+    const peqns = {};
     for (let key in eqns)
         peqns[key] = prepareEquation(eqns[key], chtml_cache);
     return peqns;
 }
 
 export function textToItemData(text) {
-    var idToEqn = {}, eqnToId = {}, eqnCounter = 0, defined = {}, refs = {},
-        paragraphs = text.split(/\s*\$\$\s*/), body, items;
+    const idToEqn = {}, eqnToId = {}, defined = {}, refs = {},
+       paragraphs = text.split(/\s*\$\$\s*/);
+    let eqnCounter = 0;
 
     function getEqnId(tex, block) {
         tex = normalizeTeX(tex);
@@ -50,17 +51,17 @@ export function textToItemData(text) {
 
     if (paragraphs.length % 2 === 0)
         paragraphs.pop();
-    body = paragraphs.map(function (para, j) {
+    let body = paragraphs.map(function (para, j) {
         if (j % 2) {
             return '![](eqn/' + getEqnId(para, true) + ')';
         } else {
-            items = para.split('$');
+            let items = para.split('$');
             if (items.length % 2 === 0)
                 items.pop();
             return items.map(function (item, k) {
                 return (k % 2) ? '![](eqn/' + getEqnId(item, false) + ')'
                     : item.replace(md_link_re, function(all, text, link) {
-                        var match = link.match(con_def_re);
+                        let match = link.match(con_def_re);
                         if (match) {
                             defined[match[1]] = true;
                             return all;
@@ -85,10 +86,10 @@ export function textToItemData(text) {
 }
 
 export function itemDataToHtml(data, chtml_cache) {
-    var eqns = prepareEquations(data.eqns || {}, chtml_cache),
-        mathjax = false, html;
+    const eqns = prepareEquations(data.eqns || {}, chtml_cache);
+    let mathjax = false,
+        html = marked(data.body);
 
-    html = marked(data.body);
     html = html.replace(img_re, function (_, m) {
         if (m.indexOf('eqn/') == 0) {
             let eqn = eqns[m.substring(4)];
@@ -100,7 +101,7 @@ export function itemDataToHtml(data, chtml_cache) {
         return '<em>error</em>';
     });
     html = html.replace(anchor_re, function (_, ref, txt) {
-        var match = ref.match(con_def_re);
+        let match = ref.match(con_def_re);
         if (match) {
             ref = match[1];
             txt = txt || ref;
