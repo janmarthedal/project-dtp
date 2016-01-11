@@ -1,11 +1,11 @@
-(function (scope) {
+import React from 'react';
+import ReactDOM from 'react-dom';
+import EditItemForm from './edit-item-form';
+import CHtmlCache from './chtml-cache';
 
-    const React = scope.React,
-        chtml_cache = new scope.CHtmlCache();
+let chtml_cache = new CHtmlCache();
 
-    scope.ReactDOM.render(
-        <scope.EditItemForm chtml_cache={chtml_cache} />,
-        document.getElementById('edit-item-form')
-    );
-
-})(window.teoremer);
+ReactDOM.render(
+    <EditItemForm chtml_cache={chtml_cache} />,
+    document.getElementById('edit-item-form')
+);

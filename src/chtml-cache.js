@@ -1,3 +1,5 @@
+import MathJax from 'mathjax';
+import MathJaxReady from './mathjax-ready';
 
 function cleanElement(el) {
     el.removeAttribute('id');
@@ -9,7 +11,7 @@ export default class CHtmlCache {
     constructor() {
         this._cache = [];
         this._newElements = [];
-        teoremer.MathJaxReady.then(MathJax => {
+        MathJaxReady.then(MathJax => {
             console.log('MathJax ready');
             MathJax.Hub.Register.MessageHook('New Math', message => {
                 const script = MathJax.Hub.getJaxFor(message[1]).SourceElement();
