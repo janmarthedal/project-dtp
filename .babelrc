@@ -1,0 +1,5 @@
+{
+    "ignore": ["src/chtml-cache.js", "src/core.js", "src/create.js", "src/mathjax-ready.js"],
+    "presets": ["react", "es2015"],
+    "plugins": ["transform-runtime"]
+}
