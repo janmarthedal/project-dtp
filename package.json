@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "build": "babel src -d dist"
+    "s": "babel --presets es2015,react --plugins transform-runtime --ignore core.js,create.js,mathjax-ready.js,chtml-cache.js src -d dist"
   },
   "author": "Jan Marthedal Rasmussen",
   "license": "ISC",
