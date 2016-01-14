@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "c": "webpack",
     "s": "babel --presets es2015,react --plugins transform-runtime --ignore core.js,create.js,mathjax-ready.js,chtml-cache.js src -d dist"
   },
   "author": "Jan Marthedal Rasmussen",
