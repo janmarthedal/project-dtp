@@ -3,6 +3,7 @@ import MathJaxReady from './mathjax-ready';
 window.MathJax = {
     AuthorInit: function () {
         window.MathJax.Hub.Register.StartupHook('End', function () {
+            console.log('MathJax ready');
             MathJaxReady._resolve(window.MathJax);
         });
     },

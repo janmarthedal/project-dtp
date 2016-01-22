@@ -6,10 +6,6 @@ export default class extends React.Component {
         this.timer = null;
         this._onChange = this._onChange.bind(this);
     }
-    setValue(value) {
-        this.refs.textarea.value = value;
-        this.props.onChange(value);
-    }
     _onChange(event) {
         if (this.timer)
             window.clearTimeout(this.timer);
@@ -20,8 +16,9 @@ export default class extends React.Component {
     }
     render() {
         return (
-            <textarea onChange={this._onChange} name="body" ref='textarea'
-                className="edit-item-box pure-input-1" placeholder="Math item source" />
+            <textarea onChange={this._onChange} name="body"
+                className="edit-item-box pure-input-1" placeholder="Math item source"
+                defaultValue={this.props.initialBody} />
         );
     }
 }

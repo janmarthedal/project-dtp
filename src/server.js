@@ -89,8 +89,8 @@ function views_create_draft(req, res) {
     if (req.params.type in create_types) {
         res.render('create', {
             title: 'New ' + create_types[req.params.type].title,
-            extrajs: ['create'],
-            editItemForm: ReactDOMServer.renderToString(<EditItemForm />),
+            extrajs: ['edit'],
+            editItemForm: ReactDOMServer.renderToStaticMarkup(<EditItemForm />),
         });
     } else
         res.sendStatus(400);
@@ -119,11 +119,22 @@ function views_show_draft(req, res) {
             showItem: ReactDOMServer.renderToStaticMarkup(
                 <RenderItemBox data={data} />
             ),
+            linkEdit: req.router.reverse('draft-edit', {id: item.id}),
         });
     });
 }
 
-function setup_express(datastore) {
+function views_edit_draft(req, res) {
+    req.datastore.get_draft(req.params.id).then(item => {
+        res.render('edit', {
+            title: 'Edit ' + draft_title(item),
+            extrajs: ['edit'],
+            editItemForm: ReactDOMServer.renderToStaticMarkup(<EditItemForm body={item.body} />),
+        });
+    }).catch(() => res.sendStatus(404));
+}
+
+function setup_express(datastore, port) {
     console.log('Initializing express');
 
     const app = express();
@@ -145,11 +156,10 @@ function setup_express(datastore) {
     router.add('get', '/create/:type', views_create_draft, 'draft-create');
     router.add('post', '/create/:type', views_create_draft_post, 'draft-create-post');
     router.add('get', '/drafts/:id', views_show_draft, 'draft-show');
+    router.add('get', '/drafts/:id/edit', views_edit_draft, 'draft-edit');
     router.init_express(app);
 
-    app.listen(3000);
-
-    return 3000;
+    app.listen(port);
 }
 
 function create_datastore() {
@@ -164,7 +174,8 @@ Promise.resolve(true).then(
     create_datastore
 ).then(
     datastore => {
-        const port = setup_express(datastore);
+        const port = 3000;
+        setup_express(datastore, port);
         console.log('Listening on port ' + port);
     }
 );

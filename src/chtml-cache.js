@@ -1,4 +1,3 @@
-import MathJax from 'mathjax';
 import MathJaxReady from './mathjax-ready';
 
 function cleanElement(el) {
@@ -12,7 +11,6 @@ export default class CHtmlCache {
         this._cache = [];
         this._newElements = [];
         MathJaxReady.then(MathJax => {
-            console.log('MathJax ready');
             MathJax.Hub.Register.MessageHook('New Math', message => {
                 const script = MathJax.Hub.getJaxFor(message[1]).SourceElement();
                 this._newElements.push(script);
