@@ -49,4 +49,12 @@ export default class DataStore {
             body
         }).then(item => item.id);
     }
+    get_draft(id) {
+        return this.DraftItem.findById(id);
+    }
+    get_draft_list() {
+        return this.DraftItem.findAll({
+            attributes: ['id', 'item_type', 'updated_at']
+        });
+    }
 }

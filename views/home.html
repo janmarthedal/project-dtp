@@ -2,6 +2,10 @@
 
 <h1>Project DTP</h1>
 
+<ul>{{#each items}}
+    <li><a href="{{link}}">{{name}}</a></li>{{/each}}
+</ul>
+
 <p>
     <a class="pure-button pure-button-primary" href="{{linkCreateDefinition}}">New Definition</a>
     <a class="pure-button pure-button-primary" href="{{linkCreateTheorem}}">New Theorem</a>

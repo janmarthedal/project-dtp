@@ -27,6 +27,15 @@ create_types[theorem_slug] = {
     db_type: DataStore.THEOREM
 };
 
+function draft_title(item) {
+    for (let slug in create_types) {
+        const ct = create_types[slug];
+        if (ct.db_type === item.item_type)
+            return ct.title + ' ' + item.id;
+    }
+    throw new Error('draft_title');
+}
+
 function load_handlebars_partial(name) {
     new Promise((resolve, reject) => {
         fs.readFile(base_dir + '/views/' + name + '.html', 'utf8', (err, content) => {
@@ -63,12 +72,16 @@ class Router {
     }
 }
 
-const router = new Router();
-
 function views_home(req, res) {
-    res.render('home', {
-        linkCreateDefinition: router.reverse('draft-create', {type: definition_slug}),
-        linkCreateTheorem: router.reverse('draft-create', {type: theorem_slug}),
+    req.datastore.get_draft_list().then(drafts => {
+        res.render('home', {
+            items: drafts.map(item => ({
+                name: draft_title(item),
+                link: req.router.reverse('draft-show', {id: item.id})
+            })),
+            linkCreateDefinition: req.router.reverse('draft-create', {type: definition_slug}),
+            linkCreateTheorem: req.router.reverse('draft-create', {type: theorem_slug}),
+        });
     });
 }
 
@@ -87,7 +100,7 @@ function views_create_draft_post(req, res) {
     if (req.params.type in create_types) {
         const item_type = create_types[req.params.type].db_type,
             body = req.body.body;
-        datastore.create_draft(item_type, body).then(id => {
+        req.datastore.create_draft(item_type, body).then(id => {
             console.log('Created draft', create_types[req.params.type].title, id);
             res.redirect('/');
         }).catch(err => {
@@ -99,12 +112,14 @@ function views_create_draft_post(req, res) {
 }
 
 function views_show_draft(req, res) {
-    const data = textToItemData('foobar');
-    res.render('show', {
-        title: 'Show Item',
-        showItem: ReactDOMServer.renderToStaticMarkup(
-            <RenderItemBox data={data} />
-        ),
+    req.datastore.get_draft(req.params.id).then(item => {
+        const data = textToItemData(item.body);
+        res.render('show', {
+            title: draft_title(item),
+            showItem: ReactDOMServer.renderToStaticMarkup(
+                <RenderItemBox data={data} />
+            ),
+        });
     });
 }
 
@@ -112,16 +127,24 @@ function setup_express(datastore) {
     console.log('Initializing express');
 
     const app = express();
+    const router = new Router();
+
     app.engine('html', consolidate.handlebars);
     app.set('view engine', 'html');
     app.set('views', base_dir + '/views');
     app.use(bodyParser.urlencoded({extended: true}));
     app.use('/static', express.static(base_dir + '/static'));
 
+    app.all('*', (req, res, next) => {
+        req.datastore = datastore;
+        req.router = router;
+        next();
+    });
+
     router.add('get', '/', views_home, 'home');
     router.add('get', '/create/:type', views_create_draft, 'draft-create');
     router.add('post', '/create/:type', views_create_draft_post, 'draft-create-post');
-    router.add('get', '/show', views_show_draft, 'draft-show');
+    router.add('get', '/drafts/:id', views_show_draft, 'draft-show');
     router.init_express(app);
 
     app.listen(3000);
