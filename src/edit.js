@@ -6,9 +6,10 @@ import CHtmlCache from './chtml-cache';
 
 const chtml_cache = new CHtmlCache(),
     container = document.getElementById('edit-item-form'),
-    value = container.querySelector('textarea').value;
+    notes = container.querySelector('textarea.edit-notes-box').value,
+    body = container.querySelector('textarea.edit-item-box').value;
 
 ReactDOM.render(
-    <EditItemForm body={value} mathjax_ready={MathJaxReady} chtml_cache={chtml_cache} />,
+    <EditItemForm notes={notes} body={body} mathjax_ready={MathJaxReady} chtml_cache={chtml_cache} />,
     container
 );

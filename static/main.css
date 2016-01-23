@@ -4,6 +4,10 @@
     margin: 0 auto;
 }
 
+.edit-notes-box {
+    height: 4em;
+}
+
 .edit-item-box {
     height: 10em;
 }

@@ -99,8 +99,9 @@ function views_create_draft(req, res) {
 function views_create_draft_post(req, res) {
     if (req.params.type in create_types) {
         const item_type = create_types[req.params.type].db_type,
-            body = req.body.body;
-        req.datastore.create_draft(item_type, body).then(id => {
+            body = req.body.body,
+            notes = req.body.notes;
+        req.datastore.create_draft(item_type, body, notes).then(id => {
             console.log('Created draft', create_types[req.params.type].title, id);
             res.redirect('/');
         }).catch(err => {
@@ -116,6 +117,7 @@ function views_show_draft(req, res) {
         const data = textToItemData(item.body);
         res.render('show', {
             title: draft_title(item),
+            notes: item.notes,
             showItem: ReactDOMServer.renderToStaticMarkup(
                 <StaticItemBox data={data} />
             ),
@@ -129,7 +131,8 @@ function views_edit_draft(req, res) {
         res.render('edit', {
             title: 'Edit ' + draft_title(item),
             extrajs: ['edit'],
-            editItemForm: ReactDOMServer.renderToStaticMarkup(<EditItemForm body={item.body} />),
+            editItemForm: ReactDOMServer.renderToStaticMarkup(
+                <EditItemForm body={item.body} notes={item.notes} />),
         });
     }).catch(() => res.sendStatus(404));
 }
@@ -178,4 +181,6 @@ Promise.resolve(true).then(
         setup_express(datastore, port);
         console.log('Listening on port ' + port);
     }
-);
+).catch(err => {
+    console.log('Fail during initialization', err);
+});
