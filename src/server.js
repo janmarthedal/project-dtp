@@ -99,6 +99,12 @@ function views_show_draft(req, res) {
     });
 }
 
+function views_show_draft_post(req, res) {
+    req.datastore.delete_draft(req.params.id).then(() => {
+        res.redirect(req.router.reverse('home'));
+    });
+}
+
 function views_create_draft(req, res) {
     const linkCancel = req.router.reverse('home');
     if (req.params.type in create_types) {
@@ -170,6 +176,7 @@ function setup_express(datastore, port) {
 
     router.add('get', '/', views_home, 'home');
     router.add('get', '/drafts/:id', views_show_draft, 'draft-show');
+    router.add('post', '/drafts/:id', views_show_draft_post, 'draft-show-post');
     router.add('get', '/create/:type', views_create_draft, 'draft-create');
     router.add('post', '/create/:type', views_create_draft_post, 'draft-create-post');
     router.add('get', '/drafts/:id/edit', views_edit_draft, 'draft-edit');

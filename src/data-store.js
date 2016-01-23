@@ -93,6 +93,9 @@ export default class DataStore {
             })
         );
     }
+    delete_draft(id) {
+        return this.DraftItem.findById(id).then(item => item.destroy());
+    }
     get_draft(id) {
         return this.DraftItem.findById(id);
     }
