@@ -95,4 +95,12 @@ export default class DataStore {
     create_mathitem(item_type, body) {
         return this.MathItem.create({item_type, body}).then(item => item.id);
     }
+    get_mathitem(id) {
+        return this.MathItem.findById(id);
+    }
+    get_mathitem_list() {
+        return this.MathItem.findAll({
+            attributes: ['id', 'item_type', 'created_at']
+        });
+    }
 }

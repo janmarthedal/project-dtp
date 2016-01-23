@@ -27,13 +27,25 @@ create_types[theorem_slug] = {
     db_type: DataStore.THEOREM
 };
 
-function draft_title(item) {
+function item_type_title(item) {
     for (let slug in create_types) {
         const ct = create_types[slug];
         if (ct.db_type === item.item_type)
-            return ct.title + ' ' + item.id;
+            return ct.title;
     }
-    throw new Error('draft_title');
+    throw new Error('item_type_title');
+}
+
+function draft_title(item) {
+    return item_type_title(item) + ' ' + item.id;
+}
+
+function mathitem_slug(item) {
+    return item.item_type + item.id;
+}
+
+function mathitem_title(item) {
+    return item_type_title(item) + ' ' + mathitem_slug(item);
 }
 
 function load_handlebars_partial(name) {
@@ -73,8 +85,12 @@ class Router {
 }
 
 function views_home(req, res) {
-    req.datastore.get_draft_list().then(drafts => {
+    req.datastore.get_mathitem_list().then(items => {
         res.render('home', {
+            items: items.map(item => ({
+                name: mathitem_title(item),
+                link: req.router.reverse('mathitem-show', {slug: mathitem_slug(item)})
+            })),
             linkDrafts: req.router.reverse('drafts-home'),
             linkCreateDefinition: req.router.reverse('draft-create', {type: definition_slug}),
             linkCreateTheorem: req.router.reverse('draft-create', {type: theorem_slug}),
@@ -104,6 +120,27 @@ function views_show_draft(req, res) {
             ),
             linkEdit: req.router.reverse('draft-edit', {id: item.id}),
         });
+    });
+}
+
+function views_show_mathitem(req, res) {
+    const match = req.params.slug.match(/([DTP])([1-9][0-9]*)/);
+    if (!match) {
+        res.sendStatus(404);
+        return;
+    }
+    req.datastore.get_mathitem(match[2]).then(item => {
+        if (item.item_type === match[1]) {
+            const data = textToItemData(item.body);
+            res.render('show-mathitem', {
+                title: mathitem_title(item),
+                showItem: ReactDOMServer.renderToStaticMarkup(
+                    <StaticItemBox data={data} />
+                ),
+            });
+        } else {
+            res.sendStatus(404);
+        }
     });
 }
 
@@ -206,6 +243,7 @@ function setup_express(datastore, port) {
     router.add('post', '/create/:type', views_create_draft_post, 'draft-create-post');
     router.add('get', '/drafts/:id/edit', views_edit_draft, 'draft-edit');
     router.add('post', '/drafts/:id/edit', views_edit_draft_post, 'draft-edit-post');
+    router.add('get', '/items/:slug', views_show_mathitem, 'mathitem-show');
     router.init_express(app);
 
     app.listen(port);
