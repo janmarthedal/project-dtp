@@ -8,7 +8,7 @@ import Promise from 'promise';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import EditItemForm from './edit-item-form';
-import RenderItemBox from './render-item-box';
+import StaticItemBox from './static-item-box';
 import {textToItemData} from './item-data';
 import DataStore from './data-store';
 
@@ -117,7 +117,7 @@ function views_show_draft(req, res) {
         res.render('show', {
             title: draft_title(item),
             showItem: ReactDOMServer.renderToStaticMarkup(
-                <RenderItemBox data={data} />
+                <StaticItemBox data={data} />
             ),
             linkEdit: req.router.reverse('draft-edit', {id: item.id}),
         });
