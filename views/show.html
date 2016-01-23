@@ -6,10 +6,10 @@
 
 {{{showItem}}}
 
-<a href="{{linkEdit}}" class="pure-button pure-button-primary">Edit</a>
-<a href="#" class="pure-button pure-button-primary">Publish</a>
-<form class="pull-right" method="post">
-  <button type="submit" class="pure-button button-danger">Delete</button>
+<form method="post">
+  <a href="{{linkEdit}}" class="pure-button pure-button-primary">Edit</a>
+  <button name="publish" class="pure-button pure-button-primary">Publish</button>
+  <button name="delete" class="pure-button button-danger pull-right">Delete</button>
 </form>
 
 {{> footer }}

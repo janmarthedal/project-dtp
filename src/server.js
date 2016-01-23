@@ -100,9 +100,25 @@ function views_show_draft(req, res) {
 }
 
 function views_show_draft_post(req, res) {
-    req.datastore.delete_draft(req.params.id).then(() => {
-        res.redirect(req.router.reverse('home'));
-    });
+    console.log(req.body);
+    if ('delete' in req.body) {
+        req.datastore.delete_draft(req.params.id).then(() => {
+            res.redirect(req.router.reverse('home'));
+        });
+    } else if ('publish' in req.body) {
+        const draft_id = req.params.id;
+        req.datastore.get_draft(draft_id).then(
+            draft => req.datastore.create_mathitem(draft.item_type, draft.body)
+        ).then(
+            item_id => req.datastore.delete_draft(draft_id).then(() => item_id)
+        ).then(
+            item_id => {
+                console.log('Item id', item_id);
+                res.redirect(req.router.reverse('home'));
+            }
+        );
+    } else
+        res.sendStatus(400);
 }
 
 function views_create_draft(req, res) {

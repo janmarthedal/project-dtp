@@ -15,12 +15,9 @@ function defineMathItem(sequelize) {
             type: Sequelize.TEXT,
             allowNull: false
         },
-        created_at: {
-            type: Sequelize.DATE,
-            allowNull: false
-        },
     }, {
-        timestamps: false,
+        timestamps: true,
+        updatedAt: false,
         underscored: true
     });
     MathItem.belongsTo(MathItem, {as: 'parent'});
@@ -79,19 +76,10 @@ export default class DataStore {
         ]);
     }
     create_draft(item_type, body, notes) {
-        return this.DraftItem.create({
-            item_type,
-            body,
-            notes,
-        }).then(item => item.id);
+        return this.DraftItem.create({item_type, body, notes}).then(item => item.id);
     }
     update_draft(id, body, notes) {
-        return this.DraftItem.findById(id).then(item =>
-            item.update({
-                body,
-                notes,
-            })
-        );
+        return this.DraftItem.findById(id).then(item => item.update({body, notes}));
     }
     delete_draft(id) {
         return this.DraftItem.findById(id).then(item => item.destroy());
@@ -103,5 +91,8 @@ export default class DataStore {
         return this.DraftItem.findAll({
             attributes: ['id', 'item_type', 'notes', 'updated_at']
         });
+    }
+    create_mathitem(item_type, body) {
+        return this.MathItem.create({item_type, body}).then(item => item.id);
     }
 }
