@@ -85,33 +85,6 @@ function views_home(req, res) {
     });
 }
 
-function views_create_draft(req, res) {
-    if (req.params.type in create_types) {
-        res.render('create', {
-            title: 'New ' + create_types[req.params.type].title,
-            extrajs: ['edit'],
-            editItemForm: ReactDOMServer.renderToStaticMarkup(<EditItemForm />),
-        });
-    } else
-        res.sendStatus(400);
-}
-
-function views_create_draft_post(req, res) {
-    if (req.params.type in create_types) {
-        const item_type = create_types[req.params.type].db_type,
-            body = req.body.body,
-            notes = req.body.notes;
-        req.datastore.create_draft(item_type, body, notes).then(id => {
-            console.log('Created draft', create_types[req.params.type].title, id);
-            res.redirect('/');
-        }).catch(err => {
-            console.log('Error creating draft', err);
-            res.sendStatus(500);
-        });
-    } else
-        res.sendStatus(400);
-}
-
 function views_show_draft(req, res) {
     req.datastore.get_draft(req.params.id).then(item => {
         const data = textToItemData(item.body);
@@ -126,15 +99,55 @@ function views_show_draft(req, res) {
     });
 }
 
+function views_create_draft(req, res) {
+    const linkCancel = req.router.reverse('home');
+    if (req.params.type in create_types) {
+        res.render('create', {
+            title: 'New ' + create_types[req.params.type].title,
+            extrajs: ['edit'],
+            editItemForm: ReactDOMServer.renderToStaticMarkup(
+                <EditItemForm linkCancel={linkCancel} />),
+        });
+    } else
+        res.sendStatus(400);
+}
+
+function views_create_draft_post(req, res) {
+    if (req.params.type in create_types) {
+        const item_type = create_types[req.params.type].db_type,
+            body = req.body.body,
+            notes = req.body.notes;
+        req.datastore.create_draft(item_type, body, notes).then(id => {
+            console.log('Created draft', create_types[req.params.type].title, id);
+            res.redirect(req.router.reverse('draft-show', {id}));
+        }).catch(err => {
+            console.log('Error creating draft', err);
+            res.sendStatus(500);
+        });
+    } else
+        res.sendStatus(400);
+}
+
 function views_edit_draft(req, res) {
+    const linkCancel = req.router.reverse('draft-show', {id: req.params.id});
     req.datastore.get_draft(req.params.id).then(item => {
         res.render('edit', {
             title: 'Edit ' + draft_title(item),
             extrajs: ['edit'],
             editItemForm: ReactDOMServer.renderToStaticMarkup(
-                <EditItemForm body={item.body} notes={item.notes} />),
+                <EditItemForm body={item.body} notes={item.notes} linkCancel={linkCancel} />),
         });
     }).catch(() => res.sendStatus(404));
+}
+
+function views_edit_draft_post(req, res) {
+    req.datastore.update_draft(req.params.id, req.body.body, req.body.notes).then(() => {
+        console.log('Updated draft', req.params.id);
+        res.redirect(req.router.reverse('draft-show', {id: req.params.id}));
+    }).catch(err => {
+        console.log('Error updating draft', err);
+        res.sendStatus(500);
+    });
 }
 
 function setup_express(datastore, port) {
@@ -156,10 +169,11 @@ function setup_express(datastore, port) {
     });
 
     router.add('get', '/', views_home, 'home');
+    router.add('get', '/drafts/:id', views_show_draft, 'draft-show');
     router.add('get', '/create/:type', views_create_draft, 'draft-create');
     router.add('post', '/create/:type', views_create_draft_post, 'draft-create-post');
-    router.add('get', '/drafts/:id', views_show_draft, 'draft-show');
     router.add('get', '/drafts/:id/edit', views_edit_draft, 'draft-edit');
+    router.add('post', '/drafts/:id/edit', views_edit_draft_post, 'draft-edit-post');
     router.init_express(app);
 
     app.listen(port);

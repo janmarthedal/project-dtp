@@ -30,3 +30,12 @@
     font-style: italic;
     color: #31708f;
 }
+
+.button-danger {
+    background: #ca3c3c;
+    color: #fff;
+}
+
+.pull-right {
+    float: right;
+}

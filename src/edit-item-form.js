@@ -18,8 +18,7 @@ export default class extends React.Component {
         }, 500);
     }
     render() {
-        const body = this.state.body,
-            data = textToItemData(body);
+        const body = this.state.body, data = textToItemData(body);
         return (
             <form className="pure-form pure-form-stacked" method="post">
                 <label htmlFor="edit-notes">Notes</label>
@@ -31,6 +30,7 @@ export default class extends React.Component {
                 <label>Preview</label>
                 <RenderItemBox data={data} mathjax_ready={this.props.mathjax_ready} chtml_cache={this.props.chtml_cache} />
                 <button type="submit" className="pure-button pure-button-primary">Save</button>
+                <a href={this.props.linkCancel} className="pure-button button-danger pull-right">Cancel</a>
             </form>
         );
     }

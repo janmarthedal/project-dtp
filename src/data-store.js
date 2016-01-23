@@ -85,6 +85,14 @@ export default class DataStore {
             notes,
         }).then(item => item.id);
     }
+    update_draft(id, body, notes) {
+        return this.DraftItem.findById(id).then(item =>
+            item.update({
+                body,
+                notes,
+            })
+        );
+    }
     get_draft(id) {
         return this.DraftItem.findById(id);
     }
