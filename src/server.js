@@ -75,12 +75,20 @@ class Router {
 function views_home(req, res) {
     req.datastore.get_draft_list().then(drafts => {
         res.render('home', {
+            linkDrafts: req.router.reverse('drafts-home'),
+            linkCreateDefinition: req.router.reverse('draft-create', {type: definition_slug}),
+            linkCreateTheorem: req.router.reverse('draft-create', {type: theorem_slug}),
+        });
+    });
+}
+
+function views_drafts(req, res) {
+    req.datastore.get_draft_list().then(drafts => {
+        res.render('drafts', {
             items: drafts.map(item => ({
                 name: draft_title(item),
                 link: req.router.reverse('draft-show', {id: item.id})
             })),
-            linkCreateDefinition: req.router.reverse('draft-create', {type: definition_slug}),
-            linkCreateTheorem: req.router.reverse('draft-create', {type: theorem_slug}),
         });
     });
 }
@@ -103,7 +111,7 @@ function views_show_draft_post(req, res) {
     console.log(req.body);
     if ('delete' in req.body) {
         req.datastore.delete_draft(req.params.id).then(() => {
-            res.redirect(req.router.reverse('home'));
+            res.redirect(req.router.reverse('drafts'));
         });
     } else if ('publish' in req.body) {
         const draft_id = req.params.id;
@@ -191,6 +199,7 @@ function setup_express(datastore, port) {
     });
 
     router.add('get', '/', views_home, 'home');
+    router.add('get', '/drafts/', views_drafts, 'drafts-home');
     router.add('get', '/drafts/:id', views_show_draft, 'draft-show');
     router.add('post', '/drafts/:id', views_show_draft_post, 'draft-show-post');
     router.add('get', '/create/:type', views_create_draft, 'draft-create');
