@@ -3,7 +3,7 @@ var path = require('path');
 
 module.exports = {
     entry: {
-        core: ['./src/core', './src/edit-item-form', 'react', 'react-dom'],
+        core: ['./src/core', 'react', 'react-dom', 'rx'],
         edit: './src/edit',
     },
     output: {

@@ -2,6 +2,15 @@
 
 <h1>{{title}}</h1>
 
-<div id="edit-item-form">{{{editItemForm}}}</div>
+<form class="pure-form pure-form-stacked" method="post">
+    <label>Notes</label>
+    <textarea name="notes" class="edit-notes-box pure-input-1">{{{notes}}}</textarea>
+    <label>Math item source</label>
+    <div id="edit-item-box">{{{editItemBox}}}</div>
+    <label>Preview</label>
+    <div id="render-item-box">{{{renderItemBox}}}</div>
+    <button type="submit" class="pure-button pure-button-primary">Save</button>
+    <a href={{linkCancel}} class="pure-button button-danger pull-right">Cancel</a>
+</form>
 
 {{> footer }}

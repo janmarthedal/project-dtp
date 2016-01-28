@@ -1,10 +1,9 @@
 import React from 'react';
-import {itemDataToHtml} from './item-data';
 
 export default class extends React.Component {
     constructor(props) {
         super(props);
-        this.updateMathJax = false;
+        this.state = props.html || {html: ''};
     }
     componentDidMount() {
         this.postRender();
@@ -13,20 +12,14 @@ export default class extends React.Component {
         this.postRender();
     }
     postRender() {
-        // not called on server
-        if (this.updateMathJax) {
-            this.props.mathjax_ready.then(MathJax => {
-                MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.refs.viewer]);
-                this.updateMathJax = false;
-            });
-        }
+        if (this.props.postRender)
+            this.props.postRender();
     }
     render() {
-        const output = itemDataToHtml(this.props.data, this.props.chtml_cache),
-            markup = {__html: output.html};
-        this.updateMathJax = output.mathjax;  // save for postRender
-        return (
-            <div ref='viewer' className="item-view" dangerouslySetInnerHTML={markup} />
-        );
+        const markup = {__html: this.state.html};
+        let className = 'item-view';
+        if (!this.props.postRender && this.state.mathjax)
+            className += ' mj-typeset'
+        return <div className={className} dangerouslySetInnerHTML={markup} />;
     }
 }

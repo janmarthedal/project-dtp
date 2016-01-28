@@ -115,5 +115,5 @@ export function itemDataToHtml(data, chtml_cache) {
         return '<em>error</em>';
     });
 
-    return {html: html, mathjax: mathjax};
+    return {html, mathjax};
 }

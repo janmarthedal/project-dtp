@@ -7,9 +7,10 @@ import handlebars from 'handlebars';
 import Promise from 'promise';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import EditItemForm from './edit-item-form';
-import StaticItemBox from './static-item-box';
-import {textToItemData} from './item-data';
+
+import EditItemBox from './edit-item-box';
+import RenderItemBox from './render-item-box';
+import {textToItemData, itemDataToHtml} from './item-data';
 import DataStore from './data-store';
 
 const base_dir = __dirname + '/..',
@@ -112,12 +113,11 @@ function views_drafts(req, res) {
 function views_show_draft(req, res) {
     req.datastore.get_draft(req.params.id).then(item => {
         const data = textToItemData(item.body);
+        const html = itemDataToHtml(data);
         res.render('show', {
             title: draft_title(item),
             notes: item.notes,
-            showItem: ReactDOMServer.renderToStaticMarkup(
-                <StaticItemBox data={data} />
-            ),
+            showItem: ReactDOMServer.renderToStaticMarkup(<RenderItemBox html={html} />),
             linkEdit: req.router.reverse('draft-edit', {id: item.id}),
         });
     });
@@ -132,11 +132,10 @@ function views_show_mathitem(req, res) {
     req.datastore.get_mathitem(match[2]).then(item => {
         if (item.item_type === match[1]) {
             const data = textToItemData(item.body);
+            const html = itemDataToHtml(data);
             res.render('show-mathitem', {
                 title: mathitem_title(item),
-                showItem: ReactDOMServer.renderToStaticMarkup(
-                    <StaticItemBox data={data} />
-                ),
+                showItem: ReactDOMServer.renderToStaticMarkup(<RenderItemBox html={html} />),
             });
         } else {
             res.sendStatus(404);
@@ -167,13 +166,14 @@ function views_show_draft_post(req, res) {
 }
 
 function views_create_draft(req, res) {
-    const linkCancel = req.router.reverse('home');
     if (req.params.type in create_types) {
-        res.render('create', {
+        res.render('edit', {
             title: 'New ' + create_types[req.params.type].title,
             extrajs: ['edit'],
-            editItemForm: ReactDOMServer.renderToStaticMarkup(
-                <EditItemForm linkCancel={linkCancel} />),
+            notes: 'Some note',
+            editItemBox: ReactDOMServer.renderToStaticMarkup(<EditItemBox />),
+            renderItemBox: ReactDOMServer.renderToStaticMarkup(<RenderItemBox  />),
+            linkCancel: req.router.reverse('home')
         });
     } else
         res.sendStatus(400);
@@ -196,13 +196,14 @@ function views_create_draft_post(req, res) {
 }
 
 function views_edit_draft(req, res) {
-    const linkCancel = req.router.reverse('draft-show', {id: req.params.id});
     req.datastore.get_draft(req.params.id).then(item => {
         res.render('edit', {
             title: 'Edit ' + draft_title(item),
             extrajs: ['edit'],
-            editItemForm: ReactDOMServer.renderToStaticMarkup(
-                <EditItemForm body={item.body} notes={item.notes} linkCancel={linkCancel} />),
+            notes: item.notes,
+            editItemBox: ReactDOMServer.renderToStaticMarkup(<EditItemBox initBody={item.body} />),
+            renderItemBox: ReactDOMServer.renderToStaticMarkup(<RenderItemBox  />),
+            linkCancel: req.router.reverse('draft-show', {id: req.params.id})
         });
     }).catch(() => res.sendStatus(404));
 }
