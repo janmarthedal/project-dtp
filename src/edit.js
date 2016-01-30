@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Rx from 'rx';
+import {Subject} from './rx';
+//import Rx from 'rx';
+//const Subject = Rx.Subject;
 import MathJaxReady from './mathjax-ready';
 import CHtmlCache from './chtml-cache';
 import EditItemBox from './edit-item-box';
@@ -11,7 +13,7 @@ const chtml_cache = new CHtmlCache();
 const editContainer = document.getElementById('edit-item-box');
 const initBody = editContainer.querySelector('textarea').value;
 const renderContainer = document.getElementById('render-item-box');
-const inputStream = new Rx.Subject();
+const inputStream = new Subject();
 let updateMathJax = false;
 
 function postRender() {

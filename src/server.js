@@ -4,7 +4,6 @@ import fs from 'fs';
 import http from 'http';
 import consolidate from 'consolidate';
 import handlebars from 'handlebars';
-import Promise from 'promise';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 

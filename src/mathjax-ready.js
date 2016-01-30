@@ -1,5 +1,3 @@
-import Promise from 'promise';
-
 let resolver;
 
 let MathJaxReady = new Promise((resolve) => {
