@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "c": "webpack",
-    "s": "babel --presets es2015,react --plugins transform-runtime --ignore chtml-cache.js,core.js,edit.js,mathjax-ready.js,rx.js src -d dist"
+    "s": "babel --presets es2015,react --plugins transform-runtime --only data-store.js,edit-item-box.js,item-data.js,render-item-box.js,server.js,views.js src -d dist"
   },
   "author": "Jan Marthedal Rasmussen",
   "license": "ISC",
