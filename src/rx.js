@@ -4,7 +4,7 @@ class Observable {
   constructor() {
     this.observers = [];
   }
-  forEach(onNext, onError, onCompleted) {
+  subscribe(onNext, onError, onCompleted) {
     this.observers.push({
       onNext: onNext || noOp,
       onError: onError || noOp,
@@ -32,7 +32,7 @@ class ChainObservable extends Observable {
 
 Observable.prototype.map = function(fn) {
   return new ChainObservable(obs => {
-    this.forEach(value => {
+    this.subscribe(value => {
       try {
         obs.onNext(fn(value));
       } catch (e) {
@@ -55,7 +55,7 @@ Observable.prototype.debounce = function(dueTime) {
         timerId = null;
       }
     }
-    this.forEach(value => {
+    this.subscribe(value => {
       cancel();
       timerId = setTimeout(() => {
         timerId = null;

@@ -43,13 +43,13 @@ const itemDataInfoBox = ReactDOM.render(
 
 const itemDataStream = inputStream.debounce(500).map(input => textToItemData(input));
 
-itemDataStream.forEach(data => {
+itemDataStream.subscribe(data => {
     itemDataInfoBox.setState(data);
 });
 
 itemDataStream
     .map(data => itemDataToHtml(data, chtml_cache))
-    .forEach(html => {
+    .subscribe(html => {
         updateMathJax = html.mathjax;
         renderItemBox.setState(html)
     });
