@@ -7,12 +7,13 @@ import MathJaxReady from './mathjax-ready';
 import CHtmlCache from './chtml-cache';
 import EditItemBox from './edit-item-box';
 import RenderItemBox from './render-item-box';
+import ItemDataInfoBox from './item-data-info-box';
 import {textToItemData, itemDataToHtml} from './item-data';
 
 const chtml_cache = new CHtmlCache();
 const editContainer = document.getElementById('edit-item-box');
-const initBody = editContainer.querySelector('textarea').value;
 const renderContainer = document.getElementById('render-item-box');
+const initBody = editContainer.querySelector('textarea').value;
 const inputStream = new Subject();
 let updateMathJax = false;
 
@@ -30,11 +31,23 @@ ReactDOM.render(
     editContainer
 );
 
-const renderItemBox = ReactDOM.render(<RenderItemBox postRender={postRender} />, renderContainer);
+const renderItemBox = ReactDOM.render(
+    <RenderItemBox postRender={postRender} />,
+    renderContainer
+);
 
-inputStream
-    .debounce(500)
-    .map(input => textToItemData(input))
+const itemDataInfoBox = ReactDOM.render(
+    <ItemDataInfoBox />,
+    document.getElementById('item-data-info-box')
+);
+
+const itemDataStream = inputStream.debounce(500).map(input => textToItemData(input));
+
+itemDataStream.forEach(data => {
+    itemDataInfoBox.setState(data);
+});
+
+itemDataStream
     .map(data => itemDataToHtml(data, chtml_cache))
     .forEach(html => {
         updateMathJax = html.mathjax;

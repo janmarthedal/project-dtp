@@ -3,6 +3,7 @@ import ReactDOMServer from 'react-dom/server';
 import DataStore from './data-store';
 import EditItemBox from './edit-item-box';
 import RenderItemBox from './render-item-box';
+import ItemDataInfoBox from './item-data-info-box';
 import {textToItemData, itemDataToHtml} from './item-data';
 
 const definition_slug = 'definition',
@@ -128,6 +129,7 @@ export function create_draft(req, res) {
             notes: 'Some note',
             editItemBox: ReactDOMServer.renderToStaticMarkup(<EditItemBox />),
             renderItemBox: ReactDOMServer.renderToStaticMarkup(<RenderItemBox  />),
+            itemDataInfoBox: ReactDOMServer.renderToStaticMarkup(<ItemDataInfoBox />),
             linkCancel: req.router.reverse('home')
         });
     } else
