@@ -7,7 +7,8 @@ marked.setOptions({
 const img_re = new RegExp('<img src="([^"]*)".*?>', 'g'),
     anchor_re = new RegExp('<a href="([^"]*)">(.*?)</a>', 'g'),
     con_def_re = new RegExp('^=([-0-9a-zA-Z_]+)$'),
-    item_ref = new RegExp('^([^#]+)(?:#([-0-9a-zA-Z_]+))?$'),
+    con_ref_re = new RegExp('^#([-0-9a-zA-Z_]+)$'),
+    item_ref_re = new RegExp('^([^#]+)(?:#([-0-9a-zA-Z_]+))?$'),
     md_link_re = new RegExp('(?!!)\\[([^\\]]*)\\]\\(([^\)]*)\\)', 'g');
 
 function normalizeTeX(tex) {
@@ -34,19 +35,45 @@ function prepareEquations(eqns, chtml_cache) {
 }
 
 export function textToItemData(text) {
-    const idToEqn = {}, eqnToId = {}, defined = {}, refs = {},
-       paragraphs = text.split(/\s*\$\$\s*/);
-    let eqnCounter = 0;
+    const idToEqn = {}, eqnToId = {}, conceptToId = {}, idToConcept = {},
+        itemRefToId = {}, idToItemRef = {}, con_refs = {}, con_defs = {},
+        paragraphs = text.split(/\s*\$\$\s*/);
+    let counter = 0;
 
     function getEqnId(tex, block) {
         tex = normalizeTeX(tex);
         let key = (block ? 'B' : 'I') + tex;
         if (key in eqnToId)
             return eqnToId[key];
-        eqnCounter++;
-        eqnToId[key] = eqnCounter;
-        idToEqn[eqnCounter] = {block: block, source: tex};
-        return eqnCounter;
+        counter++;
+        eqnToId[key] = counter;
+        idToEqn[counter] = {block: block, source: tex};
+        return counter;
+    }
+
+    function lookupId(st, stToId, idToSt) {
+        if (st in stToId)
+            return stToId[st];
+        counter++;
+        stToId[st] = counter;
+        idToSt[counter] = st;
+        return counter;
+    }
+
+    function getConDefId(con) {
+        const id = lookupId(con, conceptToId, idToConcept);
+        con_defs[id] = true;
+        return id;
+    }
+
+    function getConRefId(con) {
+        const id = lookupId(con, conceptToId, idToConcept);
+        con_refs[id] = true;
+        return id;
+    }
+
+    function getItemRefId(ref) {
+        return lookupId(ref, itemRefToId, idToItemRef);
     }
 
     if (paragraphs.length % 2 === 0)
@@ -62,15 +89,14 @@ export function textToItemData(text) {
                 return (k % 2) ? '![](eqn/' + getEqnId(item, false) + ')'
                     : item.replace(md_link_re, function(all, text, link) {
                         let match = link.match(con_def_re);
-                        if (match) {
-                            defined[match[1]] = true;
-                            return all;
-                        }
-                        match = link.match(item_ref);
-                        if (match) {
-                            refs[match[1]] = true;
-                            return all;
-                        }
+                        if (match)
+                            return '[' + text + '](=' + getConDefId(match[1]) + ')';
+                        match = link.match(con_ref_re);
+                        if (match)
+                            return '[' + text + '](#' + getConRefId(match[1]) + ')';
+                        match = link.match(item_ref_re);
+                        if (match)
+                             return '[' + text + '](' + getItemRefId(match[1]) + ')';
                         return '\\[' + text + '\\]\\(' + link + '\\)';
                     });
             }).join('');
@@ -79,8 +105,10 @@ export function textToItemData(text) {
 
     return {
         body: body,
-        defined: Object.keys(defined),
-        item_refs: Object.keys(refs),
+        concept_map: idToConcept,
+        concept_defs: Object.keys(con_defs),
+        concept_refs: Object.keys(con_refs),
+        item_refs: idToItemRef,
         eqns: idToEqn
     };
 }
@@ -103,14 +131,21 @@ export function itemDataToHtml(data, chtml_cache) {
     html = html.replace(anchor_re, function (_, ref, txt) {
         let match = ref.match(con_def_re);
         if (match) {
-            ref = match[1];
+            ref = data.concept_map[match[1]];
             txt = txt || ref;
             return '<span class="defined" data-concept="' + ref + '">' + txt + '</span>';
         }
-        match = ref.match(item_ref);
+        match = ref.match(con_ref_re);
         if (match) {
-            txt = txt || match[1];
-            return '<a href="/item/' + ref + '">' + txt + '</a>';
+            ref = data.concept_map[match[1]];
+            txt = txt || ref;
+            return '<a href="/concept/' + ref + '">' + txt + '</a>';
+        }
+        match = ref.match(item_ref_re);
+        if (match) {
+            ref = data.item_refs[match[1]];
+            txt = txt || ref;
+            return '<a href="/items/' + ref + '">' + txt + '</a>';
         }
         return '<em>error</em>';
     });

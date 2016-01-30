@@ -1,0 +1,2 @@
+Item references with concept, e.g., D12#integer
+textToItemData should check for errors, not itemDataToHtml
