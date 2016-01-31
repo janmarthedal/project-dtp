@@ -8,6 +8,7 @@ import {datastore_ready} from './data-store';
 import * as views from './views';
 
 const base_dir = __dirname + '/..';
+const port = 3000;
 
 function load_handlebars_partial(name) {
     new Promise((resolve, reject) => {
@@ -77,13 +78,11 @@ function setup_express(datastore, port) {
     app.listen(port);
 }
 
-Promise.resolve(true)
+datastore_ready
+    .then(datastore => setup_express(datastore, port))
     .then(setup_handlebars)
-    .then(datastore_ready)
-    .then(datastore => {
-        const port = 3000;
-        setup_express(datastore, port);
-        console.log('Listening on port ' + port);
+    .then(() => {
+        console.log('Ready on port ' + port);
     })
     .catch(err => {
         console.log('Error during initialization', err);
