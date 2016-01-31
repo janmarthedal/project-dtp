@@ -4,7 +4,7 @@ import fs from 'fs';
 import http from 'http';
 import consolidate from 'consolidate';
 import handlebars from 'handlebars';
-import DataStore from './data-store';
+import {datastore_ready} from './data-store';
 import * as views from './views';
 
 const base_dir = __dirname + '/..';
@@ -77,15 +77,9 @@ function setup_express(datastore, port) {
     app.listen(port);
 }
 
-function create_datastore() {
-    console.log('Initializing data store');
-    var datastore = new DataStore();
-    return datastore.init().then(() => datastore);
-}
-
 Promise.resolve(true)
     .then(setup_handlebars)
-    .then(create_datastore)
+    .then(datastore_ready)
     .then(datastore => {
         const port = 3000;
         setup_express(datastore, port);

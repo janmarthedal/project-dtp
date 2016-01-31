@@ -51,7 +51,7 @@ function defineDraftItem(sequelize, MathItem) {
     return DraftItem;
 }
 
-export default class DataStore {
+class DataStore {
     constructor() {
         let sequelize = new Sequelize('teoremer', null, null, {
           dialect: 'sqlite',
@@ -60,16 +60,8 @@ export default class DataStore {
         this.MathItem = defineMathItem(sequelize);
         this.DraftItem = defineDraftItem(sequelize, this.MathItem);
     }
-    static get DEFINITION() {
-        return 'D';
-    }
-    static get THEOREM() {
-        return 'T';
-    }
-    static get PROOF() {
-        return 'P';
-    }
     init() {
+        console.log('Initializing data store');
         return Promise.all([
             this.MathItem.sync(),
             this.DraftItem.sync(),
@@ -104,3 +96,10 @@ export default class DataStore {
         });
     }
 }
+
+const datastore = new DataStore();
+
+export const DEFINITION = 'D';
+export const THEOREM = 'T';
+export const PROOF = 'P';
+export const datastore_ready = datastore.init().then(() => datastore);

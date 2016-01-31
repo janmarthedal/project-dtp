@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import DataStore from './data-store';
+import {DEFINITION, THEOREM, PROOF} from './data-store';
 import EditItemBox from './edit-item-box';
 import RenderItemBox from './render-item-box';
 import ItemDataInfoBox from './item-data-info-box';
@@ -12,12 +12,12 @@ const definition_slug = 'definition',
 
 create_types[definition_slug] = {
     title: 'Definition',
-    db_type: DataStore.DEFINITION
+    db_type: DEFINITION
 };
 
 create_types[theorem_slug] = {
     title: 'Theorem',
-    db_type: DataStore.THEOREM
+    db_type: THEOREM
 };
 
 function item_type_title(item) {
