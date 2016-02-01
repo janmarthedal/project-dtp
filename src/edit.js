@@ -41,7 +41,10 @@ const itemDataInfoBox = ReactDOM.render(
     document.getElementById('item-data-info-box')
 );
 
-const itemDataStream = inputStream.debounce(500).map(input => textToItemData(input));
+const itemDataStream = inputStream
+    .debounce(500)
+    .startWith(initBody)
+    .map(input => textToItemData(input));
 
 itemDataStream.subscribe(data => {
     itemDataInfoBox.setState(data);
@@ -53,5 +56,3 @@ itemDataStream
         updateMathJax = html.mathjax;
         renderItemBox.setState(html)
     });
-
-inputStream.onNext(initBody);
