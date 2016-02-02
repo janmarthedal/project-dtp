@@ -23,6 +23,19 @@ Observable.prototype.map = function(fn) {
   });
 };
 
+Observable.prototype.do = function(fn) {
+  return new AnonymousObservable((onNext, onError, onCompleted) => {
+    this.subscribe(value => {
+      try {
+        fn(value);
+        onNext(value);
+      } catch (e) {
+        onError(e);
+      }
+    }, onError, onCompleted);
+  });
+};
+
 Observable.prototype.debounce = function(dueTime) {
   return new AnonymousObservable((onNext, onError, onCompleted) => {
     let timerId = null;
