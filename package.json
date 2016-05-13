@@ -1,0 +1,25 @@
+{
+  "name": "teoremer",
+  "version": "0.0.1",
+  "description": "Drafts Theorems Proofs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/janmarthedal/teoremer.git"
+  },
+  "keywords": [
+    "math"
+  ],
+  "author": "Jan Marthedal Rasmussen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/janmarthedal/teoremer/issues"
+  },
+  "homepage": "https://github.com/janmarthedal/teoremer#readme",
+  "dependencies": {
+    "mathjax-node": "^0.5.1"
+  }
+}
