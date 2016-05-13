@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/janmarthedal/teoremer#readme",
   "dependencies": {
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
     "mathjax-node": "^0.5.1"
   }
 }

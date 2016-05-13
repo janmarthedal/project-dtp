@@ -1,0 +1,14 @@
+{
+    "eqns": [
+        {
+            "id": "a",
+            "math": "x^2",
+            "format": "TeX"
+        },
+        {
+            "id": "b",
+            "math": "y_3",
+            "format": "inline-TeX"
+        }
+    ]
+}
