@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <style>
+      #wrapper {
+        width: 100%;
+        max-width: 60em;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div class="container-fluid">
+        <div class="row">
+          <h1>{{ title }}</h1>
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
