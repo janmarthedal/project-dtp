@@ -11,6 +11,7 @@ function typeset(id, math, format) {
     if (['TeX', 'inline-TeX'].indexOf(format) < 0)
         return Promise.reject('illegal typeset format');
     return new Promise(function (resolve, reject) {
+        console.log('Typesetting: ' + math);
         mjAPI.typeset({
             math: math,
             format: format,
@@ -41,7 +42,11 @@ app.get('/', function (req, res) {
     json_response(res, {'ok': true});
 });
 
-app.post('/typeset', function(req, res){
+app.post('/typeset', function(req, res) {
+    if (!req.body.eqns) {
+        res.status(400).send('Malformed data')
+        return;
+    }
     Promise.all(req.body.eqns.map(function (item) {
         return typeset(item.id, item.math, item.format);
     })).then(function (results) {

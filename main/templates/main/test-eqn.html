@@ -1,9 +1,14 @@
 {% extends 'main/base.html' %}
 
 {% block content %}
+{% if eqn %}
+<div class="well">
+<p>{{ eqn|safe }}</p>
+</div>
+{% endif %}
 <form action="" method="post">
     {% csrf_token %}
-    <textarea class="form-control" rows="10"></textarea>
+    <textarea name="eqn" class="form-control" rows="10"></textarea>
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
 {% endblock %}
