@@ -1,0 +1,23 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+{% if doc %}
+<div class="well">
+<p>{{ doc }}</p>
+<p>{{ eqns }}</p>
+</div>
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    <textarea name="src" class="form-control" rows="10">
+Let $x \in \mathbb{R}$ be a [real number](=real-number). Then
+
+$$
+\sum_{k=1}^n k = \frac{n(n+1)}{2}
+$$
+
+And the result follows.
+</textarea>
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+{% endblock %}
