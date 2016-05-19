@@ -35,8 +35,10 @@ function md_dom_to_item_dom(node) {
         if (node.localName === 'img') {
             const src = node.getAttribute('src') || '';
             if (src.startsWith('/eqn/')) {
-                item_node.type = 'eqn';
-                item_node.id = parseInt(src.substring(5));
+                return {
+                    type: 'eqn',
+                    id: parseInt(src.substring(5))
+                }
             } else {
                 return {
                     type: 'error',
@@ -46,7 +48,7 @@ function md_dom_to_item_dom(node) {
         } else if (node.localName === 'a') {
             const href = node.getAttribute('href') || '';
             if (href.startsWith('=')) {
-                item_node.type = 'concept-def';
+                item_node.type = 'tag-def';
                 item_node.tag = href.substring(1);
             } else {
                 return {
@@ -140,6 +142,26 @@ function textToItemData(text, callback) {
     });
 }
 
+function item_node_to_html(node) {
+    if (node.type === 'text')
+        return node.value;
+    if (node.type === 'eqn')
+        return '[EQN ' + node.id + ']';
+    let children = (node.children || []).map(item_dom_to_html);
+    children = children.join('');
+    if (node.type === 'body')
+        return children;
+    if (node.type === 'para')
+        return '<p>' + children + '</p>';
+    if (node.type === 'tag-def')
+        return '<em>' + children + '</em>';
+    return '???';
+}
+
+function item_dom_to_html(root, eqns) {
+    return item_node_to_html(root);
+}
+
 /* */
 
 function typeset(id, math, format) {
@@ -177,7 +199,7 @@ app.get('/', function (req, res) {
     json_response(res, {'ok': true});
 });
 
-app.post('/typeset', function(req, res) {
+app.post('/typeset-eqns', function(req, res) {
     if (!req.body.eqns) {
         res.status(400).send('Malformed data')
         return;
@@ -198,8 +220,18 @@ app.post('/prep-md-item', function(req, res) {
         return;
     }
     textToItemData(req.body.text, function (data) {
+        console.log(item_dom_to_html(data.document));
         json_response(res, data);
     });
+});
+
+app.post('/typeset-item', function(req, res) {
+    if (!req.body.document) {
+        res.status(400).send('Malformed data')
+        return;
+    }
+    let html = item_dom_to_html(req.body.document);
+    json_response(res, {html: html});
 });
 
 app.listen(3000, function () {
