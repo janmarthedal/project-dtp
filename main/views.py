@@ -28,7 +28,10 @@ def test_item_prep(request):
         data = node_request('/typeset-eqns', {'eqns': data['eqns']})
         eqns = data
 
-        data = node_request('/typeset-item', {'document': item_dom})
+        data = node_request('/typeset-item', {
+            'document': item_dom,
+            'eqns': eqns
+        })
         context['item_html'] = data['html']
 
     return render(request, 'main/test-item-prep.html', context)

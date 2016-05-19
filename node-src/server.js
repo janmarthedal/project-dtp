@@ -142,12 +142,12 @@ function textToItemData(text, callback) {
     });
 }
 
-function item_node_to_html(node) {
+function item_node_to_html(node, eqns) {
     if (node.type === 'text')
         return node.value;
     if (node.type === 'eqn')
-        return '[EQN ' + node.id + ']';
-    let children = (node.children || []).map(item_dom_to_html);
+        return eqns[node.id];
+    let children = (node.children || []).map(child => item_node_to_html(child, eqns));
     children = children.join('');
     if (node.type === 'body')
         return children;
@@ -159,7 +159,9 @@ function item_node_to_html(node) {
 }
 
 function item_dom_to_html(root, eqns) {
-    return item_node_to_html(root);
+    const eqn_map = {};
+    eqns.forEach(item => { eqn_map[item.id] = item.html });
+    return item_node_to_html(root, eqn_map);
 }
 
 /* */
@@ -220,7 +222,6 @@ app.post('/prep-md-item', function(req, res) {
         return;
     }
     textToItemData(req.body.text, function (data) {
-        console.log(item_dom_to_html(data.document));
         json_response(res, data);
     });
 });
@@ -230,7 +231,7 @@ app.post('/typeset-item', function(req, res) {
         res.status(400).send('Malformed data')
         return;
     }
-    let html = item_dom_to_html(req.body.document);
+    let html = item_dom_to_html(req.body.document, req.body.eqns || []);
     json_response(res, {html: html});
 });
 
