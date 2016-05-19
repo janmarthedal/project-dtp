@@ -22,16 +22,6 @@ def test_eqn(request):
 def test_item_prep(request):
     context = {'title': 'Test Item Prep'}
     if request.method == 'POST':
-        data = node_request('/prep-md-item', {'text': request.POST['src']})
-        item_dom = data['document']
-
-        data = node_request('/typeset-eqns', {'eqns': data['eqns']})
-        eqns = data
-
-        data = node_request('/typeset-item', {
-            'document': item_dom,
-            'eqns': eqns
-        })
+        data = node_request('/prepare-item', {'text': request.POST['src']})
         context['item_html'] = data['html']
-
     return render(request, 'main/test-item-prep.html', context)

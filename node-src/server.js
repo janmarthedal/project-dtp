@@ -105,7 +105,7 @@ class EqnMap {
     }
 }
 
-function textToItemData(text, callback) {
+function markdown_to_item_dom(text) {
     const eqn_map = new EqnMap(),
         paragraphs = text.split(/\s*\$\$\s*/);
 
@@ -130,15 +130,21 @@ function textToItemData(text, callback) {
     }).join('\n\n');
 
     let html = marked(clean_text);
-    console.log(html);
-    jsdom.env(html, function (err, window) {
-        const body = window.document.body;
-        const item_dom = md_dom_to_item_dom(body);
-        callback({
-            document: item_dom,
-            eqns: eqn_map.get_eqn_list()
+
+    return new Promise(function (resolve, reject) {
+        jsdom.env(html, function (err, window) {
+            if (!err) {
+                const body = window.document.body;
+                const item_dom = md_dom_to_item_dom(body);
+                resolve({
+                    document: item_dom,
+                    eqns: eqn_map.get_eqn_list()
+                });
+                window.close();
+            } else {
+                reject(err);
+            }
         });
-        window.close();
     });
 }
 
@@ -216,23 +222,31 @@ app.post('/typeset-eqns', function(req, res) {
     });
 });
 
-app.post('/prep-md-item', function(req, res) {
-    if (!req.body.text) {
-        res.status(400).send('Malformed data')
-        return;
-    }
-    textToItemData(req.body.text, function (data) {
-        json_response(res, data);
-    });
-});
-
 app.post('/typeset-item', function(req, res) {
     if (!req.body.document) {
         res.status(400).send('Malformed data')
         return;
     }
-    let html = item_dom_to_html(req.body.document, req.body.eqns || []);
-    json_response(res, {html: html});
+    item_dom_to_html(req.body.document, req.body.eqns || []).then(html => {
+        json_response(res, {html: html});
+    });
+});
+
+app.post('/prepare-item', function(req, res) {
+    if (req.body.text) {
+        markdown_to_item_dom(req.body.text).then(data => {
+            const promise_list = data.eqns.map(eqn => typeset(eqn.id, eqn.math, eqn.format));
+            promise_list.push(data.document);
+            return Promise.all(promise_list);
+        }).then(value_list => {
+            const document = value_list.pop();
+            return item_dom_to_html(document, value_list);
+        }).then(html => {
+            json_response(res, {html: html});
+        });
+    } else {
+        res.status(400).send('Malformed data')
+    }
 });
 
 app.listen(3000, function () {
