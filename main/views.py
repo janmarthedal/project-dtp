@@ -22,6 +22,6 @@ def test_eqn(request):
 def test_item_prep(request):
     context = {'title': 'Test Item Prep'}
     if request.method == 'POST':
-        data = node_request('/prepare-item', {'text': request.POST['src']})
+        data = node_request('/preview-item', {'text': request.POST['src']})
         context['item_html'] = data['html']
     return render(request, 'main/test-item-prep.html', context)

@@ -105,14 +105,14 @@ class EqnMap {
     }
 }
 
-function markdown_to_item_dom(text) {
+function prepare_markdown(text) {
     const eqn_map = new EqnMap(),
         paragraphs = text.split(/\s*\$\$\s*/);
 
     if (paragraphs.length % 2 === 0)
         paragraphs.pop();
 
-    let clean_text = paragraphs.map(function (para, j) {
+    const clean_text = paragraphs.map(function (para, j) {
         if (j % 2) {
             return '![](/eqn/' + eqn_map.get_id(para, true) + ')';
         } else {
@@ -129,22 +129,47 @@ function markdown_to_item_dom(text) {
         }
     }).join('\n\n');
 
-    let html = marked(clean_text);
+    return Promise.resolve({
+        text: clean_text,
+        eqns: eqn_map.get_eqn_list()
+    });
+}
 
+function markdownify(text) {
+    return Promise.resolve(marked(text));
+}
+
+function html_to_item_dom(html) {
     return new Promise(function (resolve, reject) {
         jsdom.env(html, function (err, window) {
             if (!err) {
                 const body = window.document.body;
                 const item_dom = md_dom_to_item_dom(body);
-                resolve({
-                    document: item_dom,
-                    eqns: eqn_map.get_eqn_list()
-                });
                 window.close();
+                resolve(item_dom);
             } else {
                 reject(err);
             }
         });
+    });
+}
+
+function markdown_to_item_dom(text) {
+    return prepare_markdown(text).then(prepared => {
+        return Promise.all([
+            markdownify(prepared.text),
+            prepared.eqns
+        ]);
+    }).then(values => {
+        return Promise.all([
+            html_to_item_dom(values[0]),
+            values[1]
+        ]);
+    }).then(values => {
+        return {
+            document: values[0],
+            eqns: values[1]
+        }
     });
 }
 
@@ -232,15 +257,17 @@ app.post('/typeset-item', function(req, res) {
     });
 });
 
-app.post('/prepare-item', function(req, res) {
+app.post('/preview-item', function(req, res) {
+    console.log('/preview-item');
+    //json_response(res, {html: 'foo'});
     if (req.body.text) {
         markdown_to_item_dom(req.body.text).then(data => {
             const promise_list = data.eqns.map(eqn => typeset(eqn.id, eqn.math, eqn.format));
             promise_list.push(data.document);
             return Promise.all(promise_list);
-        }).then(value_list => {
-            const document = value_list.pop();
-            return item_dom_to_html(document, value_list);
+        }).then(values => {
+            const document = values.pop();
+            return item_dom_to_html(document, values);
         }).then(html => {
             json_response(res, {html: html});
         });
