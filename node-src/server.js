@@ -28,6 +28,15 @@ const tag_map = {
     'p': 'para',
 };
 
+const regex_tag_def = /^=[-a-z]+$/;
+
+function make_error(reason) {
+    return {
+        type: 'error',
+        reason: reason
+    };
+}
+
 function md_dom_to_item_dom(node) {
     if (node.nodeType === 1) {
         const item_node = {};
@@ -40,29 +49,22 @@ function md_dom_to_item_dom(node) {
                     id: parseInt(src.substring(5))
                 }
             } else {
-                return {
-                    type: 'error',
-                    reason: "Illegal img source '" + src + "'",
-                }
+                return make_error("illegal img source '" + src + "'");
             }
         } else if (node.localName === 'a') {
             const href = node.getAttribute('href') || '';
-            if (href.startsWith('=')) {
+            if (regex_tag_def.test(href)) {
                 item_node.type = 'tag-def';
                 item_node.tag = href.substring(1);
+            } else if (href.startsWith('=')) {
+                return make_error("illegal tag '" + tag + "'");
             } else {
-                return {
-                    type: 'error',
-                    reason: "Illegal a href '" + href + "'",
-                }
+                return make_error("illegal item reference '" + href + "'");
             }
         } else if (node.localName in tag_map) {
             item_node.type = tag_map[node.localName];
         } else {
-            return {
-                type: 'error',
-                reason: 'Unsupported HTML tag ' + node.localName,
-            }
+            return make_error('unsupported HTML tag ' + node.localName);
         }
         if (children.length)
             item_node.children = children
@@ -73,10 +75,7 @@ function md_dom_to_item_dom(node) {
             value: node.nodeValue
         }
     } else {
-        return {
-            type: 'error',
-            reason: 'Unsupported HTML node type ' + node.nodeValue
-        }
+        return make_error('unsupported HTML node type ' + node.nodeValue);
     }
 }
 
@@ -176,8 +175,15 @@ function markdown_to_item_dom(text) {
 function item_node_to_html(node, eqns) {
     if (node.type === 'text')
         return node.value;
-    if (node.type === 'eqn')
-        return eqns[node.id];
+    if (node.type === 'eqn') {
+        const item = eqns[node.id];
+        if (item.error)
+            return '<span class="text-danger">' + item.error + '</span>';
+        else
+            return item.html;
+    }
+    if (node.type === 'error')
+        return '<span class="text-danger">' + node.reason + '</span>';
     let children = (node.children || []).map(child => item_node_to_html(child, eqns));
     children = children.join('');
     if (node.type === 'body')
@@ -191,7 +197,7 @@ function item_node_to_html(node, eqns) {
 
 function item_dom_to_html(root, eqns) {
     const eqn_map = {};
-    eqns.forEach(item => { eqn_map[item.id] = item.html });
+    eqns.forEach(item => { eqn_map[item.id] = item });
     return item_node_to_html(root, eqn_map);
 }
 
@@ -208,7 +214,10 @@ function typeset(id, math, format) {
             html: true,
         }, function (data) {
             if (data.errors) {
-                reject(data.errors);
+                resolve({
+                    id: id,
+                    error: data.errors
+                });
             } else {
                 resolve({
                     id: id,

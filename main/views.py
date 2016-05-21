@@ -1,6 +1,14 @@
 import requests
 from django.shortcuts import render
 
+test_body = r"""The [harmonic number](=harmonic-number) $H_n$ is defined as
+
+$$
+H_n = 1 + \frac{1}{2} + \ldots + \frac{1}{n} = \sum_{k=1}^n \frac{1}{k}
+$$
+
+for $n \geq 1$."""
+
 def node_request(path, payload):
     r = requests.post('http://localhost:3000' + path, json=payload)
     r.raise_for_status()
@@ -22,6 +30,10 @@ def test_eqn(request):
 def test_item_prep(request):
     context = {'title': 'Test Item Prep'}
     if request.method == 'POST':
-        data = node_request('/preview-item', {'text': request.POST['src']})
+        body = request.POST['src']
+        data = node_request('/preview-item', {'text': body})
         context['item_html'] = data['html']
+        context['body'] = body
+    else:
+        context['body'] = test_body
     return render(request, 'main/test-item-prep.html', context)
