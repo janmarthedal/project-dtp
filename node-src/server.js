@@ -1,10 +1,10 @@
 'use strict';
 
-var express = require('express');
-var bodyParser = require('body-parser');
-var mjAPI = require('mathjax-node/lib/mj-single.js');
-var marked = require('marked');
-var jsdom = require('jsdom');
+const express = require('express');
+const bodyParser = require('body-parser');
+const mjAPI = require('mathjax-node/lib/mj-single.js');
+const marked = require('marked');
+const jsdom = require('jsdom');
 
 // Initialize marked
 marked.setOptions({
@@ -82,24 +82,23 @@ function md_dom_to_item_dom(node) {
 class EqnMap {
     constructor() {
         this.counter = 0;
-        this.eqns = [];
+        this.eqns = {};
         this.eqnToId = {};
     }
     get_id(tex, block) {
         tex = normalizeTeX(tex);
-        let key = (block ? 'B' : 'I') + tex;
+        const key = (block ? 'B' : 'I') + tex;
         if (key in this.eqnToId)
             return this.eqnToId[key];
-        this.counter++;
-        this.eqnToId[key] = this.counter;
-        this.eqns.push({
-            id: this.counter,
+        const id = ++this.counter;
+        this.eqnToId[key] = id;
+        this.eqns[id] = {
             format: block ? 'TeX' : 'inline-TeX',
-            math: tex,
-        });
-        return this.counter;
+            math: tex
+        };
+        return id;
     }
-    get_eqn_list() {
+    get_eqn_map() {
         return this.eqns;
     }
 }
@@ -130,7 +129,7 @@ function prepare_markdown(text) {
 
     return Promise.resolve({
         text: clean_text,
-        eqns: eqn_map.get_eqn_list()
+        eqns: eqn_map.get_eqn_map()
     });
 }
 
@@ -192,37 +191,29 @@ function item_node_to_html(node, eqns) {
         return '<p>' + children + '</p>';
     if (node.type === 'tag-def')
         return '<em>' + children + '</em>';
-    return '???';
+    return '<span class="text-danger">unsupported node type \'' + node.type + "'";
 }
 
 function item_dom_to_html(root, eqns) {
-    const eqn_map = {};
-    eqns.forEach(item => { eqn_map[item.id] = item });
-    return Promise.resolve(item_node_to_html(root, eqn_map));
+    return Promise.resolve(item_node_to_html(root, eqns || {}));
 }
 
 /* */
 
-function typeset(id, math, format) {
-    if (['TeX', 'inline-TeX'].indexOf(format) < 0)
+function typeset(id, data) {
+    if (['TeX', 'inline-TeX'].indexOf(data.format) < 0)
         return Promise.reject('illegal typeset format');
     return new Promise(function (resolve, reject) {
-        console.log('Typesetting: ' + math);
+        console.log('Typesetting: ' + data.math);
         mjAPI.typeset({
-            math: math,
-            format: format,
+            math: data.math,
+            format: data.format,
             html: true,
-        }, function (data) {
-            if (data.errors) {
-                resolve({
-                    id: id,
-                    error: data.errors
-                });
+        }, function (result) {
+            if (result.errors) {
+                resolve([id, { error: result.errors }]);
             } else {
-                resolve({
-                    id: id,
-                    html: data.html
-                });
+                resolve([id, { html: result.html }]);
             }
         });
     });
@@ -231,6 +222,21 @@ function typeset(id, math, format) {
 function json_response(res, data) {
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify(data));
+}
+
+function object_to_array(obj) {
+    const result = [];
+    for (const key in obj)
+        result.push([key, obj[key]]);
+    return result;
+}
+
+function array_to_object(list) {
+    const result = {};
+    list.forEach(item => {
+        result[item[0]] = item[1];
+    });
+    return result;
 }
 
 var app = express();
@@ -244,12 +250,13 @@ app.get('/', function (req, res) {
 app.post('/prepare-item', function(req, res) {
     if (req.body.text) {
         markdown_to_item_dom(req.body.text).then(data => {
-            const promise_list = data.eqns.map(eqn => typeset(eqn.id, eqn.math, eqn.format));
+            const promise_list = object_to_array(data.eqns || {})
+                .map(item => typeset(item[0], item[1]));
             promise_list.push(data.document);
             return Promise.all(promise_list);
         }).then(values => {
             const document = values.pop();
-            const eqns = values;
+            const eqns = array_to_object(values);
             json_response(res, {
                 document: document,
                 eqns: eqns
@@ -262,7 +269,7 @@ app.post('/prepare-item', function(req, res) {
 
 app.post('/render-item', function(req, res) {
     if (req.body.document) {
-        item_dom_to_html(req.body.document, req.body.eqns || []).then(html => {
+        item_dom_to_html(req.body.document, req.body.eqns).then(html => {
             json_response(res, {html: html});
         });
     } else {
