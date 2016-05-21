@@ -1,6 +1,9 @@
 import requests
 from django.shortcuts import render
 
+import logging
+logger = logging.getLogger(__name__)
+
 test_body = r"""The $n$th [harmonic number](=harmonic-number), $H_n$, is defined as
 
 $$
