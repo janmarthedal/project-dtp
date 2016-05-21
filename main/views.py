@@ -18,9 +18,10 @@ def new_item(request):
     context = {'title': 'New Item'}
     if request.method == 'POST':
         body = request.POST['src']
-        data = node_request('/preview-item', {'text': body})
+        item_data = node_request('/prepare-item', {'text': body})
+        data = node_request('/render-item', item_data)
         context['item_html'] = data['html']
         context['body'] = body
     else:
         context['body'] = test_body
-    return render(request, 'main/test-item-prep.html', context)
+    return render(request, 'main/new-item.html', context)

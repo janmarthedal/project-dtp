@@ -198,7 +198,7 @@ function item_node_to_html(node, eqns) {
 function item_dom_to_html(root, eqns) {
     const eqn_map = {};
     eqns.forEach(item => { eqn_map[item.id] = item });
-    return item_node_to_html(root, eqn_map);
+    return Promise.resolve(item_node_to_html(root, eqn_map));
 }
 
 /* */
@@ -241,17 +241,7 @@ app.get('/', function (req, res) {
     json_response(res, {'ok': true});
 });
 
-app.post('/typeset-item', function(req, res) {
-    if (!req.body.document) {
-        res.status(400).send('Malformed data')
-        return;
-    }
-    item_dom_to_html(req.body.document, req.body.eqns || []).then(html => {
-        json_response(res, {html: html});
-    });
-});
-
-app.post('/preview-item', function(req, res) {
+app.post('/prepare-item', function(req, res) {
     if (req.body.text) {
         markdown_to_item_dom(req.body.text).then(data => {
             const promise_list = data.eqns.map(eqn => typeset(eqn.id, eqn.math, eqn.format));
@@ -259,12 +249,24 @@ app.post('/preview-item', function(req, res) {
             return Promise.all(promise_list);
         }).then(values => {
             const document = values.pop();
-            return item_dom_to_html(document, values);
-        }).then(html => {
-            json_response(res, {html: html});
+            const eqns = values;
+            json_response(res, {
+                document: document,
+                eqns: eqns
+            });
         });
     } else {
         res.status(400).send('Malformed data')
+    }
+});
+
+app.post('/render-item', function(req, res) {
+    if (req.body.document) {
+        item_dom_to_html(req.body.document, req.body.eqns || []).then(html => {
+            json_response(res, {html: html});
+        });
+    } else {
+        res.status(400).send('Malformed data');
     }
 });
 
