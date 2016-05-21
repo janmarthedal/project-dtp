@@ -241,21 +241,6 @@ app.get('/', function (req, res) {
     json_response(res, {'ok': true});
 });
 
-app.post('/typeset-eqns', function(req, res) {
-    if (!req.body.eqns) {
-        res.status(400).send('Malformed data')
-        return;
-    }
-    Promise.all(req.body.eqns.map(function (item) {
-        return typeset(item.id, item.math, item.format);
-    })).then(function (results) {
-        json_response(res, results);
-    }, function (err) {
-        console.error('Typeset error ' + err);
-        res.status(500).send('Typeset error ' + err);
-    });
-});
-
 app.post('/typeset-item', function(req, res) {
     if (!req.body.document) {
         res.status(400).send('Malformed data')
@@ -267,8 +252,6 @@ app.post('/typeset-item', function(req, res) {
 });
 
 app.post('/preview-item', function(req, res) {
-    console.log('/preview-item');
-    //json_response(res, {html: 'foo'});
     if (req.body.text) {
         markdown_to_item_dom(req.body.text).then(data => {
             const promise_list = data.eqns.map(eqn => typeset(eqn.id, eqn.math, eqn.format));
