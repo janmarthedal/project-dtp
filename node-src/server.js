@@ -153,22 +153,15 @@ function html_to_item_dom(html) {
 }
 
 function markdown_to_item_dom(text) {
-    return prepare_markdown(text).then(prepared => {
-        return Promise.all([
-            markdownify(prepared.text),
-            prepared.eqns
-        ]);
-    }).then(values => {
-        return Promise.all([
-            html_to_item_dom(values[0]),
-            values[1]
-        ]);
-    }).then(values => {
-        return {
-            document: values[0],
-            eqns: values[1]
-        }
-    });
+    return prepare_markdown(text)
+        .then(prepared =>
+            markdownify(prepared.text)
+                .then(html => html_to_item_dom(html))
+                .then(item_dom => ({
+                    document: item_dom,
+                    eqns: prepared.eqns
+                }))
+        );
 }
 
 function item_node_to_html(node, eqns) {
@@ -249,18 +242,16 @@ app.get('/', function (req, res) {
 
 app.post('/prepare-item', function(req, res) {
     if (req.body.text) {
-        markdown_to_item_dom(req.body.text).then(data => {
-            const promise_list = object_to_array(data.eqns || {})
+        markdown_to_item_dom(req.body.text).then(item_dom => {
+            const typeset_jobs = object_to_array(item_dom.eqns || {})
                 .map(item => typeset(item[0], item[1]));
-            promise_list.push(data.document);
-            return Promise.all(promise_list);
-        }).then(values => {
-            const document = values.pop();
-            const eqns = array_to_object(values);
-            json_response(res, {
-                document: document,
-                eqns: eqns
-            });
+            return Promise.all(typeset_jobs)
+                .then(eqn_list => ({
+                    document: item_dom.document,
+                    eqns: array_to_object(eqn_list)
+                }));
+        }).then(result => {
+            json_response(res, result);
         });
     } else {
         res.status(400).send('Malformed data')
@@ -270,7 +261,7 @@ app.post('/prepare-item', function(req, res) {
 app.post('/render-item', function(req, res) {
     if (req.body.document) {
         item_dom_to_html(req.body.document, req.body.eqns).then(html => {
-            json_response(res, {html: html});
+            json_response(res, {html});
         });
     } else {
         res.status(400).send('Malformed data');
