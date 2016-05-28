@@ -1,5 +1,6 @@
 import requests
-from django.shortcuts import render
+from django.contrib.auth import logout as auth_logout
+from django.shortcuts import render, redirect
 
 import logging
 logger = logging.getLogger(__name__)
@@ -28,3 +29,16 @@ def new_item(request):
     else:
         context['body'] = test_body
     return render(request, 'main/new-item.html', context)
+
+def home(request):
+    return render(request, 'main/home.html')
+
+def login(request):
+    return render(request, 'main/login.html')
+
+def profile(request):
+    return render(request, 'main/profile.html')
+
+def logout(request):
+    auth_logout(request)
+    return redirect('profile')

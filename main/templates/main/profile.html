@@ -1,0 +1,11 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+<p>You are logged in as {{ user.username }}.</p>
+{% else %}
+<p>No user is currently logged in. <a href="{% url 'login' %}">Sign in</a>?</p>
+{% endif %}
+
+{% endblock %}
