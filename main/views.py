@@ -1,5 +1,6 @@
 import requests
 from django.contrib.auth import logout as auth_logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
 import logging
@@ -34,11 +35,14 @@ def home(request):
     return render(request, 'main/home.html')
 
 def login(request):
-    return render(request, 'main/login.html')
+    context = {'title': 'Sign In'}
+    return render(request, 'main/login.html', context)
 
+@login_required
 def profile(request):
-    return render(request, 'main/profile.html')
+    context = {'title': 'Profile'}
+    return render(request, 'main/profile.html', context)
 
 def logout(request):
     auth_logout(request)
-    return redirect('profile')
+    return redirect('home')

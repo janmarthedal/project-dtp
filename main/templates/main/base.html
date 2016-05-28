@@ -1,26 +1,62 @@
 <!DOCTYPE html>
 {% load static %}
-<html>
+<html class="no-js">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}{{ title }}{% endblock %}</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'main/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'main/mathjax.css' %}">
     <style>
       #wrapper {
         width: 100%;
-        max-width: 60em;
+        /*max-width: 60em;*/
         margin: 0 auto;
+      }
+      html.no-js #navbar-collapse {
+        display: block;
       }
     </style>
   </head>
   <body>
     <div id="wrapper">
+      <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{% url 'home' %}">Project DTP</a>
+          </div>
+          <div class="collapse navbar-collapse" id="navbar-collapse">
+            <p class="navbar-text navbar-right">
+              {% if user.is_authenticated %}Signed in as <a href="{% url 'profile' %}" class="navbar-link">{{ user.username }}</a>
+              {% else %}<a href="{% url 'login' %}">Sign in</a>{% endif %}
+            </p>
+          </div>
+        </div>
+      </nav>
       <div class="container-fluid">
         <div class="row">
-          <h1>{{ title }}</h1>
-          {% block content %}{% endblock %}
+          <div class="col-md-12">
+            <h1>{{ title }}</h1>
+            {% block content %}{% endblock %}
+          </div>
         </div>
       </div>
     </div>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script>
+      (function ($) {
+        if ($ && $.fn.collapse) {
+          $(document.documentElement).removeClass('no-js');
+        }
+      })(jQuery);
+    </script>
   </body>
 </html>
