@@ -1,10 +1,10 @@
-{% extends 'main/base.html' %}
+{% extends 'main/page.html' %}
 
-{% block content %}
+{% block pagecontent %}
 
 <ul>
-    <li><a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a></li>
-    <li><a href="{% url 'social:begin' 'twitter' %}">Login with Twitter</a></li>
+    <li><a href="{% url 'social:begin' 'google-oauth2' %}">Google</a></li>
+    <li><a href="{% url 'social:begin' 'twitter' %}">Twitter</a></li>
 </ul>
 
 {% endblock %}

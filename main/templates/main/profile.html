@@ -1,6 +1,6 @@
-{% extends 'main/base.html' %}
+{% extends 'main/page.html' %}
 
-{% block content %}
+{% block pagecontent %}
 
 {% if user.is_authenticated %}
 <p>You are logged in as {{ user.username }}.</p>

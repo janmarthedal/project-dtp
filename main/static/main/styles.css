@@ -1,0 +1,10 @@
+#wrapper {
+  width: 100%;
+  margin: 0 auto;
+}
+html.no-js #navbar-collapse {
+  display: block;
+}
+.navbar-text > a {
+  color: inherit;
+}

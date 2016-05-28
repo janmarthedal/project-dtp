@@ -5,19 +5,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <title>{% block title %}Project DTP{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'main/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'main/mathjax.css' %}">
-    <style>
-      #wrapper {
-        width: 100%;
-        /*max-width: 60em;*/
-        margin: 0 auto;
-      }
-      html.no-js #navbar-collapse {
-        display: block;
-      }
-    </style>
+    <link rel="stylesheet" href="{% static 'main/styles.css' %}">
   </head>
   <body>
     <div id="wrapper">
@@ -41,12 +32,7 @@
         </div>
       </nav>
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-12">
-            <h1>{{ title }}</h1>
-            {% block content %}{% endblock %}
-          </div>
-        </div>
+{% block content %}{% endblock %}
       </div>
     </div>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
