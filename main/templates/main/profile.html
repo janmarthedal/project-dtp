@@ -3,7 +3,7 @@
 {% block pagecontent %}
 
 {% if user.is_authenticated %}
-<p>You are logged in as {{ user.username }}.</p>
+<p>Logged in as {{ user.username }}.</p>
 <p><a href="{% url 'logout' %}">Sign out</a></p>
 {% endif %}
 
