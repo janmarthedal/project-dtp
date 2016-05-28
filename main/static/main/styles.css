@@ -2,9 +2,15 @@
   width: 100%;
   margin: 0 auto;
 }
+
 html.no-js #navbar-collapse {
   display: block;
 }
-.navbar-text > a {
+
+/*.navbar-text > a {
   color: inherit;
+}*/
+
+textarea.form-control {
+  margin-bottom: 1em;
 }
