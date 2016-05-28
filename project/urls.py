@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^accounts/login/$', main.views.login, name='login'),
     url(r'^accounts/logout/$', main.views.logout, name='logout'),
     url(r'^accounts/profile/$', main.views.profile, name='profile'),
-    url(r'^new-item$', main.views.new_item),
+    url(r'^definitions/new$', main.views.new_definition, name='new-def'),
+    url(r'^theorems/new$', main.views.new_theorem, name='new-thm'),
 ]

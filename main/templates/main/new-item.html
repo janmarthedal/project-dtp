@@ -2,13 +2,34 @@
 
 {% block pagecontent %}
 {% if item_html %}
-<div class="well">
-<p>{{ item_html|safe }}</p>
-</div>
-{% endif %}
 <form action="" method="post">
-    {% csrf_token %}
-    <textarea name="src" class="form-control" rows="10">{{ body }}</textarea>
-    <button type="submit" class="btn btn-default">Submit</button>
+  {% csrf_token %}
+  <div class="panel panel-default">
+    <div class="panel-body">
+    {{ item_html|safe }}
+    </div>
+  </div>
+  <input type="hidden" name="src" value="{{ body|escape }}">
+  <button type="submit" name="submit" value="edit" class="btn btn-default">Edit</button>
+  <button type="submit" name="submit" value="publish" class="btn btn-default">Publish</button>
+  <a href="#" class="btn btn-warning pull-right">Cancel</a>
 </form>
+{% else %}
+<form action="" method="post">
+  {% csrf_token %}
+  <textarea name="src" class="form-control" rows="10">{{ body }}</textarea>
+  <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
+  <a href="#" class="btn btn-warning pull-right">Cancel</a>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block sidecontent %}
+<div class="well">
+{% if item_html %}
+<h4>About the Item</h4>
+{% else %}
+<h4>How to Edit</h4>
+{% endif %}
+</div>
 {% endblock %}

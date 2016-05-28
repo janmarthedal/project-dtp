@@ -20,17 +20,24 @@ def node_request(path, payload):
     r.raise_for_status()
     return r.json()
 
-def new_item(request):
-    context = {'title': 'New Item'}
+def new_item(request, item_type):
+    context = {'title': 'New ' + item_type}
     if request.method == 'POST':
         body = request.POST['src']
-        item_data = node_request('/prepare-item', {'text': body})
-        data = node_request('/render-item', item_data)
-        context['item_html'] = data['html']
         context['body'] = body
+        if request.POST['submit'] == 'preview':
+            item_data = node_request('/prepare-item', {'text': body})
+            data = node_request('/render-item', item_data)
+            context['item_html'] = data['html']
     else:
         context['body'] = test_body
     return render(request, 'main/new-item.html', context)
+
+def new_definition(request):
+    return new_item(request, 'Definition')
+
+def new_theorem(request):
+    return new_item(request, 'Theorem')
 
 def home(request):
     return render(request, 'main/home.html')
