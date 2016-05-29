@@ -1,9 +1,9 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-{% if item_html %}
 <form action="" method="post">
   {% csrf_token %}
+{% if item_html %}
   <div class="panel panel-default">
     <div class="panel-body">
     {{ item_html|safe }}
@@ -11,17 +11,14 @@
   </div>
   <input type="hidden" name="src" value="{{ body|escape }}">
   <button type="submit" name="submit" value="edit" class="btn btn-default">Edit</button>
-  <button type="submit" name="submit" value="publish" class="btn btn-default">Publish</button>
+  <button type="submit" name="submit" value="create" class="btn btn-default">Create</button>
   <a href="#" class="btn btn-warning pull-right">Cancel</a>
-</form>
 {% else %}
-<form action="" method="post">
-  {% csrf_token %}
   <textarea name="src" class="form-control" rows="10">{{ body }}</textarea>
   <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
   <a href="#" class="btn btn-warning pull-right">Cancel</a>
-</form>
 {% endif %}
+</form>
 {% endblock %}
 
 {% block sidecontent %}
