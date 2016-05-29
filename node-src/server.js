@@ -98,6 +98,13 @@ class EqnMap {
         };
         return id;
     }
+    get_error_id(msg) {
+        const id = ++this.counter;
+        this.eqns[id] = {
+            error: msg
+        };
+        return id;
+    }
     get_eqn_map() {
         return this.eqns;
     }
@@ -107,19 +114,20 @@ function prepare_markdown(text) {
     const eqn_map = new EqnMap(),
         paragraphs = text.split(/\s*\$\$\s*/);
 
-    if (paragraphs.length % 2 === 0)
-        paragraphs.pop();
-
-    const clean_text = paragraphs.map(function (para, j) {
+    const prepared_text = paragraphs.map(function (para, j) {
         if (j % 2) {
-            return '![](/eqn/' + eqn_map.get_id(para, true) + ')';
+            const id = (j === paragraphs.length - 1)
+                ? eqn_map.get_error_id('unterminated block equation')
+                : eqn_map.get_id(para, true);
+            return '![](/eqn/' + id + ')';
         } else {
-            let items = para.split('$');
-            if (items.length % 2 === 0)
-                items.pop();
+            const items = para.split('$');
             return items.map(function (item, k) {
                 if (k % 2) {
-                    return '![](/eqn/' + eqn_map.get_id(item, false) + ')';
+                    const id = (k === items.length - 1)
+                        ? eqn_map.get_error_id('unterminated inline equation')
+                        : eqn_map.get_id(item, false);
+                    return '![](/eqn/' + id + ')';
                 } else {
                     return item;
                 }
@@ -128,7 +136,7 @@ function prepare_markdown(text) {
     }).join('\n\n');
 
     return Promise.resolve({
-        text: clean_text,
+        text: prepared_text,
         eqns: eqn_map.get_eqn_map()
     });
 }
@@ -194,20 +202,17 @@ function item_dom_to_html(root, eqns) {
 /* */
 
 function typeset(id, data) {
+    if (data.error)
+        return Promise.resolve([id, data]);
     if (['TeX', 'inline-TeX'].indexOf(data.format) < 0)
         return Promise.reject('illegal typeset format');
-    return new Promise(function (resolve, reject) {
-        console.log('Typesetting: ' + data.math);
+    return new Promise((resolve, reject) => {
         mjAPI.typeset({
             math: data.math,
             format: data.format,
             html: true,
-        }, function (result) {
-            if (result.errors) {
-                resolve([id, { error: result.errors }]);
-            } else {
-                resolve([id, { html: result.html }]);
-            }
+        }, result => {
+            resolve([id, result.errors ? {error: result.errors} : {html: result.html}]);
         });
     });
 }
