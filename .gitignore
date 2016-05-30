@@ -5,3 +5,4 @@ db.sqlite3
 debug.log
 .DS_Store
 secrets.py
+/node-dst
