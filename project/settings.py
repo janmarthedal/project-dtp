@@ -1,8 +1,9 @@
 import os
+from . import secrets
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'pa7%j+$y^y*ljhs6hqp=1n!o_c=hwv-iyo)06m^f@1$85c30i^'
+SECRET_KEY = secrets.SECRET_KEY
 
 DEBUG = True
 
@@ -35,11 +36,11 @@ AUTHENTICATION_BACKENDS = [
     'social.backends.twitter.TwitterOAuth',
 ]
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '345085256562-9a5of701k421c6kjcpjk0ii48j7j0m5n.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '-n4nbeebhXrNtFvHWerS70aW'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = secrets.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
 
-SOCIAL_AUTH_TWITTER_KEY = 'f4avtkxgbY9HvpFyAPJOPY4sE'
-SOCIAL_AUTH_TWITTER_SECRET = 'I5X1sYTir8lK8LvOilHpPZL3xQMg0960zKwFZusv6eR9M3k4SV'
+SOCIAL_AUTH_TWITTER_KEY = secrets.SOCIAL_AUTH_TWITTER_KEY
+SOCIAL_AUTH_TWITTER_SECRET = secrets.SOCIAL_AUTH_TWITTER_SECRET
 
 ROOT_URLCONF = 'project.urls'
 
