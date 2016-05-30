@@ -1,10 +1,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import {fromPairs, map} from 'lodash';
 
 import eqn_typeset from './eqn-typeset';
 import item_dom_to_html from './item-dom-to-html';
 import markdown_to_item_dom from './markdown-to-item-dom';
-import {object_to_array, array_to_object} from './pure-fun';
 
 function json_response(res, data) {
     res.setHeader('Content-Type', 'application/json');
@@ -22,12 +22,12 @@ app.get('/', function (req, res) {
 app.post('/prepare-item', function(req, res) {
     if (req.body.text) {
         markdown_to_item_dom(req.body.text).then(item_dom => {
-            const typeset_jobs = object_to_array(item_dom.eqns || {})
-                .map(item => eqn_typeset(item[0], item[1]));
+            const typeset_jobs = map(item_dom.eqns || {},
+                                     (data, key) => eqn_typeset(key, data));
             return Promise.all(typeset_jobs)
                 .then(eqn_list => ({
                     document: item_dom.document,
-                    eqns: array_to_object(eqn_list)
+                    eqns: fromPairs(eqn_list)
                 }));
         }).then(result => {
             json_response(res, result);
