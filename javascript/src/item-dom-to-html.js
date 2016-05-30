@@ -1,4 +1,4 @@
-import {map, flattenDeep} from 'lodash';
+import {flattenDeep, map, uniq} from 'lodash';
 
 const type_to_tag = {
     'body': '',
@@ -8,7 +8,7 @@ const type_to_tag = {
     'list-item': 'li',
 };
 
-function item_node_to_html(emit, node, eqns) {
+function item_node_to_html(emit, node, eqns, tags, data) {
     if (node.type === 'text')
         return emit(node.value);
     if (node.type === 'eqn') {
@@ -21,13 +21,19 @@ function item_node_to_html(emit, node, eqns) {
             throw new Error('corrupt eqn item');
         node = {type: 'error', reason: item.error};
     }
-    if (node.type === 'error')
+    if (node.type === 'error') {
+        data.errors.push(node.reason);
         return emit('<span class="text-danger">', node.reason, '</span>');
+    }
 
     let tag, attr = {};
     if (node.type in type_to_tag) {
         tag = type_to_tag[node.type];
     } else if (node.type === 'tag-def') {
+        if (data.defined.indexOf(node.tag_id) < 0)
+            data.defined.push(node.tag_id);
+        else
+            data.errors.push('tag \'' + tags[node.tag_id] + '\' defined multiple times');
         tag = 'a';
         attr.href = '#';
     } else if (node.type === 'list') {
@@ -40,16 +46,19 @@ function item_node_to_html(emit, node, eqns) {
     if (tag)
         emit('<', tag, map(attr, (value, key) => [' ', key, '="', value, '"']), '>');
     if (node.children)
-        node.children.forEach(child => item_node_to_html(emit, child, eqns))
+        node.children.forEach(child => item_node_to_html(emit, child, eqns, tags, data))
     if (tag)
         emit('</', tag, '>');
 }
 
-export default function item_dom_to_html(root, eqns) {
+export default function item_dom_to_html(root, eqns, tags) {
     const out_items = [],
+        data = {defined: [], errors: []},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };
-    item_node_to_html(emit, root, eqns || {});
-    return Promise.resolve(flattenDeep(out_items).join(''));
+    item_node_to_html(emit, root, eqns, tags, data);
+    data.html = flattenDeep(out_items).join('');
+    data.errors = uniq(data.errors);
+    return Promise.resolve(data);
 }

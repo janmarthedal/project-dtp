@@ -25,6 +25,11 @@
 <div class="well">
 {% if item_html %}
 <h4>About the Item</h4>
+{% if errors %}
+<ul>{% for error in errors %}
+  <li>{{error}}</li>{% endfor %}
+</ul>
+{% endif %}
 {% else %}
 <h4>How to Edit</h4>
 {% endif %}

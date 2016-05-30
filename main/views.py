@@ -29,6 +29,7 @@ def new_item(request, item_type):
             item_data = node_request('/prepare-item', {'text': body})
             data = node_request('/render-item', item_data)
             context['item_html'] = data['html']
+            context['errors'] = data['errors'];
     else:
         context['body'] = test_body
     return render(request, 'main/new-item.html', context)

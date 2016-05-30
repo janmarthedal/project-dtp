@@ -40,8 +40,8 @@ app.post('/prepare-item', function(req, res) {
 
 app.post('/render-item', function(req, res) {
     if (req.body.document) {
-        item_dom_to_html(req.body.document, req.body.eqns).then(html => {
-            json_response(res, {html});
+        item_dom_to_html(req.body.document, req.body.eqns, req.body.tags).then(data => {
+            json_response(res, data);
         });
     } else {
         res.status(400).send('Malformed data');
