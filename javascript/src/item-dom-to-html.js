@@ -1,3 +1,13 @@
+import {map, flattenDeep} from 'lodash';
+
+const type_to_tag = {
+    'body': '',
+    'para': 'p',
+    'strong': 'strong',
+    'emph': 'em',
+    'list-item': 'li',
+};
+
 function item_node_to_html(emit, node, eqns) {
     if (node.type === 'text')
         return emit(node.value);
@@ -7,57 +17,39 @@ function item_node_to_html(emit, node, eqns) {
             throw new Error('corrupt eqn reference');
         if (item.html)
             return emit(item.html);
-        if (item.error)
-            node = {type: 'error', reason: item.error};
-        else
+        if (!item.error)
             throw new Error('corrupt eqn item');
+        node = {type: 'error', reason: item.error};
     }
-    if (node.type === 'error') {
-        emit('<span class="text-danger">');
-        emit(node.reason);
-        emit('</span>');
-        return;
+    if (node.type === 'error')
+        return emit('<span class="text-danger">', node.reason, '</span>');
+
+    let tag, attr = {};
+    if (node.type in type_to_tag) {
+        tag = type_to_tag[node.type];
+    } else if (node.type === 'tag-def') {
+        tag = 'a';
+        attr.href = '#';
+    } else if (node.type === 'list') {
+        tag = node.ordered ? 'ol' : 'ul';
+    } else if (node.type === 'header') {
+        tag = 'h' + node.level;
+    } else {
+        throw new Error('Unsupported node type \'' + node.type + '\'');
     }
-    let start, stop;
-    switch (node.type) {
-        case 'body':
-            break;
-        case 'para':
-            start = '<p>'; stop = '</p>'; break;
-        case 'strong':
-            start = '<strong>'; stop = '</strong>'; break;
-        case 'emph':
-            start = '<em>'; stop = '</em>'; break;
-        case 'tag-def':
-            start = '<a href="#">'; stop = '</a>'; break;
-        case 'list':
-            if (node.ordered) {
-                start = '<ol>'; stop = '</ol>';
-            } else {
-                start = '<ul>'; stop = '</ul>';
-            }
-            break;
-        case 'list-item':
-            start = '<li>'; stop = '</li>'; break;
-        case 'header': {
-            const tag = 'h' + node.level;
-            start = '<' + tag + '>'; stop = '</' + tag + '>';
-            break;
-        }
-        default:
-            throw new Error('Unsupported node type \'' + node.type + '\'');
-    }
-    if (start)
-        emit(start);
+    if (tag)
+        emit('<', tag, map(attr, (value, key) => [' ', key, '="', value, '"']), '>');
     if (node.children)
         node.children.forEach(child => item_node_to_html(emit, child, eqns))
-    if (stop)
-        emit(stop);
+    if (tag)
+        emit('</', tag, '>');
 }
 
 export default function item_dom_to_html(root, eqns) {
     const out_items = [],
-        emit = item => { out_items.push(item) };
+        emit = (...items) => {
+            Array.prototype.push.apply(out_items, items);
+        };
     item_node_to_html(emit, root, eqns || {});
-    return Promise.resolve(out_items.join(''));
+    return Promise.resolve(flattenDeep(out_items).join(''));
 }
