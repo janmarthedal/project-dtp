@@ -26,18 +26,20 @@ function normalizeTeX(tex) {
 const tag_map = {
     'body': 'body',
     'p': 'para',
+    'strong': 'strong',
+    'em': 'emph',
+    'li': 'list-item',
 };
 
 const regex_tag_def = /^=[-a-z]+$/;
+const regex_html_header = /^h([1-6])$/;
 
 function make_error(reason) {
-    return {
-        type: 'error',
-        reason: reason
-    };
+    return {type: 'error', reason: reason};
 }
 
 function md_dom_to_item_dom(node) {
+    let match;
     if (node.nodeType === 1) {
         const item_node = {};
         const children = Array.prototype.map.call(node.childNodes, child => md_dom_to_item_dom(child));
@@ -61,6 +63,12 @@ function md_dom_to_item_dom(node) {
             } else {
                 return make_error("illegal item reference '" + href + "'");
             }
+        } else if (node.localName === 'ul' || node.localName === 'ol') {
+            item_node.type = 'list';
+            item_node.ordered = node.localName === 'ol';
+        } else if (!!(match = node.localName.match(regex_html_header))) {
+            item_node.type = 'header';
+            item_node.level = parseInt(match[1]);
         } else if (node.localName in tag_map) {
             item_node.type = tag_map[node.localName];
         } else {
@@ -177,21 +185,35 @@ function item_node_to_html(node, eqns) {
         return node.value;
     if (node.type === 'eqn') {
         const item = eqns[node.id];
+        if (!item)
+            item = {error: 'corrupt eqn reference'};
         if (item.error)
             return '<span class="text-danger">' + item.error + '</span>';
-        else
-            return item.html;
+        return item.html;
     }
     if (node.type === 'error')
         return '<span class="text-danger">' + node.reason + '</span>';
-    let children = (node.children || []).map(child => item_node_to_html(child, eqns));
-    children = children.join('');
+    const children = (node.children || [])
+        .map(child => item_node_to_html(child, eqns))
+        .join('');
     if (node.type === 'body')
         return children;
     if (node.type === 'para')
         return '<p>' + children + '</p>';
-    if (node.type === 'tag-def')
+    if (node.type === 'strong')
+        return '<strong>' + children + '</strong>';
+    if (node.type === 'emph')
         return '<em>' + children + '</em>';
+    if (node.type === 'tag-def')
+        return '<a href="#">' + children + '</a>';
+    if (node.type === 'list')
+        return node.ordered ? '<ol>' + children + '</ol>' : '<ul>' + children + '</ul>';
+    if (node.type === 'list-item')
+        return '<li>' + children + '</li>';
+    if (node.type === 'header') {
+        const tag = 'h' + node.level;
+        return '<' + tag + '>' + children + '</' + tag + '>';
+    }
     return '<span class="text-danger">unsupported node type \'' + node.type + "'";
 }
 
