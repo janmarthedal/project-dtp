@@ -8,8 +8,9 @@ export default function markdown_to_item_dom(text) {
             markdownify(prepared.text)
                 .then(html => html_to_item_dom(html))
                 .then(item_dom => ({
-                    document: item_dom,
-                    eqns: prepared.eqns
+                    document: item_dom.document,
+                    eqns: prepared.eqns,
+                    tags: item_dom.tags,
                 }))
         );
 }

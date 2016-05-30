@@ -1,3 +1,4 @@
+import {map} from 'lodash';
 
 const tag_map = {
     'body': 'body',
@@ -14,11 +15,31 @@ function make_error(reason) {
     return {type: 'error', reason: reason};
 }
 
-export default function md_dom_to_item_dom(node) {
+class TagManager {
+    constructor() {
+        this.counter = 0;
+        this.tags = {};
+        this.tagToId = {};
+    }
+    get_id(tag) {
+        if (tag in this.tagToId)
+            return this.tagToId[key];
+        const id = ++this.counter;
+        this.tagToId[tag] = id;
+        this.tags[id] = tag;
+        return id;
+    }
+    get_tag_map() {
+        return this.tags;
+    }
+}
+
+function md_node_to_item_dom(node, tag_manager) {
     let match;
     if (node.nodeType === 1) {
-        const item_node = {};
-        const children = Array.prototype.map.call(node.childNodes, child => md_dom_to_item_dom(child));
+        const item_node = {},
+            children = map(node.childNodes,
+                           child => md_node_to_item_dom(child, tag_manager));
         if (node.localName === 'img') {
             const src = node.getAttribute('src') || '';
             if (src.startsWith('/eqn/')) {
@@ -33,7 +54,7 @@ export default function md_dom_to_item_dom(node) {
             const href = node.getAttribute('href') || '';
             if (regex_tag_def.test(href)) {
                 item_node.type = 'tag-def';
-                item_node.tag = href.substring(1);
+                item_node.tag_id = tag_manager.get_id(href.substring(1));
             } else if (href.startsWith('=')) {
                 return make_error("illegal tag '" + tag + "'");
             } else {
@@ -51,7 +72,7 @@ export default function md_dom_to_item_dom(node) {
             return make_error('unsupported HTML tag ' + node.localName);
         }
         if (children.length)
-            item_node.children = children
+            item_node.children = children;
         return item_node;
     } else if (node.nodeType === 3) {
         return {
@@ -61,4 +82,13 @@ export default function md_dom_to_item_dom(node) {
     } else {
         return make_error('unsupported HTML node type ' + node.nodeValue);
     }
+}
+
+export default function md_dom_to_item_dom(node) {
+    const tag_manager = new TagManager(),
+        document = md_node_to_item_dom(node, tag_manager);
+    return {
+        document: document,
+        tags: tag_manager.get_tag_map()
+    };
 }

@@ -27,7 +27,8 @@ app.post('/prepare-item', function(req, res) {
             return Promise.all(typeset_jobs)
                 .then(eqn_list => ({
                     document: item_dom.document,
-                    eqns: fromPairs(eqn_list)
+                    tags: item_dom.tags,
+                    eqns: fromPairs(eqn_list),
                 }));
         }).then(result => {
             json_response(res, result);
