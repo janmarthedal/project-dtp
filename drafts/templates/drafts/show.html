@@ -8,4 +8,15 @@
 <div class="well">
 {% include 'drafts/include/about.html' with item_data=item_data only %}
 </div>
+<form action="" method="post">
+  {% csrf_token %}
+  <button type="submit" name="submit" value="delete" class="btn btn-danger">Delete</button>
+  {% if item_data.errors %}
+  <a href="#" class="btn btn-primary" disabled="disabled">Publish</a>
+  {% else %}
+  <button type="submit" name="submit" value="publish" class="btn btn-default">Publish</button>
+  {% endif %}
+  <a href="{% url 'edit-draft' item.id %}" class="btn btn-primary">Edit</a>
+</form>
+
 {% endblock %}

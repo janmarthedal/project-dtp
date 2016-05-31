@@ -13,7 +13,11 @@ $$
 for $n \geq 1$."""
 
 def edit_item(request, item):
-    context = {'title': 'New ' + item.get_item_type_display()}
+    if item.id:
+        title = 'Edit {} (Draft {})'.format(item.get_item_type_display(), item.id)
+    else:
+        title = 'New ' + item.get_item_type_display()
+    context = {'title': title}
     if request.method == 'POST':
         item.body = request.POST['src']
         if request.POST['submit'] == 'preview':
@@ -43,6 +47,14 @@ def show_draft(request, id_str):
         return HttpResponseForbidden()
     context = {
         'title': 'New {} (Draft {})'.format(item.get_item_type_display(), item.id),
+        'item': item,
         'item_data': item.prepare()
     }
     return render(request, 'drafts/show.html', context)
+
+@login_required
+def edit_draft(request, id_str):
+    item = get_object_or_404(DraftItem, id=int(id_str))
+    if item.creator != request.user:
+        return HttpResponseForbidden()
+    return edit_item(request, item)

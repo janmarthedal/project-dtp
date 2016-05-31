@@ -11,5 +11,5 @@ urlpatterns = [
     url(r'^accounts/profile/$', main.views.profile, name='profile'),
     url(r'^definitions/new$', drafts.views.new_definition, name='new-def'),
     url(r'^theorems/new$', drafts.views.new_theorem, name='new-thm'),
-    url(r'^drafts/(\d+)$', drafts.views.show_draft, name='show-draft'),
+    url(r'^drafts/', include('drafts.urls')),
 ]
