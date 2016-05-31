@@ -12,23 +12,21 @@ $$
 
 for $n \geq 1$."""
 
-# view function helper
-def new_item(request, item_type):
-    item = DraftItem(creator=request.user, item_type=item_type, body='')
+def edit_item(request, item):
     context = {'title': 'New ' + item.get_item_type_display()}
     if request.method == 'POST':
-        body = request.POST['src']
-        item.body = body
-        context['body'] = body
+        item.body = request.POST['src']
         if request.POST['submit'] == 'preview':
-            html, defined, errors = item.prepare()
-            context.update(item_html=html, defined=defined, errors=errors)
+            context['item_data'] = item.prepare()
         elif request.POST['submit'] == 'save':
             item.save()
             return redirect(item)
-    else:
-        context['body'] = test_body
+    context['item'] = item
     return render(request, 'drafts/edit.html', context)
+
+def new_item(request, item_type):
+    item = DraftItem(creator=request.user, item_type=item_type, body=test_body)
+    return edit_item(request, item)
 
 @login_required
 def new_definition(request):
@@ -43,7 +41,8 @@ def show_draft(request, id_str):
     item = get_object_or_404(DraftItem, id=int(id_str))
     if item.creator != request.user:
         return HttpResponseForbidden()
-    context = {'title': 'New {} (Draft {})'.format(item.get_item_type_display(), item.id)}
-    html, defined, errors = item.prepare()
-    context.update(item_html=html, defined=defined, errors=errors)
+    context = {
+        'title': 'New {} (Draft {})'.format(item.get_item_type_display(), item.id),
+        'item_data': item.prepare()
+    }
     return render(request, 'drafts/show.html', context)

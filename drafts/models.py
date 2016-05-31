@@ -37,4 +37,4 @@ class DraftItem(models.Model):
             if defined:
                 errors.append('A {} may not define concepts'.format(self.get_item_type_display()))
             defined = None
-        return data['html'], defined, errors
+        return {'html': data['html'], 'defined': defined, 'errors': errors}

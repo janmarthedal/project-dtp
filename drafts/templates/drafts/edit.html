@@ -3,17 +3,13 @@
 {% block pagecontent %}
 <form action="" method="post">
   {% csrf_token %}
-{% if item_html %}
-  <div class="panel panel-default">
-    <div class="panel-body">
-    {{ item_html|safe }}
-    </div>
-  </div>
-  <input type="hidden" name="src" value="{{ body|escape }}">
+{% if item_data %}
+  {% include 'drafts/include/show.html' with item_data=item_data only %}
+  <input type="hidden" name="src" value="{{ item.body|escape }}">
   <button type="submit" name="submit" value="edit" class="btn btn-default">Edit</button>
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
 {% else %}
-  <textarea name="src" class="form-control" rows="10">{{ body }}</textarea>
+  <textarea name="src" class="form-control" rows="10">{{ item.body }}</textarea>
   <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
 {% endif %}
   <a href="{% url 'home' %}" class="btn btn-warning pull-right">Cancel</a>
@@ -22,19 +18,8 @@
 
 {% block sidecontent %}
 <div class="well">
-{% if item_html %}
-<h4>About the Item</h4>
-{% if defined != None %}
-<p>Concepts defined:{% for tag in defined %} {{tag}}{% endfor %}</p>
-{% endif %}
-{% if errors %}
-<p>Errors:</p>
-<ul>{% for error in errors %}
-  <li>{{error}}</li>{% endfor %}
-</ul>
-{% else %}
-<p>No errors</p>
-{% endif %}
+{% if item_data %}
+{% include 'drafts/include/about.html' with item_data=item_data only %}
 {% else %}
 <h4>How to Edit</h4>
 {% endif %}

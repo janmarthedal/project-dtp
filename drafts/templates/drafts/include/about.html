@@ -1,0 +1,12 @@
+<h4>About the Item</h4>
+{% if item_data.defined != None %}
+<p>Concepts defined:{% for tag in item_data.defined %} {{tag}}{% endfor %}</p>
+{% endif %}
+{% if item_data.errors %}
+<p>Errors:</p>
+<ul>{% for error in item_data.errors %}
+  <li>{{error}}</li>{% endfor %}
+</ul>
+{% else %}
+<p>No errors</p>
+{% endif %}
