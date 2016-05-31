@@ -20,6 +20,7 @@ def node_request(path, payload):
     r.raise_for_status()
     return r.json()
 
+# view function helper
 def new_item(request, item_type):
     context = {'title': 'New ' + item_type}
     if request.method == 'POST':
@@ -43,9 +44,11 @@ def new_item(request, item_type):
         context['body'] = test_body
     return render(request, 'main/new-item.html', context)
 
+@login_required
 def new_definition(request):
     return new_item(request, 'Definition')
 
+@login_required
 def new_theorem(request):
     return new_item(request, 'Theorem')
 
