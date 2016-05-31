@@ -3,7 +3,10 @@
 {% block pagecontent %}
 <div class="list-group">
 {% for item in items %}
-<a href="{{item.get_absolute_url}}" class="list-group-item">{{item}}</a>
+<a href="{{item.get_absolute_url}}" class="list-group-item">
+  <h4 class="list-group-item-heading">{{item}}</h4>
+  <p class="list-group-item-text">Created {{item.created_at|date:"DATETIME_FORMAT"}} by {{item.creator.get_username}}</p>
+</a>
 {% endfor %}
 </div>
 {% endblock %}

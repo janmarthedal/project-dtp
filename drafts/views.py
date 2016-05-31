@@ -59,6 +59,6 @@ def edit_draft(request, id_str):
 def list_drafts(request):
     context = {
         'title': 'My Drafts',
-        'items': DraftItem.objects.filter(creator=request.user).order_by('id'),
+        'items': DraftItem.objects.filter(creator=request.user).order_by('-updated_at'),
     }
     return render(request, 'drafts/list.html', context)
