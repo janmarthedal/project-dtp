@@ -1,0 +1,12 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<div class="list-group">
+{% for item in items %}
+<a href="{{item.get_absolute_url}}" class="list-group-item">Draft {{item.id}}</a>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block sidecontent %}
+{% endblock %}

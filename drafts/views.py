@@ -58,3 +58,11 @@ def edit_draft(request, id_str):
     if item.creator != request.user:
         return HttpResponseForbidden()
     return edit_item(request, item)
+
+@login_required
+def list_drafts(request):
+    context = {
+        'title': 'My Drafts',
+        'items': DraftItem.objects.filter(creator=request.user).order_by('id'),
+    }
+    return render(request, 'drafts/list.html', context)
