@@ -1,0 +1,26 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<div class="panel panel-default">
+  <div class="panel-body">
+  {{ item_html|safe }}
+  </div>
+</div>
+{% endblock %}
+
+{% block sidecontent %}
+<div class="well">
+<h4>About the Item</h4>
+{% if defined != None %}
+<p>Concepts defined:{% for tag in defined %} {{tag}}{% endfor %}</p>
+{% endif %}
+{% if errors %}
+<p>Errors:</p>
+<ul>{% for error in errors %}
+  <li>{{error}}</li>{% endfor %}
+</ul>
+{% else %}
+<p>No errors</p>
+{% endif %}
+</div>
+{% endblock %}

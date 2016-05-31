@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^accounts/profile/$', main.views.profile, name='profile'),
     url(r'^definitions/new$', main.views.new_definition, name='new-def'),
     url(r'^theorems/new$', main.views.new_theorem, name='new-thm'),
+    url(r'^drafts/(\d+)$', main.views.show_draft, name='show-draft'),
 ]
