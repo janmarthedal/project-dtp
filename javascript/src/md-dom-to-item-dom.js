@@ -23,7 +23,7 @@ class TagManager {
     }
     get_id(tag) {
         if (tag in this.tagToId)
-            return this.tagToId[key];
+            return this.tagToId[tag];
         const id = ++this.counter;
         this.tagToId[tag] = id;
         this.tags[id] = tag;

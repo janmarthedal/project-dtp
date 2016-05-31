@@ -11,13 +11,12 @@
   </div>
   <input type="hidden" name="src" value="{{ body|escape }}">
   <button type="submit" name="submit" value="edit" class="btn btn-default">Edit</button>
-  <button type="submit" name="submit" value="create" class="btn btn-default">Create</button>
-  <a href="#" class="btn btn-warning pull-right">Cancel</a>
+  <button type="submit" name="submit" value="create" class="btn btn-default">Save</button>
 {% else %}
   <textarea name="src" class="form-control" rows="10">{{ body }}</textarea>
   <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
-  <a href="#" class="btn btn-warning pull-right">Cancel</a>
 {% endif %}
+  <a href="{% url 'home' %}" class="btn btn-warning pull-right">Cancel</a>
 </form>
 {% endblock %}
 
@@ -25,10 +24,16 @@
 <div class="well">
 {% if item_html %}
 <h4>About the Item</h4>
+{% if defined != None %}
+<p>Concepts defined:{% for tag in defined %} {{tag}}{% endfor %}</p>
+{% endif %}
 {% if errors %}
+<p>Errors:</p>
 <ul>{% for error in errors %}
   <li>{{error}}</li>{% endfor %}
 </ul>
+{% else %}
+<p>No errors</p>
 {% endif %}
 {% else %}
 <h4>How to Edit</h4>

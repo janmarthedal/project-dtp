@@ -27,9 +27,18 @@ def new_item(request, item_type):
         context['body'] = body
         if request.POST['submit'] == 'preview':
             item_data = node_request('/prepare-item', {'text': body})
+            tag_map = {int(key): value for key, value in item_data['tags'].items()}
             data = node_request('/render-item', item_data)
-            context['item_html'] = data['html']
-            context['errors'] = data['errors'];
+            defined = [tag_map[id] for id in data['defined']]
+            errors = data['errors']
+            if item_type == 'Definition':
+                if not defined:
+                    errors.append('A definition must define at least one concept')
+            else:
+                if defined:
+                    errors.append('A {} may not define concepts'.format(item_type))
+                defined = None
+            context.update(item_html=data['html'], defined=defined, errors=errors)
     else:
         context['body'] = test_body
     return render(request, 'main/new-item.html', context)
