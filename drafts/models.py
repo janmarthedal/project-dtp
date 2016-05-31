@@ -21,6 +21,10 @@ class DraftItem(models.Model):
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
     body = models.TextField(blank=True)
 
+    def __str__(self):
+        return '{} (Draft{})'.format(self.get_item_type_display(),
+                                     ' {}'.format(self.id) if self.id else '')
+
     def get_absolute_url(self):
         return reverse('show-draft', args=[self.id])
 
