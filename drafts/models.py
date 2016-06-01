@@ -5,6 +5,9 @@ from django.db import models
 from mathitems.itemtypes import ItemTypes
 from project.helpers import node_request
 
+#import logging
+#logger = logging.getLogger(__name__)
+
 class DraftItem(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -44,3 +47,6 @@ class DraftItem(models.Model):
             defined = None
 
         return {'html': html, 'defined': defined, 'errors': errors}
+
+    def get_publish_data(self):
+        return node_request('/prepare-item', {'text': self.body})

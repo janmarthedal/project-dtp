@@ -39,13 +39,19 @@ def new_theorem(request):
     return new_item(request, ItemTypes.THM)
 
 @login_required
-@require_safe
+@require_http_methods(['HEAD', 'GET', 'POST'])
 def show_draft(request, id_str):
     item = get_object_or_404(DraftItem, id=int(id_str), created_by=request.user)
+    if request.method == 'POST':
+        if request.POST['submit'] == 'delete':
+            item.delete()
+            return redirect('list-drafts')
+        elif request.POST['submit'] == 'publish':
+            item.get_publish_data()
     return render(request, 'drafts/show.html', {
         'title': str(item),
         'item': item,
-        'item_data': item.prepare()
+        'item_data': item.prepare(),
     })
 
 @login_required
