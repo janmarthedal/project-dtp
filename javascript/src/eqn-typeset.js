@@ -14,7 +14,9 @@ export default function typeset(id, data) {
             format: data.format,
             html: true,
         }, result => {
-            resolve([id, result.errors ? {error: result.errors} : {html: result.html}]);
+            resolve([id, result.errors
+                ? {error: result.errors}
+                : {format: data.format, math: data.math, html: result.html}]);
         });
     });
 }
