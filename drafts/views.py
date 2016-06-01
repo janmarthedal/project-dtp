@@ -25,7 +25,7 @@ def edit_item(request, item):
     return render(request, 'drafts/edit.html', context)
 
 def new_item(request, item_type):
-    item = DraftItem(creator=request.user, item_type=item_type, body=test_body)
+    item = DraftItem(created_by=request.user, item_type=item_type, body=test_body)
     return edit_item(request, item)
 
 @login_required
@@ -41,7 +41,7 @@ def new_theorem(request):
 @login_required
 @require_safe
 def show_draft(request, id_str):
-    item = get_object_or_404(DraftItem, id=int(id_str), creator=request.user)
+    item = get_object_or_404(DraftItem, id=int(id_str), created_by=request.user)
     return render(request, 'drafts/show.html', {
         'title': str(item),
         'item': item,
@@ -51,7 +51,7 @@ def show_draft(request, id_str):
 @login_required
 @require_http_methods(['HEAD', 'GET', 'POST'])
 def edit_draft(request, id_str):
-    item = get_object_or_404(DraftItem, id=int(id_str), creator=request.user)
+    item = get_object_or_404(DraftItem, id=int(id_str), created_by=request.user)
     return edit_item(request, item)
 
 @login_required
@@ -59,5 +59,5 @@ def edit_draft(request, id_str):
 def list_drafts(request):
     return render(request, 'drafts/list.html', {
         'title': 'My Drafts',
-        'items': DraftItem.objects.filter(creator=request.user).order_by('-updated_at'),
+        'items': DraftItem.objects.filter(created_by=request.user).order_by('-updated_at'),
     })
