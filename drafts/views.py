@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
 from drafts.models import DraftItem, ItemTypes
+from mathitems.models import publish
 
 test_body = r"""The $n$th [harmonic number](=harmonic-number), $H_n$, is defined as
 
@@ -47,7 +48,10 @@ def show_draft(request, id_str):
             item.delete()
             return redirect('list-drafts')
         elif request.POST['submit'] == 'publish':
-            item.get_publish_data()
+            data = item.get_publish_data()
+            mathitem = publish(request.user, item.item_type, data)
+            item.delete()
+            return redirect(mathitem)
     return render(request, 'drafts/show.html', {
         'title': str(item),
         'item': item,
