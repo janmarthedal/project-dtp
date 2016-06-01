@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
@@ -42,29 +41,23 @@ def new_theorem(request):
 @login_required
 @require_safe
 def show_draft(request, id_str):
-    item = get_object_or_404(DraftItem, id=int(id_str))
-    if item.creator != request.user:
-        return HttpResponseForbidden()
-    context = {
+    item = get_object_or_404(DraftItem, id=int(id_str), creator=request.user)
+    return render(request, 'drafts/show.html', {
         'title': str(item),
         'item': item,
         'item_data': item.prepare()
-    }
-    return render(request, 'drafts/show.html', context)
+    })
 
 @login_required
 @require_http_methods(['HEAD', 'GET', 'POST'])
 def edit_draft(request, id_str):
-    item = get_object_or_404(DraftItem, id=int(id_str))
-    if item.creator != request.user:
-        return HttpResponseForbidden()
+    item = get_object_or_404(DraftItem, id=int(id_str), creator=request.user)
     return edit_item(request, item)
 
 @login_required
 @require_safe
 def list_drafts(request):
-    context = {
+    return render(request, 'drafts/list.html', {
         'title': 'My Drafts',
         'items': DraftItem.objects.filter(creator=request.user).order_by('-updated_at'),
-    }
-    return render(request, 'drafts/list.html', context)
+    })
