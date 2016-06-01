@@ -10,14 +10,14 @@ def home(request):
     return render(request, 'main/home.html')
 
 def login(request):
-    context = {'title': 'Sign In'}
+    context = {
+        'title': 'Sign In',
+        'next': request.GET.get('next'),
+    }
     return render(request, 'main/login.html', context)
 
 @login_required
 def profile(request):
-    next = request.GET.get('next')
-    if next:
-        return redirect(next)
     context = {'title': 'Profile'}
     backends = auth_backends(request)['backends']
     logger.info('User {} has providers: {}'.format(request.user.username,
