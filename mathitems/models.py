@@ -8,7 +8,7 @@ class MathItemItem(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
-    body = models.TextField(blank=True)
+    body = models.TextField()
 
     def __str__(self):
         return '{} {}'.format(self.get_item_type_display(), self.id)
