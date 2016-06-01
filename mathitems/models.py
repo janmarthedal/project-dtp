@@ -32,9 +32,18 @@ class Equation(models.Model):
     math = models.TextField()
     html = models.TextField()
 
+    def __str__(self):
+        math = self.math
+        if len(math) > 40:
+            math = math[:37] + '...'
+        return '{} ({})'.format(math, self.format)
+
 
 class Concept(models.Model):
     name = models.CharField(max_length=64, unique=True)
+
+    def __str__(self):
+        return self.name
 
 
 def convert_document(node, tag_map, eqn_map):
