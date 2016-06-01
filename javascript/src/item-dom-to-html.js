@@ -12,7 +12,7 @@ function item_node_to_html(emit, node, eqns, tags, data) {
     if (node.type === 'text')
         return emit(node.value);
     if (node.type === 'eqn') {
-        const item = eqns[node.id];
+        const item = eqns[node.eqn_id];
         if (!item)
             throw new Error('corrupt eqn reference');
         if (item.html)

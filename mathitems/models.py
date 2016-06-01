@@ -1,6 +1,6 @@
 import json
 from django.conf import settings
-#from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from mathitems.itemtypes import ItemTypes
@@ -48,10 +48,10 @@ class Concept(models.Model):
 
 def convert_document(node, tag_map, eqn_map):
     new_node = {k: v for k, v in node.items() if k != 'children'}
-    if node['type'] == 'tag-def':
+    if 'tag_id' in node:
         new_node['tag_id'] = tag_map[node['tag_id']]
-    elif node['type'] == 'eqn':
-        new_node['id'] = eqn_map[node['id']]
+    if 'eqn_id' in node:
+        new_node['eqn_id'] = eqn_map[node['eqn_id']]
     if node.get('children'):
         new_node['children'] = [convert_document(child, tag_map, eqn_map)
                                 for child in node['children']]
