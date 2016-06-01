@@ -15,6 +15,12 @@ DATABASES = {
     }
 }
 
+LOCAL_APPS = [
+    'main',
+    'drafts',
+    'mathitems',
+]
+
 INSTALLED_APPS = [
     #'django.contrib.admin',
     'django.contrib.auth',
@@ -23,10 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social.apps.django_app.default',
-    'main',
-    'drafts',
-    'mathitems',
-]
+] + LOCAL_APPS
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -114,9 +117,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
-        'main': {
-            'handlers': ['file', 'console'],
-            'level': 'DEBUG'# if DEBUG else 'WARN'
-        },
     },
 }
+
+for app_name in LOCAL_APPS:
+    LOGGING['loggers'][app_name] = {
+        'handlers': ['file', 'console'],
+        'level': 'DEBUG'# if DEBUG else 'WARN'
+    }
