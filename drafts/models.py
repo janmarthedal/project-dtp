@@ -20,11 +20,21 @@ class DraftItem(models.Model):
         return reverse('show-draft', args=[self.id])
 
     def prepare(self):
-        item_data = node_request('/prepare-item', {'text': self.body})
-        tag_map = {int(key): value for key, value in item_data['tags'].items()}
-        data = node_request('/render-item', item_data)
-        defined = [tag_map[id] for id in data['defined']]
-        errors = data['errors']
+        body = self.body.strip()
+        html = ''
+        defined = []
+        errors = []
+
+        if body:
+            item_data = node_request('/prepare-item', {'text': body})
+            tag_map = {int(key): value for key, value in item_data['tags'].items()}
+            data = node_request('/render-item', item_data)
+            html = data['html']
+            defined = [tag_map[id] for id in data['defined']]
+            errors = data['errors']
+        elif self.item_type != ItemTypes.PRF:
+            errors = ['A {} may not be empty'.format(self.get_item_type_display())]
+
         if self.item_type == ItemTypes.DEF:
             if not defined:
                 errors.append('A {} must define at least one concept'.format(self.get_item_type_display()))
@@ -32,4 +42,5 @@ class DraftItem(models.Model):
             if defined:
                 errors.append('A {} may not define concepts'.format(self.get_item_type_display()))
             defined = None
-        return {'html': data['html'], 'defined': defined, 'errors': errors}
+
+        return {'html': html, 'defined': defined, 'errors': errors}
