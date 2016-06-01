@@ -3,10 +3,11 @@ from django.core.urlresolvers import reverse
 from django.db import models
 
 from mathitems.itemtypes import ItemTypes
-from project.helpers import node_request
+from project.server_com import prepare_item, render_item
 
 #import logging
 #logger = logging.getLogger(__name__)
+
 
 class DraftItem(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
@@ -29,9 +30,9 @@ class DraftItem(models.Model):
         errors = []
 
         if body:
-            item_data = node_request('/prepare-item', {'text': body})
+            item_data = prepare_item(body)
             tag_map = {int(key): value for key, value in item_data['tags'].items()}
-            data = node_request('/render-item', item_data)
+            data = render_item(item_data)
             html = data['html']
             defined = [tag_map[id] for id in data['defined']]
             errors = data['errors']
@@ -49,4 +50,4 @@ class DraftItem(models.Model):
         return {'html': html, 'defined': defined, 'errors': errors}
 
     def get_publish_data(self):
-        return node_request('/prepare-item', {'text': self.body})
+        return prepare_item(self.body)

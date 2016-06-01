@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 
 from mathitems.itemtypes import ItemTypes
+from project.server_com import render_item
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -47,15 +48,15 @@ class Concept(models.Model):
 
 
 def convert_document(node, tag_map, eqn_map):
-    new_node = {k: v for k, v in node.items() if k != 'children'}
+    overrides = {}
     if 'tag_id' in node:
-        new_node['tag_id'] = tag_map[node['tag_id']]
+        overrides['tag_id'] = tag_map[node['tag_id']]
     if 'eqn_id' in node:
-        new_node['eqn_id'] = eqn_map[node['eqn_id']]
+        overrides['eqn_id'] = eqn_map[node['eqn_id']]
     if node.get('children'):
-        new_node['children'] = [convert_document(child, tag_map, eqn_map)
-                                for child in node['children']]
-    return new_node
+        overrides['children'] = [convert_document(child, tag_map, eqn_map)
+                                 for child in node['children']]
+    return dict(node, **overrides) if overrides else node
 
 
 def publish(user, item_type, data):
@@ -73,3 +74,29 @@ def publish(user, item_type, data):
     item = MathItem(created_by=user, item_type=item_type, body=json.dumps(document))
     item.save()
     return item
+
+
+def get_eqns_tags(node, eqns, tags):
+    if 'eqn_id' in node:
+        eqns.add(node['eqn_id'])
+    if 'tag_id' in node:
+        tags.add(node['tag_id'])
+    for child in node.get('children', []):
+        get_eqns_tags(child, eqns, tags)
+
+
+def item_to_html(item):
+    doc = json.loads(item.body)
+    eqns = set()
+    tags = set()
+    get_eqns_tags(doc, eqns, tags)
+    eqn_map = {item.id: {'html': item.html}
+               for item in Equation.objects.filter(id__in=eqns)}
+    tag_map = {item.id: item.name
+               for item in Concept.objects.filter(id__in=tags)}
+    data = render_item({
+        'document': doc,
+        'eqns': eqn_map,
+        'tags': tag_map,
+    })
+    return data
