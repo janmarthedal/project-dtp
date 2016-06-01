@@ -2,18 +2,8 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 
+from mathitems.itemtypes import ItemTypes
 from project.helpers import node_request
-
-class ItemTypes:
-    DEF = 'D'
-    THM = 'T'
-    PRF = 'P'
-    NAMES = {
-        DEF: 'Definition',
-        THM: 'Theorem',
-        PRF: 'Proof',
-    }
-    CHOICES = tuple(NAMES.items())
 
 class DraftItem(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
