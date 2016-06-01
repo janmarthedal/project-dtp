@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'social.apps.django_app.default',
     'main',
     'drafts',
+    'mathitems',
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -7,4 +7,4 @@ class ItemTypes:
         THM: 'Theorem',
         PRF: 'Proof',
     }
-    CHOICES = tuple(NAMES.items())
+    CHOICES = sorted(NAMES.items())
