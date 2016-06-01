@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^accounts/login/$', main.views.login, name='login'),
     url(r'^accounts/logout/$', main.views.logout, name='logout'),
     url(r'^accounts/profile/$', main.views.profile, name='profile'),
-    url(r'^definitions/new$', drafts.views.new_definition, name='new-def'),
-    url(r'^theorems/new$', drafts.views.new_theorem, name='new-thm'),
+    url(r'^def/new$', drafts.views.new_definition, name='new-def'),
+    url(r'^thm/new$', drafts.views.new_theorem, name='new-thm'),
     url(r'^drafts/', include('drafts.urls')),
 ]
