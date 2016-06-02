@@ -8,7 +8,7 @@ const type_to_tag = {
     'list-item': 'li',
 };
 
-function item_node_to_html(emit, node, eqns, tags, data) {
+function item_node_to_html(emit, node, eqns, tags, refs, data) {
     if (node.type === 'text')
         return emit(node.value);
     if (node.type === 'eqn') {
@@ -26,7 +26,9 @@ function item_node_to_html(emit, node, eqns, tags, data) {
         return emit('<span class="text-danger">', node.reason, '</span>');
     }
 
-    let tag, attr = {};
+    let tag;
+    const attr = {};
+
     if (node.type in type_to_tag) {
         tag = type_to_tag[node.type];
     } else if (node.type === 'tag-def') {
@@ -36,6 +38,17 @@ function item_node_to_html(emit, node, eqns, tags, data) {
             data.errors.push('tag \'' + tags[node.tag_id] + '\' defined multiple times');
         tag = 'a';
         attr.href = '#';
+    } else if (node.type === 'item-ref') {
+        let ref_info = refs[node.item_id];
+        if (ref_info.error) {
+            let error = 'illegal item reference ' + node.item_id;
+            data.errors.push(error);
+            return emit('<span class="text-danger">', error, '</span>');
+        }
+        tag = 'a';
+        attr.href = ref_info.url;
+        if (node.tag_id)
+            attr.href += '#' + tags[node.tag_id];
     } else if (node.type === 'list') {
         tag = node.ordered ? 'ol' : 'ul';
     } else if (node.type === 'header') {
@@ -46,18 +59,18 @@ function item_node_to_html(emit, node, eqns, tags, data) {
     if (tag)
         emit('<', tag, map(attr, (value, key) => [' ', key, '="', value, '"']), '>');
     if (node.children)
-        node.children.forEach(child => item_node_to_html(emit, child, eqns, tags, data))
+        node.children.forEach(child => item_node_to_html(emit, child, eqns, tags, refs, data))
     if (tag)
         emit('</', tag, '>');
 }
 
-export default function item_dom_to_html(root, eqns, tags) {
+export default function item_dom_to_html(root, eqns, tags, refs) {
     const out_items = [],
         data = {defined: [], errors: []},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };
-    item_node_to_html(emit, root, eqns, tags, data);
+    item_node_to_html(emit, root, eqns, tags, refs, data);
     data.html = flattenDeep(out_items).join('');
     data.errors = uniq(data.errors);
     return Promise.resolve(data);

@@ -5,6 +5,9 @@ from django.views.decorators.http import require_safe, require_http_methods
 from drafts.models import DraftItem, ItemTypes
 from mathitems.models import publish
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def edit_item(request, item):
     context = {'title': '{} {}'.format('Edit' if item.id else 'New', item)}

@@ -3,10 +3,27 @@ from django.core.urlresolvers import reverse
 from django.db import models
 
 from mathitems.itemtypes import ItemTypes
+from mathitems.models import MathItem
 from project.server_com import prepare_item, render_item
 
-#import logging
-#logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
+
+
+def get_item_info(item_names):
+    info = {}
+    for item_name in item_names:
+        data = {}
+        item_type = item_name[0]
+        try:
+            ItemTypes.NAMES[item_type]
+            item_id = int(item_name[1:])
+            item = MathItem.objects.get(id=item_id, item_type=item_type)
+            data['url'] = item.get_absolute_url()
+        except:
+            data['error'] = True
+        info[item_name] = data
+    return info
 
 
 class DraftItem(models.Model):
@@ -31,6 +48,8 @@ class DraftItem(models.Model):
 
         if body:
             item_data = prepare_item(body)
+            item_data['refs'] = get_item_info(item_data['refs'].keys())
+            logger.info(item_data['refs'])
             tag_map = {int(key): value for key, value in item_data['tags'].items()}
             data = render_item(item_data)
             html = data['html']
