@@ -2,7 +2,14 @@
 
 {% block content %}
 
-<p><a class="btn btn-default" href="{% url 'new-def' %}">New Definition</a></p>
-<p><a class="btn btn-default" href="{% url 'new-thm' %}">New Theorem</a></p>
+<h2>Latest Items</h2>
+
+<div class="row">
+  <div class="col-md-8">
+{% include 'main/include/item-list.html' with items=items only %}
+  </div>
+  <div class="col-md-4">
+  </div>
+</div>
 
 {% endblock %}

@@ -15,4 +15,6 @@ urlpatterns = [
     url('', include('mathitems.urls')),
     url(r'^accounts/', include(accounts_patterns)),
     url(r'^drafts/', include('drafts.urls')),
+    url(r'^definitions/$', main.views.def_home, name='def-home'),
+    url(r'^theorems/$', main.views.thm_home, name='thm-home'),
 ]
