@@ -5,13 +5,6 @@ from django.views.decorators.http import require_safe, require_http_methods
 from drafts.models import DraftItem, ItemTypes
 from mathitems.models import publish
 
-test_body = r"""The $n$th [harmonic number](=harmonic-number), $H_n$, is defined as
-
-$$
-H_n = 1 + \frac{1}{2} + \ldots + \frac{1}{n} = \sum_{k=1}^n \frac{1}{k}
-$$
-
-for $n \geq 1$."""
 
 def edit_item(request, item):
     context = {'title': '{} {}'.format('Edit' if item.id else 'New', item)}
@@ -26,7 +19,7 @@ def edit_item(request, item):
     return render(request, 'drafts/edit.html', context)
 
 def new_item(request, item_type):
-    item = DraftItem(created_by=request.user, item_type=item_type, body=test_body)
+    item = DraftItem(created_by=request.user, item_type=item_type, body='')
     return edit_item(request, item)
 
 @login_required
