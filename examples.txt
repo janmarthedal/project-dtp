@@ -7,3 +7,11 @@ $$
 for $n \geq 1$.
 
 --------
+
+Let $H_n$ denote the [harmonic numbers](D1#harmonic-number). Then
+
+$$
+H_{2^m} \geq 1 + \frac{m}{2}, \quad m \geq 0.
+$$
+
+--------
