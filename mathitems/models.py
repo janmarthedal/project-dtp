@@ -16,8 +16,11 @@ class MathItem(models.Model):
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
     body = models.TextField()
 
+    def get_name(self):
+        return self.item_type + str(self.id)
+
     def __str__(self):
-        return '{} {}'.format(self.get_item_type_display(), self.id)
+        return '{} {}'.format(self.get_item_type_display(), self.get_name())
 
     def get_absolute_url(self):
         if self.item_type == ItemTypes.DEF:
