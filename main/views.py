@@ -1,10 +1,9 @@
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe
 
-from mathitems.models import MathItem, ItemTypes
+from mathitems.models import MathItem
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -13,24 +12,6 @@ from mathitems.models import MathItem, ItemTypes
 def home(request):
     items = MathItem.objects.order_by('-created_at')[:10]
     return render(request, 'main/home.html', {'items': items})
-
-def item_home(request, item_type, new_draft_url):
-    name = ItemTypes.NAMES[item_type]
-    items = MathItem.objects.filter(item_type=item_type).order_by('-created_at')
-    return render(request, 'main/item-home.html', {
-        'title': name,
-        'new_name': 'New ' + name,
-        'new_url': new_draft_url,
-        'items': items,
-    })
-
-@require_safe
-def def_home(request):
-    return item_home(request, ItemTypes.DEF, reverse('new-def'))
-
-@require_safe
-def thm_home(request):
-    return item_home(request, ItemTypes.THM, reverse('new-thm'))
 
 @require_safe
 def login(request):
