@@ -3,19 +3,11 @@ from django.core.urlresolvers import reverse
 from django.db import models
 
 from mathitems.itemtypes import ItemTypes
-from mathitems.models import MathItem
+from mathitems.models import MathItem, get_item_info
 from project.server_com import prepare_item, render_item
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-def get_item(name):
-    item_type = name[0]
-    if item_type not in ItemTypes.NAMES:
-        raise MathItem.DoesNotExist
-    item_id = int(name[1:])
-    return MathItem.objects.get(id=item_id, item_type=item_type)
 
 
 def get_item_refs_node(node, refs):
@@ -28,20 +20,6 @@ def get_item_refs(node):
     refs = set()
     get_item_refs_node(node, refs)
     return refs
-
-
-def get_item_info(item_names):
-    info = {}
-    for item_name in item_names:
-        try:
-            item = get_item(item_name)
-            info[item_name] = {
-                #'item_type': item.item_type,
-                'url': item.get_absolute_url(),
-            }
-        except MathItem.DoesNotExist:
-            pass
-    return info
 
 
 class DraftItem(models.Model):

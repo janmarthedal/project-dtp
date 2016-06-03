@@ -10,7 +10,14 @@ from project.server_com import render_item
 #logger = logging.getLogger(__name__)
 
 
+class MathItemManager(models.Manager):
+    def get_by_name(self, name):
+        return self.get(item_type=name[0], id=int(name[1:]))
+
+
 class MathItem(models.Model):
+    objects = MathItemManager()
+
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
@@ -103,3 +110,16 @@ def item_to_html(item):
         'tags': tag_map,
     })
     return data
+
+
+def get_item_info(item_names):
+    info = {}
+    for item_name in item_names:
+        try:
+            item = MathItem.objects.get_by_name(item_name)
+            info[item_name] = {
+                'url': item.get_absolute_url(),
+            }
+        except MathItem.DoesNotExist:
+            pass
+    return info
