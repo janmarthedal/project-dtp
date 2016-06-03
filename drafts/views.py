@@ -44,7 +44,7 @@ def show_draft(request, id_str):
             item.delete()
             return redirect('list-drafts')
         elif request.POST['submit'] == 'publish':
-            data = item.get_publish_data()
+            data = item.prepare()
             mathitem = publish(request.user, item.item_type, data)
             item.delete()
             return redirect(mathitem)

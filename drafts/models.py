@@ -38,19 +38,22 @@ class DraftItem(models.Model):
 
     def prepare(self):
         body = self.body.strip()
+        document = None
         html = ''
         defined = []
+        refs = {}
+        eqns = {}
         errors = []
 
         if body:
-            item_data = prepare_item(body)
-            item_refs = get_item_refs(item_data['document'])
-            item_data['refs'] = get_item_info(item_refs)
-            logger.info(item_data['refs'])
-            data = render_item(item_data)
-            html = data['html']
-            defined = data['defined']
-            errors = data['errors']
+            prep_data = prepare_item(body)
+            document = prep_data['document']
+            refs = get_item_info(get_item_refs(document))
+            eqns = prep_data['eqns']
+            render_data = render_item(dict(prep_data, refs=refs))
+            html = render_data['html']
+            defined = render_data['defined']
+            errors = render_data['errors']
         else:
             errors = ['A {} may not be empty'.format(self.get_item_type_display())]
 
@@ -62,7 +65,11 @@ class DraftItem(models.Model):
                 errors.append('A {} may not define concepts'.format(self.get_item_type_display()))
             defined = None
 
-        return {'html': html, 'defined': defined, 'errors': errors}
-
-    def get_publish_data(self):
-        return prepare_item(self.body)
+        return {
+            'document': document,
+            'html': html,
+            'defined': defined,
+            'refs': refs,
+            'eqns': eqns,
+            'errors': errors,
+        }

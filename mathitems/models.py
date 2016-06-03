@@ -97,11 +97,11 @@ def decode_document(node, eqns):
 
 def item_to_html(item):
     eqns = set()
-    doc = decode_document(json.loads(item.body), eqns)
+    document = decode_document(json.loads(item.body), eqns)
     eqn_map = {item.id: {'html': item.html}
                for item in Equation.objects.filter(id__in=eqns)}
     return render_item({
-        'document': doc,
+        'document': document,
         'eqns': eqn_map,
     })
 
