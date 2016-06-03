@@ -1,12 +1,12 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-{% include 'drafts/include/show.html' with item_data=item_data only %}
+{% include 'mathitems/include/show.html' with item_data=item_data only %}
 {% endblock %}
 
 {% block sidecontent %}
 <div class="well">
-{% include 'drafts/include/about.html' with item_data=item_data only %}
+{% include 'mathitems/include/about.html' with item_data=item_data only %}
 </div>
 <form action="" method="post">
   {% csrf_token %}

@@ -10,7 +10,6 @@ export default function markdown_to_item_dom(text) {
                 .then(item_dom => ({
                     document: item_dom.document,
                     eqns: prepared.eqns,
-                    tags: item_dom.tags,
                 }))
         );
 }

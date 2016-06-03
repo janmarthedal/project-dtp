@@ -16,31 +16,11 @@ function make_error(reason) {
     return {type: 'error', reason: reason};
 }
 
-class TagManager {
-    constructor() {
-        this.counter = 0;
-        this.tags = {};
-        this.tagToId = {};
-    }
-    get_id(tag) {
-        if (tag in this.tagToId)
-            return this.tagToId[tag];
-        const id = ++this.counter;
-        this.tagToId[tag] = id;
-        this.tags[id] = tag;
-        return id;
-    }
-    get_tag_map() {
-        return this.tags;
-    }
-}
-
-function md_node_to_item_dom(node, tag_manager) {
+function md_node_to_item_dom(node) {
     let match;
     if (node.nodeType === 1) {
         const item_node = {};
-        let children = map(node.childNodes,
-                           child => md_node_to_item_dom(child, tag_manager));
+        let children = map(node.childNodes, child => md_node_to_item_dom(child));
         if (node.localName === 'img') {
             const src = node.getAttribute('src') || '';
             if (src.startsWith('/eqn/')) {
@@ -54,15 +34,15 @@ function md_node_to_item_dom(node, tag_manager) {
         } else if (node.localName === 'a') {
             const href = node.getAttribute('href') || '';
             if ((match = href.match(regex_tag_def)) != null) {
-                item_node.type = 'tag-def';
-                item_node.tag_id = tag_manager.get_id(match[1]);
+                item_node.type = 'concept-def';
+                item_node.concept = match[1];
             } else if (href.startsWith('=')) {
-                return make_error("illegal concept name '" + tag + "'");
+                return make_error("illegal concept name '" + concept + "'");
             } else if ((match = href.match(regex_item_ref)) != null) {
                 item_node.type = 'item-ref';
                 item_node.item = match[1];
                 if (match[2])
-                    item_node.tag_id = tag_manager.get_id(match[2]);
+                    item_node.concept = match[2];
                 if (!children)
                     children = [{type: 'text', value: match[1]}]
             } else {
@@ -90,10 +70,7 @@ function md_node_to_item_dom(node, tag_manager) {
 }
 
 export default function md_dom_to_item_dom(node) {
-    const tag_manager = new TagManager(),
-        document = md_node_to_item_dom(node, tag_manager);
     return {
-        document: document,
-        tags: tag_manager.get_tag_map(),
+        document: md_node_to_item_dom(node)
     };
 }

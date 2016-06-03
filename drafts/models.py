@@ -47,10 +47,9 @@ class DraftItem(models.Model):
             item_refs = get_item_refs(item_data['document'])
             item_data['refs'] = get_item_info(item_refs)
             logger.info(item_data['refs'])
-            tag_map = {int(key): value for key, value in item_data['tags'].items()}
             data = render_item(item_data)
             html = data['html']
-            defined = [tag_map[id] for id in data['defined']]
+            defined = data['defined']
             errors = data['errors']
         else:
             errors = ['A {} may not be empty'.format(self.get_item_type_display())]
