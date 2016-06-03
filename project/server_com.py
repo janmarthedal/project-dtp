@@ -8,8 +8,20 @@ def node_request(path, payload):
 
 
 def prepare_item(body):
-    return node_request('/prepare-item', {'text': body})
+    result = node_request('/prepare-item', {
+        'body': body,
+    })
+    return result['document'], result['eqns']
 
 
-def render_item(item_data):
-    return node_request('/render-item', item_data)
+"""
+IN: item_type, document, eqns, refs
+OUT: {html, errors, defines}
+"""
+def render_item(item_type, document, eqns, refs):
+    return node_request('/render-item', {
+        'item_type': item_type,
+        'document': document,
+        'eqns': eqns,
+        'refs': refs,
+    })

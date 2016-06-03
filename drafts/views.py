@@ -3,10 +3,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
 from drafts.models import DraftItem, ItemTypes
-from mathitems.models import publish
+from mathitems.models import MathItem, publish, get_document_refs
+from project.server_com import render_item
 
-#import logging
-#logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
+
+
+def render_draft(item_type, document, eqns):
+    refs = get_document_refs(document)
+    return render_item(item_type, document, eqns, refs)
 
 
 def edit_item(request, item):
@@ -14,7 +20,8 @@ def edit_item(request, item):
     if request.method == 'POST':
         item.body = request.POST['src']
         if request.POST['submit'] == 'preview':
-            context['item_data'] = item.prepare()
+            document, eqns = item.prepare()
+            context['item_data'] = render_draft(item.item_type, document, eqns)
         elif request.POST['submit'] == 'save':
             item.save()
             return redirect(item)
@@ -39,19 +46,19 @@ def new_theorem(request):
 @require_http_methods(['HEAD', 'GET', 'POST'])
 def show_draft(request, id_str):
     item = get_object_or_404(DraftItem, id=int(id_str), created_by=request.user)
+    document, eqns = item.prepare()
     if request.method == 'POST':
         if request.POST['submit'] == 'delete':
             item.delete()
             return redirect('list-drafts')
         elif request.POST['submit'] == 'publish':
-            data = item.prepare()
-            mathitem = publish(request.user, item.item_type, data)
+            mathitem = publish(request.user, item.item_type, document, eqns)
             item.delete()
             return redirect(mathitem)
     return render(request, 'drafts/show.html', {
         'title': str(item),
         'item': item,
-        'item_data': item.prepare(),
+        'item_data': render_draft(item.item_type, document, eqns),
     })
 
 @login_required

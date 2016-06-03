@@ -35,6 +35,14 @@ class MathItem(models.Model):
         if self.item_type == ItemTypes.THM:
             return reverse('show-thm', args=[self.id])
 
+    def render(self):
+        eqns = set()
+        document = decode_document(json.loads(self.body), eqns)
+        eqn_map = {equation.id: {'html': equation.html}
+                   for equation in Equation.objects.filter(id__in=eqns)}
+        refs = get_document_refs(document)
+        return render_item(self.item_type, document, eqn_map, refs)
+
 
 class Equation(models.Model):
     class Meta:
@@ -70,14 +78,14 @@ def encode_document(node, eqn_map):
     return dict(node, **overrides) if overrides else node
 
 
-def publish(user, item_type, data):
+def publish(user, item_type, document, eqns):
     eqn_conversions = {}
-    for id, eqn_obj in data.get('eqns', {}).items():
+    for id, eqn_obj in eqns.items():
         eqn = Equation.objects.get_or_create(
             format=eqn_obj['format'], math=eqn_obj['math'],
             defaults={'html': eqn_obj['html']})[0]
         eqn_conversions[int(id)] = eqn.id
-    document = encode_document(data['document'], eqn_conversions)
+    document = encode_document(document, eqn_conversions)
     item = MathItem(created_by=user, item_type=item_type, body=json.dumps(document))
     item.save()
     return item
@@ -95,18 +103,15 @@ def decode_document(node, eqns):
     return dict(node, **overrides) if overrides else node
 
 
-def item_to_html(item):
-    eqns = set()
-    document = decode_document(json.loads(item.body), eqns)
-    eqn_map = {item.id: {'html': item.html}
-               for item in Equation.objects.filter(id__in=eqns)}
-    return render_item({
-        'document': document,
-        'eqns': eqn_map,
-    })
+def get_node_refs(node, refs):
+    if 'item' in node:
+        refs.add(node['item'])
+    for child in node.get('children', []):
+        get_node_refs(child, refs)
 
-
-def get_item_info(item_names):
+def get_document_refs(document):
+    item_names = set()
+    get_node_refs(document, item_names)
     info = {}
     for item_name in item_names:
         try:

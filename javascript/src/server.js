@@ -5,6 +5,7 @@ import {fromPairs, map} from 'lodash';
 import eqn_typeset from './eqn-typeset';
 import item_dom_to_html from './item-dom-to-html';
 import markdown_to_item_dom from './markdown-to-item-dom';
+import {ITEM_NAMES} from './constants';
 
 function json_response(res, data) {
     res.setHeader('Content-Type', 'application/json');
@@ -20,26 +21,27 @@ app.get('/', function (req, res) {
 });
 
 app.post('/prepare-item', function(req, res) {
-    if (req.body.text) {
-        markdown_to_item_dom(req.body.text).then(item_dom => {
-            const typeset_jobs = map(item_dom.eqns || {},
-                                     (data, key) => eqn_typeset(key, data));
-            return Promise.all(typeset_jobs)
-                .then(eqn_list => ({
-                    document: item_dom.document,
-                    eqns: fromPairs(eqn_list),
-                }));
-        }).then(result => {
-            json_response(res, result);
-        });
-    } else {
-        res.status(400).send('Malformed data')
-    }
+    const body = req.body.body || '';
+    markdown_to_item_dom(body).then(item_dom => {
+        const typeset_jobs = map(item_dom.eqns || {},
+                                 (data, key) => eqn_typeset(key, data));
+        return Promise.all(typeset_jobs)
+            .then(eqn_list => ({
+                document: item_dom.document,
+                eqns: fromPairs(eqn_list),
+            }));
+    }).then(result => {
+        json_response(res, result);
+    });
 });
 
 app.post('/render-item', function(req, res) {
-    if (req.body.document) {
-        item_dom_to_html(req.body.document, req.body.eqns, req.body.refs).then(data => {
+    const item_type = req.body.item_type,
+        document = req.body.document,
+        eqns = req.body.eqns || {},
+        refs = req.body.refs || {};
+    if (item_type in ITEM_NAMES && document) {
+        item_dom_to_html(item_type, document, eqns, refs).then(data => {
             json_response(res, data);
         });
     } else {

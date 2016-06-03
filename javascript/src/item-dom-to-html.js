@@ -1,4 +1,5 @@
 import {flattenDeep, map, uniq} from 'lodash';
+import {ITEM_NAMES} from './constants';
 
 const type_to_tag = {
     'body': '',
@@ -9,8 +10,11 @@ const type_to_tag = {
 };
 
 function item_node_to_html(emit, node, eqns, refs, data) {
-    if (node.type === 'text')
+    if (node.type === 'text') {
+        if (node.value)
+            data.has_text = true;
         return emit(node.value);
+    }
     if (node.type === 'eqn') {
         const item = eqns[node.eqn];
         if (!item)
@@ -64,14 +68,21 @@ function item_node_to_html(emit, node, eqns, refs, data) {
         emit('</', tag, '>');
 }
 
-export default function item_dom_to_html(root, eqns, refs) {
-    const out_items = [],
-        data = {defined: [], errors: []},
+export default function item_dom_to_html(item_type, root, eqns, refs) {
+    const item_type_name = ITEM_NAMES[item_type],
+        out_items = [],
+        data = {defined: [], errors: [], has_text: false},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };
     item_node_to_html(emit, root, eqns, refs, data);
     data.html = flattenDeep(out_items).join('');
+    if (!data.has_text)
+        data.errors.push('A ' + item_type_name + ' may not be empty')
+    if (item_type === 'D' && !data.defined.length)
+        data.errors.push('A ' + item_type_name + ' must define at least one concept')
+    if (item_type !== 'D' && data.defined.length)
+        data.errors.push('A ' + item_type_name + ' may not define concepts')
     data.errors = uniq(data.errors);
     return Promise.resolve(data);
 }
