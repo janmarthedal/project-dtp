@@ -62,8 +62,8 @@ def encode_document(node, eqn_map):
     if 'concept' in node:
         concept = Concept.objects.get_or_create(name=node['concept'])[0]
         overrides['concept'] = concept.id
-    if 'eqn_id' in node:
-        overrides['eqn_id'] = eqn_map[node['eqn_id']]
+    if 'eqn' in node:
+        overrides['eqn'] = eqn_map[node['eqn']]
     if node.get('children'):
         overrides['children'] = [encode_document(child, eqn_map)
                                  for child in node['children']]
@@ -87,8 +87,8 @@ def decode_document(node, eqns):
     overrides = {}
     if 'concept' in node:
         overrides['concept'] = Concept.objects.get(id=node['concept']).name
-    if 'eqn_id' in node:
-        eqns.add(node['eqn_id'])
+    if 'eqn' in node:
+        eqns.add(node['eqn'])
     if node.get('children'):
         overrides['children'] = [decode_document(child, eqns)
                                  for child in node['children']]

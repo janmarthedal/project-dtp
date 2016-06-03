@@ -26,7 +26,7 @@ function md_node_to_item_dom(node) {
             if (src.startsWith('/eqn/')) {
                 return {
                     type: 'eqn',
-                    eqn_id: parseInt(src.substring(5))
+                    eqn: parseInt(src.substring(5))
                 }
             } else {
                 return make_error("illegal img source '" + src + "'");

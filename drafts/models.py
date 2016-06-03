@@ -6,8 +6,8 @@ from mathitems.itemtypes import ItemTypes
 from mathitems.models import MathItem, get_item_info
 from project.server_com import prepare_item, render_item
 
-import logging
-logger = logging.getLogger(__name__)
+#import logging
+#logger = logging.getLogger(__name__)
 
 
 def get_item_refs_node(node, refs):
