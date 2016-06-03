@@ -4,7 +4,7 @@
 <form action="" method="post">
   {% csrf_token %}
 {% if item_data %}
-  {% include 'drafts/include/show.html' with item_data=item_data only %}
+  {% include 'mathitems/include/show.html' with item_data=item_data only %}
   <input type="hidden" name="src" value="{{ item.body|escape }}">
   <button type="submit" name="submit" value="edit" class="btn btn-default">Edit</button>
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
@@ -19,7 +19,7 @@
 {% block sidecontent %}
 <div class="well">
 {% if item_data %}
-{% include 'drafts/include/about.html' with item_data=item_data only %}
+{% include 'mathitems/include/about.html' with item_data=item_data only %}
 {% else %}
 <h4>How to Edit</h4>
 {% endif %}
