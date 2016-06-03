@@ -11,7 +11,6 @@ export default function markdown_to_item_dom(text) {
                     document: item_dom.document,
                     eqns: prepared.eqns,
                     tags: item_dom.tags,
-                    refs: item_dom.refs,
                 }))
         );
 }

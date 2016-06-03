@@ -39,9 +39,9 @@ function item_node_to_html(emit, node, eqns, tags, refs, data) {
         tag = 'a';
         attr.href = '#';
     } else if (node.type === 'item-ref') {
-        let ref_info = refs[node.item_id];
-        if (ref_info.error) {
-            let error = 'illegal item reference ' + node.item_id;
+        const ref_info = refs[node.item];
+        if (!ref_info) {
+            const error = 'illegal item reference ' + node.item;
             data.errors.push(error);
             return emit('<span class="text-danger">', error, '</span>');
         }

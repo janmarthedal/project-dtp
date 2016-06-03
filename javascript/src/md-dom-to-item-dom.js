@@ -35,25 +35,12 @@ class TagManager {
     }
 }
 
-class RefManager {
-    constructor() {
-        this.refs = {};
-    }
-    item_ref(item_id) {
-        if (!(item_id in this.refs))
-            this.refs[item_id] = {};
-    }
-    get_ref_map() {
-        return this.refs;
-    }
-}
-
-function md_node_to_item_dom(node, tag_manager, ref_manager) {
+function md_node_to_item_dom(node, tag_manager) {
     let match;
     if (node.nodeType === 1) {
         const item_node = {};
         let children = map(node.childNodes,
-                           child => md_node_to_item_dom(child, tag_manager, ref_manager));
+                           child => md_node_to_item_dom(child, tag_manager));
         if (node.localName === 'img') {
             const src = node.getAttribute('src') || '';
             if (src.startsWith('/eqn/')) {
@@ -70,13 +57,12 @@ function md_node_to_item_dom(node, tag_manager, ref_manager) {
                 item_node.type = 'tag-def';
                 item_node.tag_id = tag_manager.get_id(match[1]);
             } else if (href.startsWith('=')) {
-                return make_error("illegal tag '" + tag + "'");
+                return make_error("illegal concept name '" + tag + "'");
             } else if ((match = href.match(regex_item_ref)) != null) {
                 item_node.type = 'item-ref';
-                item_node.item_id = match[1];
+                item_node.item = match[1];
                 if (match[2])
                     item_node.tag_id = tag_manager.get_id(match[2]);
-                ref_manager.item_ref(item_node.item_id);
                 if (!children)
                     children = [{type: 'text', value: match[1]}]
             } else {
@@ -105,11 +91,9 @@ function md_node_to_item_dom(node, tag_manager, ref_manager) {
 
 export default function md_dom_to_item_dom(node) {
     const tag_manager = new TagManager(),
-        ref_manager = new RefManager(),
-        document = md_node_to_item_dom(node, tag_manager, ref_manager);
+        document = md_node_to_item_dom(node, tag_manager);
     return {
         document: document,
         tags: tag_manager.get_tag_map(),
-        refs: ref_manager.get_ref_map(),
     };
 }

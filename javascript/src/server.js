@@ -29,7 +29,6 @@ app.post('/prepare-item', function(req, res) {
                     document: item_dom.document,
                     eqns: fromPairs(eqn_list),
                     tags: item_dom.tags,
-                    refs: item_dom.refs,
                 }));
         }).then(result => {
             json_response(res, result);

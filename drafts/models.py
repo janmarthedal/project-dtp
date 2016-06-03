@@ -10,19 +10,37 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def get_item(name):
+    item_type = name[0]
+    if item_type not in ItemTypes.NAMES:
+        raise MathItem.DoesNotExist
+    item_id = int(name[1:])
+    return MathItem.objects.get(id=item_id, item_type=item_type)
+
+
+def get_item_refs_node(node, refs):
+    if 'item' in node:
+        refs.add(node['item'])
+    for child in node.get('children', []):
+        get_item_refs_node(child, refs)
+
+def get_item_refs(node):
+    refs = set()
+    get_item_refs_node(node, refs)
+    return refs
+
+
 def get_item_info(item_names):
     info = {}
     for item_name in item_names:
-        data = {}
-        item_type = item_name[0]
         try:
-            ItemTypes.NAMES[item_type]
-            item_id = int(item_name[1:])
-            item = MathItem.objects.get(id=item_id, item_type=item_type)
-            data['url'] = item.get_absolute_url()
-        except:
-            data['error'] = True
-        info[item_name] = data
+            item = get_item(item_name)
+            info[item_name] = {
+                #'item_type': item.item_type,
+                'url': item.get_absolute_url(),
+            }
+        except MathItem.DoesNotExist:
+            pass
     return info
 
 
@@ -48,7 +66,8 @@ class DraftItem(models.Model):
 
         if body:
             item_data = prepare_item(body)
-            item_data['refs'] = get_item_info(item_data['refs'].keys())
+            item_refs = get_item_refs(item_data['document'])
+            item_data['refs'] = get_item_info(item_refs)
             logger.info(item_data['refs'])
             tag_map = {int(key): value for key, value in item_data['tags'].items()}
             data = render_item(item_data)
