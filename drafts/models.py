@@ -52,7 +52,7 @@ class DraftItem(models.Model):
             html = data['html']
             defined = [tag_map[id] for id in data['defined']]
             errors = data['errors']
-        elif self.item_type != ItemTypes.PRF:
+        else:
             errors = ['A {} may not be empty'.format(self.get_item_type_display())]
 
         if self.item_type == ItemTypes.DEF:
