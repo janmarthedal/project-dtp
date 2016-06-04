@@ -10,6 +10,27 @@ from project.server_com import render_item
 #logger = logging.getLogger(__name__)
 
 
+class Concept(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Equation(models.Model):
+    class Meta:
+        unique_together = ['format', 'math']
+    format = models.CharField(max_length=10)  # inline-TeX, TeX
+    math = models.TextField()
+    html = models.TextField()
+
+    def __str__(self):
+        math = self.math
+        if len(math) > 40:
+            math = math[:37] + '...'
+        return '{} ({})'.format(math, self.format)
+
+
 class MathItemManager(models.Manager):
     def get_by_name(self, name):
         return self.get(item_type=name[0], id=int(name[1:]))
@@ -22,6 +43,7 @@ class MathItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
     body = models.TextField()
+    defines = models.ManyToManyField(Concept)
 
     def get_name(self):
         return self.item_type + str(self.id)
@@ -44,36 +66,17 @@ class MathItem(models.Model):
         return render_item(self.item_type, document, eqn_map, refs)
 
 
-class Equation(models.Model):
-    class Meta:
-        unique_together = ['format', 'math']
-    format = models.CharField(max_length=10)  # inline-TeX, TeX
-    math = models.TextField()
-    html = models.TextField()
-
-    def __str__(self):
-        math = self.math
-        if len(math) > 40:
-            math = math[:37] + '...'
-        return '{} ({})'.format(math, self.format)
-
-
-class Concept(models.Model):
-    name = models.CharField(max_length=64, unique=True)
-
-    def __str__(self):
-        return self.name
-
-
-def encode_document(node, eqn_map):
+def encode_document(node, eqn_map, defines):
     overrides = {}
     if 'concept' in node:
         concept = Concept.objects.get_or_create(name=node['concept'])[0]
         overrides['concept'] = concept.id
+        if node.get('type') == 'concept-def':
+            defines[concept.id] = concept
     if 'eqn' in node:
         overrides['eqn'] = eqn_map[node['eqn']]
     if node.get('children'):
-        overrides['children'] = [encode_document(child, eqn_map)
+        overrides['children'] = [encode_document(child, eqn_map, defines)
                                  for child in node['children']]
     return dict(node, **overrides) if overrides else node
 
@@ -85,9 +88,12 @@ def publish(user, item_type, document, eqns):
             format=eqn_obj['format'], math=eqn_obj['math'],
             defaults={'html': eqn_obj['html']})[0]
         eqn_conversions[int(id)] = eqn.id
-    document = encode_document(document, eqn_conversions)
+    defines = {}
+    document = encode_document(document, eqn_conversions, defines)
     item = MathItem(created_by=user, item_type=item_type, body=json.dumps(document))
     item.save()
+    if item_type == ItemTypes.DEF:
+        item.defines = list(defines.values())
     return item
 
 
