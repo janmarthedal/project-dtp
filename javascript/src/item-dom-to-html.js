@@ -30,35 +30,40 @@ function item_node_to_html(emit, node, eqns, refs, data) {
         return emit('<span class="text-danger">', node.reason, '</span>');
     }
 
-    let tag;
+    let tag, error;
     const attr = {};
 
     if (node.type in type_to_tag) {
         tag = type_to_tag[node.type];
     } else if (node.type === 'concept-def') {
-        if (data.defined.indexOf(node.concept) < 0)
+        if (data.defined.indexOf(node.concept) < 0) {
             data.defined.push(node.concept);
-        else
-            data.errors.push('concept \'' + node.concept + '\' defined multiple times');
-        tag = 'a';
-        attr.href = '#';
+            tag = 'a';
+            attr.href = '#';
+        } else
+            error = 'concept ' + node.concept + ' defined multiple times';
     } else if (node.type === 'item-ref') {
         const ref_info = refs[node.item];
         if (!ref_info) {
-            const error = 'illegal item reference ' + node.item;
-            data.errors.push(error);
-            return emit('<span class="text-danger">', error, '</span>');
+            error = 'illegal item reference ' + node.item;
+        } else if (node.concept && (!ref_info.defines || ref_info.defines.indexOf(node.concept) < 0)) {
+            error = 'item ' + node.item + ' does not define ' + node.concept;
+        } else {
+            tag = 'a';
+            attr.href = ref_info.url;
+            if (node.concept)
+                attr.href += '#' + node.concept;
         }
-        tag = 'a';
-        attr.href = ref_info.url;
-        if (node.concept)
-            attr.href += '#' + node.concept;
     } else if (node.type === 'list') {
         tag = node.ordered ? 'ol' : 'ul';
     } else if (node.type === 'header') {
         tag = 'h' + node.level;
     } else {
         throw new Error('Unsupported node type \'' + node.type + '\'');
+    }
+    if (error) {
+        data.errors.push(error);
+        return emit('<span class="text-danger">', error, '</span>');
     }
     if (tag)
         emit('<', tag, map(attr, (value, key) => [' ', key, '="', value, '"']), '>');

@@ -6,8 +6,8 @@ from drafts.models import DraftItem, ItemTypes
 from mathitems.models import MathItem, publish, get_refs_and_render
 from project.server_com import render_item
 
-import logging
-logger = logging.getLogger(__name__)
+#import logging
+#logger = logging.getLogger(__name__)
 
 
 def edit_item(request, item):

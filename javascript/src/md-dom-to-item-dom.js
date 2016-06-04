@@ -43,8 +43,8 @@ function md_node_to_item_dom(node) {
                 item_node.item = match[1];
                 if (match[2])
                     item_node.concept = match[2];
-                if (!children)
-                    children = [{type: 'text', value: match[1]}]
+                if (!children.length)
+                    children = [{type: 'text', value: match[2] || match[1]}]
             } else {
                 return make_error("illegal item reference '" + href + "'");
             }

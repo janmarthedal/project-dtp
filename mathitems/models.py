@@ -121,9 +121,10 @@ def get_document_refs(document):
     for item_name in item_names:
         try:
             item = MathItem.objects.get_by_name(item_name)
-            info[item_name] = {
-                'url': item.get_absolute_url(),
-            }
+            data = {'url': item.get_absolute_url()}
+            if item.item_type == ItemTypes.DEF:
+                data['defines'] = [concept.name for concept in item.defines.all()]
+            info[item_name] = data
         except MathItem.DoesNotExist:
             pass
     return info
