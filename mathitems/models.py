@@ -62,8 +62,7 @@ class MathItem(models.Model):
         document = decode_document(json.loads(self.body), eqns)
         eqn_map = {equation.id: {'html': equation.html}
                    for equation in Equation.objects.filter(id__in=eqns)}
-        refs = get_document_refs(document)
-        return render_item(self.item_type, document, eqn_map, refs)
+        return get_refs_and_render(self.item_type, document, eqn_map)
 
 
 def encode_document(node, eqn_map, defines):
@@ -128,3 +127,8 @@ def get_document_refs(document):
         except MathItem.DoesNotExist:
             pass
     return info
+
+
+def get_refs_and_render(item_type, document, eqns):
+    refs = get_document_refs(document)
+    return render_item(item_type, document, eqns, refs)
