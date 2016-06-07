@@ -5,5 +5,7 @@
 {% endblock %}
 
 {% block sidecontent %}
+{% if new_name %}
 <p><a href="{{ new_url }}" class="btn btn-default">{{ new_name }}</a></p>
+{% endif %}
 {% endblock %}

@@ -24,15 +24,16 @@ def show_item(request, id_str):
     return render(request, 'mathitems/show.html', context)
 
 
-def item_home(request, item_type, new_draft_url):
+def item_home(request, item_type, new_draft_url=None):
     name = ItemTypes.NAMES[item_type]
     items = MathItem.objects.filter(item_type=item_type).order_by('-created_at')
-    return render(request, 'mathitems/item-home.html', {
+    context = {
         'title': name,
-        'new_name': 'New ' + name,
-        'new_url': new_draft_url,
         'items': items,
-    })
+    }
+    if new_draft_url:
+        context.update(new_name='New ' + name, new_url=new_draft_url)
+    return render(request, 'mathitems/item-home.html', context)
 
 
 @require_safe
@@ -43,3 +44,8 @@ def def_home(request):
 @require_safe
 def thm_home(request):
     return item_home(request, ItemTypes.THM, reverse('new-thm'))
+
+
+@require_safe
+def prf_home(request):
+    return item_home(request, ItemTypes.PRF)

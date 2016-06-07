@@ -3,8 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 
-from mathitems.itemtypes import ItemTypes
-from mathitems.models import MathItem
+from mathitems.models import MathItem, ItemTypes
 from project.server_com import prepare_item
 
 #import logging
