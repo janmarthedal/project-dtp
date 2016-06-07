@@ -1,5 +1,6 @@
 import json
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -42,7 +43,7 @@ class MathItem(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
-    parent = models.ForeignKey('self', null=True)
+    parent = models.ForeignKey('self', null=True, blank=True)
     body = models.TextField()
     defines = models.ManyToManyField(Concept)
 
@@ -50,13 +51,24 @@ class MathItem(models.Model):
         return self.item_type + str(self.id)
 
     def __str__(self):
-        return '{} {}'.format(self.get_item_type_display(), self.get_name())
+        res = '{} {}'.format(self.get_item_type_display(), self.get_name())
+        if self.parent:
+            res += ' of {}'.format(self.parent)
+        return res
+
+    def clean(self):
+        if self.item_type == ItemTypes.PRF:
+            if not self.parent or self.parent.item_type != ItemTypes.THM:
+                raise ValidationError('A Proof must have a Theorem parent')
+        elif self.parent:
+            raise ValidationError('A {} may not have a parent'.format(self.get_item_type_display()))
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        if self.item_type == ItemTypes.DEF:
-            return reverse('show-def', args=[self.id])
-        if self.item_type == ItemTypes.THM:
-            return reverse('show-thm', args=[self.id])
+        return reverse('show-item', args=[self.get_name()])
 
     def render(self):
         eqns = set()
@@ -81,7 +93,7 @@ def encode_document(node, eqn_map, defines):
     return dict(node, **overrides) if overrides else node
 
 
-def publish(user, item_type, document, eqns):
+def publish(user, item_type, parent, document, eqns):
     eqn_conversions = {}
     for id, eqn_obj in eqns.items():
         eqn = Equation.objects.get_or_create(
@@ -91,6 +103,8 @@ def publish(user, item_type, document, eqns):
     defines = {}
     document = encode_document(document, eqn_conversions, defines)
     item = MathItem(created_by=user, item_type=item_type, body=json.dumps(document))
+    if parent:
+        item.parent = parent
     item.save()
     if item_type == ItemTypes.DEF:
         item.defines = list(defines.values())

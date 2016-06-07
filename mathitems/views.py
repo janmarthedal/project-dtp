@@ -8,24 +8,21 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def show_item(request, id_str, item_type):
-    item = get_object_or_404(MathItem, id=int(id_str), item_type=item_type)
+@require_safe
+def show_item(request, id_str):
+    item = MathItem.objects.get_by_name(id_str)
     item_data = item.render()
     if item_data['errors']:
         logger.warn('Error in published item {}'.format(item.id))
     del item_data['errors']
-    return render(request, 'mathitems/show.html', {
+    context = {
         'title': str(item),
         'item_data': item_data,
-    })
+    }
+    if item.item_type == ItemTypes.THM:
+        context['new_proof_link'] = reverse('new-prf', args=[item.get_name()])
+    return render(request, 'mathitems/show.html', context)
 
-@require_safe
-def show_def(request, id_str):
-    return show_item(request, id_str, ItemTypes.DEF)
-
-@require_safe
-def show_thm(request, id_str):
-    return show_item(request, id_str, ItemTypes.THM)
 
 def item_home(request, item_type, new_draft_url):
     name = ItemTypes.NAMES[item_type]
@@ -37,9 +34,11 @@ def item_home(request, item_type, new_draft_url):
         'items': items,
     })
 
+
 @require_safe
 def def_home(request):
     return item_home(request, ItemTypes.DEF, reverse('new-def'))
+
 
 @require_safe
 def thm_home(request):

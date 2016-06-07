@@ -8,4 +8,9 @@
 <div class="well">
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 </div>
+{% if new_proof_link %}
+<p>
+  <a href="{{ new_proof_link }}" class="btn btn-default">New Proof</a>
+</p>
+{% endif %}
 {% endblock %}
