@@ -42,6 +42,7 @@ class MathItem(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
+    parent = models.ForeignKey('self', null=True)
     body = models.TextField()
     defines = models.ManyToManyField(Concept)
 

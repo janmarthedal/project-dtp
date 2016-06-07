@@ -15,6 +15,7 @@ class DraftItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
+    parent = models.ForeignKey(MathItem, null=True)
     body = models.TextField(blank=True)
 
     def __str__(self):
