@@ -11,6 +11,7 @@ const tag_map = {
 const regex_tag_def = /^=([-a-z]+)$/;
 const regex_html_header = /^h([1-6])$/;
 const regex_item_ref = /^([DTP][1-9]\d*)(?:#([-a-z]+))?$/;
+const regex_concept_ref = /^#([-a-z]+)$/;
 
 function make_error(reason) {
     return {type: 'error', reason: reason};
@@ -45,6 +46,11 @@ function md_node_to_item_dom(node) {
                     item_node.concept = match[2];
                 if (!children.length)
                     children = [{type: 'text', value: match[2] || match[1]}]
+            } else if ((match = href.match(regex_concept_ref)) != null) {
+                item_node.type = 'concept-ref';
+                item_node.concept = match[1];
+                if (!children.length)
+                    children = [{type: 'text', value: match[1]}]
             } else {
                 return make_error("illegal item reference '" + href + "'");
             }

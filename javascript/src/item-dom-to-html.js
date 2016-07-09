@@ -42,6 +42,9 @@ function item_node_to_html(emit, node, eqns, refs, data) {
             attr.href = '#';
         } else
             error = 'concept ' + node.concept + ' defined multiple times';
+    } else if (node.type === 'concept-ref') {
+        tag = 'a';
+        attr.href = '/concept/' + node.concept;
     } else if (node.type === 'item-ref') {
         const ref_info = refs[node.item];
         if (!ref_info) {
