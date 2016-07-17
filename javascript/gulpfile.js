@@ -8,3 +8,11 @@ gulp.task('default', () => {
 		}))
 		.pipe(gulp.dest('dst'));
 });
+
+gulp.task('test', ['default'], () => {
+	return gulp.src('test/**/*.js')
+		.pipe(babel({
+			presets: ['es2015']
+		}))
+		.pipe(gulp.dest('dst/test'));
+});
