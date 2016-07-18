@@ -12,8 +12,9 @@ describe('Pure functions', function() {
 });
 
 describe('Prepare item', function() {
-    it('markdown-to-item-dom', function(done) {
-        markdown_to_item_dom(
+    describe('markdown-to-item-dom', function() {
+        it('1', function(done) {
+            markdown_to_item_dom(
 `Inline math $x$ and
 
 $$
@@ -21,22 +22,207 @@ $$
 $$
 
 More $x$ inline $a+b$ math.`
-        ).then(item_dom => {
-            assert.deepEqual(
-                {"document":{"type":"body","children":[
-                    {"type":"para","children":[
-                        {"type":"text","value":"Inline math "},{"type":"eqn","eqn":1},{"type":"text","value":" and"}
-                    ]},{"type":"text","value":"\n"},{"type":"para","children":[
-                        {"type":"eqn","eqn":2}]},{"type":"text","value":"\n"},{"type":"para","children":[
-                            {"type":"text","value":"More "},{"type":"eqn","eqn":1},{"type":"text","value":" inline "},
-                            {"type":"eqn","eqn":3},{"type":"text","value":" math."}
-                        ]},{"type":"text","value":"\n"}
-                    ]},
-                "eqns":{
-                    "1":{"format":"inline-TeX","math":"x"},
-                    "2":{"format":"TeX","math":"\\sum_{k=1}^nk"},
-                    "3":{"format":"inline-TeX","math":"a+b"}}}, item_dom);
-            done();
+            ).then(item_dom => {
+                assert.deepEqual(
+                    {"document":{"type":"body","children":[
+                        {"type":"para","children":[
+                            {"type":"text","value":"Inline math "},{"type":"eqn","eqn":1},{"type":"text","value":" and"}
+                        ]},{"type":"text","value":"\n"},{"type":"para","children":[
+                            {"type":"eqn","eqn":2}]},{"type":"text","value":"\n"},{"type":"para","children":[
+                                {"type":"text","value":"More "},{"type":"eqn","eqn":1},{"type":"text","value":" inline "},
+                                {"type":"eqn","eqn":3},{"type":"text","value":" math."}
+                            ]},{"type":"text","value":"\n"}
+                        ]},
+                    "eqns":{
+                        "1":{"format":"inline-TeX","math":"x"},
+                        "2":{"format":"TeX","math":"\\sum_{k=1}^nk"},
+                        "3":{"format":"inline-TeX","math":"a+b"}}}, item_dom);
+                done();
+            });
+        });
+        it('2', function(done) {
+            markdown_to_item_dom(
+`Concept definition 1: [](=some-concept-a)
+
+Concept definition 2: [some-text-b](=some-concept-b)
+
+Concept reference 1: [](#some-concept-c)
+
+Concept reference 2: [some-text-d](#some-concept-d)
+
+Item reference 1: [](D123)
+
+Item reference 2: [some-text-f](T123)
+
+Item+concept reference 1: [](D123#some-concept-g)
+
+Item+concept reference 2: [some-text-g](D123#some-concept-g)
+`
+            ).then(item_dom => {
+                assert.deepEqual({
+                    "document":{
+                        "type":"body",
+                        "children":[
+                            {
+                                "type":"para",
+                                "children":[
+                                    {
+                                        "type":"text",
+                                        "value":"Concept definition 1: "
+                                    },{
+                                        "type":"concept-def",
+                                        "concept":"some-concept-a"
+                                    }
+                                ]
+                            },{
+                                "type":"text","value":"\n"
+                            },{
+                                "type":"para","children":[
+                                    {
+                                        "type":"text",
+                                        "value":"Concept definition 2: "
+                                    },{
+                                        "type":"concept-def",
+                                        "concept":"some-concept-b",
+                                        "children":[
+                                            {
+                                                "type":"text",
+                                                "value":"some-text-b"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },{
+                                "type":"text",
+                                "value":"\n"
+                            },{
+                                "type":"para",
+                                "children":[
+                                    {
+                                        "type":"text",
+                                        "value":"Concept reference 1: "
+                                    },{
+                                        "type":"concept-ref",
+                                        "concept":"some-concept-c",
+                                        "children":[
+                                            {
+                                                "type":"text",
+                                                "value":"some-concept-c"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },{
+                                "type":"text",
+                                "value":"\n"
+                            },{
+                                "type":"para",
+                                "children":[
+                                    {
+                                        "type":"text",
+                                        "value":"Concept reference 2: "
+                                    },{
+                                        "type":"concept-ref",
+                                        "concept":"some-concept-d",
+                                        "children":[
+                                            {
+                                                "type":"text",
+                                                "value":"some-text-d"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },{
+                                "type":"text",
+                                "value":"\n"
+                            },{
+                                "type":"para",
+                                "children":[
+                                    {
+                                        "type":"text",
+                                        "value":"Item reference 1: "
+                                    },{
+                                        "type":"item-ref",
+                                        "item":"D123",
+                                        "children":[
+                                            {
+                                                "type":"text",
+                                                "value":"D123"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },{
+                                "type":"text",
+                                "value":"\n"
+                            },{
+                                "type":"para",
+                                "children":[
+                                    {
+                                        "type":"text",
+                                        "value":"Item reference 2: "
+                                    },{
+                                        "type":"item-ref",
+                                        "item":"T123",
+                                        "children":[
+                                            {
+                                                "type":"text",
+                                                "value":"some-text-f"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },{
+                                "type":"text",
+                                "value":"\n"
+                            },{
+                                "type":"para",
+                                "children":[
+                                    {
+                                        "type":"text",
+                                        "value":"Item+concept reference 1: "
+                                    },{
+                                        "type":"item-ref",
+                                        "item":"D123",
+                                        "concept":"some-concept-g",
+                                        "children":[
+                                            {
+                                                "type":"text",
+                                                "value":"some-concept-g"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },{
+                                "type":"text",
+                                "value":"\n"
+                            },{
+                                "type":"para",
+                                "children":[
+                                    {
+                                        "type":"text",
+                                        "value":"Item+concept reference 2: "
+                                    },{
+                                        "type":"item-ref",
+                                        "item":"D123",
+                                        "concept":"some-concept-g",
+                                        "children":[
+                                            {
+                                                "type":"text",
+                                                "value":"some-text-g"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },{
+                                "type":"text",
+                                "value":"\n"
+                            }
+                        ]
+                    },"eqns":{}
+                }, item_dom);
+                done();
+            });
         });
     });
 
