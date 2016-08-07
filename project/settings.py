@@ -8,12 +8,24 @@ SECRET_KEY = secrets.SECRET_KEY
 DEBUG = True
 ALLOWED_HOSTS = []
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'dtp',
+            'USER': 'root',
+            'PASSWORD': 'orangebear',
+            'HOST': 'db',
+            'PORT': '3306'
+        }
+    }
 
 LOCAL_APPS = [
     'main',
@@ -86,6 +98,7 @@ USE_I18N = False
 USE_L10N = False
 USE_TZ = True
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 LOGGING = {

@@ -1,0 +1,19 @@
+version: '2'
+services:
+    app:
+        image: janmarthedal/dtp
+        ports:
+            - "80:80"
+        depends_on:
+            - db
+    migrate:
+        image: janmarthedal/dtp
+        depends_on:
+            - db
+        command: python3 manage.py migrate
+    db:
+        image: mysql
+        volumes:
+            - ./db_data:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: orangebear

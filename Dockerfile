@@ -11,8 +11,10 @@ WORKDIR /code
 
 COPY . .
 
-RUN pip3 install -r requirements.txt \
-  && cp docker/dtp.conf /etc/nginx/conf.d/ \
+RUN cp docker/dtp.conf /etc/nginx/conf.d/ \
+  && sed -i 's/^DEBUG *=.*/DEBUG = False/' project/settings.py \
+  && pip3 install -r requirements.txt \
+  && python3 manage.py collectstatic --noinput \
   && chown -R www-data:www-data .
 
 CMD uwsgi --uid www-data --daemonize /var/log/uwsgi.log --socket app.sock --module project.wsgi && nginx -g "daemon off;"
