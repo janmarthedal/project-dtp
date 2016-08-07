@@ -1,0 +1,4 @@
+.git
+env
+db.sqlite3
+debug.log
