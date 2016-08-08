@@ -5,15 +5,22 @@ services:
         ports:
             - "80:80"
         depends_on:
+            - nodejs
+        external_links:
             - db
     migrate:
         image: janmarthedal/dtp
-        depends_on:
+        external_links:
             - db
         command: python3 manage.py migrate
+    nodejs:
+        image: janmarthedal/dtpnodejs
     db:
         image: mysql
         volumes:
-            - ./db_data:/var/lib/mysql
+            - ../db_data:/var/lib/mysql
+        ports:
+            - "3306:3306"
         environment:
             MYSQL_ROOT_PASSWORD: orangebear
+            MYSQL_DATABASE: dtp

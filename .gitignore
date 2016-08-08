@@ -6,3 +6,4 @@ debug.log
 .DS_Store
 secrets.py
 dst/
+db_data

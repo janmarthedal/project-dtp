@@ -19,8 +19,6 @@ class Concept(models.Model):
 
 
 class Equation(models.Model):
-    class Meta:
-        unique_together = ['format', 'math']
     format = models.CharField(max_length=10)  # inline-TeX, TeX
     math = models.TextField()
     html = models.TextField()

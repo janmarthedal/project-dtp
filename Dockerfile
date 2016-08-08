@@ -1,9 +1,9 @@
 FROM nginx
 
 RUN apt-get update \
-  && apt-get install -y python3 python3-pip \
+  && apt-get install -y python3 python3-pip libmysqlclient-dev \
   && rm -rf /var/lib/apt/lists/* \
-  && pip3 install uwsgi \
+  && pip3 install uwsgi mysqlclient \
   && rm /etc/nginx/conf.d/* /var/log/nginx/* \
   && sed -i 's/^user .*/user www-data;/' /etc/nginx/nginx.conf
 
