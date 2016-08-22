@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe
 
 from mathitems.models import MathItem
+from drafts.models import DraftItem
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -27,7 +28,11 @@ def profile(request):
     backends = auth_backends(request)['backends']
     logger.info('User {} has providers: {}'.format(request.user.username,
         ', '.join(p.provider for p in backends['associated'])))"""
-    return render(request, 'main/profile.html', {'title': 'Profile'})
+    drafts = DraftItem.objects.order_by('updated_at').all()
+    return render(request, 'main/profile.html', {
+        'drafts': drafts,
+        'title': 'Profile'
+    })
 
 @require_safe
 def logout(request):

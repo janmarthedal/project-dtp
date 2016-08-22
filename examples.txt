@@ -4,7 +4,7 @@ $$
 H_n = 1 + \frac{1}{2} + \ldots + \frac{1}{n} = \sum_{k=1}^n \frac{1}{k}
 $$
 
-for $n \geq 1$.
+for $n = 1, 2, 3, \ldots$.
 
 --------
 
