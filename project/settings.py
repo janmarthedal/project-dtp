@@ -28,9 +28,10 @@ else:
     }
 
 LOCAL_APPS = [
-    'main',
     'drafts',
     'mathitems',
+    'validations',
+    'main',
 ]
 
 INSTALLED_APPS = [
