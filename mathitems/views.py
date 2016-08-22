@@ -12,11 +12,9 @@ logger = logging.getLogger(__name__)
 def show_item(request, id_str):
     item = MathItem.objects.get_by_name(id_str)
     item_data = item.render()
-    if item_data['errors']:
-        logger.warn('Error in published item {}'.format(item.id))
-    del item_data['errors']
     context = {
         'title': str(item),
+        'item': item,
         'item_data': item_data,
     }
     if item.item_type == ItemTypes.THM:
@@ -24,6 +22,18 @@ def show_item(request, id_str):
     return render(request, 'mathitems/show.html', context)
 
 
+@require_safe
+def add_item_validation(request, id_str):
+    item = MathItem.objects.get_by_name(id_str)
+    item_data = item.render()
+    return render(request, 'mathitems/add_item_validation.html', {
+        'title': str(item),
+        'item': item,
+        'item_data': item_data,
+    })
+
+
+# Helper
 def item_home(request, item_type, new_draft_url=None):
     name = ItemTypes.NAMES[item_type]
     items = MathItem.objects.filter(item_type=item_type).order_by('-created_at')

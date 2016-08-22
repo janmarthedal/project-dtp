@@ -4,16 +4,10 @@
 {% include 'mathitems/include/show.html' with item_data=item_data only %}
 {% endblock %}
 
+
+
 {% block sidecontent %}
 <div class="well">
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 </div>
-{% if new_proof_link %}
-<p>
-  <a href="{{ new_proof_link }}" class="btn btn-default">New Proof</a>
-</p>
-{% endif %}
-<p>
-  <a href="{% url 'add-item-validation' item.get_name %}" class="btn btn-default">Add Validation</a>
-</p>
 {% endblock %}

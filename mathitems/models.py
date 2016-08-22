@@ -11,6 +11,10 @@ from project.server_com import render_item
 #logger = logging.getLogger(__name__)
 
 
+class IllegalMathItem(Exception):
+    pass
+
+
 class Concept(models.Model):
     name = models.CharField(max_length=64, unique=True)
 
@@ -73,7 +77,11 @@ class MathItem(models.Model):
         document = decode_document(json.loads(self.body), eqns)
         eqn_map = {equation.id: {'html': equation.html}
                    for equation in Equation.objects.filter(id__in=eqns)}
-        return get_refs_and_render(self.item_type, document, eqn_map)
+        result = get_refs_and_render(self.item_type, document, eqn_map)
+        if result['errors']:
+            raise IllegalMathItem('Error in published item {}'.format(self.id))
+        del result['errors']
+        return result
 
 
 def encode_document(node, eqn_map, defines):
