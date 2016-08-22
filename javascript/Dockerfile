@@ -2,7 +2,7 @@ FROM janmarthedal/nodejs
 
 WORKDIR /code
 
-COPY ./javascript .
+COPY . .
 
 RUN npm install -g gulp-cli \
   && npm install \

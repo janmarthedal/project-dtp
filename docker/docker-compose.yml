@@ -2,19 +2,20 @@ version: '2'
 services:
     app:
         image: janmarthedal/dtp
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
         ports:
             - "80:80"
         depends_on:
             - nodejs
         external_links:
             - db
-    migrate:
-        image: janmarthedal/dtp
-        external_links:
-            - db
-        command: python3 manage.py migrate
     nodejs:
         image: janmarthedal/dtpnodejs
+        build:
+            context: ../javascript
+            dockerfile: Dockerfile
     db:
         image: mysql
         volumes:
@@ -24,3 +25,4 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: orangebear
             MYSQL_DATABASE: dtp
+        command: --character-set-server=utf8 --collation-server=utf8_general_ci
