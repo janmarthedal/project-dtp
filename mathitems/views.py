@@ -1,11 +1,20 @@
+from django import forms
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.http import require_safe
+from django.views.decorators.http import require_safe, require_http_methods
 
 from mathitems.models import MathItem, ItemTypes
+from validations.models import Source
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+class AddValidationForm(forms.Form):
+    source_type = forms.ChoiceField(choices=Source.SOURCE_TYPE_CHOICES)
+    source_value = forms.CharField(max_length=255)
+    location = forms.CharField(max_length=255, required=False)
 
 
 @require_safe
@@ -22,14 +31,21 @@ def show_item(request, id_str):
     return render(request, 'mathitems/show.html', context)
 
 
-@require_safe
+@require_http_methods(['GET', 'HEAD', 'POST'])
 def add_item_validation(request, id_str):
     item = MathItem.objects.get_by_name(id_str)
     item_data = item.render()
+    if request.method == 'POST':
+        form = AddValidationForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect(reverse('show-item', args=[id_str]))
+    else:
+        form = AddValidationForm()
     return render(request, 'mathitems/add_item_validation.html', {
         'title': str(item),
         'item': item,
         'item_data': item_data,
+        'form': form
     })
 
 
