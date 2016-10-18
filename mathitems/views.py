@@ -2,7 +2,7 @@ import re
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
@@ -41,7 +41,10 @@ class AddValidationForm(forms.Form):
 
 @require_safe
 def show_item(request, id_str):
-    item = MathItem.objects.get_by_name(id_str)
+    try:
+        item = MathItem.objects.get_by_name(id_str)
+    except MathItem.DoesNotExist:
+        raise Http404('Item does not exist')
     item_data = item.render()
     context = {
         'title': str(item),
@@ -57,7 +60,10 @@ def show_item(request, id_str):
 @login_required
 @require_http_methods(['GET', 'HEAD', 'POST'])
 def add_item_validation(request, id_str):
-    item = MathItem.objects.get_by_name(id_str)
+    try:
+        item = MathItem.objects.get_by_name(id_str)
+    except MathItem.DoesNotExist:
+        raise Http404('Item does not exist')
     item_data = item.render()
     if request.method == 'POST':
         form = AddValidationForm(request.POST)
