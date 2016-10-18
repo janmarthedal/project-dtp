@@ -1,11 +1,13 @@
+import re
 from django import forms
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
-from mathitems.models import MathItem, ItemTypes
-from validations.models import Source
+from mathitems.models import ItemTypes, MathItem
+from validations.models import ItemValidation, Source
 
 import logging
 logger = logging.getLogger(__name__)
@@ -16,6 +18,26 @@ class AddValidationForm(forms.Form):
     source_value = forms.CharField(max_length=255)
     location = forms.CharField(max_length=255, required=False)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        source_type = cleaned_data.get('source_type')
+        source_value = cleaned_data.get('source_value')
+        if source_type in ['isbn10', 'isbn13']:
+            source_value = re.sub(r'[ -]', '', source_value.upper())
+            cleaned_data['source_value'] = source_value
+        if source_type == 'isbn10':
+            if not re.match(r'^[0-9]{9}[0-9X]$', source_value):
+                self.add_error('source_value', 'Illegal ISBN-10 format')
+            digits = [10 if c == 'X' else ord(c)-ord('0') for c in source_value]
+            if sum((10-n)*v for n, v in enumerate(digits)) % 11:
+                self.add_error('source_value', 'Illegal ISBN-10 checksum')
+        elif source_type == 'isbn13':
+            if not re.match(r'^[0-9]{12}[0-9X]$', source_value):
+                self.add_error('source_value', 'Illegal ISBN-13 format')
+            digits = [ord(c)-ord('0') for c in source_value]
+            if sum((3 if n % 2 else 1) * v for n, v in enumerate(digits)) % 10:
+                self.add_error('source_value', 'Illegal ISBN-13 checksum')
+
 
 @require_safe
 def show_item(request, id_str):
@@ -25,12 +47,14 @@ def show_item(request, id_str):
         'title': str(item),
         'item': item,
         'item_data': item_data,
+        'validations': item.itemvalidation_set.all()
     }
     if item.item_type == ItemTypes.THM:
         context['new_proof_link'] = reverse('new-prf', args=[item.get_name()])
     return render(request, 'mathitems/show.html', context)
 
 
+@login_required
 @require_http_methods(['GET', 'HEAD', 'POST'])
 def add_item_validation(request, id_str):
     item = MathItem.objects.get_by_name(id_str)
@@ -38,6 +62,12 @@ def add_item_validation(request, id_str):
     if request.method == 'POST':
         form = AddValidationForm(request.POST)
         if form.is_valid():
+            source, _ = Source.objects.get_or_create(source_type=form.cleaned_data['source_type'],
+                                                     source_value=form.cleaned_data['source_value'])
+            item_validation = ItemValidation.objects.create(created_by=request.user,
+                                                            item=item,
+                                                            source=source,
+                                                            location=form.cleaned_data['location'])
             return HttpResponseRedirect(reverse('show-item', args=[id_str]))
     else:
         form = AddValidationForm()
