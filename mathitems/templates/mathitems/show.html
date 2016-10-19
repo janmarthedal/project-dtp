@@ -11,6 +11,13 @@
 {% endfor %}
 </ul>
 {% endif %}
+
+{% if proofs %}
+<h4>Proofs</h4>
+<ul>{% for proof in proofs %}
+  <li><a href="{{ proof.get_absolute_url }}">{{ proof }}</a></li>{% endfor %}
+</ul>
+{% endif %}
 {% endblock %}
 
 {% block sidecontent %}
