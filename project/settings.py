@@ -91,6 +91,7 @@ TIME_ZONE = 'Europe/Copenhagen'
 USE_I18N = False
 USE_L10N = False
 USE_TZ = True
+DATETIME_FORMAT = 'N j, Y, H:i'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
