@@ -52,10 +52,16 @@ function item_node_to_html(emit, node, eqns, refs, data) {
         } else if (node.concept && (!ref_info.defines || ref_info.defines.indexOf(node.concept) < 0)) {
             error = 'item ' + node.item + ' does not define ' + node.concept;
         } else {
+            let ref_data = data.refs[node.item];
+            if (!ref_data)
+                data.refs[node.item] = ref_data = {concepts: {}};
             tag = 'a';
             attr.href = ref_info.url;
-            if (node.concept)
+            if (node.concept) {
                 attr.href += '#' + node.concept;
+                ref_data.concepts[node.concept] = attr.href;
+            } else
+                ref_data.url = attr.href;
         }
     } else if (node.type === 'list') {
         tag = node.ordered ? 'ol' : 'ul';
@@ -79,7 +85,7 @@ function item_node_to_html(emit, node, eqns, refs, data) {
 export default function item_dom_to_html(item_type, root, eqns, refs) {
     const item_type_name = ITEM_NAMES[item_type],
         out_items = [],
-        data = {defined: [], errors: [], has_text: false},
+        data = {defined: [], errors: [], refs: {}, has_text: false},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };

@@ -7,8 +7,8 @@ from django.db import models
 from mathitems.itemtypes import ItemTypes
 from project.server_com import render_item
 
-#import logging
-#logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 
 class IllegalMathItem(Exception):

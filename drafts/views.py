@@ -6,8 +6,8 @@ from drafts.models import DraftItem, ItemTypes
 from mathitems.models import MathItem, publish, get_refs_and_render
 from project.server_com import render_item
 
-#import logging
-#logger = logging.getLogger(__name__)
+import logging
+logger = logging.getLogger(__name__)
 
 
 def edit_item(request, item):
@@ -16,7 +16,8 @@ def edit_item(request, item):
         item.body = request.POST['src']
         if request.POST['submit'] == 'preview':
             document, eqns = item.prepare()
-            context['item_data'] = get_refs_and_render(item.item_type, document, eqns)
+            item_data = get_refs_and_render(item.item_type, document, eqns)
+            context['item_data'] = item_data
         elif request.POST['submit'] == 'save':
             item.save()
             return redirect(item)
