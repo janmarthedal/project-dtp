@@ -53,10 +53,7 @@ class MathItem(models.Model):
         return self.item_type + str(self.id)
 
     def __str__(self):
-        res = '{} {}'.format(self.get_item_type_display(), self.get_name())
-        if self.parent:
-            res += ' of {}'.format(self.parent)
-        return res
+        return '{} {}'.format(self.get_item_type_display(), self.get_name())
 
     def clean(self):
         if self.item_type == ItemTypes.PRF:

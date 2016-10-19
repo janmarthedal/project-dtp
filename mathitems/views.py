@@ -55,6 +55,10 @@ def show_item(request, id_str):
     if item.item_type == ItemTypes.THM:
         context['new_proof_link'] = reverse('new-prf', args=[item.get_name()])
         context['proofs'] = list(MathItem.objects.filter(item_type=ItemTypes.PRF, parent=item).order_by('id'))
+    if item.item_type == ItemTypes.PRF:
+        context['subtitle'] = 'of {}'.format(item.parent)
+        context['parent_item'] = item.parent
+        context['parent_item_data'] = item.parent.render()
     return render(request, 'mathitems/show.html', context)
 
 

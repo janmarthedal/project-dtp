@@ -3,6 +3,13 @@
 {% block pagecontent %}
 {% include 'mathitems/include/show.html' with item_data=item_data only %}
 
+{% if parent_item %}
+<div class="submathitem">
+<h4><a href="{{ parent_item.get_absolute_url }}">{{ parent_item }}</a></h4>
+{% include 'mathitems/include/show.html' with item_data=parent_item_data only %}
+</div>
+{% endif %}
+
 {% if validations %}
 <h4>Validations</h4>
 <ul>
