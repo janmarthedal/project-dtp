@@ -1,7 +1,9 @@
+import json
 from django.conf import settings
 from django.db import models
 
 from mathitems.models import MathItem
+
 
 class Source(models.Model):
     SOURCE_TYPE_CHOICES = (
@@ -14,6 +16,10 @@ class Source(models.Model):
 
     def __str__(self):
         return 'ISBN {}'.format(self.source_value)
+
+    def metadata_object(self):
+        return json.loads(self.metadata)
+
 
 class ItemValidation(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL)

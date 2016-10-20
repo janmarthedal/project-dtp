@@ -14,7 +14,9 @@
 <h4>Validations</h4>
 <ul>
 {% for validation in validations %}
-<li>{{ validation.source }}{% if validation.location %}, {{ validation.location }}{% endif %}</li>
+<li>
+  {% include 'validations/include/source.html' with source=validation.source only %}
+  {% if validation.location %}<br>{{ validation.location }}{% endif %}</li>
 {% endfor %}
 </ul>
 {% endif %}
