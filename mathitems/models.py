@@ -80,6 +80,12 @@ class MathItem(models.Model):
         del result['errors']
         return result
 
+    def is_def(self):
+        return self.item_type == ItemTypes.DEF
+
+    def defines_list(self):
+        return list(self.defines.order_by('name'))
+
 
 def encode_document(node, eqn_map, defines):
     overrides = {}

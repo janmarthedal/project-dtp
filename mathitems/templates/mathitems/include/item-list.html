@@ -2,6 +2,11 @@
 {% for item in items %}
 <a href="{{item.get_absolute_url}}" class="list-group-item">
   <h4 class="list-group-item-heading">{{ item }}{% if item.parent %} <small>of {{ item.parent }}</small>{% endif %}</h4>
+  {% if item.is_def %}
+  <ul class="list-inline">{% for con in item.defines_list %}
+    <li>{{ con }}</li>{% endfor %}
+  </ul>
+  {% endif %}
   <p class="list-group-item-text">Created {{ item.created_at|date:"DATETIME_FORMAT" }} by {{ item.created_by.get_username }}</p>
 </a>
 {% endfor %}
