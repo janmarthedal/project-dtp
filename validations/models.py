@@ -10,6 +10,7 @@ class Source(models.Model):
     )
     source_type = models.CharField(max_length=8, choices=SOURCE_TYPE_CHOICES)
     source_value = models.CharField(max_length=255)
+    metadata = models.TextField(blank=True)
 
     def __str__(self):
         return 'ISBN {}'.format(self.source_value)
