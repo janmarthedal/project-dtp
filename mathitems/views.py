@@ -1,6 +1,7 @@
 import re
 from django import forms
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
@@ -11,32 +12,6 @@ from validations.models import ItemValidation, Source
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-class AddValidationForm(forms.Form):
-    source_type = forms.ChoiceField(choices=Source.SOURCE_TYPE_CHOICES)
-    source_value = forms.CharField(max_length=255)
-    location = forms.CharField(max_length=255, required=False)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        source_type = cleaned_data.get('source_type')
-        source_value = cleaned_data.get('source_value')
-        if source_type in ['isbn10', 'isbn13']:
-            source_value = re.sub(r'[ -]', '', source_value.upper())
-            cleaned_data['source_value'] = source_value
-        if source_type == 'isbn10':
-            if not re.match(r'^[0-9]{9}[0-9X]$', source_value):
-                self.add_error('source_value', 'Illegal ISBN-10 format')
-            digits = [10 if c == 'X' else ord(c)-ord('0') for c in source_value]
-            if sum((10-n)*v for n, v in enumerate(digits)) % 11:
-                self.add_error('source_value', 'Illegal ISBN-10 checksum')
-        elif source_type == 'isbn13':
-            if not re.match(r'^[0-9]{12}[0-9X]$', source_value):
-                self.add_error('source_value', 'Illegal ISBN-13 format')
-            digits = [ord(c)-ord('0') for c in source_value]
-            if sum((3 if n % 2 else 1) * v for n, v in enumerate(digits)) % 10:
-                self.add_error('source_value', 'Illegal ISBN-13 checksum')
 
 
 @require_safe
@@ -63,7 +38,7 @@ def show_item(request, id_str):
 
 
 @login_required
-@require_http_methods(['GET', 'HEAD', 'POST'])
+@require_http_methods(['GET', 'POST'])
 def add_item_validation(request, id_str):
     try:
         item = MathItem.objects.get_by_name(id_str)
@@ -71,23 +46,34 @@ def add_item_validation(request, id_str):
         raise Http404('Item does not exist')
     item_data = item.render()
     if request.method == 'POST':
-        form = AddValidationForm(request.POST)
-        if form.is_valid():
-            source, _ = Source.objects.get_or_create(source_type=form.cleaned_data['source_type'],
-                                                     source_value=form.cleaned_data['source_value'])
-            item_validation = ItemValidation.objects.create(created_by=request.user,
-                                                            item=item,
-                                                            source=source,
-                                                            location=form.cleaned_data['location'])
-            return HttpResponseRedirect(reverse('show-item', args=[id_str]))
-    else:
-        form = AddValidationForm()
-    return render(request, 'mathitems/add_item_validation.html', {
+        source = Source.objects.get(id=int(request.POST['source']))
+        item_validation = ItemValidation.objects.create(created_by=request.user,
+                                                        item=item,
+                                                        source=source,
+                                                        location=request.POST['location'])
+        return HttpResponseRedirect(reverse('show-item', args=[id_str]))
+    context = {
         'title': str(item),
         'item': item,
         'item_data': item_data,
-        'form': form
-    })
+        'types': Source.SOURCE_TYPE_CHOICES
+    }
+    if 'type' in request.GET:
+        type_slug = request.GET['type']
+        type_display = dict(Source.SOURCE_TYPE_CHOICES).get(type_slug)
+        if type_display:
+            context['type_slug'] = type_slug
+            context['type_display'] = type_display
+            if 'value' in request.GET:
+                value = request.GET['value']
+                try:
+                    source, _ = Source.objects.get_or_create(source_type=type_slug, source_value=value)
+                    context['source'] = source
+                except ValidationError as ve:
+                    context['error'] = ve.message
+        else:
+            context['error'] = 'Illegal validation type'
+    return render(request, 'mathitems/add_item_validation.html', context)
 
 
 # Helper

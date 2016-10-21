@@ -6,18 +6,33 @@
 
 <h2>Add Validation</h2>
 
-<form class="form-horizontal" method="POST">
+{% if error %}
+<p class="text-danger">{{ error }}</p>
+{% endif %}
+
+{% if source %}
+<p>Enter location in {% include 'validations/include/source.html' with source=source only %}:</p>
+<form method="POST">
   {% csrf_token %}
-  {{ form.non_field_errors }}
-  {% include 'main/formgroup.html' with field=form.source_type only %}
-  {% include 'main/formgroup.html' with field=form.source_value only %}
-  {% include 'main/formgroup.html' with field=form.location only %}
-  <div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-      <button type="submit" class="btn btn-default">Add Validation</button>
-    </div>
-  </div>
+  <input type="hidden" name="source" value="{{ source.id }}">
+  <input type="text" name="location" class="form-control">
+  <button type="submit" class="btn btn-default">Add Validation</button>
 </form>
+{% elif type_slug %}
+<p>Enter {{ type_display }} value:</p>
+<form method="GET">
+  <input type="hidden" name="type" value="{{ type_slug }}">
+  <input type="text" name="value" class="form-control">
+  <button type="submit" class="btn btn-default">Continue</button>
+  <a href="{{ item.get_absolute_url }}" class="btn btn-warning">Cancel</a>
+</form>
+{% else %}
+<p>Choose validation type:</p>
+{% for type in types %}
+<a href="?type={{ type|first }}" class="btn btn-default">{{ type|last }}</a>
+{% endfor %}
+<a href="{{ item.get_absolute_url }}" class="btn btn-warning">Cancel</a>
+{% endif %}
 {% endblock %}
 
 {% block sidecontent %}
