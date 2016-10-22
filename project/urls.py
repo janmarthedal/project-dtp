@@ -14,4 +14,5 @@ urlpatterns = [
     url('', include('mathitems.urls')),
     url(r'^accounts/', include(accounts_patterns)),
     url(r'^drafts/', include('drafts.urls')),
+    url(r'^admin/', include('admin.urls')),
 ]

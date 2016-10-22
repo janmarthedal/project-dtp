@@ -91,6 +91,9 @@ class MathItem(models.Model):
     def defines_list(self):
         return list(self.defines.order_by('name'))
 
+    def to_source(self):
+        return node_to_source_text(json.loads(self.body))
+
 
 def encode_document(node, eqn_map, defines):
     overrides = {}
