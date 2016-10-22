@@ -33,6 +33,11 @@ class Equation(models.Model):
             math = math[:37] + '...'
         return '{} ({})'.format(math, self.format)
 
+    def to_source(self):
+        if self.format == 'TeX':
+            return '$${}$$'.format(self.math)
+        return '${}$'.format(self.math)
+
 
 class MathItemManager(models.Manager):
     def get_by_name(self, name):
@@ -157,3 +162,25 @@ def get_document_refs(document):
 def get_refs_and_render(item_type, document, eqns):
     refs = get_document_refs(document)
     return render_item(item_type, document, eqns, refs)
+
+
+def node_to_source_text(node):
+    if node['type'] == 'text':
+        return node['value']
+    if node['type'] == 'eqn':
+        return Equation.objects.get(id=node['eqn']).to_source()
+    children = [node_to_source_text(child) for child in node.get('children', [])]
+    if node['type'] == 'body':
+        return '\n\n'.join(children)
+    if node['type'] == 'para':
+        return ''.join(children)
+    concept = Concept.objects.get(id=node['concept']).name if 'concept' in node else None
+    if node['type'] == 'concept-ref':
+        return '[{}]({})'.format(''.join(children), concept)
+    if node['type'] == 'concept-def':
+        return '[{}](={})'.format(''.join(children), concept)
+    if node['type'] == 'item-ref':
+        ref = node['item']
+        if concept:
+            ref = '{}#{}'.format(ref, concept)
+        return '[{}]({})'.format(''.join(children), ref)
