@@ -37,6 +37,8 @@ function md_node_to_item_dom(node) {
             if ((match = href.match(regex_tag_def)) != null) {
                 item_node.type = 'concept-def';
                 item_node.concept = match[1];
+                if (!children.length)
+                    children = [{type: 'text', value: match[1]}]
             } else if (href.startsWith('=')) {
                 return make_error("illegal concept name '" + concept + "'");
             } else if ((match = href.match(regex_item_ref)) != null) {
