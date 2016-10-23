@@ -3,8 +3,8 @@ import bodyParser from 'body-parser';
 import {fromPairs, map} from 'lodash';
 
 import eqn_typeset from './eqn-typeset';
-import item_dom_to_html from './item-dom-to-html';
-import markdown_to_item_dom from './markdown-to-item-dom';
+import item_data_to_html from './item-data-to-html';
+import markup_to_item_data from './markup-to-item-data';
 import {ITEM_NAMES} from './constants';
 
 function json_response(res, data) {
@@ -22,12 +22,12 @@ app.get('/', function (req, res) {
 
 app.post('/prepare-item', function(req, res) {
     const body = req.body.body || '';
-    markdown_to_item_dom(body).then(item_dom => {
-        const typeset_jobs = map(item_dom.eqns || {},
+    markup_to_item_data(body).then(item_data => {
+        const typeset_jobs = map(item_data.eqns || {},
                                  (data, key) => eqn_typeset(key, data));
         return Promise.all(typeset_jobs)
             .then(eqn_list => ({
-                document: item_dom.document,
+                document: item_data.document,
                 eqns: fromPairs(eqn_list),
             }));
     }).then(result => {
@@ -41,7 +41,7 @@ app.post('/render-item', function(req, res) {
         eqns = req.body.eqns || {},
         refs = req.body.refs || {};
     if (item_type in ITEM_NAMES && document) {
-        item_dom_to_html(item_type, document, eqns, refs).then(data => {
+        item_data_to_html(item_type, document, eqns, refs).then(data => {
             json_response(res, data);
         });
     } else {

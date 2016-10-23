@@ -31,7 +31,7 @@ class EqnMap {
     }
 }
 
-export default function prepare_markdown(text) {
+export default function prepare_markup(text) {
     const eqn_map = new EqnMap(),
         paragraphs = text.split(/\s*\$\$\s*/);
 
@@ -56,8 +56,8 @@ export default function prepare_markdown(text) {
         }
     }).join('\n\n');
 
-    return Promise.resolve({
+    return {
         text: prepared_text,
         eqns: eqn_map.get_eqn_map()
-    });
+    };
 }
