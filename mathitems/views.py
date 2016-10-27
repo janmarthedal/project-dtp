@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
-from mathitems.models import ItemTypes, MathItem
+from mathitems.models import Concept, ItemTypes, MathItem
 from validations.models import ItemValidation, Source
 
 import logging
@@ -79,7 +79,12 @@ def add_item_validation(request, id_str):
 # Helper
 def item_home(request, item_type, new_draft_url=None):
     name = ItemTypes.NAMES[item_type]
-    items = MathItem.objects.filter(item_type=item_type).order_by('-created_at')
+    items = [{
+        'item': item,
+        'defines': list(Concept.objects.filter(conceptdefinition__item=item)
+                            .order_by('name')
+                            .values_list('name', flat=True))
+    } for item in MathItem.objects.filter(item_type=item_type).order_by('-created_at')]
     context = {
         'title': name,
         'items': items,

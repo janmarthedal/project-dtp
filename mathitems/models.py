@@ -52,7 +52,6 @@ class MathItem(models.Model):
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
     parent = models.ForeignKey('self', null=True, blank=True)
     body = models.TextField()
-    defines = models.ManyToManyField(Concept)
 
     def get_name(self):
         return self.item_type + str(self.id)
@@ -88,11 +87,13 @@ class MathItem(models.Model):
     def is_def(self):
         return self.item_type == ItemTypes.DEF
 
-    def defines_list(self):
-        return list(self.defines.order_by('name'))
-
     def to_source(self):
         return node_to_source_text(json.loads(self.body))
+
+
+class ConceptDefinition(models.Model):
+    item = models.ForeignKey(MathItem, db_index=True)
+    concept = models.ForeignKey(Concept, db_index=True)
 
 
 def encode_document(node, eqn_map, defines):
@@ -124,7 +125,8 @@ def publish(user, item_type, parent, document, eqns):
         item.parent = parent
     item.save()
     if item_type == ItemTypes.DEF:
-        item.defines = list(defines.values())
+        ConceptDefinition.objects.bulk_create(
+            ConceptDefinition(item=item, concept=concept) for concept in defines.values())
     return item
 
 
@@ -155,7 +157,8 @@ def get_document_refs(document):
             item = MathItem.objects.get_by_name(item_name)
             data = {'url': item.get_absolute_url()}
             if item.item_type == ItemTypes.DEF:
-                data['defines'] = [concept.name for concept in item.defines.all()]
+                data['defines'] = list(Concept.objects.filter(conceptdefinition__item=item)
+                                            .values_list('name', flat=True))
             info[item_name] = data
         except MathItem.DoesNotExist:
             pass
