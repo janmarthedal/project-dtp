@@ -8,7 +8,7 @@ export default function typeset(id, data) {
         return Promise.resolve([id, data]);
     if (['TeX', 'inline-TeX'].indexOf(data.format) < 0)
         return Promise.reject('illegal typeset format');
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         mjAPI.typeset({
             math: data.math,
             format: data.format,

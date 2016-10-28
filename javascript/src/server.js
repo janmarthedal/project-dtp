@@ -35,6 +35,21 @@ app.post('/prepare-item', function(req, res) {
     });
 });
 
+app.post('/prep-item', function(req, res) {
+    markup_to_item_data(req.body.body || '').then(result => {
+        json_response(res, result);
+    });
+});
+
+app.post('/render-eqns', function(req, res) {
+    const typeset_jobs = map(req.body.eqns, (data, key) => eqn_typeset(key, data));
+    return Promise.all(typeset_jobs).then(eqn_list => {
+        json_response(res, fromPairs(eqn_list));
+    }).catch(() => {
+        json_response(res, {error: true});
+    });
+});
+
 app.post('/render-item', function(req, res) {
     const item_type = req.body.item_type,
         document = req.body.document,

@@ -14,6 +14,19 @@ def prepare_item(body):
     })
     return result['document'], result['eqns']
 
+def prep_item(body):
+    result = node_request('/prep-item', {
+        'body': body,
+    })
+    return result['document'], result['eqns']
+
+def render_eqns(eqns):
+    result = node_request('/render-eqns', {
+        'eqns': eqns,
+    })
+    return result
+
+
 """
 IN: item_type, document, eqns, refs
 OUT: {html, errors, defines}
