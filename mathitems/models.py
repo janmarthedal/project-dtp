@@ -130,10 +130,14 @@ def encode_document(node, eqn_map, defines):
 
 def publish(user, item_type, parent, document, eqns):
     eqn_conversions = {}
-    for id, eqn_obj in eqns.items():
-        eqn = Equation.objects.get_or_create(
-            format=eqn_obj['format'], math=eqn_obj['math'],
-            defaults={'html': eqn_obj['html']})[0]
+    for id, data in eqns.items():
+        try:
+            eqn = Equation.objects.get(format=data['format'], math=data['math'])
+            eqn.draft_access_at = None   # mark as permanent
+        except Equation.DoesNotExist:
+            eqn = Equation(format=data['format'], math=data['math'],
+                           html=data['html'])
+        eqn.save()
         eqn_conversions[int(id)] = eqn.id
     defines = {}
     document = encode_document(document, eqn_conversions, defines)
