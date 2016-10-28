@@ -46,6 +46,9 @@ class Equation(models.Model):
             return '$${}$$'.format(self.math)
         return '${}$'.format(self.math)
 
+    def to_data(self):
+        return {'format': self.format, 'math': self.math, 'html': self.html}
+
 
 class MathItemManager(models.Manager):
     def get_by_name(self, name):
