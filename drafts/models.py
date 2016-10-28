@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 
 from mathitems.models import MathItem, ItemTypes
-from project.server_com import prepare_item
+from project.server_com import prepare_item, render_eqns
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -38,4 +38,6 @@ class DraftItem(models.Model):
 
     def prepare(self):
         body = self.body.strip()
-        return prepare_item(body)
+        document, eqns = prepare_item(body)
+        rendered_eqns = render_eqns(eqns)
+        return document, rendered_eqns

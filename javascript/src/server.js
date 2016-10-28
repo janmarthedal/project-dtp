@@ -21,22 +21,7 @@ app.get('/', function (req, res) {
 });
 
 app.post('/prepare-item', function(req, res) {
-    const body = req.body.body || '';
-    markup_to_item_data(body).then(item_data => {
-        const typeset_jobs = map(item_data.eqns || {},
-                                 (data, key) => eqn_typeset(key, data));
-        return Promise.all(typeset_jobs)
-            .then(eqn_list => ({
-                document: item_data.document,
-                eqns: fromPairs(eqn_list),
-            }));
-    }).then(result => {
-        json_response(res, result);
-    });
-});
-
-app.post('/prep-item', function(req, res) {
-    markup_to_item_data(req.body.body || '').then(result => {
+    markup_to_item_data(req.body.body).then(result => {
         json_response(res, result);
     });
 });

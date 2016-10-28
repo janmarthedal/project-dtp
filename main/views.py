@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe
 
-from mathitems.models import MathItem
+from mathitems.models import Concept, MathItem
 from drafts.models import DraftItem
 
 #import logging
@@ -11,7 +11,12 @@ from drafts.models import DraftItem
 
 @require_safe
 def home(request):
-    items = MathItem.objects.order_by('-created_at')[:10]
+    items = [{
+        'item': item,
+        'defines': list(Concept.objects.filter(conceptdefinition__item=item)
+                            .order_by('name')
+                            .values_list('name', flat=True))
+    } for item in MathItem.objects.order_by('-created_at')[:10]]
     return render(request, 'main/home.html', {'items': items})
 
 @require_safe
