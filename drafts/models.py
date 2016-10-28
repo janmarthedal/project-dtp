@@ -18,6 +18,9 @@ class DraftItem(models.Model):
     parent = models.ForeignKey(MathItem, null=True, blank=True)
     body = models.TextField(blank=True)
 
+    class Meta:
+        db_table = 'drafts'
+
     def __str__(self):
         return '{} (Draft{})'.format(self.get_item_type_display(),
                                      ' {}'.format(self.id) if self.id else '')

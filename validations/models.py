@@ -16,6 +16,9 @@ class Source(models.Model):
     source_value = models.CharField(max_length=255)
     metadata = models.TextField(blank=True)
 
+    class Meta:
+        db_table = 'sources'
+
     def __str__(self):
         return 'ISBN {}'.format(self.source_value)
 
@@ -52,3 +55,6 @@ class ItemValidation(models.Model):
     item = models.ForeignKey(MathItem)
     source = models.ForeignKey(Source)
     location = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'item_validations'

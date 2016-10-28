@@ -18,6 +18,9 @@ class IllegalMathItem(Exception):
 class Concept(models.Model):
     name = models.CharField(max_length=64, unique=True)
 
+    class Meta:
+        db_table = 'concepts'
+
     def __str__(self):
         return self.name
 
@@ -26,6 +29,11 @@ class Equation(models.Model):
     format = models.CharField(max_length=10)  # inline-TeX, TeX
     math = models.TextField()
     html = models.TextField()
+    draft_access_at = models.DateTimeField(auto_now_add=True, null=True)
+
+    class Meta:
+        db_table = 'equations'
+        unique_together = ('format', 'math')
 
     def __str__(self):
         math = self.math
@@ -52,6 +60,9 @@ class MathItem(models.Model):
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
     parent = models.ForeignKey('self', null=True, blank=True)
     body = models.TextField()
+
+    class Meta:
+        db_table = 'mathitems'
 
     def get_name(self):
         return self.item_type + str(self.id)
@@ -94,6 +105,9 @@ class MathItem(models.Model):
 class ConceptDefinition(models.Model):
     item = models.ForeignKey(MathItem, db_index=True)
     concept = models.ForeignKey(Concept, db_index=True)
+
+    class Meta:
+        db_table = 'concept_defs'
 
 
 def encode_document(node, eqn_map, defines):
