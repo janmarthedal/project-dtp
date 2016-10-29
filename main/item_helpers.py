@@ -1,4 +1,5 @@
-from mathitems.models import Concept, ItemTypes, MathItem
+from concepts.models import Concept
+from mathitems.models import ItemTypes, MathItem
 from project.server_com import render_item
 
 

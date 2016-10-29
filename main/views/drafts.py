@@ -3,10 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
-from equations.models import get_equation_html, freeze_equations
+from concepts.models import Concept, ConceptDefinition
 from drafts.models import DraftItem, ItemTypes
+from equations.models import get_equation_html, freeze_equations
 from main.item_helpers import get_refs_and_render
-from mathitems.models import Concept, ConceptDefinition, MathItem
+from mathitems.models import MathItem
 from project.server_com import convert_markup, render_item, render_eqns
 
 import logging

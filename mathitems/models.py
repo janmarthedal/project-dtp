@@ -13,16 +13,6 @@ class IllegalMathItem(Exception):
     pass
 
 
-class Concept(models.Model):
-    name = models.CharField(max_length=64, unique=True)
-
-    class Meta:
-        db_table = 'concepts'
-
-    def __str__(self):
-        return self.name
-
-
 class MathItemManager(models.Manager):
     def get_by_name(self, name):
         return self.get(item_type=name[0], id=int(name[1:]))
@@ -65,14 +55,6 @@ class MathItem(models.Model):
 
     #def to_source(self):
     #    return node_to_source_text(json.loads(self.body))
-
-
-class ConceptDefinition(models.Model):
-    item = models.ForeignKey(MathItem, db_index=True)
-    concept = models.ForeignKey(Concept, db_index=True)
-
-    class Meta:
-        db_table = 'concept_defs'
 
 
 """def node_to_source_text(node):

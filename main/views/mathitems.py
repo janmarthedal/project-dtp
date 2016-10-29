@@ -8,9 +8,10 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
+from concepts.models import Concept
 from equations.models import Equation
 from main.item_helpers import get_refs_and_render
-from mathitems.models import Concept, ItemTypes, MathItem
+from mathitems.models import ItemTypes, MathItem
 from validations.models import ItemValidation, Source
 
 import logging
