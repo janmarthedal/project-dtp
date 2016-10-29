@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
-from equations.models import Equation
+from equations.models import Equation, get_equation_html
 from drafts.models import DraftItem, ItemTypes
 from main.item_helpers import get_refs_and_render
 from mathitems.models import Concept, ConceptDefinition, MathItem
@@ -16,29 +16,7 @@ logger = logging.getLogger(__name__)
 def draft_prepare(draft):
     body = draft.body.strip()
     document, eqns = convert_markup(body)
-    rendered_eqns = {}
-
-    to_render = {}
-    for key, data in eqns.items():
-        try:
-            eqn = Equation.objects.get(format=data['format'], math=data['math'])
-            if eqn.draft_access_at:  # cached draft equation?
-                eqn.draft_access_at = timezone.now()
-                eqn.save()
-            rendered_eqns[key] = eqn.to_data()
-        except Equation.DoesNotExist:
-            to_render[key] = data
-
-    new_rendered_eqns = render_eqns(to_render)
-    for key, data in new_rendered_eqns.items():
-        try:
-            eqn = Equation.objects.create(format=data['format'], math=data['math'], html=data['html'])
-        except IntegrityError:
-            # equation was created in the meantime by another thread
-            # TODO: Is this even possible? protected by transaction?
-            eqn = Equation.objects.get(format=data['format'], math=data['math'])
-        rendered_eqns[key] = eqn.to_data()
-
+    rendered_eqns = get_equation_html(eqns)
     return document, rendered_eqns
 
 

@@ -2,8 +2,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.utils import IntegrityError
-from django.utils import timezone
 
 from mathitems.models import ItemTypes, MathItem
 
