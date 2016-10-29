@@ -6,7 +6,7 @@ from django.db import migrations
 
 
 def populate(apps, schema_editor):
-    Concept = apps.get_model('mathitems', 'Concept')
+    Concept = apps.get_model('concepts', 'Concept')
     Concept.objects.create(name='*')
 
 

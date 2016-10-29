@@ -6,6 +6,25 @@ const regex_tag_def = /^=([-a-z]+)$/;
 const regex_item_ref = /^([DTP][1-9]\d*)(?:#([-a-z]+))?$/;
 const regex_concept_ref = /^#([-a-z]+)$/;
 
+class ConceptMap {
+    constructor() {
+        this.counter = 0;
+        this.idToCon = {};
+        this.conToId = {};
+    }
+    get_id(con) {
+        if (con in this.conToId)
+            return this.conToId[con];
+        const id = ++this.counter;
+        this.conToId[con] = id;
+        this.idToCon[id] = con;
+        return id;
+    }
+    get_concept_map() {
+        return this.idToCon;
+    }
+}
+
 function make_error(reason) {
     return {
         type: AST_TYPES.error,
@@ -32,12 +51,12 @@ function image_handler(node, item) {
     }
 }
 
-function link_handler(node, item) {
+function link_handler(node, item, concept_map) {
     const href = node.destination || '';
     let match;
     if ((match = href.match(regex_tag_def)) != null) {
         item.type = AST_TYPES.conceptdef;
-        item.concept = match[1];
+        item.concept = concept_map.get_id(match[1]);
         if (!item.children)
             item.children = [make_text(match[1])];
     } else if (href.startsWith('=')) {
@@ -46,12 +65,12 @@ function link_handler(node, item) {
         item.type = AST_TYPES.itemref;
         item.item = match[1];
         if (match[2])
-            item.concept = match[2];
+            item.concept = concept_map.get_id(match[2]);
         if (!item.children)
             item.children = [make_text(match[2] || match[1])];
     } else if ((match = href.match(regex_concept_ref)) != null) {
         item.type = AST_TYPES.conceptref;
-        item.concept = match[1];
+        item.concept = concept_map.get_id(match[1]);
         if (!item.children)
             item.children = [make_text(match[1])];
     } else {
@@ -60,11 +79,11 @@ function link_handler(node, item) {
     return item;
 }
 
-function node_visit(node) {
+function node_visit(node, concept_map) {
     let item = {};
     const children = [];
     for (let child = node.firstChild; child; child = child.next) {
-        let child_item = node_visit(child);
+        let child_item = node_visit(child, concept_map);
         if (children.length && child_item.type === AST_TYPES.text
                 && children[children.length-1].type === AST_TYPES.text) {
             children[children.length-1].value += child_item.value;
@@ -112,7 +131,7 @@ function node_visit(node) {
             item = image_handler(node, item);
             break;
         case 'link':
-            item = link_handler(node, item);
+            item = link_handler(node, item, concept_map);
             break;
         case 'item':
             item.type = AST_TYPES.listitem;
@@ -139,5 +158,10 @@ function node_visit(node) {
 }
 
 export default function markup_to_ast(html) {
-    return node_visit(reader.parse(html));
+    const concept_map = new ConceptMap();
+    const ast = node_visit(reader.parse(html), concept_map);
+    return {
+        'document': ast,
+        'concepts': concept_map.get_concept_map()
+    };
 }

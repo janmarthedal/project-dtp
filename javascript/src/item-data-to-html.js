@@ -1,7 +1,7 @@
 import {flattenDeep, map, uniq} from 'lodash';
 import {ITEM_NAMES, AST_TYPES} from './constants';
 
-function item_node_to_html(emit, node, eqns, refs, data) {
+function item_node_to_html(emit, node, eqns, concepts, refs, data) {
     if (node.type === AST_TYPES.text) {
         if (node.value)
             data.has_text = true;
@@ -24,6 +24,7 @@ function item_node_to_html(emit, node, eqns, refs, data) {
 
     let tag, error;
     const attr = {};
+    const concept_name = node.concept ? concepts[node.concept] : undefined;
 
     switch (node.type) {
         case AST_TYPES.blockquote:
@@ -41,11 +42,11 @@ function item_node_to_html(emit, node, eqns, refs, data) {
                 tag = 'a';
                 attr.href = '#';
             } else
-                error = 'concept ' + node.concept + ' defined multiple times';
+                error = 'concept ' + concept_name + ' defined multiple times';
             break;
         case AST_TYPES.conceptref:
             tag = 'a';
-            attr.href = '/concept/' + node.concept;
+            attr.href = '/concept/' + concept_name;
             break;
         case AST_TYPES.doc:
             tag = '';
@@ -60,8 +61,8 @@ function item_node_to_html(emit, node, eqns, refs, data) {
             const ref_info = refs[node.item];
             if (!ref_info) {
                 error = 'illegal item reference ' + node.item;
-            } else if (node.concept && (!ref_info.defines || ref_info.defines.indexOf(node.concept) < 0)) {
-                error = 'item ' + node.item + ' does not define ' + node.concept;
+            } else if (node.concept && (!ref_info.defines || ref_info.defines.indexOf(concept_name) < 0)) {
+                error = 'item ' + node.item + ' does not define ' + concept_name;
             } else {
                 let ref_data = data.refs[node.item];
                 if (!ref_data)
@@ -69,8 +70,8 @@ function item_node_to_html(emit, node, eqns, refs, data) {
                 tag = 'a';
                 attr.href = ref_info.url;
                 if (node.concept) {
-                    attr.href += '#' + node.concept;
-                    ref_data.concepts[node.concept] = attr.href;
+                    attr.href += '#' + concept_name;
+                    ref_data.concepts[concept_name] = attr.href;
                 } else
                     ref_data.url = attr.href;
             }
@@ -101,19 +102,19 @@ function item_node_to_html(emit, node, eqns, refs, data) {
     if (tag)
         emit('<', tag, map(attr, (value, key) => [' ', key, '="', value, '"']), '>');
     if (node.children)
-        node.children.forEach(child => item_node_to_html(emit, child, eqns, refs, data))
+        node.children.forEach(child => item_node_to_html(emit, child, eqns, concepts, refs, data))
     if (tag)
         emit('</', tag, '>');
 }
 
-export default function item_data_to_html(item_type, root, eqns, refs) {
+export default function item_data_to_html(item_type, root, eqns, concepts, refs) {
     const item_type_name = ITEM_NAMES[item_type],
         out_items = [],
         data = {defined: [], errors: [], refs: {}, has_text: false},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };
-    item_node_to_html(emit, root, eqns, refs, data);
+    item_node_to_html(emit, root, eqns, concepts, refs, data);
     data.html = flattenDeep(out_items).join('');
     if (!data.has_text)
         data.errors.push('A ' + item_type_name + ' may not be empty')

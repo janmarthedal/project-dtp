@@ -2,6 +2,8 @@ from concepts.models import Concept
 from mathitems.models import ItemTypes, MathItem
 from project.server_com import render_item
 
+#import logging
+#logger = logging.getLogger(__name__)
 
 def get_node_refs(node, refs):
     if 'item' in node:
@@ -25,6 +27,6 @@ def get_document_refs(document):
             pass
     return info
 
-def get_refs_and_render(item_type, document, eqns):
+def get_refs_and_render(item_type, document, eqns, concepts):
     refs = get_document_refs(document)
-    return render_item(item_type, document, eqns, refs)
+    return render_item(item_type, document, eqns, concepts, refs)

@@ -17,26 +17,28 @@ from validations.models import ItemValidation, Source
 import logging
 logger = logging.getLogger(__name__)
 
-def decode_document(node, eqns):
-    overrides = {}
+def decode_document(node, eqn_set, concept_set):
     if 'concept' in node:
-        overrides['concept'] = Concept.objects.get(id=node['concept']).name
+        concept_set.add(node['concept'])
     if 'eqn' in node:
-        eqns.add(node['eqn'])
+        eqn_set.add(node['eqn'])
     if node.get('children'):
-        overrides['children'] = [decode_document(child, eqns)
-                                 for child in node['children']]
-    return dict(node, **overrides) if overrides else node
+        children = [decode_document(child, eqn_set, concept_set)
+                    for child in node['children']]
+        return dict(node, children=children)
+    return node
 
 def item_render(item):
-    eqns = set()
-    document = decode_document(json.loads(item.body), eqns)
-    eqn_map = {equation.id: {'html': equation.html}
-               for equation in Equation.objects.filter(id__in=eqns)}
-    result = get_refs_and_render(item.item_type, document, eqn_map)
+    eqn_set = set()
+    concept_set = set()
+    document = decode_document(json.loads(item.body), eqn_set, concept_set)
+    eqn_map = {eqn.id: {'html': equation.html}
+               for eqn in Equation.objects.filter(id__in=eqn_set)}
+    concept_map = {concept.id: concept.name
+                   for concept in Concept.objects.filter(id__in=concept_set)}    
+    result = get_refs_and_render(item.item_type, document, eqn_map, concept_map)
     if result['errors']:
-        raise IllegalMathItem('Error in published item {}'.format(self.id))
-    del result['errors']
+        raise IllegalMathItem('Error in published item {}'.format(item.id))
     return result
 
 

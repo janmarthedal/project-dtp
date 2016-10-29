@@ -38,12 +38,14 @@ app.post('/render-eqns', function(req, res) {
 app.post('/render-item', function(req, res) {
     const item_type = req.body.item_type,
         document = req.body.document,
-        eqns = req.body.eqns || {},
-        refs = req.body.refs || {};
+        eqns = req.body.eqns,
+        concepts = req.body.concepts,
+        refs = req.body.refs;
     if (item_type in ITEM_NAMES && document) {
-        item_data_to_html(item_type, document, eqns, refs).then(data => {
-            json_response(res, data);
-        });
+        item_data_to_html(item_type, document, eqns, concepts, refs)
+            .then(data => {
+                json_response(res, data);
+            });
     } else {
         res.status(400).send('Malformed data');
     }

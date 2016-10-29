@@ -13,7 +13,7 @@ def node_request(path, payload):
 
 def convert_markup(body):
     result = node_request('/prepare-item', {'body': body})
-    return result['document'], result['eqns']
+    return result['document'], result['eqns'], result['concepts']
 
 
 def render_eqns(eqns):
@@ -21,13 +21,14 @@ def render_eqns(eqns):
 
 
 """
-IN: item_type, document, eqns, refs
+IN: item_type, document, eqns, concepts, refs
 OUT: {html, errors, defines}
 """
-def render_item(item_type, document, eqns, refs):
+def render_item(item_type, document, eqns, concepts, refs):
     return node_request('/render-item', {
         'item_type': item_type,
         'document': document,
         'eqns': eqns,
+        'concepts': concepts,
         'refs': refs,
     })

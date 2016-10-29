@@ -10,36 +10,42 @@ from main.item_helpers import get_refs_and_render
 from mathitems.models import MathItem
 from project.server_com import convert_markup, render_item, render_eqns
 
-import logging
-logger = logging.getLogger(__name__)
+#import logging
+#logger = logging.getLogger(__name__)
 
 
 def draft_prepare(draft):
     body = draft.body.strip()
-    document, eqns = convert_markup(body)
+    document, eqns, concepts = convert_markup(body)
     rendered_eqns = get_equation_html(eqns)
-    return document, rendered_eqns
+    return document, rendered_eqns, concepts
 
+def save_concepts(concepts):
+    concept_conversions = {}
+    for id, name in concepts.items():
+        concept = Concept.objects.get_or_create(name=name)[0]
+        concept_conversions[int(id)] = concept
+    return concept_conversions
 
-def encode_document(node, eqn_map, defines):
+def encode_document(node, eqn_conv, concept_conv, defines):
     overrides = {}
     if 'concept' in node:
-        concept = Concept.objects.get_or_create(name=node['concept'])[0]
+        concept = concept_conv[node['concept']]
         overrides['concept'] = concept.id
         if node.get('type') == 'concept-def':
             defines[concept.id] = concept
     if 'eqn' in node:
-        overrides['eqn'] = eqn_map[node['eqn']]
+        overrides['eqn'] = eqn_conv[node['eqn']]
     if node.get('children'):
-        overrides['children'] = [encode_document(child, eqn_map, defines)
+        overrides['children'] = [encode_document(child, eqn_conv, concept_conv, defines)
                                  for child in node['children']]
     return dict(node, **overrides) if overrides else node
 
-
-def publish(user, item_type, parent, document, eqns):
+def publish(user, item_type, parent, document, eqns, concepts):
     eqn_conversions = freeze_equations(eqns)
+    concept_conversions = save_concepts(concepts)
     defines = {}
-    document = encode_document(document, eqn_conversions, defines)
+    document = encode_document(document, eqn_conversions, concept_conversions, defines)
     item = MathItem(created_by=user, item_type=item_type, body=json.dumps(document))
     if parent:
         item.parent = parent
@@ -55,8 +61,8 @@ def edit_item(request, item):
     if request.method == 'POST':
         item.body = request.POST['src']
         if request.POST['submit'] == 'preview':
-            document, eqns = draft_prepare(item)
-            item_data = get_refs_and_render(item.item_type, document, eqns)
+            document, eqns, concepts = draft_prepare(item)
+            item_data = get_refs_and_render(item.item_type, document, eqns, concepts)
             context['item_data'] = item_data
         elif request.POST['submit'] == 'save':
             item.save()
@@ -95,19 +101,19 @@ def new_proof(request, thm_id_str):
 @require_http_methods(['HEAD', 'GET', 'POST'])
 def show_draft(request, id_str):
     item = get_object_or_404(DraftItem, id=int(id_str), created_by=request.user)
-    document, eqns = draft_prepare(item)
+    document, eqns, concepts = draft_prepare(item)
     if request.method == 'POST':
         if request.POST['submit'] == 'delete':
             item.delete()
             return redirect('list-drafts')
         elif request.POST['submit'] == 'publish':
-            mathitem = publish(request.user, item.item_type, item.parent, document, eqns)
+            mathitem = publish(request.user, item.item_type, item.parent, document, eqns, concepts)
             item.delete()
             return redirect(mathitem)
     return render(request, 'drafts/show.html', {
         'title': str(item),
         'item': item,
-        'item_data': get_refs_and_render(item.item_type, document, eqns),
+        'item_data': get_refs_and_render(item.item_type, document, eqns, concepts),
     })
 
 
