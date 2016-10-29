@@ -31,6 +31,7 @@ LOCAL_APPS = [
     'mathitems',
     'drafts',
     'validations',
+    'equations',
     'main',
 ]
 

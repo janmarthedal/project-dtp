@@ -11,7 +11,7 @@ def node_request(path, payload):
     return r.json()
 
 
-def prepare_item(body):
+def convert_markup(body):
     result = node_request('/prepare-item', {'body': body})
     return result['document'], result['eqns']
 

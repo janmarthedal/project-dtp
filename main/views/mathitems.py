@@ -1,3 +1,4 @@
+import json
 import re
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -7,11 +8,35 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
+from equations.models import Equation
+from main.item_helpers import get_refs_and_render
 from mathitems.models import Concept, ItemTypes, MathItem
 from validations.models import ItemValidation, Source
 
 import logging
 logger = logging.getLogger(__name__)
+
+def decode_document(node, eqns):
+    overrides = {}
+    if 'concept' in node:
+        overrides['concept'] = Concept.objects.get(id=node['concept']).name
+    if 'eqn' in node:
+        eqns.add(node['eqn'])
+    if node.get('children'):
+        overrides['children'] = [decode_document(child, eqns)
+                                 for child in node['children']]
+    return dict(node, **overrides) if overrides else node
+
+def item_render(item):
+    eqns = set()
+    document = decode_document(json.loads(item.body), eqns)
+    eqn_map = {equation.id: {'html': equation.html}
+               for equation in Equation.objects.filter(id__in=eqns)}
+    result = get_refs_and_render(item.item_type, document, eqn_map)
+    if result['errors']:
+        raise IllegalMathItem('Error in published item {}'.format(self.id))
+    del result['errors']
+    return result
 
 
 @require_safe
@@ -20,7 +45,7 @@ def show_item(request, id_str):
         item = MathItem.objects.get_by_name(id_str)
     except MathItem.DoesNotExist:
         raise Http404('Item does not exist')
-    item_data = item.render()
+    item_data = item_render(item)
     context = {
         'title': str(item),
         'item': item,
@@ -33,7 +58,7 @@ def show_item(request, id_str):
     if item.item_type == ItemTypes.PRF:
         context['subtitle'] = 'of {}'.format(item.parent)
         context['parent_item'] = item.parent
-        context['parent_item_data'] = item.parent.render()
+        context['parent_item_data'] = item_render(item.parent)
     return render(request, 'mathitems/show.html', context)
 
 
@@ -44,7 +69,7 @@ def add_item_validation(request, id_str):
         item = MathItem.objects.get_by_name(id_str)
     except MathItem.DoesNotExist:
         raise Http404('Item does not exist')
-    item_data = item.render()
+    item_data = item_render(item)
     if request.method == 'POST':
         source = Source.objects.get(id=int(request.POST['source']))
         item_validation = ItemValidation.objects.create(created_by=request.user,
@@ -70,7 +95,7 @@ def add_item_validation(request, id_str):
                     source, _ = Source.objects.get_or_create(source_type=type_slug, source_value=value)
                     context['source'] = source
                 except ValidationError as ve:
-                    context['error'] = ve.message
+                    context['error'] = '; '.join(ve.messages)
         else:
             context['error'] = 'Illegal validation type'
     return render(request, 'mathitems/add_item_validation.html', context)
