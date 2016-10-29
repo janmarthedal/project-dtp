@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
-from equations.models import Equation, get_equation_html
+from equations.models import get_equation_html, freeze_equations
 from drafts.models import DraftItem, ItemTypes
 from main.item_helpers import get_refs_and_render
 from mathitems.models import Concept, ConceptDefinition, MathItem
@@ -36,16 +36,7 @@ def encode_document(node, eqn_map, defines):
 
 
 def publish(user, item_type, parent, document, eqns):
-    eqn_conversions = {}
-    for id, data in eqns.items():
-        try:
-            eqn = Equation.objects.get(format=data['format'], math=data['math'])
-            eqn.draft_access_at = None   # mark as permanent
-        except Equation.DoesNotExist:
-            eqn = Equation(format=data['format'], math=data['math'],
-                           html=data['html'])
-        eqn.save()
-        eqn_conversions[int(id)] = eqn.id
+    eqn_conversions = freeze_equations(eqns)
     defines = {}
     document = encode_document(document, eqn_conversions, defines)
     item = MathItem(created_by=user, item_type=item_type, body=json.dumps(document))

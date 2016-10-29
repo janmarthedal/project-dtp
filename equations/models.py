@@ -30,6 +30,21 @@ class Equation(models.Model):
         return {'format': self.format, 'math': self.math, 'html': self.html}
 
 
+def freeze_equations(eqns):
+    conversion_map = {}
+    for id, data in eqns.items():
+        try:
+            eqn = Equation.objects.get(format=data['format'], math=data['math'])
+            if eqn.draft_access_at:
+                eqn.draft_access_at = None
+                eqn.save()
+        except Equation.DoesNotExist:
+            eqn = Equation.objects.create(format=data['format'], math=data['math'],
+                                          html=data['html'], draft_access_at=None)
+        conversion_map[int(id)] = eqn.id
+    return conversion_map
+
+
 def get_equation_html(eqns):
     rendered_eqns = {}
     to_render = {}
