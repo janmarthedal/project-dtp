@@ -3,9 +3,9 @@ from django.conf.urls import url, include
 from main.views import (
     admin as admin_views,
     main as main_views,
-    drafts as drafts_views
+    drafts as drafts_views,
+    mathitems as mathitems_views
 )
-import mathitems.views
 
 accounts_patterns = [
     url(r'^login/$', main_views.login, name='login'),
@@ -25,11 +25,11 @@ drafts_patterns = [
 urlpatterns = [
     url(r'^$', main_views.home, name='home'),
     url('', include('social.apps.django_app.urls', namespace='social')),
-    url(r'^([DTP][1-9]\d*)$', mathitems.views.show_item, name='show-item'),
-    url(r'^([DTP][1-9]\d*)/add-validation$', mathitems.views.add_item_validation, name='add-item-validation'),
-    url(r'^definitions/$', mathitems.views.def_home, name='def-home'),
-    url(r'^theorems/$', mathitems.views.thm_home, name='thm-home'),
-    url(r'^proofs/$', mathitems.views.prf_home, name='prf-home'),
+    url(r'^([DTP][1-9]\d*)$', mathitems_views.show_item, name='show-item'),
+    url(r'^([DTP][1-9]\d*)/add-validation$', mathitems_views.add_item_validation, name='add-item-validation'),
+    url(r'^definitions/$', mathitems_views.def_home, name='def-home'),
+    url(r'^theorems/$', mathitems_views.thm_home, name='thm-home'),
+    url(r'^proofs/$', mathitems_views.prf_home, name='prf-home'),
     url(r'^accounts/', include(accounts_patterns)),
     url(r'^drafts/', include(drafts_patterns)),
     url(r'^datadump$', admin_views.datadump),
