@@ -28,15 +28,13 @@ else:
     }
 
 LOCAL_APPS = [
-    'admin',
-    'drafts',
-    'main',
     'mathitems',
+    'drafts',
     'validations',
+    'main',
 ]
 
 INSTALLED_APPS = [
-    #'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

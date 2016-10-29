@@ -1,14 +1,13 @@
 from django.conf.urls import url, include
 
-import admin.views
+from main.views import admin as admin_views, main as main_views
 import drafts.views
-import main.views
 import mathitems.views
 
 accounts_patterns = [
-    url(r'^login/$', main.views.login, name='login'),
-    url(r'^logout/$', main.views.logout, name='logout'),
-    url(r'^profile/$', main.views.profile, name='profile'),
+    url(r'^login/$', main_views.login, name='login'),
+    url(r'^logout/$', main_views.logout, name='logout'),
+    url(r'^profile/$', main_views.profile, name='profile'),
 ]
 
 drafts_patterns = [
@@ -21,7 +20,7 @@ drafts_patterns = [
 ]
 
 urlpatterns = [
-    url(r'^$', main.views.home, name='home'),
+    url(r'^$', main_views.home, name='home'),
     url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^([DTP][1-9]\d*)$', mathitems.views.show_item, name='show-item'),
     url(r'^([DTP][1-9]\d*)/add-validation$', mathitems.views.add_item_validation, name='add-item-validation'),
@@ -30,5 +29,5 @@ urlpatterns = [
     url(r'^proofs/$', mathitems.views.prf_home, name='prf-home'),
     url(r'^accounts/', include(accounts_patterns)),
     url(r'^drafts/', include(drafts_patterns)),
-    url(r'^datadump$', admin.views.datadump),
+    url(r'^datadump$', admin_views.datadump),
 ]
