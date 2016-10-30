@@ -20,3 +20,12 @@ class ConceptDefinition(models.Model):
     class Meta:
         db_table = 'concept_defs'
         unique_together = ('item', 'concept')
+
+
+class ConceptReference(models.Model):
+    item = models.ForeignKey(MathItem, db_index=True)
+    concept = models.ForeignKey(Concept, db_index=True)
+
+    class Meta:
+        db_table = 'concept_refs'
+        unique_together = ('item', 'concept')
