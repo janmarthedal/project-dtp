@@ -24,6 +24,7 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
 
     let tag, error;
     const attr = {};
+    const class_names = [];
     const concept_name = node.concept ? concepts[node.concept] : undefined;
 
     switch (node.type) {
@@ -40,13 +41,15 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
             if (data.defined.indexOf(node.concept) < 0) {
                 data.defined.push(node.concept);
                 tag = 'a';
-                attr.href = '#';
+                attr.href = '/concepts/' + concept_name;
+                class_names.push('concept-def');
             } else
                 error = 'concept ' + concept_name + ' defined multiple times';
             break;
         case AST_TYPES.conceptref:
             tag = 'a';
-            attr.href = '/concept/' + concept_name;
+            attr.href = '/concepts/' + concept_name;
+            class_names.push('concept-ref');
             break;
         case AST_TYPES.doc:
             tag = '';
@@ -69,6 +72,7 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
                     data.refs[node.item] = ref_data = {concepts: {}};
                 tag = 'a';
                 attr.href = ref_info.url;
+                class_names.push('item-ref');
                 if (node.concept) {
                     attr.href += '#' + concept_name;
                     ref_data.concepts[concept_name] = attr.href;
@@ -99,8 +103,11 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
         data.errors.push(error);
         return emit('<span class="text-danger">', error, '</span>');
     }
-    if (tag)
+    if (tag) {
+        if (class_names.length)
+            attr['class'] = class_names.join(' ');
         emit('<', tag, map(attr, (value, key) => [' ', key, '="', value, '"']), '>');
+    }
     if (node.children)
         node.children.forEach(child => item_node_to_html(emit, child, eqns, concepts, refs, data))
     if (tag)

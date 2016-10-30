@@ -15,3 +15,7 @@ textarea.form-control {
     border-left: 5px solid #ecf0f1;
     padding-left: 15px;
 }
+
+.concept-def {
+    font-style: italic;
+}
