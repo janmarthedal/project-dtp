@@ -32,10 +32,10 @@ def item_render(item):
     eqn_set = set()
     concept_set = set()
     document = decode_document(json.loads(item.body), eqn_set, concept_set)
-    eqn_map = {eqn.id: {'html': equation.html}
+    eqn_map = {eqn.id: {'html': eqn.html}
                for eqn in Equation.objects.filter(id__in=eqn_set)}
     concept_map = {concept.id: concept.name
-                   for concept in Concept.objects.filter(id__in=concept_set)}    
+                   for concept in Concept.objects.filter(id__in=concept_set)}
     result = get_refs_and_render(item.item_type, document, eqn_map, concept_map)
     if result['errors']:
         raise IllegalMathItem('Error in published item {}'.format(item.id))

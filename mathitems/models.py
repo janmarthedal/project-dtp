@@ -78,7 +78,7 @@ def analyze_node(node, eqns, concept_defs, concept_refs, item_refs):
         if item_id in item_refs:
             data = item_refs[item_id]
         else:
-            data = {'whole': False}
+            item_refs[item_id] = data = {'whole': False}
         if 'concept' in node:
             if 'concepts' not in data:
                 data['concepts'] = set()
