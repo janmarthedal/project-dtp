@@ -2,6 +2,7 @@ from django.db import models
 from django.db.utils import IntegrityError
 from django.utils import timezone
 
+from mathitems.models import MathItem
 from project.server_com import render_eqns
 
 
@@ -28,6 +29,15 @@ class Equation(models.Model):
 
     def to_data(self):
         return {'format': self.format, 'math': self.math, 'html': self.html}
+
+
+class ItemEquation(models.Model):
+    item = models.ForeignKey(MathItem, db_index=True)
+    equation = models.ForeignKey(Equation, db_index=True)
+
+    class Meta:
+        db_table = 'item_eqns'
+        unique_together = ('item', 'equation')
 
 
 def freeze_equations(eqns):
