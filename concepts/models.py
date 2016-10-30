@@ -29,3 +29,13 @@ class ConceptReference(models.Model):
     class Meta:
         db_table = 'concept_refs'
         unique_together = ('item', 'concept')
+
+
+class ItemDependency(models.Model):
+    item = models.ForeignKey(MathItem, related_name='+')
+    uses = models.ForeignKey(MathItem, related_name='+')
+    concepts = models.ManyToManyField(Concept)  # only when depends_on.item_type = 'D'
+
+    class Meta:
+        db_table = 'item_deps'
+        unique_together = ('item', 'uses')
