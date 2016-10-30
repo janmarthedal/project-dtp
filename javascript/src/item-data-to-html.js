@@ -4,11 +4,12 @@ import {ITEM_NAMES, AST_TYPES} from './constants';
 function item_node_to_html(emit, node, eqns, concepts, refs, data) {
     if (node.type === AST_TYPES.text) {
         if (node.value)
-            data.has_text = true;
+            data.is_empty = false;
         return emit(node.value);
     }
     if (node.type === AST_TYPES.eqn) {
         const item = eqns[node.eqn];
+        data.is_empty = false;
         if (!item)
             throw new Error('corrupt eqn reference');
         if (item.html)
@@ -117,12 +118,12 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
 export default function item_data_to_html(item_type, root, eqns, concepts, refs) {
     const item_type_name = ITEM_NAMES[item_type],
         out_items = [],
-        data = {defined: [], errors: [], refs: {}, has_text: false},
+        data = {defined: [], errors: [], refs: {}, is_empty: true},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };
     item_node_to_html(emit, root, eqns, concepts, refs, data);
-    if (!data.has_text)
+    if (data.is_empty)
         data.errors.push('A ' + item_type_name + ' may not be empty')
     if (item_type === 'D' && !data.defined.length)
         data.errors.push('A ' + item_type_name + ' must define at least one concept')
