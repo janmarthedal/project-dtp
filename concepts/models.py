@@ -19,3 +19,4 @@ class ConceptDefinition(models.Model):
 
     class Meta:
         db_table = 'concept_defs'
+        unique_together = ('item', 'concept')
