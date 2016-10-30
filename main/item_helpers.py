@@ -29,4 +29,6 @@ def get_document_refs(document):
 
 def get_refs_and_render(item_type, document, eqns, concepts):
     refs = get_document_refs(document)
-    return render_item(item_type, document, eqns, concepts, refs)
+    item_data = render_item(item_type, document, eqns, concepts, refs)
+    item_data['defined'] = [concepts[id] for id in item_data['defined']]
+    return item_data
