@@ -122,7 +122,6 @@ export default function item_data_to_html(item_type, root, eqns, concepts, refs)
             Array.prototype.push.apply(out_items, items);
         };
     item_node_to_html(emit, root, eqns, concepts, refs, data);
-    data.html = flattenDeep(out_items).join('');
     if (!data.has_text)
         data.errors.push('A ' + item_type_name + ' may not be empty')
     if (item_type === 'D' && !data.defined.length)
@@ -130,5 +129,7 @@ export default function item_data_to_html(item_type, root, eqns, concepts, refs)
     if (item_type !== 'D' && data.defined.length)
         data.errors.push('A ' + item_type_name + ' may not define concepts')
     data.errors = uniq(data.errors);
+    data.html = flattenDeep(out_items).join('');
+    data.defined = map(data.defined, concept_id => concepts[concept_id]);
     return Promise.resolve(data);
 }
