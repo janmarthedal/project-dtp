@@ -24,35 +24,46 @@ def save_concepts(concepts):
     concept_conversions = {}
     for id, name in concepts.items():
         concept = Concept.objects.get_or_create(name=name)[0]
-        concept_conversions[int(id)] = concept
+        concept_conversions[int(id)] = concept.id
     return concept_conversions
 
-def encode_document(node, eqn_conv, concept_conv, defines):
+def convert_document(node, eqn_conv, concept_conv):
     overrides = {}
     if 'concept' in node:
-        concept = concept_conv[node['concept']]
-        overrides['concept'] = concept.id
-        if node.get('type') == 'concept-def':
-            defines[concept.id] = concept
+        overrides['concept'] = concept_conv[node['concept']]
     if 'eqn' in node:
         overrides['eqn'] = eqn_conv[node['eqn']]
     if node.get('children'):
-        overrides['children'] = [encode_document(child, eqn_conv, concept_conv, defines)
+        overrides['children'] = [convert_document(child, eqn_conv, concept_conv)
                                  for child in node['children']]
-    return dict(node, **overrides) if overrides else node
+    if overrides:
+        return dict(node, **overrides)
+    return node
+
+def create_item_meta_data(item):
+    eqns, concept_defs, concept_refs, item_refs = item.analyze()
+
+    # We don't really need to look up the concepts since we only
+    # need the ids. However, it is nice to do the check.
+    concept_set = concept_defs | concept_refs
+    for data in item_refs.values():
+        concept_set |= data.get('concepts', set())
+    concept_map = {id: Concept.objects.get(id=id) for id in concept_set}
+
+    if item.item_type == ItemTypes.DEF:
+        ConceptDefinition.objects.bulk_create(
+            ConceptDefinition(item=item, concept=concept_map[id])
+            for id in concept_defs)
 
 def publish(user, item_type, parent, document, eqns, concepts):
     eqn_conversions = freeze_equations(eqns)
     concept_conversions = save_concepts(concepts)
-    defines = {}
-    document = encode_document(document, eqn_conversions, concept_conversions, defines)
+    document = convert_document(document, eqn_conversions, concept_conversions)
     item = MathItem(created_by=user, item_type=item_type, body=json.dumps(document))
     if parent:
         item.parent = parent
     item.save()
-    if item_type == ItemTypes.DEF:
-        ConceptDefinition.objects.bulk_create(
-            ConceptDefinition(item=item, concept=concept) for concept in defines.values())
+    create_item_meta_data(item)
     return item
 
 

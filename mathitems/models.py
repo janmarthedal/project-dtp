@@ -1,3 +1,4 @@
+import json
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -53,9 +54,39 @@ class MathItem(models.Model):
     def is_def(self):
         return self.item_type == ItemTypes.DEF
 
+    def analyze(self):
+        eqns = set()
+        concept_defs = set()
+        concept_refs = set()
+        item_refs = {}
+        root = json.loads(self.body)
+        analyze_node(root, eqns, concept_defs, concept_refs, item_refs)
+        return eqns, concept_defs, concept_refs, item_refs
+
     #def to_source(self):
     #    return node_to_source_text(json.loads(self.body))
 
+def analyze_node(node, eqns, concept_defs, concept_refs, item_refs):
+    if node['type'] == 'eqn':
+        eqns.add(node['eqn'])
+    elif node['type'] == 'concept-def':
+        concept_defs.add(node['concept'])
+    elif node['type'] == 'concept-ref':
+        concept_refs.add(node['concept'])
+    elif node['type'] == 'item-ref':
+        item_id = node['item']
+        if item_id in item_refs:
+            data = item_refs[item_id]
+        else:
+            data = {'whole': False}
+        if 'concept' in node:
+            if 'concepts' not in data:
+                data['concepts'] = set()
+            data['concepts'].add(node['concept'])
+        else:
+            data['whole'] = True
+    for child in node.get('children', []):
+        analyze_node(child, eqns, concept_defs, concept_refs, item_refs)
 
 """def node_to_source_text(node):
     if node['type'] == 'text':
