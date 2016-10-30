@@ -14,7 +14,7 @@ class Equation(models.Model):
 
     class Meta:
         db_table = 'equations'
-        unique_together = ('format', 'math')
+        #unique_together = ('format', 'math')   # not possible for mysql
 
     def __str__(self):
         math = self.math

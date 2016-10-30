@@ -26,8 +26,4 @@ class Migration(migrations.Migration):
                 'db_table': 'equations',
             },
         ),
-        migrations.AlterUniqueTogether(
-            name='equation',
-            unique_together=set([('format', 'math')]),
-        ),
     ]
