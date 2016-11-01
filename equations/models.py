@@ -60,21 +60,28 @@ def get_equation_html(eqns):
     to_render = {}
 
     for key, data in eqns.items():
-        try:
-            eqn = Equation.objects.get(format=data['format'], math=data['math'])
-            if eqn.draft_access_at:  # cached draft equation?
-                eqn.draft_access_at = timezone.now()
-                eqn.save()
-            rendered_eqns[key] = eqn.to_data()
-        except Equation.DoesNotExist:
-            to_render[key] = data
+        if data.get('error'):
+            rendered_eqns[key] = data
+        else:
+            try:
+                eqn = Equation.objects.get(format=data['format'], math=data['math'])
+                if eqn.draft_access_at:
+                    eqn.draft_access_at = timezone.now()
+                    eqn.save()
+                rendered_eqns[key] = eqn.to_data()
+            except Equation.DoesNotExist:
+                to_render[key] = data
 
-    new_rendered_eqns = render_eqns(to_render)
-    for key, data in new_rendered_eqns.items():
-        try:
-            eqn = Equation.objects.create(format=data['format'], math=data['math'], html=data['html'])
-        except IntegrityError:
-            eqn = Equation.objects.get(format=data['format'], math=data['math'])
-        rendered_eqns[key] = eqn.to_data()
+    if to_render:
+        new_rendered_eqns = render_eqns(to_render)
+        for key, data in new_rendered_eqns.items():
+            if data.get('error'):
+                rendered_eqns[key] = data
+            else:
+                try:
+                    eqn = Equation.objects.create(format=data['format'], math=data['math'], html=data['html'])
+                except IntegrityError:
+                    eqn = Equation.objects.get(format=data['format'], math=data['math'])
+                rendered_eqns[key] = eqn.to_data()
 
     return rendered_eqns
