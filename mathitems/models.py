@@ -121,7 +121,7 @@ def node_to_markup(node, concept_map, eqn_map):
         return '**{}**'.format(''.join(children))
 
     if node['type'] == 'concept-ref':
-        return '[{}]({})'.format(''.join(children), concept_map[node['concept']])
+        return '[{}](#{})'.format(''.join(children), concept_map[node['concept']])
     if node['type'] == 'concept-def':
         return '[{}](={})'.format(''.join(children), concept_map[node['concept']])
     if node['type'] == 'item-ref':
