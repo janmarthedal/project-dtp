@@ -54,17 +54,18 @@ class MathItem(models.Model):
     def is_def(self):
         return self.item_type == ItemTypes.DEF
 
+    def get_body_root(self):
+        return json.loads(self.body)
+
     def analyze(self):
         eqns = set()
         concept_defs = set()
         concept_refs = set()
         item_refs = {}
-        root = json.loads(self.body)
+        root = self.get_body_root()
         analyze_node(root, eqns, concept_defs, concept_refs, item_refs)
         return eqns, concept_defs, concept_refs, item_refs
 
-    #def to_source(self):
-    #    return node_to_source_text(json.loads(self.body))
 
 def analyze_node(node, eqns, concept_defs, concept_refs, item_refs):
     if node['type'] == 'eqn':
@@ -88,24 +89,44 @@ def analyze_node(node, eqns, concept_defs, concept_refs, item_refs):
     for child in node.get('children', []):
         analyze_node(child, eqns, concept_defs, concept_refs, item_refs)
 
-"""def node_to_source_text(node):
+#    list: 'list',
+#    listitem: 'list-item',
+
+def node_to_markup(node, concept_map, eqn_map):
+    if node['type'] == 'break':
+        return '{}\n'.format('  ' if node.get('hard') else '')
+    if node['type'] == 'code':
+        return '`{}`'.format(node['value'])
+    if node['type'] == 'codeblock':
+        return '```{}\n{}\n```\n'.format(node.get('info', ''), node['value'])
+    if node['type'] == 'eqn':
+        return eqn_map[node['eqn']]
+    if node['type'] == 'ruler':
+        return '---\n'
     if node['type'] == 'text':
         return node['value']
-    if node['type'] == 'eqn':
-        return Equation.objects.get(id=node['eqn']).to_source()
-    children = [node_to_source_text(child) for child in node.get('children', [])]
-    if node['type'] == 'body':
+
+    children = [node_to_markup(child, concept_map, eqn_map) for child in node.get('children', [])]
+    if node['type'] == 'blockquote':
+        inner = '> ' + '\n> '.join('\n\n'.join(children).split('\n'))
+    if node['type'] == 'document':
         return '\n\n'.join(children)
+    if node['type'] == 'emph':
+        return '*{}*'.format(''.join(children))
+    if node['type'] == 'header':
+        return '{} {}'.format('#' * node['level'], ''.join(children))
     if node['type'] == 'para':
         return ''.join(children)
-    concept = Concept.objects.get(id=node['concept']).name if 'concept' in node else None
+    if node['type'] == 'strong':
+        return '**{}**'.format(''.join(children))
+
     if node['type'] == 'concept-ref':
-        return '[{}]({})'.format(''.join(children), concept)
+        return '[{}]({})'.format(''.join(children), concept_map[node['concept']])
     if node['type'] == 'concept-def':
-        return '[{}](={})'.format(''.join(children), concept)
+        return '[{}](={})'.format(''.join(children), concept_map[node['concept']])
     if node['type'] == 'item-ref':
         ref = node['item']
-        if concept:
-            ref = '{}#{}'.format(ref, concept)
+        if node.get('concept'):
+            ref = '{}#{}'.format(ref, concept_map[node['concept']])
         return '[{}]({})'.format(''.join(children), ref)
-"""
+    raise Exception('Unsupported AST node')

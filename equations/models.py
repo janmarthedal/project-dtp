@@ -22,7 +22,7 @@ class Equation(models.Model):
             math = math[:37] + '...'
         return '{} ({})'.format(math, self.format)
 
-    def to_source(self):
+    def to_markup(self):
         if self.format == 'TeX':
             return '$${}$$'.format(self.math)
         return '${}$'.format(self.math)
