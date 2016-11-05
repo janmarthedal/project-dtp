@@ -20,6 +20,7 @@ drafts_patterns = [
     url(r'^new/proof/(T[1-9]\d*)$', drafts_views.new_proof, name='new-prf'),
     url(r'^(\d+)$', drafts_views.show_draft, name='show-draft'),
     url(r'^(\d+)/edit$', drafts_views.edit_draft, name='edit-draft'),
+    url(r'^clone/([DTP][1-9]\d*)$', drafts_views.copy_to_draft, name='copy-to-draft'),
 ]
 
 urlpatterns = [

@@ -1,13 +1,14 @@
 import json
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
 from concepts.models import Concept
 from drafts.models import DraftItem, ItemTypes
-from equations.models import (
-    ItemEquation, get_equation_html, freeze_equations)
-from main.item_helpers import get_refs_and_render, create_item_meta_data
+from equations.models import ItemEquation, get_equation_html, freeze_equations
+from main.item_helpers import get_refs_and_render, create_item_meta_data, item_to_markup
 from mathitems.models import ItemTypes, MathItem
 from project.server_com import convert_markup, render_item, render_eqns
 
@@ -129,3 +130,17 @@ def list_drafts(request):
         'title': 'My Drafts',
         'items': DraftItem.objects.filter(created_by=request.user).order_by('-updated_at'),
     })
+
+
+@login_required
+def copy_to_draft(request, id_str):
+    try:
+        item = MathItem.objects.get_by_name(id_str)
+    except MathItem.DoesNotExist:
+        return HttpResponseBadRequest()
+    markup = item_to_markup(item)
+    draft = DraftItem(created_by=request.user, item_type=item.item_type, body=markup)
+    if item.parent:
+        draft.parent = item.parent
+    draft.save()
+    return HttpResponseRedirect(reverse('show-draft', args=[draft.id]))

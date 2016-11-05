@@ -98,7 +98,7 @@ def node_to_markup(node, concept_map, eqn_map):
     if node['type'] == 'code':
         return '`{}`'.format(node['value'])
     if node['type'] == 'codeblock':
-        return '```{}\n{}\n```\n'.format(node.get('info', ''), node['value'])
+        return '```{}\n{}```\n'.format(node.get('info', ''), node['value'])
     if node['type'] == 'eqn':
         return eqn_map[node['eqn']]
     if node['type'] == 'ruler':
@@ -113,7 +113,7 @@ def node_to_markup(node, concept_map, eqn_map):
         return '\n\n'.join(children)
     if node['type'] == 'emph':
         return '*{}*'.format(''.join(children))
-    if node['type'] == 'header':
+    if node['type'] == 'heading':
         return '{} {}'.format('#' * node['level'], ''.join(children))
     if node['type'] == 'para':
         return ''.join(children)
@@ -129,4 +129,4 @@ def node_to_markup(node, concept_map, eqn_map):
         if node.get('concept'):
             ref = '{}#{}'.format(ref, concept_map[node['concept']])
         return '[{}]({})'.format(''.join(children), ref)
-    raise Exception('Unsupported AST node')
+    raise Exception('Unsupported AST node {}'.format(node['type']))

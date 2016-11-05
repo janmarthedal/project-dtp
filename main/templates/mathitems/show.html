@@ -41,4 +41,7 @@
 <p>
   <a href="{% url 'add-item-validation' item.get_name %}" class="btn btn-default">Add Validation</a>
 </p>
+<p>
+  <a href="{% url 'copy-to-draft' item.get_name %}" class="btn btn-default">Copy to Draft</a>
+</p>
 {% endblock %}
