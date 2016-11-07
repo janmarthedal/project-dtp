@@ -2,9 +2,10 @@ from django.conf.urls import url, include
 
 from main.views import (
     admin as admin_views,
-    main as main_views,
     drafts as drafts_views,
-    mathitems as mathitems_views
+    main as main_views,
+    mathitems as mathitems_views,
+    sources as sources_views,
 )
 
 accounts_patterns = [
@@ -35,4 +36,5 @@ urlpatterns = [
     url(r'^accounts/', include(accounts_patterns)),
     url(r'^drafts/', include(drafts_patterns)),
     url(r'^datadump$', admin_views.datadump),
+    url(r'^sources/$', sources_views.sources_list),
 ]

@@ -1,0 +1,9 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<ul>{% for source in sources %}
+<li>
+  {% include 'validations/include/source.html' with source=source only %}
+</li>{% endfor %}
+</ul>
+{% endblock %}
