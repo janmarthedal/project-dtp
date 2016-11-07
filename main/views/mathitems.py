@@ -147,5 +147,6 @@ def dump_item(request, id_str):
     markup = item_to_markup(item)
     return render(request, 'mathitems/dump.txt', {
         'item': item,
-        'markup': markup
+        'markup': markup,
+        'validations': item.itemvalidation_set.all()
     }, content_type="text/plain")
