@@ -89,8 +89,6 @@ def analyze_node(node, eqns, concept_defs, concept_refs, item_refs):
     for child in node.get('children', []):
         analyze_node(child, eqns, concept_defs, concept_refs, item_refs)
 
-#    list: 'list',
-#    listitem: 'list-item',
 
 def node_to_markup(node, concept_map, eqn_map):
     if node['type'] == 'break':
@@ -101,6 +99,25 @@ def node_to_markup(node, concept_map, eqn_map):
         return '```{}\n{}```\n'.format(node.get('info', ''), node['value'])
     if node['type'] == 'eqn':
         return eqn_map[node['eqn']]
+    if node['type'] == 'list':
+        items = []
+        for child in node.get('children', []):
+            if child['type'] != 'list-item':
+                raise Exception('Expected list-item')
+            children = [node_to_markup(child2, concept_map, eqn_map) for child2 in child.get('children', [])]
+            items.append('\n\n'.join(children).split('\n'))
+        item_strings = []
+        if node.get('ordered'):
+            counter = node.get('listStart', 1)
+            delim = node.get('listDelimiter')
+            for lines in items:
+                prefix = '{}{} '.format(counter, delim)
+                joiner = '\n' + (' ' * len(prefix))
+                item_strings.append(prefix + joiner.join(lines))
+                counter += 1
+        else:
+            item_strings = ('* {}'.format('\n  '.join(p)) for p in items)
+        return '\n'.join(item_strings)
     if node['type'] == 'ruler':
         return '---\n'
     if node['type'] == 'text':
@@ -119,7 +136,6 @@ def node_to_markup(node, concept_map, eqn_map):
         return ''.join(children)
     if node['type'] == 'strong':
         return '**{}**'.format(''.join(children))
-
     if node['type'] == 'concept-ref':
         return '[{}](#{})'.format(''.join(children), concept_map[node['concept']])
     if node['type'] == 'concept-def':

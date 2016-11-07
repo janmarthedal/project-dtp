@@ -83,6 +83,8 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
             break;
         case AST_TYPES.list:
             tag = node.ordered ? 'ol' : 'ul';
+            if (typeof node.listStart === 'number' && node.listStart !== 1)
+                attr.start = node.listStart;
             break;
         case AST_TYPES.listitem:
             tag = 'li';
