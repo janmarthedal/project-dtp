@@ -1,5 +1,6 @@
 import json
 import re
+from datetime import timezone
 from django import forms
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -10,7 +11,7 @@ from django.views.decorators.http import require_safe, require_http_methods
 
 from concepts.models import Concept
 from equations.models import Equation
-from main.item_helpers import get_refs_and_render
+from main.item_helpers import get_refs_and_render, item_to_markup
 from mathitems.models import ItemTypes, MathItem
 from validations.models import ItemValidation, Source
 
@@ -135,3 +136,16 @@ def thm_home(request):
 @require_safe
 def prf_home(request):
     return item_home(request, ItemTypes.PRF)
+
+
+@require_safe
+def dump_item(request, id_str):
+    try:
+        item = MathItem.objects.get_by_name(id_str)
+    except MathItem.DoesNotExist:
+        raise Http404('Item does not exist')
+    markup = item_to_markup(item)
+    return render(request, 'mathitems/dump.txt', {
+        'item': item,
+        'markup': markup
+    }, content_type="text/plain")

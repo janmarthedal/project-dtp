@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^$', main_views.home, name='home'),
     url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^([DTP][1-9]\d*)$', mathitems_views.show_item, name='show-item'),
+    url(r'^([DTP][1-9]\d*)/dump$', mathitems_views.dump_item, name='dump-item'),
     url(r'^([DTP][1-9]\d*)/add-validation$', mathitems_views.add_item_validation, name='add-item-validation'),
     url(r'^definitions/$', mathitems_views.def_home, name='def-home'),
     url(r'^theorems/$', mathitems_views.thm_home, name='thm-home'),
