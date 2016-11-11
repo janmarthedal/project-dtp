@@ -1,15 +1,10 @@
-{% extends 'main/base.html' %}
+{% extends 'main/page.html' %}
 
-{% block content %}
-
+{% block pagecontent %}
 <h2>Latest Items</h2>
-
-<div class="row">
-  <div class="col-md-8">
 {% include 'mathitems/include/item-list.html' with items=items only %}
-  </div>
-  <div class="col-md-4">
-  </div>
-</div>
+{% endblock %}
 
+{% block sidecontent %}
+<p><a href="{% url 'sources-list' %}">List of all sources</a></p>
 {% endblock %}
