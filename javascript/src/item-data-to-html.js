@@ -42,14 +42,14 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
             if (data.defined.indexOf(node.concept) < 0) {
                 data.defined.push(node.concept);
                 tag = 'a';
-                attr.href = '/concepts/' + concept_name;
+                attr.href = '/concept/' + concept_name;
                 class_names.push('concept-def');
             } else
                 error = 'concept ' + concept_name + ' defined multiple times';
             break;
         case AST_TYPES.conceptref:
             tag = 'a';
-            attr.href = '/concepts/' + concept_name;
+            attr.href = '/concept/' + concept_name;
             class_names.push('concept-ref');
             break;
         case AST_TYPES.doc:

@@ -5,6 +5,7 @@ from django.views.decorators.http import require_safe
 
 from concepts.models import Concept
 from drafts.models import DraftItem
+from main.views.helpers import prepare_item_view_list
 from mathitems.models import MathItem
 
 #import logging
@@ -12,13 +13,9 @@ from mathitems.models import MathItem
 
 @require_safe
 def home(request):
-    items = [{
-        'item': item,
-        'defines': list(Concept.objects.filter(conceptdefinition__item=item)
-                            .order_by('name')
-                            .values_list('name', flat=True))
-    } for item in MathItem.objects.order_by('-created_at')[:10]]
-    return render(request, 'main/home.html', {'items': items})
+    return render(request, 'main/home.html', {
+        'items': prepare_item_view_list(MathItem.objects.order_by('-created_at')[:10])
+    })
 
 @require_safe
 def login(request):

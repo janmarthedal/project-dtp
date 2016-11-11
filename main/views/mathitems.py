@@ -12,6 +12,7 @@ from django.views.decorators.http import require_safe, require_http_methods
 from concepts.models import Concept
 from equations.models import Equation
 from main.item_helpers import get_refs_and_render, item_to_markup
+from main.views.helpers import prepare_item_view_list
 from mathitems.models import ItemTypes, MathItem
 from validations.models import ItemValidation, Source
 
@@ -108,15 +109,9 @@ def add_item_validation(request, id_str):
 # Helper
 def item_home(request, item_type, new_draft_url=None):
     name = ItemTypes.NAMES[item_type]
-    items = [{
-        'item': item,
-        'defines': list(Concept.objects.filter(conceptdefinition__item=item)
-                            .order_by('name')
-                            .values_list('name', flat=True))
-    } for item in MathItem.objects.filter(item_type=item_type).order_by('-created_at')]
     context = {
         'title': name,
-        'items': items,
+        'items': prepare_item_view_list(MathItem.objects.filter(item_type=item_type).order_by('-created_at')),
     }
     if new_draft_url:
         context.update(new_name='New ' + name, new_url=new_draft_url)
