@@ -1,5 +1,7 @@
 {% extends 'main/page.html' %}
 
+{% block title %}MathItem{% endblock %}
+
 {% block pagecontent %}
 <h2>Latest Items</h2>
 {% include 'mathitems/include/item-list.html' with items=items only %}
