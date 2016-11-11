@@ -1,9 +1,0 @@
-/env/
-node_modules
-__pycache__
-db.sqlite3
-debug.log
-.DS_Store
-secrets.py
-dst/
-db_data

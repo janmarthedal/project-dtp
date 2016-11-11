@@ -1,9 +1,0 @@
-{% if source.metadata %}
-{% with data=source.metadata_object %}
-{% if data.title %}<em>{{ data.title }}</em>{% endif %}
-{% if data.authors %}by {{ data.authors|join:' and ' }}{% endif %}{% if data.publisher %}, {{ data.publisher }}{% endif %}{% if data.publishedDate %}, {{ data.publishedDate }}{% endif %}
-({{ source }})
-{% endwith %}
-{% else %}
-{{ source }}
-{% endif %}
