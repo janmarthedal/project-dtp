@@ -1,0 +1,543 @@
+===
+title: D1
+type: D
+created: 2016-10-30T19:25:57Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780201896831
+    location: Equation 1, page 75
+---
+The $n$th [harmonic number](=harmonic-number) is defined as
+
+$$H_n=1+\frac{1}{2}+\frac{1}{3}+\cdots+\frac{1}{n}=\sum_{k=1}^n\frac{1}{k}\;,\quad n\geq0.$$
+===
+title: T2
+type: T
+created: 2016-10-30T19:27:46Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780201896831
+    location: Equation 2, page 75
+---
+Let $H_n$ be the [harmonic numbers](D1#harmonic-number). Then
+
+$$H_{2^m}\geq1+\frac{m}{2}$$
+
+for all [integer](#integer) $m\geq0$.
+===
+title: T3
+type: T
+created: 2016-10-31T05:57:12Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780201896831
+    location: Equation 8, page 76
+---
+Let $H_n$ be the [harmonic numbers](D1#harmonic-number). Then
+
+$$\sum_{k=1}^nH_k=(n+1)H_n-n$$
+
+for $n\geq0$.
+===
+title: T4
+type: T
+created: 2016-10-31T05:58:39Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780883857212
+    location: Page 116
+---
+Let $H_n$ be the [harmonic numbers](D1#harmonic-number). Then
+
+$$\sum_{k=1}^{n-1}H_k=nH_n-n$$
+
+for $n\geq1$.
+===
+title: P5
+type: P
+parent: T4
+created: 2016-10-31T07:06:43Z
+creator: /user/1
+---
+$$\begin{aligned}
+\sum_{k=1}^{n-1}H_k&=\sum_{k=1}^nH_k-H_n\\
+&=(n+1)H_n-n-H_n\\
+&=nH_n-n
+\end{aligned}$$
+
+where the second equality sign uses [T3](T3).
+===
+title: P6
+type: P
+parent: T3
+created: 2016-10-31T07:09:34Z
+creator: /user/1
+---
+$$\begin{aligned}
+\sum_{k=1}^nH_k&=\sum_{k=1}^{n-1}H_k+H_n\\
+&=nH_n-n+H_n\\
+&=(n+1)H_n-n
+\end{aligned}$$
+
+where the second equality sign uses [T4](T4).
+===
+title: T7
+type: T
+created: 2016-10-31T08:29:21Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780883857212
+    location: Page 114
+---
+$$\sum_{k=1}^n\frac{1}{\sqrt{k}}>\sqrt{n}\;,\quad n\geq2.$$
+===
+title: T8
+type: T
+created: 2016-10-31T09:06:24Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780883857212
+    location: Page 115
+---
+$$\begin{aligned}
+\frac{1}{3}&=\frac{1+3}{5+7}\\
+&=\frac{1+3+5}{7+9+11}\\
+&=\cdots\\
+&=\frac{1+3+\cdots+(2n-1)}{(2n+1)+(2n+3)+\cdots+(2n+2n-1)}
+\end{aligned}$$
+
+for [integer](#integer) $n\geq1$.
+===
+title: D9
+type: D
+created: 2016-10-31T10:28:11Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780201896831
+    location: Equation 2, page 79
+---
+The [Fibonacci Numbers](=fibonacci-number) $F_n$, $n\geq0$, are defined as
+
+$$\begin{aligned}
+F_0&=0\;;\\
+F_1&=1\;;\\
+F_{n+2}&=F_{n+1}+F_n\;,\quad n\geq0.
+\end{aligned}$$
+===
+title: T10
+type: T
+created: 2016-10-31T11:06:02Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780201896831
+    location: Equation 4, page 81
+  - type: isbn13
+    value: 9780883853184
+    location: Page 107
+---
+Let $F_n$ be the [Fibonacci numbers](D9#fibonacci-number). Then
+
+$$F_{n+1}F_{n-1}-F_n^2=(-1)^n\;,\quad n\geq1.$$
+===
+title: T11
+type: T
+created: 2016-10-31T11:43:48Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780201896831
+    location: Equation 5, page 81
+  - type: isbn13
+    value: 9780883853184
+    location: Page 106
+---
+Let $F_n$ be the [Fibonacci numbers](D9#fibonacci-number). Then
+
+$$\begin{pmatrix}
+F_{n+1}&F_n\\
+F_n&F_{n-1}
+\end{pmatrix}=
+\begin{pmatrix}
+1&1\\
+1&0
+\end{pmatrix}^n\;,\quad n\geq1.$$
+===
+title: T12
+type: T
+created: 2016-10-31T11:58:52Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780201896831
+    location: Equation 6, page 81
+  - type: isbn13
+    value: 9780883853184
+    location: Page 107
+---
+Let $F_n$ be the [Fibonacci numbers](D9#fibonacci-number). Then
+
+$$F_{n+m}=F_mF_{n+1}+F_{m-1}F_n\;,\quad m\geq1,n\geq0.$$
+===
+title: D13
+type: D
+created: 2016-10-31T12:00:46Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780883857212
+    location: Page 95
+---
+The [triangular numbers](=triangular-number) $T_n$, $n\geq0$, are defined as
+
+$$T_n=1+2+\cdots+n=\sum_{k=1}^nk\;.$$
+===
+title: D14
+type: D
+created: 2016-10-31T13:17:57Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 2.1, page 24
+---
+Consider two [sets](#set) $A$ and $B$, whose [elements](#set-element) may be any objects whatsoever, and suppose that with each element $x$ of $A$ there is associated, in some manner, an element of $B$, which we denote by [$f(x)$](=notation-f-of-x). Then $f$ is said to be a [function](=function) from $A$ to $B$ (or a [mapping](=mapping) of $A$ into $B$).
+===
+title: D15
+type: D
+created: 2016-10-31T13:22:49Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 2.1, page 24
+---
+Let $f$ be a [function](D14#function) from $A$ to $B$. The [set](#set) $A$ is then called the [domain](=function-domain) of $f$ (we also say $f$ is [defined on](=function-defined-on) $A$).
+===
+title: D16
+type: D
+created: 2016-10-31T13:25:59Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 2.1, page 24
+---
+Let $f$ be a [function](D14#function) from $A$ to $B$.
+
+The [elements](#set-element) [$f(x)$](#notation-f-of-x) are called the [values](=function-values) of $f$. The [set](#set) of all values of $f$ is called the [range](=function-range) of $f$.
+===
+title: D17
+type: D
+created: 2016-10-31T13:34:19Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 2.2, page 24
+---
+Let $A$ and $B$ be two [sets](#set) and let $f$ be a [mapping](D14#mapping) of $A$ into $B$.
+
+If $E\subset A$, [$f(E)$](=notation-f-of-set) is defined to be the set of all [elements](#set-element) $f(x)$, for $x\in E$. We call $f(E)$ the [image](=function-image-of-set) of $E$ under $f$.
+
+If $f(A)=B$, we say that $f$ maps $A$ [onto](=map-onto) $B$.
+===
+title: D18
+type: D
+created: 2016-10-31T13:38:53Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 2.2, page 25
+---
+Let $A$ and $B$ be two [sets](#set) and let $f$ be a [mapping](D14#mapping) of $A$ into $B$.
+
+$f$ is a [1-1 mapping](=one-to-one-mapping) of $A$ into $B$ provided that $f(x_1)\neq f(x_2)$ whenever $x_1\neq x_2$, $x_1\in A$, $x_2\in A$.
+===
+title: D19
+type: D
+created: 2016-10-31T13:46:55Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 2.7, page 26
+---
+By a [sequence](=sequence), we mean a [function](D14#function) $f$ defined on the [set](#set) $J$ of all [positive integers](#positive-integer).
+
+If $f(n)=x_n$, for $n\in J$, it is customary to denote the sequence $f$ by the symbol [$\{x_n\}$](=notation-sequence-curly-braces-x-n), or sometimes by $x_1,x_2,x_3,\ldots$.
+
+The [values](D16#function-values) of $f$, that is, the elements $x_n$, are called the [terms](=sequence-term) of the sequence.
+
+If $A$ is a set and if $x_n\in A$ for all $n\in J$, then $\{x_n\}$ is said to be a [sequence in $A$](=sequence-in-set), or a [sequence of elements of $A$](=sequence-of-elements-of-set).
+===
+title: D20
+type: D
+created: 2016-11-02T05:35:13Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 2.15, page 30
+---
+A [set](#set) $X$, whose [elements](#set-element) we shall call [points](=metric-space-point), is said to be a [metric space](=metric-space) if with any two points $p$ and $q$ of $X$ there is associated a [real number](#real-number) $d(p,q)$, called the [distance](=metric-space-distance) from $p$ to $q$, such that
+
+1. $d(p,q)>0$ if $p\neq0$; $d(p,p)=0$;
+2. $d(p,q)=d(q,p)$;
+3. $d(p,q)\leq d(p,r)+d(r,q)$, for any $r\in X$.
+
+Any [function](#function) with these three properties is called a [distance function](=distance-function), or a [metric](=metric).
+===
+title: D21
+type: D
+created: 2016-11-02T12:25:16Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 3.1, page 47
+---
+A [sequence](D19#sequence) $\{p_n\}$ in a [metric space](D20#metric-space) $X$ is said to [converge](=sequence-converges) if there is a [point](D20#metric-space-point) $p\in X$ with the following property: For every $\varepsilon>0$ there is an [integer](#integer) $N$ such that $n\geq N$ implies that $d(p_n,p)<\varepsilon$. (Here $d$ denotes the [distance](D20#metric-space-distance) in $X$.)
+
+In this case we also say that $\{p_n\}$ [converges to](=sequence-converges-to) $p$.
+===
+title: T22
+type: T
+created: 2016-11-02T12:36:30Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Theorem 3.2(b), page 48
+---
+Let $\{p_n\}$ be a [sequence](D19#sequence) in a [metric space](D20#metric-space) $X$.
+
+If $p\in X$, $p'\in X$, and if $\{p_n\}$ [converges to](D21#sequence-converges-to) $p$ and $p'$, then $p'=p$.
+===
+title: P23
+type: P
+parent: T22
+created: 2016-11-02T12:46:50Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Page 49
+---
+Let $\varepsilon>0$ be given. [There exists](D21) [integers](#integer) $N$, $N'$ such that
+
+* $n\geq N$ implies $d(p_n,p)<\varepsilon/2$,
+* $n\geq N'$ implies $d(p_n,p')<\varepsilon/2$.
+
+Hence if $n\geq\max(N,N')$, [we have](D20)
+
+$$d(p,p')\leq d(p,p_n)+d(p_n,p')<\varepsilon\;.$$
+
+Since $\varepsilon$ was arbitrary, we conclude that $d(p,p')=0$.
+===
+title: D24
+type: D
+created: 2016-11-02T13:02:07Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 3.1, page 47
+---
+Let [$\{p_n\}$](D19#notation-sequence-curly-braces-x-n) be a [sequence](D19#sequence) in a [metric space](D20#metric-space) that [converges to](D21#sequence-converges-to) $p$.
+
+We then say that $p$ is the [limit of](=sequence-limit-of) $\{p_n\}$ (see Theorem [T22](T22)), and we write [$p_n\to p$](=notation-sequence-arrow-to), or
+[$\displaystyle\lim_{n\to\infty}p_n=p$](=notation-sequence-lim).
+===
+title: D25
+type: D
+created: 2016-11-02T13:13:56Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 3.1, page 47
+---
+Let [$\{p_n\}$](D19#notation-sequence-curly-braces-x-n) be a [sequence](D19#sequence) in a [metric space](D20#metric-space) that does not [converge](D21#sequence-converges).
+
+It is then said to [diverge](=sequence-diverges).
+===
+title: D26
+type: D
+created: 2016-11-03T06:40:34Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780198531715
+    location: Page 1
+---
+An [integer](#integer) $a$ is said to be [divisible](=integer-divisible) by another integer $b$, not $0$, if there is a third integer $c$ such that
+
+$$a=bc\;.$$
+===
+title: D27
+type: D
+created: 2016-11-04T08:51:42Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780198531715
+    location: Page 1
+---
+We express the fact that $a$ is [divisible](D26#integer-divisible) by $b$, or $b$ is a [divisor](=integer-divisor) of $a$, by [$b\mid a$](=notation-integer-divisible).
+===
+title: D29
+type: D
+created: 2016-11-04T11:41:50Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780198531715
+    location: Page 1
+---
+The [numbers](#number)
+
+$$0,1,2,3,\ldots$$
+
+are called the [non-negative integers](=non-negative-integer).
+===
+title: D30
+type: D
+created: 2016-11-04T11:45:07Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780198531715
+    location: Page 1
+---
+The [numbers](#number)
+
+$$1,2,3,\ldots$$
+
+are called the [positive integers](=positive-integer).
+===
+title: D31
+type: D
+created: 2016-11-04T11:49:43Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780198531715
+    location: Page 2
+---
+A [positive integer](D30#positive-integer) $p$ is said to be [prime](=prime-number) if
+
+* $p>1$,
+* $p$ has no [positive](#positive-number) [divisors](D27#integer-divisor) exept $1$ and $p$.
+===
+title: D32
+type: D
+created: 2016-11-04T17:59:42Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780198531715
+    location: Page 1
+---
+The [numbers](#number)
+
+$$\ldots,−3,−2,−1,0,1,2,\ldots$$
+
+are called the [rational integers](=rational-integer), or simply the [integers](=integer).
+===
+title: D33
+type: D
+created: 2016-11-04T18:15:52Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 3.21, page 59
+---
+Given a [complex](#complex-number)-[valued](D16#function-values) [sequence](D19#sequence) [$\{a_n\}$](D19#notation-sequence-curly-braces-x-n), we use the notation [$\displaystyle\sum_{n=p}^qa_n$](=notation-complex-finite-summation) ($p\leq q$) to denote the sum $a_p+a_{p+1}+\cdots+a_q$.
+===
+title: D34
+type: D
+created: 2016-11-04T18:37:32Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Definition 3.21, page 59
+---
+Given a [complex](#complex-number)-[valued](D16#function-values) [sequence](D19#sequence) [$\{a_n\}$](D19#notation-sequence-curly-braces-x-n) we associate a sequence $\{s_n\}$, [where](D33#notation-complex-finite-summation)
+
+$$s_n=\sum_{k=1}^na_k\;.$$
+
+For $\{s_n\}$ we also use the symbolic expression
+
+$$a_1+a_2+a_3+\cdots$$
+
+or, more concisely,
+
+$$\sum_{n=1}^\infty a_n\;.$$
+
+This last symbol we call an [infinite series](=infinite-complex-series), or just a [series](=complex-series). The numbers $s_n$ are called the [partial sums](=complex-series-partial-sum) of the series. If $\{s_n\}$ converges to $s$, we say that the series [converges](=complex-series-converges), and write
+
+$$\sum_{n=1}^\infty a_n=s\;.$$
+
+The number $s$ is called the [sum](=sum-of-complex-series) of the series.
+
+If $\{s_n\}$ [diverges](D25#sequence-diverges), the series is said to [diverge](=complex-series-diverges).
+===
+title: T35
+type: T
+created: 2016-11-04T18:44:32Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780070856134
+    location: Theorem 3.26, page 61
+---
+If $0\leq x<1$, then
+
+$$\sum_{n=0}^\infty x^n=\frac{1}{1-x}\;.$$
+
+If $x\geq1$, the [series](D34#complex-series) [diverges](D34#complex-series-diverges).
+===
+title: T36
+type: T
+created: 2016-11-07T19:04:34Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780883853184
+    location: Page 105
+  - type: isbn13
+    value: 9780883857212
+    location: Page 107
+---
+Let $F_n$ be the [Fibonacci numbers](D9#fibonacci-number). Then
+
+$$F_{n+1}^2=4F_nF_{n-1}+F_{n-2}^2\;,\quad n\geq2.$$
+===
+title: T37
+type: T
+created: 2016-11-07T19:11:03Z
+creator: /user/1
+validations:
+  - type: isbn13
+    value: 9780201896831
+    location: Page 83
+  - type: isbn13
+    value: 9780883853184
+    location: Page 108
+---
+Let $F_n$ be the [Fibonacci numbers](D9#fibonacci-number). Then
+
+$$F_n=\frac{\phi^n-\hat{\phi}\strut^n}{\sqrt{5}}$$
+
+for $n\geq0$, where $\phi=\tfrac{1}{2}(1+\sqrt{5})$ and $\hat{\phi}=\tfrac{1}{2}(1-\sqrt{5})$.
