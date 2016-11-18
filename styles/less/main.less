@@ -1,0 +1,60 @@
+@import (inline) 'includes/normalize.css';
+@import (inline) 'includes/mathjax.css';
+
+@base-size: 16px;
+@edge-padding: @base-size;
+@box-padding: @base-size/2;
+@navbar-bg: #2c3e50;
+@navbar-fg: #fff;
+@navbar-link-hover: #18bc9c;
+@navbar-brand-size: 1.5*@base-size;
+
+.clearfix() {
+  &:before,
+  &:after {
+    content: " ";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+body {
+    font-size: @base-size;
+    line-height: 1.4;
+}
+
+#navbar {
+    background-color: @navbar-bg;
+    * {
+        color: @navbar-fg;
+    }
+    a {
+        text-decoration: none;
+        &:hover {
+            color: @navbar-link-hover;
+        }
+    }
+    .navbar-brand {
+        float: left;
+        font-size: @navbar-brand-size;
+        padding: @edge-padding @box-padding;
+    }
+    & > ul {
+        list-style: none;
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        float: left;
+        & > li {
+            display: inline-block;
+            padding: (@edge-padding + @navbar-brand-size - @base-size) @box-padding @box-padding;
+        }
+    }
+    .navbar-user {
+        float: right;
+        padding: (@edge-padding + @navbar-brand-size - @base-size) @box-padding @box-padding;
+    }
+    .clearfix();
+}
