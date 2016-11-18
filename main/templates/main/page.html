@@ -3,17 +3,13 @@
 {% block title %}MathItem | {{ title }}{% endblock %}
 
 {% block content %}
-{% if title %}<div class="row">
-  <div class="col-md-8">
+{% if title %}<header>
     <h1>{{ title }}{% if subtitle %} <small>{{ subtitle }}</small>{% endif %}</h1>
-  </div>
-</div>{% endif %}
-<div class="row">
-  <div class="col-md-8">
-    {% block pagecontent %}{% endblock %}
-  </div>
-  <div class="col-md-4">
-    {% block sidecontent %}{% endblock %}
-  </div>
-</div>
+</header>{% endif %}
+<main>
+{% block pagecontent %}{% endblock %}
+</main>
+<aside>
+{% block sidecontent %}{% endblock %}
+</aside>
 {% endblock %}

@@ -106,11 +106,14 @@ def add_item_validation(request, id_str):
     return render(request, 'mathitems/add_item_validation.html', context)
 
 
+def pluralize(word):
+    return word + 's'
+
 # Helper
 def item_home(request, item_type, new_draft_url=None):
     name = ItemTypes.NAMES[item_type]
     context = {
-        'title': name,
+        'title': pluralize(name),
         'items': prepare_item_view_list(MathItem.objects.filter(item_type=item_type).order_by('-created_at')),
     }
     if new_draft_url:

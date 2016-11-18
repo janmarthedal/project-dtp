@@ -1,13 +1,13 @@
-<div class="list-group">
+<div class="item-list">
 {% for item in items %}
-<a href="{{item.item.get_absolute_url}}" class="list-group-item">
-  <h4 class="list-group-item-heading">{{ item.item }}{% if item.item.parent %} <small>of {{ item.item.parent }}</small>{% endif %}</h4>
+<a href="{{item.item.get_absolute_url}}">
+  <h4 class="item-heading">{{ item.item }}{% if item.item.parent %} <small>of {{ item.item.parent }}</small>{% endif %}</h4>
   {% if item.item.is_def %}
-  <ul class="list-inline">{% for con in item.defines %}
-    <li>{{ con }}</li>{% endfor %}
+  <ul class="concept-list">{% for con in item.defines %}
+    <li class="concept-tag">{{ con }}</li>{% endfor %}
   </ul>
   {% endif %}
-  <p class="list-group-item-text">Created {{ item.item.created_at|date:"DATETIME_FORMAT" }} by {{ item.item.created_by.get_username }}</p>
+  <p class="item-about">Created {{ item.item.created_at|date:"DATETIME_FORMAT" }} by {{ item.item.created_by.get_username }}</p>
 </a>
 {% endfor %}
 </div>
