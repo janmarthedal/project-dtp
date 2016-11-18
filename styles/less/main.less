@@ -1,7 +1,9 @@
 @import (inline) 'includes/normalize.css';
 @import (inline) 'includes/mathjax.css';
 
-@base-size: 16px;
+/* https://bootswatch.com/flatly/ */
+
+@base-size: 15px;
 @h4-size: 1.2*@base-size;
 @h3-size: 1.2*@h4-size;
 @h2-size: 1.2*@h3-size;
@@ -33,7 +35,7 @@
     //border-radius: 4px;
     /*-webkit-box-shadow: inset 1px 1px rgba(0,0,0,0.05);
     box-shadow: inset 1px 1px rgba(0,0,0,0.05);*/
-    margin: 0;
+    margin: 0 0 @p-padding;
     padding: @box-padding;
 }
 
@@ -72,7 +74,7 @@ ul, ol {
 
 h1, h2, h3, h4 {
     font-weight: 400;
-    margin: 0 0 0.5em;
+    margin: 0.5em 0 0.25em;
 }
 
 h4 {
@@ -131,10 +133,17 @@ h1 {
     border-color: #2c3e50;
 }
 
+.btn-warning {
+    color: #fff;
+    background-color: #f39c12;
+    border-color: #f39c12;
+}
+
 /* navbar */
 
 #navbar {
     background-color: @navbar-bg;
+    margin-bottom: @edge-padding;
     * {
         color: @navbar-fg;
     }
@@ -165,7 +174,7 @@ h1 {
 /* page structure */
 
 header {
-    margin-top: @base-size;
+    //margin-top: @base-size;
     padding-left: @edge-padding;
 }
 
@@ -174,18 +183,24 @@ main, aside {
     float: left;
 }
 
-main {
-    width: 66.66666%;
+main, aside {
+    width: 100%;
 }
 
-aside {
-    width: 33.33333%;
+@media(min-width: 960px) {
+    main {
+        width: 66.66666%;
+    }
+    aside {
+        width: 33.33333%;
+    }
 }
 
 /* concept list */
 
 .concept-list {
     list-style: none;
+    padding-left: 0;
 }
 
 .concept-tag {
@@ -206,8 +221,8 @@ aside {
         display: block;
         border: 1px solid #ecf0f1;
         padding: @box-padding;
-        .item-heading, .concept-list {
-            margin-bottom: @base-size/2;
+        .item-heading, .concept-list, .item-about {
+            margin: 0;
         }
     }
 }
@@ -216,18 +231,21 @@ aside {
 
 .item-show-box {
     .panel();
-    margin-bottom: @p-padding;
 }
 
 .item-about-box {
     .panel();
     background-color: #ecf0f1;
-    margin-bottom: @p-padding;
 }
 
 /* item edit */
 
 .item-edit-box {
     .formcontrol();
-    margin-bottom: @p-padding;
+}
+
+/* forms */
+
+.form-control {
+    .formcontrol();
 }

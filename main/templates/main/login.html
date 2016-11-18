@@ -3,11 +3,10 @@
 {% block pagecontent %}
 
 <p>Login with one of the following providers:</p>
-<div class="row">
-  <div class="col-sm-4">
-    <p><a class="btn btn-primary btn-block" href="{% url 'social:begin' 'google-oauth2' %}{% if next %}?next={{next}}{% endif %}"><i class="fa fa-google fa-lg"></i> Google</a></p>
-    <p><a class="btn btn-primary btn-block" href="{% url 'social:begin' 'twitter' %}{% if next %}?next={{next}}{% endif %}"><i class="fa fa-twitter fa-lg"></i> Twitter</a></p>
-  </div>
-</ul>
+
+<p>
+  <a class="btn btn-primary" href="{% url 'social:begin' 'google-oauth2' %}{% if next %}?next={{next}}{% endif %}">Google</a>
+  <a class="btn btn-primary" href="{% url 'social:begin' 'twitter' %}{% if next %}?next={{next}}{% endif %}">Twitter</a>
+</p>
 
 {% endblock %}
