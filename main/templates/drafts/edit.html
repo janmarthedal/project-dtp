@@ -9,10 +9,10 @@
   <button type="submit" name="submit" value="edit" class="btn btn-default">Edit</button>
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
 {% else %}
-  <textarea name="src" class="form-control" rows="10">{{ item.body }}</textarea>
+  <textarea name="src" class="item-edit-box" rows="10">{{ item.body }}</textarea>
   <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
 {% endif %}
-  <a href="{% url 'home' %}" class="btn btn-warning pull-right">Cancel</a>
+  <a href="{% url 'home' %}" class="btn btn-warning">Cancel</a>
 </form>
 {% endblock %}
 
