@@ -143,32 +143,47 @@ h1 {
 
 #navbar {
     background-color: @navbar-bg;
+    padding: @edge-padding;
     margin-bottom: @edge-padding;
     * {
         color: @navbar-fg;
     }
     .navbar-brand {
-        float: left;
         font-size: @navbar-brand-size;
         font-weight: 400;
-        padding: @edge-padding @box-padding @edge-padding @edge-padding;
+        padding-right: @box-padding;
     }
     & > ul {
+        display: block;
         list-style: none;
-        display: inline-block;
         margin: 0;
         padding: 0;
-        float: left;
         & > li {
-            display: inline-block;
-            padding: (@edge-padding + @navbar-brand-size - @base-size) @box-padding @box-padding;
+            display: block;
+            padding: 0;
         }
     }
     .navbar-user {
-        float: right;
-        padding: (@edge-padding + @navbar-brand-size - @base-size) @edge-padding @box-padding @box-padding;
+        padding: 0;
     }
     .clearfix();
+
+    @media (min-width: 640px) {
+        .navbar-brand {
+            float: left;
+        }
+        & > ul {
+            float: left;
+            & > li {
+                display: inline-block;
+                padding: (@navbar-brand-size - @base-size) @box-padding 0;
+            }
+        }
+        .navbar-user {
+            float: right;
+            padding: (@navbar-brand-size - @base-size) 0 0 @box-padding;
+        }
+    }
 }
 
 /* page structure */
