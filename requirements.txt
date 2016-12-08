@@ -1,4 +1,4 @@
-Django==1.10.1
-requests==2.11.1
-python-social-auth==0.2.21
+Django==1.10.4
 django-pipeline==1.6.9
+requests==2.12.3
+python-social-auth==0.2.21
