@@ -43,7 +43,25 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'social.apps.django_app.default',
+    'pipeline',
 ] + LOCAL_APPS
+
+PIPELINE = {
+    'STYLESHEETS': {
+        'main': {
+            'source_filenames': (
+                'main/mathjax.css',
+                'main/normalize.css',
+                'main/main.less'
+            ),
+            'output_filename': 'main.css',
+        },
+    },
+    'CSS_COMPRESSOR': 'pipeline.compressors.cssmin.CSSMinCompressor',
+    'COMPILERS': (
+        'pipeline.compilers.less.LessCompiler',
+    )
+}
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -94,6 +112,12 @@ USE_L10N = False
 USE_TZ = True
 DATETIME_FORMAT = 'N j, Y, H:i'
 
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'pipeline.finders.PipelineFinder',
+)
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
