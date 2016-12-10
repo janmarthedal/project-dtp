@@ -1,9 +1,7 @@
 import requests
+from django.conf import settings
 
-#from django.conf import settings
-#SERVER_HOST = http://localhost:3000' if settings.DEBUG else 'http://nodejs:3000'
-
-SERVER_HOST = 'http://nodejs:3000'
+SERVER_HOST = 'http://localhost:3000' if settings.DEBUG else 'http://nodejs:3000'
 
 
 def node_request(path, payload):

@@ -58,9 +58,11 @@ PIPELINE = {
         },
     },
     'CSS_COMPRESSOR': 'pipeline.compressors.cssmin.CSSMinCompressor',
+    'CSSMIN_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'cssmin'),
     'COMPILERS': (
         'pipeline.compilers.less.LessCompiler',
-    )
+    ),
+    'LESS_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'lessc'),
 }
 
 # By defining SOCIAL_AUTH_PIPELINE, we avoid a conflict between django-pipeline
