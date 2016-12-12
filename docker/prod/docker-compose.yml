@@ -3,8 +3,10 @@ services:
     app:
         image: janmarthedal/dtp
         build:
-            context: ..
-            dockerfile: docker/Dockerfile
+            context: ../..
+            dockerfile: docker/prod/Dockerfile
+        ports:
+            - "80:80"
         depends_on:
             - nodejs
         external_links:
@@ -12,12 +14,12 @@ services:
     nodejs:
         image: janmarthedal/dtpnodejs
         build:
-            context: ../javascript
+            context: ../../javascript
             dockerfile: Dockerfile
     db:
         image: mysql
         volumes:
-            - ../db_data:/var/lib/mysql
+            - ../../db_data:/var/lib/mysql
         ports:
             - "3306:3306"
         environment:
