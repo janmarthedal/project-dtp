@@ -20,7 +20,7 @@ drafts_patterns = [
 
 urlpatterns = [
     url(r'^$', main.home, name='home'),
-    url('', include('social.apps.django_app.urls', namespace='social')),
+    url('', include('social_django.urls', namespace='social')),
     url(r'^([DTP][1-9]\d*)$', mathitems.show_item, name='show-item'),
     url(r'^([DTP][1-9]\d*)/dump$', mathitems.dump_item, name='dump-item'),
     url(r'^([DTP][1-9]\d*)/add-validation$', mathitems.add_item_validation, name='add-item-validation'),
