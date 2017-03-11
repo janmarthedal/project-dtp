@@ -13,7 +13,7 @@ from concepts.models import Concept
 from equations.models import Equation
 from main.item_helpers import get_refs_and_render, item_to_markup
 from main.views.helpers import prepare_item_view_list
-from mathitems.models import ItemTypes, MathItem
+from mathitems.models import ItemTypes, MathItem, IllegalMathItem
 from validations.models import ItemValidation, Source
 
 import logging
@@ -40,7 +40,7 @@ def item_render(item):
                    for concept in Concept.objects.filter(id__in=concept_set)}
     result = get_refs_and_render(item.item_type, document, eqn_map, concept_map)
     if result['errors']:
-        raise IllegalMathItem('Error in published item {}'.format(item.id))
+        raise IllegalMathItem('Error in published item {}: {}'.format(item.id, result['error']))
     return result
 
 
