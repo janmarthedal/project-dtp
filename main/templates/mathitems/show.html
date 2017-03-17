@@ -10,8 +10,8 @@
 </div>
 {% endif %}
 
+<h4>Validations <a href="{% url 'add-item-validation' item.get_name %}">add</a></h4>
 {% if validations %}
-<h4>Validations</h4>
 <ul>
 {% for validation in validations %}
 <li>
@@ -19,13 +19,17 @@
   {% if validation.location %}<br>{{ validation.location }}{% endif %}</li>
 {% endfor %}
 </ul>
+{% else %}
+<p><em>None</em></p>
 {% endif %}
 
+<h4>Proofs{% if can_add_proof %} <a href="{% url 'new-prf' item.get_name %}">add</a>{% endif %}</h4>
 {% if proofs %}
-<h4>Proofs</h4>
 <ul>{% for proof in proofs %}
   <li><a href="{{ proof.get_absolute_url }}">{{ proof }}</a></li>{% endfor %}
 </ul>
+{% else %}
+<p><em>None</em></p>
 {% endif %}
 {% endblock %}
 
@@ -34,7 +38,7 @@
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 </div>
 <div class="item-about-box">
-<h4>Keywords</h4>
+<h4>Keywords{% if can_edit_keywords %} <a href="{% url 'edit-item-keywords' item.get_name %}">edit</a>{% endif %}</h4>
 {% if keywords %}
 <ul>
   {% for kw in keywords %}
@@ -45,18 +49,7 @@
 <p><em>None</em></p>
 {% endif %}
 </div>
-{% if new_proof_link %}
-<p>
-  <a href="{{ new_proof_link }}" class="btn btn-default">New Proof</a>
-</p>
-{% endif %}
-<p>
-  <a href="{% url 'add-item-validation' item.get_name %}" class="btn btn-default">Add Validation</a>
-</p>
 <p>
   <a href="{% url 'copy-to-draft' item.get_name %}" class="btn btn-default">Copy to Draft</a>
-</p>
-<p>
-  <a href="{% url 'edit-item-keywords' item.get_name %}" class="btn btn-default">Edit Keywords</a>
 </p>
 {% endblock %}

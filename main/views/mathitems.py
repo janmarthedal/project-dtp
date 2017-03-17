@@ -57,10 +57,11 @@ def show_item(request, id_str):
         'item': item,
         'item_data': item_data,
         'keywords': Keyword.objects.filter(itemkeyword__item=item).order_by('name').all(),
-        'validations': item.itemvalidation_set.all()
+        'validations': item.itemvalidation_set.all(),
+        'can_edit_keywords': request.user.is_authenticated,
     }
     if item.item_type == ItemTypes.THM:
-        context['new_proof_link'] = reverse('new-prf', args=[item.get_name()])
+        context['can_add_proof'] = True
         context['proofs'] = list(MathItem.objects.filter(item_type=ItemTypes.PRF, parent=item).order_by('id'))
     if item.item_type == ItemTypes.PRF:
         context['subtitle'] = 'of {}'.format(item.parent)
