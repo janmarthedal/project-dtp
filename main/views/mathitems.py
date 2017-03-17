@@ -141,34 +141,28 @@ def add_item_validation(request, id_str):
     return render(request, 'mathitems/add_item_validation.html', context)
 
 
-def pluralize(word):
-    return word + 's'
-
-# Helper
-def item_home(request, item_type, new_draft_url=None):
-    name = ItemTypes.NAMES[item_type]
-    context = {
-        'title': pluralize(name),
-        'items': prepare_item_view_list(MathItem.objects.filter(item_type=item_type).order_by('-created_at')),
-    }
-    if new_draft_url:
-        context.update(new_name='New ' + name, new_url=new_draft_url)
-    return render(request, 'mathitems/item-home.html', context)
-
-
 @require_safe
 def def_home(request):
-    return item_home(request, ItemTypes.DEF, reverse('new-def'))
+    return render(request, 'mathitems/definitions-home.html', {
+        'title': 'Definitions',
+        'latest': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.DEF).order_by('-created_at')[:5]),
+    })
 
 
 @require_safe
 def thm_home(request):
-    return item_home(request, ItemTypes.THM, reverse('new-thm'))
+    return render(request, 'mathitems/theorems-home.html', {
+        'title': 'Theorems',
+        'latest': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.THM).order_by('-created_at')[:5]),
+    })
 
 
 @require_safe
 def prf_home(request):
-    return item_home(request, ItemTypes.PRF)
+    return render(request, 'mathitems/proofs-home.html', {
+        'title': 'Proofs',
+        'latest': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.PRF).order_by('-created_at')[:5]),
+    })
 
 
 @require_safe

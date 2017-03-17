@@ -54,6 +54,9 @@ class MathItem(models.Model):
     def is_def(self):
         return self.item_type == ItemTypes.DEF
 
+    def is_thm(self):
+        return self.item_type == ItemTypes.THM
+
     def get_body_root(self):
         return json.loads(self.body)
 

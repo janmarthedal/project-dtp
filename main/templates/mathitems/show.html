@@ -23,6 +23,7 @@
 <p><em>None</em></p>
 {% endif %}
 
+{% if item.is_thm %}
 <h4>Proofs{% if can_add_proof %} <a href="{% url 'new-prf' item.get_name %}">add</a>{% endif %}</h4>
 {% if proofs %}
 <ul>{% for proof in proofs %}
@@ -30,6 +31,7 @@
 </ul>
 {% else %}
 <p><em>None</em></p>
+{% endif %}
 {% endif %}
 {% endblock %}
 
