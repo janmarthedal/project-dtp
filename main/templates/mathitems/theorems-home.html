@@ -1,8 +1,11 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-<h2>Latest Items</h2>
+<h2>Latest Theorems</h2>
 {% include 'mathitems/include/item-list.html' with items=latest only %}
+
+<h2>Theorems Without Proof</h2>
+{% include 'mathitems/include/item-list.html' with items=without_proof only %}
 {% endblock %}
 
 {% block sidecontent %}

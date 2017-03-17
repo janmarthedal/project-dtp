@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.db.models import Count
 from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
@@ -154,6 +155,7 @@ def thm_home(request):
     return render(request, 'mathitems/theorems-home.html', {
         'title': 'Theorems',
         'latest': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.THM).order_by('-created_at')[:5]),
+        'without_proof': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.THM).annotate(proofs=Count('mathitem')).filter(proofs=0)[:5]),
     })
 
 
