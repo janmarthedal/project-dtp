@@ -1,4 +1,4 @@
-import mjAPI from 'mathjax-node/lib/mj-single';
+import mjAPI from 'mathjax-node';
 
 mjAPI.config({MathJax: {}});
 mjAPI.start();
