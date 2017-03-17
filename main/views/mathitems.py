@@ -144,26 +144,32 @@ def add_item_validation(request, id_str):
 
 @require_safe
 def def_home(request):
+    items = MathItem.objects.filter(item_type=ItemTypes.DEF).order_by('-created_at')
     return render(request, 'mathitems/definitions-home.html', {
         'title': 'Definitions',
-        'latest': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.DEF).order_by('-created_at')[:5]),
+        'latest': prepare_item_view_list(items[:5]),
+        'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
     })
 
 
 @require_safe
 def thm_home(request):
+    items = MathItem.objects.filter(item_type=ItemTypes.THM).order_by('-created_at')
     return render(request, 'mathitems/theorems-home.html', {
         'title': 'Theorems',
-        'latest': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.THM).order_by('-created_at')[:5]),
-        'without_proof': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.THM).annotate(proofs=Count('mathitem')).filter(proofs=0)[:5]),
+        'latest': prepare_item_view_list(items[:5]),
+        'without_proof': prepare_item_view_list(items.annotate(proofs=Count('mathitem')).filter(proofs=0)[:5]),
+        'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
     })
 
 
 @require_safe
 def prf_home(request):
+    items = MathItem.objects.filter(item_type=ItemTypes.PRF).order_by('-created_at')
     return render(request, 'mathitems/proofs-home.html', {
         'title': 'Proofs',
-        'latest': prepare_item_view_list(MathItem.objects.filter(item_type=ItemTypes.PRF).order_by('-created_at')[:5]),
+        'latest': prepare_item_view_list(items[:5]),
+        'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
     })
 
 

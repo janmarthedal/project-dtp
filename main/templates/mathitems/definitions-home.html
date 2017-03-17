@@ -3,6 +3,9 @@
 {% block pagecontent %}
 <h2>Latest Definitions</h2>
 {% include 'mathitems/include/item-list.html' with items=latest only %}
+
+<h2>Definitions Without Validations</h2>
+{% include 'mathitems/include/item-list.html' with items=no_vals only %}
 {% endblock %}
 
 {% block sidecontent %}
