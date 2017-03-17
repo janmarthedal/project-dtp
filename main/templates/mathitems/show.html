@@ -35,11 +35,15 @@
 </div>
 <div class="item-about-box">
 <h4>Keywords</h4>
+{% if keywords %}
 <ul>
-  <li>The Pythagorean Theorem</li>
-  <li>Infinite sum</li>
-  <li>Inverse square</li>
+  {% for kw in keywords %}
+  <li>{{ kw.name }}</li>
+  {% endfor %}
 </ul>
+{% else %}
+<p><em>None</em></p>
+{% endif %}
 </div>
 {% if new_proof_link %}
 <p>

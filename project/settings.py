@@ -33,6 +33,7 @@ LOCAL_APPS = [
     'validations',
     'concepts',
     'equations',
+    'keywords',
     'main',
 ]
 

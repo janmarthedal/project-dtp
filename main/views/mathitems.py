@@ -11,6 +11,7 @@ from django.views.decorators.http import require_safe, require_http_methods
 
 from concepts.models import Concept
 from equations.models import Equation
+from keywords.models import Keyword, ItemKeyword
 from main.item_helpers import get_refs_and_render, item_to_markup
 from main.views.helpers import prepare_item_view_list
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
@@ -55,6 +56,7 @@ def show_item(request, id_str):
         'title': str(item),
         'item': item,
         'item_data': item_data,
+        'keywords': Keyword.objects.filter(itemkeyword__item=item).order_by('name').all(),
         'validations': item.itemvalidation_set.all()
     }
     if item.item_type == ItemTypes.THM:
@@ -76,14 +78,21 @@ def edit_item_keywords(request, id_str):
         raise Http404('Item does not exist')
     if request.method == 'POST':
         if 'delete' in request.POST:
-            logger.info('Delete ' + request.POST['delete'])
+            itemkw = ItemKeyword.objects.get(pk=int(request.POST['delete']))
+            itemkw.delete()
+            if ItemKeyword.objects.filter(keyword=itemkw.keyword).count() == 0:
+                itemkw.keyword.delete()
         else:
-            logger.info('Add ' + request.POST['kw'])
+            if request.POST['kw']:
+                keyword, _ = Keyword.objects.get_or_create(name=request.POST['kw'])
+                itemkw, _ = ItemKeyword.objects.get_or_create(
+                                item=item, keyword=keyword, defaults={'created_by': request.user})
     item_data = item_render(item)
     context = {
         'title': str(item),
         'item': item,
-        'item_data': item_data
+        'item_data': item_data,
+        'itemkeywords': ItemKeyword.objects.filter(item=item).order_by('keyword__name').all(),
     }
     if item.item_type == ItemTypes.PRF:
         context['subtitle'] = 'of {}'.format(item.parent)
