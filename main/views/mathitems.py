@@ -69,6 +69,31 @@ def show_item(request, id_str):
 
 @login_required
 @require_http_methods(['GET', 'POST'])
+def edit_item_keywords(request, id_str):
+    try:
+        item = MathItem.objects.get_by_name(id_str)
+    except MathItem.DoesNotExist:
+        raise Http404('Item does not exist')
+    if request.method == 'POST':
+        if 'delete' in request.POST:
+            logger.info('Delete ' + request.POST['delete'])
+        else:
+            logger.info('Add ' + request.POST['kw'])
+    item_data = item_render(item)
+    context = {
+        'title': str(item),
+        'item': item,
+        'item_data': item_data
+    }
+    if item.item_type == ItemTypes.PRF:
+        context['subtitle'] = 'of {}'.format(item.parent)
+        context['parent_item'] = item.parent
+        context['parent_item_data'] = item_render(item.parent)
+    return render(request, 'mathitems/edit-item-keywords.html', context)
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
 def add_item_validation(request, id_str):
     try:
         item = MathItem.objects.get_by_name(id_str)

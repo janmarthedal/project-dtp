@@ -1,0 +1,41 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+{% include 'mathitems/include/show.html' with item_data=item_data only %}
+
+{% if parent_item %}
+<div class="submathitem">
+<h4><a href="{{ parent_item.get_absolute_url }}">{{ parent_item }}</a></h4>
+{% include 'mathitems/include/show.html' with item_data=parent_item_data only %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block sidecontent %}
+<div class="item-about-box">
+{% include 'mathitems/include/about.html' with item_data=item_data only %}
+</div>
+<div class="item-about-box">
+<h4>Keywords</h4>
+<form method="POST">
+  {% csrf_token %}
+  <ul>
+    <li>The Pythagorean Theorem <button class="close" type="submit" name="delete" value="12">x</button></li>
+    <li>Infinite sum <button class="close" type="submit" name="delete" value="13">x</button></li>
+    <li>Inverse square <button class="close" type="submit" name="delete" value="14">x</button></li>
+  </ul>
+</form>
+<form method="POST">
+  {% csrf_token %}
+  <div class="input-group">
+    <input class="form-control" type="text" name="kw">
+    <span class="input-group-btn">
+      <button class="btn btn-default" type="submit">Add</button>
+    </span>
+  </div>
+</form>
+</div>
+<p>
+  <a href="{% url 'show-item' item.get_name %}" class="btn btn-default">Done</a>
+</p>
+{% endblock %}

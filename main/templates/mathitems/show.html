@@ -33,6 +33,14 @@
 <div class="item-about-box">
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 </div>
+<div class="item-about-box">
+<h4>Keywords</h4>
+<ul>
+  <li>The Pythagorean Theorem</li>
+  <li>Infinite sum</li>
+  <li>Inverse square</li>
+</ul>
+</div>
 {% if new_proof_link %}
 <p>
   <a href="{{ new_proof_link }}" class="btn btn-default">New Proof</a>
@@ -43,5 +51,8 @@
 </p>
 <p>
   <a href="{% url 'copy-to-draft' item.get_name %}" class="btn btn-default">Copy to Draft</a>
+</p>
+<p>
+  <a href="{% url 'edit-item-keywords' item.get_name %}" class="btn btn-default">Edit Keywords</a>
 </p>
 {% endblock %}

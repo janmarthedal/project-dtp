@@ -41,6 +41,7 @@
     display: block;
     width: 100%;
     color: #2c3e50;
+    height: 45px;
 }
 
 /* globals */
@@ -260,4 +261,41 @@ main, aside {
 
 .form-control {
     .formcontrol();
+}
+
+.input-group {
+    display: table;
+    border-collapse: separate;
+}
+
+.input-group-btn, .input-group .form-control {
+    display: table-cell;
+}
+
+.input-group .form-control {
+    margin-bottom: 0;
+}
+
+.input-group-btn {
+    width: 1%;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* close */
+
+.close {
+    float: right;
+    font-size: 18px;
+    line-height: 1;
+    text-shadow: none;
+    opacity: 0.4;
+    filter: alpha(opacity=40);
+    text-decoration: none;
+    padding: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+    color: inherit;
 }

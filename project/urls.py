@@ -24,6 +24,7 @@ urlpatterns = [
     url(r'^([DTP][1-9]\d*)$', mathitems.show_item, name='show-item'),
     url(r'^([DTP][1-9]\d*)/dump$', mathitems.dump_item, name='dump-item'),
     url(r'^([DTP][1-9]\d*)/add-validation$', mathitems.add_item_validation, name='add-item-validation'),
+    url(r'^([DTP][1-9]\d*)/keywords$', mathitems.edit_item_keywords, name='edit-item-keywords'),
     url(r'^definitions/$', mathitems.def_home, name='def-home'),
     url(r'^theorems/$', mathitems.thm_home, name='thm-home'),
     url(r'^proofs/$', mathitems.prf_home, name='prf-home'),
