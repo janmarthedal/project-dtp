@@ -3,9 +3,14 @@
 <a href="{{item.item.get_absolute_url}}">
   <h4 class="item-heading">{{ item.item }}{% if item.item.parent %} <small>of {{ item.item.parent }}</small>{% endif %}</h4>
   {% if item.item.is_def %}
-  <ul class="concept-list">{% for con in item.defines %}
-    <li class="concept-tag">{{ con }}</li>{% endfor %}
-  </ul>
+  <div><span class="tags-header">Defines</span>
+    <span class="concept-list">{% for con in item.defines %}<span class="concept-tag">{{ con }}</span>{% endfor %}</span>
+  </div>
+  {% endif %}
+  {% if item.keywords %}
+  <div><span class="tags-header">Keywords</span>
+    <span class="concept-list">{% for kw in item.keywords %}<span class="concept-tag">{{ kw }}</span>{% endfor %}</span>
+  </div>
   {% endif %}
   <p class="item-about">Created {{ item.item.created_at|date:"DATETIME_FORMAT" }} by {{ item.item.created_by.get_username }}</p>
 </a>

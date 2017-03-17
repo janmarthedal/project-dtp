@@ -211,16 +211,16 @@ main, aside {
 
 /* concept list */
 
-.concept-list {
-    list-style: none;
-    padding-left: 0;
-}
-
 .concept-tag {
     display: inline-block;
-    padding-left: @base-size;
-    &:first-child {
-        padding-left: 0;
+    font-style: italic;
+    &:before {
+        content: '/';
+        padding: 0 0.5em;
+        color: #ddd;
+    }
+    &:first-child:before {
+        content: none;
     }
 }
 
@@ -236,6 +236,15 @@ main, aside {
         padding: @box-padding;
         .item-heading, .concept-list, .item-about {
             margin: 0;
+        }
+        .item-about {
+            font-size: 80%;
+            font-style: italic;
+        }
+        .tags-header {
+            &:after {
+                content: ':';
+            }
         }
     }
 }
