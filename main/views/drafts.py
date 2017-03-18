@@ -9,8 +9,8 @@ from concepts.models import Concept
 from drafts.models import DraftItem, ItemTypes
 from equations.models import ItemEquation, get_equation_html, freeze_equations
 from main.item_helpers import get_refs_and_render, create_item_meta_data, item_to_markup
-from main.permissions import has_perm, CAN_ADD_DRAFT, CAN_PUBLISH
 from mathitems.models import ItemTypes, MathItem
+from permissions.manager import has_perm
 from project.server_com import convert_markup, render_item, render_eqns
 
 #import logging
@@ -68,7 +68,7 @@ def edit_item(request, item):
             item.save()
             return redirect(item)
     context['item'] = item
-    context['can_save'] = has_perm(CAN_ADD_DRAFT, request.user)
+    context['can_save'] = has_perm('draft', request.user)
     return render(request, 'drafts/edit.html', context)
 
 
@@ -115,7 +115,7 @@ def show_draft(request, id_str):
         'title': str(item),
         'item': item,
         'item_data': get_refs_and_render(item.item_type, document, eqns, concepts),
-        'can_publish': has_perm(CAN_PUBLISH, request.user)
+        'can_publish': has_perm('publish', request.user)
     })
 
 

@@ -14,9 +14,9 @@ from concepts.models import Concept
 from equations.models import Equation
 from keywords.models import Keyword, ItemKeyword
 from main.item_helpers import get_refs_and_render, item_to_markup
-from main.permissions import has_perm, CAN_ADD_VALIDATION, CAN_EDIT_KEYWORDS
 from main.views.helpers import prepare_item_view_list
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
+from permissions.manager import has_perm
 from validations.models import ItemValidation, Source
 
 import logging
@@ -60,8 +60,8 @@ def show_item(request, id_str):
         'item_data': item_data,
         'keywords': Keyword.objects.filter(itemkeyword__item=item).order_by('name').all(),
         'validations': item.itemvalidation_set.all(),
-        'can_add_validation': has_perm(CAN_ADD_VALIDATION, request.user),
-        'can_edit_keywords': has_perm(CAN_EDIT_KEYWORDS, request.user),
+        'can_add_validation': has_perm('validation', request.user),
+        'can_edit_keywords': has_perm('keyword', request.user),
     }
     if item.item_type == ItemTypes.THM:
         context['can_add_proof'] = True
