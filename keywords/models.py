@@ -5,7 +5,7 @@ from mathitems.models import MathItem
 
 
 class Keyword(models.Model):
-    name = models.CharField(max_length=256, unique=True)
+    name = models.CharField(max_length=64, unique=True)
 
     class Meta:
         db_table = 'keywords'

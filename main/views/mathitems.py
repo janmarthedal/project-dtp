@@ -19,8 +19,8 @@ from mathitems.models import ItemTypes, MathItem, IllegalMathItem
 from permissions.manager import has_perm
 from validations.models import ItemValidation, Source
 
-import logging
-logger = logging.getLogger(__name__)
+#import logging
+#logger = logging.getLogger(__name__)
 
 def decode_document(node, eqn_set, concept_set):
     if 'concept' in node:
