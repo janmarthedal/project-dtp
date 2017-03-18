@@ -14,7 +14,7 @@ from mathitems.models import MathItem
 @require_safe
 def home(request):
     return render(request, 'main/home.html', {
-        'items': prepare_item_view_list(MathItem.objects.order_by('-created_at')[:10])
+        'items': prepare_item_view_list(MathItem.objects.order_by('-created_at')[:5])
     })
 
 @require_safe
@@ -27,11 +27,7 @@ def login(request):
 @login_required
 @require_safe
 def profile(request):
-    """from social.apps.django_app.context_processors import backends as auth_backends
-    backends = auth_backends(request)['backends']
-    logger.info('User {} has providers: {}'.format(request.user.username,
-        ', '.join(p.provider for p in backends['associated'])))"""
-    drafts = DraftItem.objects.order_by('updated_at').all()
+    drafts = DraftItem.objects.filter(created_by=request.user).order_by('updated_at').all()
     return render(request, 'main/profile.html', {
         'drafts': drafts,
         'title': 'Profile'

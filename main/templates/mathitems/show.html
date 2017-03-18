@@ -10,7 +10,7 @@
 </div>
 {% endif %}
 
-<h4>Validations <a href="{% url 'add-item-validation' item.get_name %}">add</a></h4>
+<h4>Validations{% if can_add_validation %} <a href="{% url 'add-item-validation' item.get_name %}">add</a>{% endif %}</h4>
 {% if validations %}
 <ul>
 {% for validation in validations %}

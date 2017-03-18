@@ -1,13 +1,21 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
+{% if not can_save %}
+<p>
+  Warning: You can try editing a draft here, but you will <em>not</em>
+  be able to save it!
+</p>
+{% endif %}
 <form action="" method="post">
   {% csrf_token %}
 {% if item_data %}
   {% include 'mathitems/include/show.html' with item_data=item_data only %}
   <input type="hidden" name="src" value="{{ item.body|escape }}">
   <button type="submit" name="submit" value="edit" class="btn btn-default">Edit</button>
+  {% if can_save %}
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
+  {% endif %}
 {% else %}
   <textarea name="src" class="item-edit-box" rows="10">{{ item.body }}</textarea>
   <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
