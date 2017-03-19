@@ -6,6 +6,13 @@
 
 <h2>Definitions Without Validations</h2>
 {% include 'mathitems/include/item-list.html' with items=no_vals only %}
+
+<h2>Referenced Concepts Without Any Definitions</h2>
+<ul>
+{% for concept in no_defs %}
+  <li><a href="{{ concept.get_absolute_url }}">{{ concept.name }}</a> (referenced by {{ concept.conceptmeta.ref_count }} items)</li>
+{% endfor %}
+</ul>
 {% endblock %}
 
 {% block sidecontent %}

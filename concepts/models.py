@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from mathitems.models import MathItem
@@ -11,6 +12,9 @@ class Concept(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('concept-page', args=[self.name])
 
 
 class ConceptDefinition(models.Model):

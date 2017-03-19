@@ -32,5 +32,5 @@ urlpatterns = [
     url(r'^drafts/', include(drafts_patterns)),
     url(r'^datadump$', admin.datadump),
     url(r'^sources/$', sources.sources_list, name='sources-list'),
-    url(r'^concept/([-a-z]+)$', concepts.show_concept),
+    url(r'^concept/([-a-z]+)$', concepts.show_concept, name='concept-page'),
 ]

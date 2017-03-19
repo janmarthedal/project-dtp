@@ -146,12 +146,12 @@ def add_item_validation(request, id_str):
 
 @require_safe
 def def_home(request):
-    #Concept.objects.filter(conceptmeta__def_count=0, conceptmeta__ref_count__gt=0).all()
     items = MathItem.objects.filter(item_type=ItemTypes.DEF).order_by('-created_at')
     return render(request, 'mathitems/definitions-home.html', {
         'title': 'Definitions',
         'latest': prepare_item_view_list(items[:5]),
         'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
+        'no_defs': Concept.objects.filter(conceptmeta__def_count=0, conceptmeta__ref_count__gt=0).order_by('-conceptmeta__ref_count', 'name'),
     })
 
 
