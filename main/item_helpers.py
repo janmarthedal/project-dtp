@@ -1,4 +1,4 @@
-from concepts.models import Concept, ConceptDefinition, ConceptReference, ItemDependency
+from concepts.models import Concept, ConceptDefinition, ConceptReference, ItemDependency, ConceptMeta
 from equations.models import Equation, ItemEquation
 from mathitems.models import ItemTypes, MathItem, node_to_markup
 from project.server_com import render_item
@@ -60,6 +60,8 @@ def create_item_meta_data(item):
         ItemEquation(item=item, equation_id=id)
         for id in eqns)
 
+    return concept_defs | concept_refs
+
 
 def item_to_markup(item):
     eqns, concept_defs, concept_refs, item_refs = item.analyze()
@@ -69,3 +71,13 @@ def item_to_markup(item):
     concept_map = {id: Concept.objects.get(id=id).name for id in concepts}
     eqn_map = {id: Equation.objects.get(id=id).to_markup() for id in eqns}
     return node_to_markup(item.get_body_root(), concept_map, eqn_map)
+
+
+def create_concept_meta(concept_id):
+    ConceptMeta.objects.update_or_create(
+        concept_id=concept_id,
+        defaults = {
+            'ref_count': ConceptReference.objects.filter(concept_id=concept_id).count(),
+            'def_count': ConceptDefinition.objects.filter(concept_id=concept_id).count()
+        }
+    )

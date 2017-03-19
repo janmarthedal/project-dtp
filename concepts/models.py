@@ -39,3 +39,15 @@ class ItemDependency(models.Model):
     class Meta:
         db_table = 'item_deps'
         unique_together = ('item', 'uses')
+
+
+class ConceptMeta(models.Model):
+    concept = models.OneToOneField(Concept)
+    ref_count = models.IntegerField()
+    def_count = models.IntegerField()
+
+    class Meta:
+        db_table = 'concept_meta'
+
+    def __str__(self):
+        return '{} (ref {} def {})'.format(self.id, self.ref_count, self.def_count)
