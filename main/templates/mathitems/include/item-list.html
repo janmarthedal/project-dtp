@@ -1,3 +1,4 @@
+{% load humanize %}
 {% if items %}
 <div class="item-list">
 {% for item in items %}
@@ -13,7 +14,7 @@
     <span class="concept-list">{% for kw in item.keywords %}<span class="concept-tag">{{ kw }}</span>{% endfor %}</span>
   </div>
   {% endif %}
-  <p class="item-about">Created {{ item.item.created_at|date:"DATETIME_FORMAT" }} by {{ item.item.created_by.get_username }}</p>
+  <p class="item-about">Created {{ item.item.created_at|naturaltime }} by {{ item.item.created_by.get_username }}</p>
 </a>
 {% endfor %}
 </div>
