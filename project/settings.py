@@ -53,8 +53,8 @@ PIPELINE = {
     'STYLESHEETS': {
         'main': {
             'source_filenames': (
-                'main/mathjax.css',
                 'main/normalize.css',
+                'main/mathjax.css',
                 'main/main.less'
             ),
             'output_filename': 'main.css',
