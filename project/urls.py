@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.conf.urls import url, include
-from django.conf.urls.static import static
 
 from main.views import admin, concepts, drafts, main, mathitems, sources
 
@@ -39,4 +38,16 @@ urlpatterns = [
     url(r'^sources/$', sources.sources_list, name='sources-list'),
     url(r'^concept/([-a-z]+)$', concepts.show_concept, name='concept-page'),
     url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    from os.path import join
+    from django.conf.urls.static import static
+    from django.views.static import serve
+
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [
+        url(r'^(?P<path>favicon.ico)$', serve, {
+            'document_root': join(settings.BASE_DIR, 'main', 'static', 'main')
+        })
+    ]
