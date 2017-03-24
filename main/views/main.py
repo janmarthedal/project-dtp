@@ -1,12 +1,15 @@
-from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import logout as auth_logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe
 
-from concepts.models import Concept
+from concepts.models import ConceptMeta
 from drafts.models import DraftItem
+from equations.models import Equation
 from main.views.helpers import prepare_item_view_list
 from mathitems.models import MathItem
+from mathitems.itemtypes import ItemTypes
+from validations.models import ItemValidation, Source
 
 #import logging
 #logger = logging.getLogger(__name__)
@@ -14,7 +17,16 @@ from mathitems.models import MathItem
 @require_safe
 def home(request):
     return render(request, 'main/home.html', {
-        'items': prepare_item_view_list(MathItem.objects.order_by('-created_at')[:5])
+        'latest': prepare_item_view_list(MathItem.objects.order_by('-created_at')[:1]),
+        'def_count': MathItem.objects.filter(item_type=ItemTypes.DEF).count(),
+        'thm_count': MathItem.objects.filter(item_type=ItemTypes.THM).count(),
+        'prf_count': MathItem.objects.filter(item_type=ItemTypes.PRF).count(),
+        'media_count': 0,
+        'concept_count': ConceptMeta.objects.filter(def_count__gt=0).count(),
+        'eqn_count': Equation.objects.filter(itemequation__item__isnull=False).distinct().count(),
+        'val_count': ItemValidation.objects.count(),
+        'src_count': Source.objects.count(),
+        'user_count': get_user_model().objects.filter(is_active=True).count()
     })
 
 @require_safe

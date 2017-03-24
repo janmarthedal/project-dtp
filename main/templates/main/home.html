@@ -1,12 +1,27 @@
 {% extends 'main/page.html' %}
 
-{% block title %}MathItem{% endblock %}
+{% block title %}MathItems{% endblock %}
 
 {% block pagecontent %}
-<h2>Latest Items</h2>
-{% include 'mathitems/include/item-list.html' with items=items only %}
+<h2>Welcome!</h2>
+<p>MathItems is a user-contributed collection of definitions, theorems and proofs.</p>
+
+<h2>Latest Item</h2>
+{% include 'mathitems/include/item-list.html' with items=latest only %}
+
+<h2>Featured Media Item</h2>
+<img class="item-img" src="http://blog.janmr.com/media/geoprog.svg">
 {% endblock %}
 
 {% block sidecontent %}
-<p><a href="{% url 'sources-list' %}">List of all sources</a></p>
+<h4>Stats</h4>
+<p><a href="{% url 'def-home' %}">{{ def_count }} Definitions</a></p>
+<p><a href="{% url 'thm-home' %}">{{ thm_count }} Theorems</a></p>
+<p><a href="{% url 'prf-home' %}">{{ prf_count }} Proofs</a></p>
+<p>{{ media_count }} Media</p>
+<p>{{ concept_count}} Concepts</p>
+<p>{{ eqn_count }} Equations</p>
+<p>{{ val_count }} Validations</p>
+<p><a href="{% url 'sources-list' %}">{{ src_count }} sources</a></p>
+<p>{{ user_count }} Users</p>
 {% endblock %}
