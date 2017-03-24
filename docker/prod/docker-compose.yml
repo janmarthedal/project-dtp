@@ -1,7 +1,7 @@
 version: '3'
 services:
     app:
-        image: janmarthedal/dtp
+        image: mathitems-app
         build:
             context: ../..
             dockerfile: docker/prod/Dockerfile
@@ -12,7 +12,7 @@ services:
         external_links:
             - db
     nodejs:
-        image: janmarthedal/dtpnodejs
+        image: mathitems-node
         build:
             context: ../../javascript
             dockerfile: Dockerfile
