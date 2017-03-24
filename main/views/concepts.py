@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.views.decorators.http import require_safe
 
-from concepts.models import MathItem
+from concepts.models import Concept
+from mathitems.models import MathItem
 from main.views.helpers import prepare_item_view_list
 
 
@@ -12,4 +13,11 @@ def show_concept(request, name):
         'title': name,
         'concept_name': name,
         'items': prepare_item_view_list(items),
+    })
+
+@require_safe
+def list_concepts(request):
+    return render(request, 'concepts/list.html', {
+        'title': 'All concepts',
+        'concepts': Concept.objects.filter(conceptmeta__def_count__gt=0).order_by('name')
     })

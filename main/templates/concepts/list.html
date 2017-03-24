@@ -1,0 +1,12 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<ul>
+{% for concept in concepts %}
+  <li><a href="{{ concept.get_absolute_url }}">{{ concept.name }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}
+
+{% block sidecontent %}
+{% endblock %}

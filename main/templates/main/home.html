@@ -19,7 +19,7 @@
 <p><a href="{% url 'thm-home' %}">{{ thm_count }} Theorems</a></p>
 <p><a href="{% url 'prf-home' %}">{{ prf_count }} Proofs</a></p>
 <p>{{ media_count }} Media</p>
-<p>{{ concept_count}} Concepts</p>
+<p><a href="{% url 'list-concepts' %}">{{ concept_count}} Concepts</a></p>
 <p>{{ eqn_count }} Equations</p>
 <p>{{ val_count }} Validations</p>
 <p><a href="{% url 'sources-list' %}">{{ src_count }} sources</a></p>
