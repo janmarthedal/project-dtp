@@ -7,3 +7,4 @@ debug.log
 secrets.py
 db_data
 /static/
+.idea
