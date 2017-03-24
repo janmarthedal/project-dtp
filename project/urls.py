@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.conf.urls import url, include
+from django.conf.urls.static import static
 
 from main.views import admin, concepts, drafts, main, mathitems, sources
 
@@ -37,4 +39,4 @@ urlpatterns = [
     url(r'^sources/$', sources.sources_list, name='sources-list'),
     url(r'^concept/([-a-z]+)$', concepts.show_concept, name='concept-page'),
     url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

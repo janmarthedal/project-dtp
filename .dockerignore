@@ -5,3 +5,5 @@ debug.log
 javascript/dst
 javascript/node_modules
 db_data
+static
+media-files
