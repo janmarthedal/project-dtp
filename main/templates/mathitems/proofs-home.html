@@ -1,7 +1,7 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-<h2>Latest Proofs</h2>
+<h2>Latest Proofs{% if latest_all %} <a href="{{ latest_all }}">browse all</a>{% endif %}</h2>
 {% include 'mathitems/include/item-list.html' with items=latest only %}
 
 <h2>Proofs Without Validations</h2>

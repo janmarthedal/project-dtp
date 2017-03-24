@@ -1,0 +1,19 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+{% include 'mathitems/include/item-list.html' with items=items only %}
+
+<div class="pager">
+{% if pager.has_previous %}
+    <a class="previous" href="?page={{ pager.previous_page_number }}">Previous</a>
+{% else %}
+    <a class="previous disabled" href="#">Previous</a>
+{% endif %}
+    <span>Page {{ pager.number }} of {{ pager.paginator.num_pages }}</span>
+{% if pager.has_next %}
+    <a class="next" href="?page={{ pager.next_page_number }}">Next</a>
+{% else %}
+    <a class="next disabled" href="#">Next</a>
+{% endif %}
+</div>
+{% endblock %}

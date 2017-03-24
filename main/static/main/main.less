@@ -16,14 +16,14 @@
 /* mixins */
 
 .clearfix() {
-  &:before,
-  &:after {
-    content: " ";
-    display: table;
-  }
-  &:after {
-    clear: both;
-  }
+    &:before,
+    &:after {
+        content: " ";
+        display: table;
+    }
+    &:after {
+        clear: both;
+    }
 }
 
 .panel() {
@@ -319,6 +319,49 @@ main, aside {
 
 /* headers */
 
-h4 > a {
+h2 > a, h4 > a {
     font-size: 80%;
+}
+
+/* Pagination */
+
+.pager {
+    .clearfix();
+    padding-left: 0;
+    margin: 21px 0;
+    list-style: none;
+    text-align: center;
+
+    a, a:hover {
+        color: #fff;
+    }
+
+    & > * {
+        display: inline-block;
+        padding: 5px 14px;
+    }
+
+    a:hover, a:focus {
+        text-decoration: none;
+        background-color: #0f7864;
+    }
+
+    .next, .previous {
+        background-color: #18bc9c;
+        border: 1px solid transparent;
+        border-radius: 15px;
+    }
+
+    .next {
+        float: right;
+    }
+
+    .previous {
+        float: left;
+    }
+
+    a.disabled, a.disabled:hover, a.disabled:focus {
+        background-color: #3be6c4;
+        cursor: not-allowed;
+    }
 }

@@ -1,6 +1,7 @@
 import json
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError, PermissionDenied
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponseRedirect, Http404
@@ -145,12 +146,23 @@ def add_item_validation(request, id_str):
     return render(request, 'mathitems/add-item-validation.html', context)
 
 
+def get_latest_mathitems(item_type):
+    return MathItem.objects.filter(item_type=item_type).order_by('-created_at')
+
+
+def get_first_elements_check_more(query, count):
+    items = query[:(count+1)]
+    return items[:count], len(items) > count
+
+
 @require_safe
 def def_home(request):
-    items = MathItem.objects.filter(item_type=ItemTypes.DEF).order_by('-created_at')
+    items = get_latest_mathitems(ItemTypes.DEF)
+    latest, more_latest = get_first_elements_check_more(items, 5)
     return render(request, 'mathitems/definitions-home.html', {
         'title': 'Definitions',
-        'latest': prepare_item_view_list(items[:5]),
+        'latest': prepare_item_view_list(latest),
+        'latest_all': more_latest and reverse('def-list'),
         'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
         'no_defs': Concept.objects.filter(conceptmeta__def_count=0, conceptmeta__ref_count__gt=0).order_by('-conceptmeta__ref_count', 'name'),
     })
@@ -158,10 +170,12 @@ def def_home(request):
 
 @require_safe
 def thm_home(request):
-    items = MathItem.objects.filter(item_type=ItemTypes.THM).order_by('-created_at')
+    items = get_latest_mathitems(ItemTypes.THM)
+    latest, more_latest = get_first_elements_check_more(items, 5)
     return render(request, 'mathitems/theorems-home.html', {
         'title': 'Theorems',
-        'latest': prepare_item_view_list(items[:5]),
+        'latest': prepare_item_view_list(latest),
+        'latest_all': more_latest and reverse('thm-list'),
         'without_proof': prepare_item_view_list(items.annotate(proofs=Count('mathitem')).filter(proofs=0)[:5]),
         'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
     })
@@ -169,12 +183,49 @@ def thm_home(request):
 
 @require_safe
 def prf_home(request):
-    items = MathItem.objects.filter(item_type=ItemTypes.PRF).order_by('-created_at')
+    items = get_latest_mathitems(ItemTypes.PRF)
+    latest, more_latest = get_first_elements_check_more(items, 5)
     return render(request, 'mathitems/proofs-home.html', {
         'title': 'Proofs',
-        'latest': prepare_item_view_list(items[:5]),
+        'latest': prepare_item_view_list(latest),
+        'latest_all': more_latest and reverse('prf-list'),
         'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
     })
+
+
+def item_list_page(request, title, query):
+    paginator = Paginator(query, 25)
+
+    page = request.GET.get('page')
+    try:
+        items = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        items = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        items = paginator.page(paginator.num_pages)
+
+    return render(request, 'mathitems/item-list-page.html', {
+        'title': title,
+        'pager': items,
+        'items': prepare_item_view_list(items)
+    })
+
+
+@require_safe
+def def_list(request):
+    return item_list_page(request, 'Latest Definitions', get_latest_mathitems(ItemTypes.DEF))
+
+
+@require_safe
+def thm_list(request):
+    return item_list_page(request, 'Latest Theorems', get_latest_mathitems(ItemTypes.THM))
+
+
+@require_safe
+def prf_list(request):
+    return item_list_page(request, 'Latest Proofs', get_latest_mathitems(ItemTypes.PRF))
 
 
 @require_safe
