@@ -6,12 +6,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods
 
 from concepts.models import Concept
-from drafts.models import DraftItem, ItemTypes
-from equations.models import ItemEquation, get_equation_html, freeze_equations
+from drafts.models import DraftItem
+from equations.models import get_equation_html, freeze_equations
 from main.item_helpers import get_refs_and_render, create_item_meta_data, item_to_markup, create_concept_meta
 from mathitems.models import ItemTypes, MathItem
 from permissions.manager import has_perm
-from project.server_com import convert_markup, render_item, render_eqns
+from project.server_com import convert_markup
 
 #import logging
 #logger = logging.getLogger(__name__)

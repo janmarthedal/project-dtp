@@ -1,13 +1,10 @@
 import json
-import re
-from datetime import timezone
-from django import forms
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Count
-from django.http import HttpResponseRedirect, Http404, HttpResponseBadRequest
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render
 from django.views.decorators.http import require_safe, require_http_methods
 
 from concepts.models import Concept
@@ -80,6 +77,8 @@ def edit_item_keywords(request, id_str):
         item = MathItem.objects.get_by_name(id_str)
     except MathItem.DoesNotExist:
         raise Http404('Item does not exist')
+    if not has_perm('keyword', request.user):
+        raise PermissionDenied('User not allowed to edit keywords')
     if request.method == 'POST':
         if 'delete' in request.POST:
             itemkw = ItemKeyword.objects.get(pk=int(request.POST['delete']))
@@ -112,13 +111,15 @@ def add_item_validation(request, id_str):
         item = MathItem.objects.get_by_name(id_str)
     except MathItem.DoesNotExist:
         raise Http404('Item does not exist')
+    if not has_perm('validation', request.user):
+        raise PermissionDenied('User not allowed to add validation')
     item_data = item_render(item)
     if request.method == 'POST':
         source = Source.objects.get(id=int(request.POST['source']))
-        item_validation = ItemValidation.objects.create(created_by=request.user,
-                                                        item=item,
-                                                        source=source,
-                                                        location=request.POST['location'])
+        ItemValidation.objects.create(created_by=request.user,
+                                      item=item,
+                                      source=source,
+                                      location=request.POST['location'])
         return HttpResponseRedirect(reverse('show-item', args=[id_str]))
     context = {
         'title': str(item),
