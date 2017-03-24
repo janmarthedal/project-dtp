@@ -142,7 +142,7 @@ def add_item_validation(request, id_str):
                     context['error'] = '; '.join(ve.messages)
         else:
             context['error'] = 'Illegal validation type'
-    return render(request, 'mathitems/add_item_validation.html', context)
+    return render(request, 'mathitems/add-item-validation.html', context)
 
 
 @require_safe
