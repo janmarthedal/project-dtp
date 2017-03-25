@@ -34,12 +34,12 @@
     box-shadow: inset 1px 1px rgba(0,0,0,0.05);*/
     margin: 0 0 @p-padding;
     padding: @box-padding;
+    display: block;
+    width: 100%;
 }
 
 .formcontrol() {
     .panel();
-    display: block;
-    width: 100%;
     color: #2c3e50;
     height: 45px;
 }
@@ -263,15 +263,14 @@ main, aside {
 /* item edit */
 
 .item-edit-box {
-    .formcontrol();
+    .panel();
+    height: 10em;
 }
 
 /* item image */
 
 .item-img {
     .panel();
-    display: block;
-    width: 100%;
 }
 
 /* forms */
