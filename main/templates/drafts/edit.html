@@ -17,7 +17,7 @@
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
   {% endif %}
 {% else %}
-  <textarea name="src" class="item-edit-box" rows="10">{{ item.body }}</textarea>
+  <textarea name="src" class="item-edit-box" rows="20">{{ item.body }}</textarea>
   <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
 {% endif %}
   <a href="{% url 'home' %}" class="btn btn-warning">Cancel</a>
@@ -29,9 +29,53 @@
 {% if item_data %}
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 {% else %}
-<h4>How to Edit</h4>
-<p>Use <a href="http://commonmark.org/help/">CommonMark</a> for editing,
-    except for links and images.</p>
+<h4>Markup Help</h4>
+<p>
+  Use <a href="http://commonmark.org/help/">CommonMark</a> for editing, except for links and images.
+</p>
+<p>
+  <em>Referencing:</em>
+</p>
+<p>
+  <code>[link text](D1)</code> will link to item <code>D1</code> and show the text <a href="#">link text</a>.
+</p>
+<p>
+  <code>[](D1)</code> will link to item <code>D1</code> and show the text <a href="#">D1</a>.
+</p>
+<p>
+  <code>[link text](D1#some-concept)</code> will link to item <code>D1</code> and
+  show the text <a href="#">link text</a>. The fragment <code>#some-concept</code> indicates the concept that
+  is being specifically referred to.
+</p>
+<p>
+  <code>[](D1#some-concept)</code> will link to item <code>D1</code> and show the text <a href="#">some-concept</a>.
+</p>
+<p>
+  <code>[link text](#some-concept)</code> will refer to concept <code>some-concept</code> and
+  show the text <a href="#">link text</a>.
+</p>
+<p>
+  <code>[](D1#some-concept)</code> will refer to concept <code>some-concept</code> and
+  show the text <a href="#">some-concept</a>.
+</p>
+<p>
+  <em>Defining concepts (definitions only):</em>
+</p>
+<p>
+  <code>[link text](=some-concept)</code> indicates that <code>some-concept</code> is being defined,
+  showing the text <a href="#">link text</a>
+</p>
+<p>
+  <code>[](=some-concept)</code> indicates that <code>some-concept</code> is being defined,
+  showing the text <a href="#">some-concept</a>
+</p>
+<p>
+  <em>Including mathematics:</em>
+</p>
+<p>
+  Use <code>$...$</code> to include inline formulas, using LaTeX markup. Use <code>$$...$$</code>
+  for block-style formulas.
+</p>
 {% endif %}
 </div>
 {% endblock %}
