@@ -1,4 +1,4 @@
-import {normalizeTeX} from './pure-fun';
+import {normalizeTeX, TeX_brace_balance} from './pure-fun';
 
 class EqnMap {
     constructor() {
@@ -43,16 +43,25 @@ export default function prepare_markup(text) {
             return '![](/eqn/' + id + ')';
         } else {
             const items = para.split('$');
-            return items.map(function (item, k) {
+            const result = [];
+
+            for (let k = 0; k < items.length; k++) {
+                let item = items[k];
                 if (k % 2) {
-                    const id = (k === items.length - 1)
+                    while (k + 2 < items.length && TeX_brace_balance(item) > 0) {
+                        item = [item, items[k + 1], items[k + 2]].join('$');
+                        k += 2;
+                    }
+                    const id = k + 1 === items.length
                         ? eqn_map.get_error_id('unterminated inline equation')
                         : eqn_map.get_id(item, false);
-                    return '![](/eqn/' + id + ')';
+                    result.push('![](/eqn/', id, ')');
                 } else {
-                    return item;
+                    result.push(item);
                 }
-            }).join('');
+            }
+
+            return result.join('');
         }
     }).join('\n\n');
 
