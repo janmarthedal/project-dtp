@@ -1,6 +1,4 @@
-import json
-import requests
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from concepts.models import Concept, ConceptDefinition, ConceptReference, ItemDependency
 from equations.models import ItemEquation
@@ -30,7 +28,7 @@ class Command(BaseCommand):
             create_concept_meta(concept.id)
 
         self.stdout.write('Removing unused concepts')
-        for concept in Concept.objects.exclude(name='*').filter(conceptmeta__ref_count=0,conceptmeta__def_count=0).all():
+        for concept in Concept.objects.exclude(name='*').filter(conceptmeta__ref_count=0, conceptmeta__def_count=0).all():
             self.stdout.write('  {}'.format(concept.name))
             concept.delete()
 

@@ -128,7 +128,7 @@ def node_to_markup(node, concept_map, eqn_map):
 
     children = [node_to_markup(child, concept_map, eqn_map) for child in node.get('children', [])]
     if node['type'] == 'blockquote':
-        inner = '> ' + '\n> '.join('\n\n'.join(children).split('\n'))
+        return '> ' + '\n> '.join('\n\n'.join(children).split('\n'))
     if node['type'] == 'document':
         return '\n\n'.join(children)
     if node['type'] == 'emph':

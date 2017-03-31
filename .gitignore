@@ -6,5 +6,6 @@ debug.log
 .DS_Store
 secrets.py
 db_data
+es_data
 /static/
 .idea

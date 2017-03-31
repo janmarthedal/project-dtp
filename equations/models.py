@@ -6,6 +6,8 @@ from mathitems.models import MathItem
 from project.server_com import render_eqns
 
 
+# alter table equations convert to character set utf8 collate utf8_bin;
+
 class Equation(models.Model):
     format = models.CharField(max_length=10)  # inline-TeX, TeX
     math = models.TextField()
