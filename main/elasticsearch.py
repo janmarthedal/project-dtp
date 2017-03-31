@@ -1,3 +1,10 @@
+from django.db.models import Q
+from elasticsearch import Elasticsearch
+
+from concepts.models import Concept
+from keywords.models import Keyword
+
+
 ES_HOSTS = ['http://elastic:changeme@localhost:9200']
 ES_INDEX = 'items'
 ES_TYPE = 'item'
@@ -41,8 +48,9 @@ def collect_body_text(node):
 def item_to_es_document(item):
     body = {
         'type': item.get_item_type_display().lower(),
-        'uses': [c.concept.name for c in item.conceptreference_set.all()],
-        'keyword': [c.keyword.name for c in item.itemkeyword_set.all()],
+        'uses': [c.name for c in Concept.objects.exclude(name='*')
+                    .filter(Q(itemdependency__item=item) | Q(conceptreference__item=item)).distinct()],
+        'keyword': [kw.name for kw in Keyword.objects.filter(itemkeyword__item=item)],
         'text': collect_body_text(item.get_body_root())
     }
     if item.is_def():
@@ -51,3 +59,32 @@ def item_to_es_document(item):
         'id': item.get_name(),
         'body': body
     }
+
+
+# import json
+# import logging
+# logger = logging.getLogger(__name__)
+def item_search(query, type_name, offset, limit):
+    es = Elasticsearch(ES_HOSTS)
+    results = es.search(ES_INDEX, ES_TYPE, from_=offset, size=limit, _source=False, body={
+        'query': {
+            'bool': {
+                'must': [
+                    {
+                        "match_phrase": {
+                            "type": type_name
+                        }
+                    },
+                    {
+                        'multi_match': {
+                            'query': query,
+                            'type': 'cross_fields',
+                            'fields': ["defines^8", "uses^4", "keyword^2", "text"]
+                        }
+                    }
+                ]
+            }
+        }
+    })
+    # logger.info(json.dumps(results, indent=2))
+    return [hit['_id'] for hit in results['hits']['hits']], results['hits']['total']

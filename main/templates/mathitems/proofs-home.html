@@ -9,4 +9,11 @@
 {% endblock %}
 
 {% block sidecontent %}
+<div class="sidebar-box">
+  <h4>Find Proof</h4>
+  <form method="GET" action="{% url 'prf-search' %}">
+    <input type="text" name="q" class="form-control">
+    <button type="submit" class="btn btn-default">Search</button>
+  </form>
+</div>
 {% endblock %}

@@ -4,13 +4,14 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db.models import Count
-from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render
+from django.http import Http404
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe, require_http_methods
 
 from concepts.models import Concept
 from equations.models import Equation
 from keywords.models import Keyword, ItemKeyword
+from main.elasticsearch import item_search
 from main.item_helpers import get_refs_and_render, item_to_markup
 from main.views.helpers import prepare_item_view_list
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
@@ -19,6 +20,9 @@ from validations.models import ItemValidation, Source
 
 #import logging
 #logger = logging.getLogger(__name__)
+
+PAGE_SIZE = 25
+
 
 def decode_document(node, eqn_set, concept_set):
     if 'concept' in node:
@@ -121,7 +125,7 @@ def add_item_validation(request, id_str):
                                       item=item,
                                       source=source,
                                       location=request.POST['location'])
-        return HttpResponseRedirect(reverse('show-item', args=[id_str]))
+        return redirect('show-item', id_str)
     context = {
         'title': str(item),
         'item': item,
@@ -194,7 +198,7 @@ def prf_home(request):
 
 
 def item_list_page(request, title, query):
-    paginator = Paginator(query, 25)
+    paginator = Paginator(query, PAGE_SIZE)
 
     page = request.GET.get('page')
     try:
@@ -226,6 +230,47 @@ def thm_list(request):
 @require_safe
 def prf_list(request):
     return item_list_page(request, 'Latest Proofs', get_latest_mathitems(ItemTypes.PRF))
+
+
+def item_search_helper(request, type_name, name, view):
+    query = request.GET['q']
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        return redirect('{}?q={}'.format(reverse(view), query))
+    if query:
+        results, total = item_search(query, type_name, PAGE_SIZE*(page-1), PAGE_SIZE)
+        items = [MathItem.objects.get_by_name(name) for name in results]
+        pages_total = (total + PAGE_SIZE - 1)//PAGE_SIZE
+    else:
+        items = []
+        pages_total = 0
+    if page > pages_total:
+        return redirect('{}?q={}&page={}'.format(reverse(view), query, pages_total))
+    return render(request, 'mathitems/item-search-page.html', {
+        'title': '{} Search'.format(name),
+        'query': query,
+        'items': prepare_item_view_list(items),
+        'page_number': page,
+        'pages_total': pages_total,
+        'prev_link': page > 1 and '?q={}&page={}'.format(query, page-1),
+        'next_link': page < pages_total and '?q={}&page={}'.format(query, page + 1),
+    })
+
+
+@require_safe
+def def_search(request):
+    return item_search_helper(request, 'definition', 'Definition', 'def-search')
+
+
+@require_safe
+def thm_search(request):
+    return item_search_helper(request, 'theorem', 'Theorem', 'thm-search')
+
+
+@require_safe
+def prf_search(request):
+    return item_search_helper(request, 'proof', 'Proof', 'prf-search')
 
 
 @require_safe
