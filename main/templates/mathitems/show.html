@@ -36,10 +36,10 @@
 {% endblock %}
 
 {% block sidecontent %}
-<div class="item-about-box">
+<div class="sidebar-box">
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 </div>
-<div class="item-about-box">
+<div class="sidebar-box">
 <h4>Keywords{% if can_edit_keywords %} <a href="{% url 'edit-item-keywords' item.get_name %}">edit</a>{% endif %}</h4>
 {% if keywords %}
 <ul>
