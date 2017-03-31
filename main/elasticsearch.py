@@ -1,11 +1,15 @@
 from django.db.models import Q
+from django.conf import settings
 from elasticsearch import Elasticsearch
 
 from concepts.models import Concept
 from keywords.models import Keyword
 
 
-ES_HOSTS = ['http://elastic:changeme@localhost:9200']
+if settings.DEBUG:
+    ES_HOSTS = ['http://elastic:changeme@localhost:9200']
+else:
+    ES_HOSTS = ['http://elastic:changeme@elasticsearch:9200']
 ES_INDEX = 'items'
 ES_TYPE = 'item'
 ES_INDEX_CONF = {
