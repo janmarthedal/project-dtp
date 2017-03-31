@@ -20,7 +20,7 @@ services:
     db:
         image: mysql
         volumes:
-            - ../../db_data:/var/lib/mysql
+            - db_data:/var/lib/mysql
         environment:
             MYSQL_ROOT_PASSWORD: orangebear
             MYSQL_DATABASE: dtp
@@ -43,4 +43,10 @@ services:
         cap_add:
             - IPC_LOCK
         volumes:
-            - ../../es_data:/usr/share/elasticsearch/data
+            - es_data:/usr/share/elasticsearch/data
+
+volumes:
+    db_data:
+        driver: local
+    es_data:
+        driver: local
