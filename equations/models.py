@@ -11,8 +11,9 @@ from project.server_com import render_eqns
 class Equation(models.Model):
     format = models.CharField(max_length=10)  # inline-TeX, TeX
     math = models.TextField()
-    html = models.TextField()
-    draft_access_at = models.DateTimeField(auto_now_add=True, null=True)
+    html = models.TextField(blank=True)
+    error = models.CharField(max_length=256, blank=True)
+    cache_access = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         db_table = 'equations'
@@ -24,13 +25,20 @@ class Equation(models.Model):
             math = math[:37] + '...'
         return '{} ({})'.format(math, self.format)
 
+    def check_cache_access(self):
+        if self.cache_access:
+            self.cache_access = timezone.now()
+            self.save()
+
     def to_markup(self):
         if self.format == 'TeX':
             return '$${}$$'.format(self.math)
         return '${}$'.format(self.math)
 
-    def to_data(self):
-        return {'format': self.format, 'math': self.math, 'html': self.html}
+    def get_html(self):
+        if self.error:
+            return {'error': self.error}
+        return {'id': self.id, 'html': self.html}   # id used by publish_equations
 
 
 class ItemEquation(models.Model):
@@ -42,48 +50,41 @@ class ItemEquation(models.Model):
         unique_together = ('item', 'equation')
 
 
-def freeze_equations(eqns):
-    conversion_map = {}
-    for id, data in eqns.items():
-        try:
-            eqn = Equation.objects.get(format=data['format'], math=data['math'])
-            if eqn.draft_access_at:
-                eqn.draft_access_at = None
-                eqn.save()
-        except Equation.DoesNotExist:
-            eqn = Equation.objects.create(format=data['format'], math=data['math'],
-                                          html=data['html'], draft_access_at=None)
-        conversion_map[int(id)] = eqn.id
-    return conversion_map
+def publish_equations(eqns):
+    Equation.objects.filter(id__in=[data['id'] for data in eqns.values()]).update(cache_access=None)
+    return {int(id): data['id'] for id, data in eqns.items()}
 
 
 def get_equation_html(eqns):
     rendered_eqns = {}
     to_render = {}
+    object_map = {}    # local key to Equation instance
 
     for key, data in eqns.items():
         if data.get('error'):
             rendered_eqns[key] = data
         else:
-            try:
-                eqn = Equation.objects.get(format=data['format'], math=data['math'])
-                if eqn.draft_access_at:
-                    eqn.draft_access_at = timezone.now()
-                    eqn.save()
-                rendered_eqns[key] = eqn.to_data()
-            except Equation.DoesNotExist:
+            eqn, created = Equation.objects.get_or_create(format=data['format'], math=data['math'])
+            if not (eqn.html or eqn.error):
+                # this might happen if the data has been cleared (e.g., before a backup)
+                eqn.check_cache_access()
+                created = True
+            if created:
                 to_render[key] = data
+                object_map[key] = eqn
+            else:
+                eqn.check_cache_access()
+                rendered_eqns[key] = eqn.get_html()
 
     if to_render:
         new_rendered_eqns = render_eqns(to_render)
         for key, data in new_rendered_eqns.items():
+            eqn = object_map[key]
             if data.get('error'):
-                rendered_eqns[key] = data
+                eqn.error = data['error']
             else:
-                try:
-                    eqn = Equation.objects.create(format=data['format'], math=data['math'], html=data['html'])
-                except IntegrityError:
-                    eqn = Equation.objects.get(format=data['format'], math=data['math'])
-                rendered_eqns[key] = eqn.to_data()
+                eqn.html = data['html']
+            eqn.save()
+            rendered_eqns[key] = eqn.get_html()
 
     return rendered_eqns

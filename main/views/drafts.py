@@ -7,7 +7,7 @@ from django.views.decorators.http import require_safe, require_http_methods
 
 from concepts.models import Concept
 from drafts.models import DraftItem
-from equations.models import get_equation_html, freeze_equations
+from equations.models import get_equation_html, publish_equations
 from main.item_helpers import get_refs_and_render, create_item_meta_data, item_to_markup, create_concept_meta
 from mathitems.models import ItemTypes, MathItem
 from permissions.manager import has_perm
@@ -23,12 +23,14 @@ def draft_prepare(draft):
     rendered_eqns = get_equation_html(eqns)
     return document, rendered_eqns, concepts
 
+
 def save_concepts(concepts):
     concept_conversions = {}
     for id, name in concepts.items():
         concept = Concept.objects.get_or_create(name=name)[0]
         concept_conversions[int(id)] = concept.id
     return concept_conversions
+
 
 def convert_document(node, eqn_conv, concept_conv):
     overrides = {}
@@ -45,7 +47,7 @@ def convert_document(node, eqn_conv, concept_conv):
 
 
 def publish(user, item_type, parent, document, eqns, concepts):
-    eqn_conversions = freeze_equations(eqns)
+    eqn_conversions = publish_equations(eqns)
     concept_conversions = save_concepts(concepts)
     document = convert_document(document, eqn_conversions, concept_conversions)
     item = MathItem(created_by=user, item_type=item_type, body=json.dumps(document))

@@ -35,6 +35,7 @@ def decode_document(node, eqn_set, concept_set):
         return dict(node, children=children)
     return node
 
+
 def item_render(item):
     eqn_set = set()
     concept_set = set()
