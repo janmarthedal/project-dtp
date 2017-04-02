@@ -1,17 +1,27 @@
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from equations.models import Equation
 from project.server_com import render_eqns
 
 
 class Command(BaseCommand):
-    help = 'Rerender all equations'
+    help = 'Equation management'
 
     PAGE_SIZE = 100
 
+    def add_arguments(self, parser):
+        parser.add_argument('command', choices=['clean', 'rerender'])
+
     def handle(self, *args, **options):
+        if options['command'] == 'rerender':
+            self.rerender()
+        elif options['command'] == 'clean':
+            self.clean()
+
+    def rerender(self):
         count = Equation.objects.count()
-        self.stdout.write('Number of equations: {}'.format(count))
+        self.stdout.write('Rerendering {} equations'.format(count))
 
         start = 0
         while start < count:
@@ -37,4 +47,14 @@ class Command(BaseCommand):
 
             start = stop
 
+        self.stdout.write(self.style.SUCCESS('Done'))
+
+    def clean(self):
+        total_count = Equation.objects.count()
+        self.stdout.write('Total equations : {}'.format(total_count))
+        cached_count = Equation.objects.filter(cache_access__isnull=False).count()
+        self.stdout.write('Cached equations: {}'.format(cached_count))
+        too_old = timezone.now() - timezone.timedelta(days=7)
+        delete_info = Equation.objects.filter(cache_access__isnull=False, cache_access__lt=too_old).delete()
+        self.stdout.write('Purged equations: {}'.format(delete_info[0]))
         self.stdout.write(self.style.SUCCESS('Done'))
