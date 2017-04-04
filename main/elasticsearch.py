@@ -7,9 +7,9 @@ from keywords.models import Keyword
 
 
 if settings.DEBUG:
-    ES_HOSTS = ['http://elastic:changeme@localhost:9200']
+    ES_HOSTS = ['http://localhost:9200']
 else:
-    ES_HOSTS = ['http://elastic:changeme@elasticsearch:9200']
+    ES_HOSTS = ['http://elasticsearch:9200']
 ES_INDEX = 'items'
 ES_TYPE = 'item'
 ES_INDEX_CONF = {
