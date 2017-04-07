@@ -51,6 +51,7 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
             tag = 'a';
             attr.href = '/concept/' + concept_name;
             class_names.push('concept-ref');
+            data.concept_refs[concept_name] = attr.href;
             break;
         case AST_TYPES.doc:
             tag = '';
@@ -120,7 +121,7 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
 export default function item_data_to_html(item_type, root, eqns, concepts, refs) {
     const item_type_name = ITEM_NAMES[item_type],
         out_items = [],
-        data = {defined: [], errors: [], refs: {}, is_empty: true},
+        data = {defined: [], errors: [], refs: {}, concept_refs: {}, is_empty: true},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };

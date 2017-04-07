@@ -12,6 +12,11 @@
   </li>{% endfor %}
 </ul>
 {% endif %}
+{% if item_data.concept_refs %}
+<p>Concepts referenced:</p>
+<ul>{% for concept, url in item_data.concept_refs.items %}
+  <li><a href="{{ url }}">{{ concept }}</a></li>{% endfor %}
+</ul>{% endif %}
 {% if item_data.defined %}
 <p>Concepts defined:</p>
 <ul>{% for concept in item_data.defined %}
