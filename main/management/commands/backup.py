@@ -18,4 +18,4 @@ class Command(BaseCommand):
             'equations.ItemEquation',
             'equations.RenderedEquation',
             'sessions'
-        ])
+        ], **options)

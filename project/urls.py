@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^proofs/$', mathitems.prf_home, name='prf-home'),
     url(r'^proofs/list$', mathitems.prf_list, name='prf-list'),
     url(r'^proofs/search', mathitems.prf_search, name='prf-search'),
+    url(r'^admin/backup', admin.backup),
     url(r'^accounts/', include(accounts_patterns)),
     url(r'^drafts/', include(drafts_patterns)),
     url(r'^datadump$', admin.datadump),
