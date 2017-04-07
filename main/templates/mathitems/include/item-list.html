@@ -9,6 +9,11 @@
     <span class="concept-list">{% for con in item.defines %}<span class="concept-tag">{{ con }}</span>{% endfor %}</span>
   </div>
   {% endif %}
+  {% if item.refs %}
+  <div><span class="tags-header">References</span>
+    <span class="concept-list">{% for con in item.refs %}<span class="concept-tag">{{ con }}</span>{% endfor %}</span>
+  </div>
+  {% endif %}
   {% if item.keywords %}
   <div><span class="tags-header">Keywords</span>
     <span class="concept-list">{% for kw in item.keywords %}<span class="concept-tag">{{ kw }}</span>{% endfor %}</span>
