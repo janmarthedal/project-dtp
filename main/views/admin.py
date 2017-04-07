@@ -1,4 +1,3 @@
-from django.core.exceptions import PermissionDenied
 from django.core.management import call_command
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -8,7 +7,7 @@ from django.http import FileResponse
 
 from main.item_helpers import item_to_markup
 from main.management.commands.backup import Command as BackupCommand
-from userdata.permissions import has_perm
+from userdata.permissions import require_perm
 from mathitems.models import MathItem
 
 
@@ -22,9 +21,8 @@ def datadump(request):
 
 
 @require_safe
+@require_perm('admin')
 def backup(request):
-    if not has_perm('admin', request.user):
-        raise PermissionDenied('No access to admin')
     path = timezone.now().strftime('/tmp/mathitems-%Y%m%d%H%M%S.json')
     with open(path, 'w') as f:
         call_command(BackupCommand(), stdout=f)

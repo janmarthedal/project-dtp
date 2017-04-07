@@ -16,7 +16,7 @@ from main.item_helpers import get_refs_and_render, item_to_markup
 from main.views.helpers import prepare_item_view_list
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
 from validations.models import ItemValidation, Source
-from userdata.permissions import has_perm
+from userdata.permissions import has_perm, require_perm
 
 # import logging
 # logger = logging.getLogger(__name__)
@@ -76,15 +76,14 @@ def show_item(request, id_str):
     return render(request, 'mathitems/show.html', context)
 
 
-@login_required
 @require_http_methods(['GET', 'POST'])
+@login_required
+@require_perm('keyword')
 def edit_item_keywords(request, id_str):
     try:
         item = MathItem.objects.get_by_name(id_str)
     except MathItem.DoesNotExist:
         raise Http404('Item does not exist')
-    if not has_perm('keyword', request.user):
-        raise PermissionDenied('User not allowed to edit keywords')
     if request.method == 'POST':
         if 'delete' in request.POST:
             itemkw = ItemKeyword.objects.get(pk=int(request.POST['delete']))
@@ -111,15 +110,14 @@ def edit_item_keywords(request, id_str):
     return render(request, 'mathitems/edit-item-keywords.html', context)
 
 
-@login_required
 @require_http_methods(['GET', 'POST'])
+@login_required
+@require_perm('validation')
 def add_item_validation(request, id_str):
     try:
         item = MathItem.objects.get_by_name(id_str)
     except MathItem.DoesNotExist:
         raise Http404('Item does not exist')
-    if not has_perm('validation', request.user):
-        raise PermissionDenied('User not allowed to add validation')
     item_data = item_render(item)
     if request.method == 'POST':
         source = Source.objects.get(id=int(request.POST['source']))
