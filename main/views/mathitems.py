@@ -15,8 +15,8 @@ from main.elasticsearch import index_item, item_search
 from main.item_helpers import get_refs_and_render, item_to_markup
 from main.views.helpers import prepare_item_view_list
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
-from permissions.manager import has_perm
 from validations.models import ItemValidation, Source
+from userdata.permissions import has_perm
 
 #import logging
 #logger = logging.getLogger(__name__)

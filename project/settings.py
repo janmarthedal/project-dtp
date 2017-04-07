@@ -35,7 +35,7 @@ LOCAL_APPS = [
     'concepts',
     'equations',
     'keywords',
-    'permissions',
+    'userdata',
     'main',
 ]
 

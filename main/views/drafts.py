@@ -11,8 +11,8 @@ from equations.models import get_equation_html, publish_equations
 from main.elasticsearch import index_item
 from main.item_helpers import get_refs_and_render, create_item_meta_data, item_to_markup, create_concept_meta
 from mathitems.models import ItemTypes, MathItem
-from permissions.manager import has_perm
 from project.server_com import convert_markup
+from userdata.permissions import has_perm
 
 #import logging
 #logger = logging.getLogger(__name__)
