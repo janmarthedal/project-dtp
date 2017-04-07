@@ -3,14 +3,16 @@ from equations.models import Equation, ItemEquation
 from mathitems.models import ItemTypes, MathItem, node_to_markup
 from project.server_com import render_item
 
-#import logging
-#logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
+
 
 def get_node_refs(node, refs):
     if 'item' in node:
         refs.add(node['item'])
     for child in node.get('children', []):
         get_node_refs(child, refs)
+
 
 def get_document_refs(document):
     item_names = set()
@@ -27,6 +29,7 @@ def get_document_refs(document):
         except MathItem.DoesNotExist:
             pass
     return info
+
 
 def get_refs_and_render(item_type, document, eqns, concepts):
     refs = get_document_refs(document)

@@ -18,8 +18,8 @@ from mathitems.models import ItemTypes, MathItem, IllegalMathItem
 from validations.models import ItemValidation, Source
 from userdata.permissions import has_perm
 
-#import logging
-#logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 25
 

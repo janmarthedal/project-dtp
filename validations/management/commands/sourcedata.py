@@ -1,7 +1,8 @@
 import json
 import requests
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from validations.models import Source
+
 
 class Command(BaseCommand):
     help = 'Fetch metadata for sources'
