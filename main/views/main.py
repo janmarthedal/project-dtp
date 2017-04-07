@@ -11,8 +11,9 @@ from mathitems.models import MathItem
 from mathitems.itemtypes import ItemTypes
 from validations.models import ItemValidation, Source
 
-#import logging
-#logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
+
 
 @require_safe
 def home(request):
@@ -29,12 +30,14 @@ def home(request):
         'user_count': get_user_model().objects.filter(is_active=True).count()
     })
 
+
 @require_safe
 def login(request):
     return render(request, 'main/login.html', {
         'title': 'Sign In',
         'next': request.GET.get('next'),
     })
+
 
 @login_required
 @require_safe
@@ -44,6 +47,7 @@ def profile(request):
         'drafts': drafts,
         'title': 'Profile'
     })
+
 
 @require_safe
 def logout(request):

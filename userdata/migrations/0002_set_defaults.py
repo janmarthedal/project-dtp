@@ -10,7 +10,7 @@ def set_defaults(apps, schema_editor):
     User = apps.get_model(settings.AUTH_USER_MODEL)
     UserData = apps.get_model('userdata', 'UserData')
     for user in User.objects.all():
-        UserData.objects.create(user=user, perms='')
+        UserData.objects.new_user(user)
 
 
 class Migration(migrations.Migration):
