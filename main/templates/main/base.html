@@ -23,6 +23,9 @@
       </span>
     </nav>
 {% block content %}{% endblock %}
+    <footer>
+      <p>Developed by <a href="http://janmr.com">Jan Marthedal Rasmussen</a></p>
+    </footer>
     {% if not debug %}<script>{% comment %}Put this at the end of the js bundle{% endcomment %}
       window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
       ga('create','UA-46471633-3','auto');ga('send','pageview')
