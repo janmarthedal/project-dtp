@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe, require_http_methods
 
 from concepts.models import Concept
-from equations.models import Equation
+from equations.models import RenderedEquation
 from keywords.models import Keyword, ItemKeyword
 from main.elasticsearch import index_item, item_search
 from main.item_helpers import get_refs_and_render, item_to_markup
@@ -40,8 +40,8 @@ def item_render(item):
     eqn_set = set()
     concept_set = set()
     document = decode_document(json.loads(item.body), eqn_set, concept_set)
-    eqn_map = {eqn.id: {'html': eqn.html}
-               for eqn in Equation.objects.filter(id__in=eqn_set)}
+    eqn_map = {reqn.pk: {'html': reqn.html}
+               for reqn in RenderedEquation.objects.filter(pk__in=eqn_set)}
     concept_map = {concept.id: concept.name
                    for concept in Concept.objects.filter(id__in=concept_set)}
     result = get_refs_and_render(item.item_type, document, eqn_map, concept_map)

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from equations.models import Equation
+from equations.models import Equation, RenderedEquation
 from project.server_com import render_eqns
 
 
@@ -37,13 +37,8 @@ class Command(BaseCommand):
             rendered_eqns = render_eqns(to_render)
             for key, data in rendered_eqns.items():
                 eqn = object_map[int(key)]
-                if data.get('error'):
-                    eqn.error = data['error']
-                    eqn.html = ''
-                else:
-                    eqn.html = data['html']
-                    eqn.error = ''
-                eqn.save()
+                RenderedEquation.objects.update_or_create(eqn=eqn, defaults={'html': data.get('html', ''),
+                                                                             'error': data.get('error', '')})
 
             start = stop
 
