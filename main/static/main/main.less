@@ -1,6 +1,6 @@
 /* https://bootswatch.com/flatly/ */
 
-@base-size: 15px;
+@base-size: 1rem;
 @h4-size: 1.2*@base-size;
 @h3-size: 1.2*@h4-size;
 @h2-size: 1.2*@h3-size;
@@ -12,6 +12,7 @@
 @navbar-fg: #fff;
 @link-hover: #18bc9c;
 @navbar-brand-size: 1.5*@base-size;
+@thin-border-width: 1px;
 
 /* mixins */
 
@@ -28,10 +29,10 @@
 
 .panel() {
     background-color: #fff;
-    border: 2px solid #dce4ec;
-    //border-radius: 4px;
-    /*-webkit-box-shadow: inset 1px 1px rgba(0,0,0,0.05);
-    box-shadow: inset 1px 1px rgba(0,0,0,0.05);*/
+    border: 2*@thin-border-width solid #dce4ec;
+    //border-radius: 4*@thin-border-width;
+    /*-webkit-box-shadow: inset @thin-border-width @thin-border-width rgba(0,0,0,0.05);
+    box-shadow: inset @thin-border-width @thin-border-width rgba(0,0,0,0.05);*/
     margin: 0 0 @p-padding;
     padding: @box-padding;
     display: block;
@@ -41,7 +42,7 @@
 .formcontrol() {
     .panel();
     color: #2c3e50;
-    height: 45px;
+    height: 3*@base-size;
 }
 
 /* globals */
@@ -52,7 +53,7 @@
 
 body {
     font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size: @base-size;
+    font-size: 100%;
     line-height: 1.4;
 }
 
@@ -101,12 +102,12 @@ h1 {
     touch-action: manipulation;*/
     cursor: pointer;
     background-image: none;
-    border: 1px solid transparent;
+    border: @thin-border-width solid transparent;
     white-space: nowrap;
-    padding: 10px 15px;
-    font-size: 15px;
+    padding: 0.67*@base-size @base-size;
+    font-size: @base-size;
     line-height: 1.42857143;
-    //border-radius: 4px;
+    //border-radius: 0.3*@base-size;
     /*-webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -238,7 +239,7 @@ main, aside {
     }
     & > * {
         display: block;
-        border: 1px solid #ecf0f1;
+        border: @thin-border-width solid #ecf0f1;
         padding: @box-padding;
         .item-heading, .concept-list, .item-about {
             margin: 0;
@@ -308,7 +309,7 @@ main, aside {
 
 .close {
     float: right;
-    font-size: 18px;
+    font-size: 1.2*@base-size;
     line-height: 1;
     text-shadow: none;
     opacity: 0.4;
@@ -333,7 +334,7 @@ h2 > a, h4 > a {
 .pager {
     .clearfix();
     padding-left: 0;
-    margin: 21px 0;
+    margin: 1.4*@base-size 0;
     list-style: none;
     text-align: center;
 
@@ -343,7 +344,7 @@ h2 > a, h4 > a {
 
     & > * {
         display: inline-block;
-        padding: 5px 14px;
+        padding: 0.33*@base-size @base-size;
     }
 
     a:hover, a:focus {
@@ -353,8 +354,8 @@ h2 > a, h4 > a {
 
     .next, .previous {
         background-color: #18bc9c;
-        border: 1px solid transparent;
-        border-radius: 15px;
+        border: @thin-border-width solid transparent;
+        border-radius: @base-size;
     }
 
     .next {
