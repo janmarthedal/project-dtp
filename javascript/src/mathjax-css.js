@@ -1,8 +1,9 @@
 'use strict';
 
 const mjAPI = require('mathjax-node');
+const mjConfig = require('./mathjax-config');
 
-mjAPI.config({MathJax: {}});
+mjAPI.config(mjConfig);
 mjAPI.start();
 
 mjAPI.typeset({

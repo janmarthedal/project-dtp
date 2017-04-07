@@ -1,6 +1,7 @@
 import mjAPI from 'mathjax-node';
+import mjConfig from './mathjax-config';
 
-mjAPI.config({MathJax: {}});
+mjAPI.config(mjConfig);
 mjAPI.start();
 
 export default function typeset(id, data) {
