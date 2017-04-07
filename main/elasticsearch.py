@@ -14,7 +14,7 @@ ES_INDEX = 'items'
 ES_TYPE = 'item'
 ES_INDEX_CONF = {
     "settings": {
-        "refresh_interval": -1,
+        "refresh_interval": "5s",
         "number_of_shards": 1,
         "number_of_replicas": 0
     },
@@ -40,6 +40,8 @@ ES_INDEX_CONF = {
         }
     }
 }
+
+elasticsearch = Elasticsearch(ES_HOSTS)
 
 
 def collect_body_text(node):
@@ -69,8 +71,7 @@ def item_to_es_document(item):
 # import logging
 # logger = logging.getLogger(__name__)
 def item_search(query, type_name, offset, limit):
-    es = Elasticsearch(ES_HOSTS)
-    results = es.search(ES_INDEX, ES_TYPE, from_=offset, size=limit, _source=False, body={
+    results = elasticsearch.search(ES_INDEX, ES_TYPE, from_=offset, size=limit, _source=False, body={
         'query': {
             'bool': {
                 'must': [
@@ -92,3 +93,20 @@ def item_search(query, type_name, offset, limit):
     })
     # logger.info(json.dumps(results, indent=2))
     return [hit['_id'] for hit in results['hits']['hits']], results['hits']['total']
+
+
+def create_index():
+    existed = elasticsearch.indices.exists(ES_INDEX)
+    if existed:
+        elasticsearch.indices.delete(ES_INDEX)
+    elasticsearch.indices.create(ES_INDEX, body=ES_INDEX_CONF)
+    return existed
+
+
+def index_item(item):
+    data = item_to_es_document(item)
+    elasticsearch.index(ES_INDEX, ES_TYPE, id=data['id'], body=data['body'])
+
+
+def refresh_index():
+    elasticsearch.indices.refresh(ES_INDEX)

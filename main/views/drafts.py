@@ -8,6 +8,7 @@ from django.views.decorators.http import require_safe, require_http_methods
 from concepts.models import Concept
 from drafts.models import DraftItem
 from equations.models import get_equation_html, publish_equations
+from main.elasticsearch import index_item
 from main.item_helpers import get_refs_and_render, create_item_meta_data, item_to_markup, create_concept_meta
 from mathitems.models import ItemTypes, MathItem
 from permissions.manager import has_perm
@@ -57,6 +58,7 @@ def publish(user, item_type, parent, document, eqns, concepts):
     concept_ids = create_item_meta_data(item)
     for concept_id in concept_ids:
         create_concept_meta(concept_id)
+    index_item(item)
     return item
 
 

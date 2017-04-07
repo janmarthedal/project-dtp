@@ -11,7 +11,7 @@ from django.views.decorators.http import require_safe, require_http_methods
 from concepts.models import Concept
 from equations.models import Equation
 from keywords.models import Keyword, ItemKeyword
-from main.elasticsearch import item_search
+from main.elasticsearch import index_item, item_search
 from main.item_helpers import get_refs_and_render, item_to_markup
 from main.views.helpers import prepare_item_view_list
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
@@ -96,6 +96,7 @@ def edit_item_keywords(request, id_str):
                 keyword, _ = Keyword.objects.get_or_create(name=request.POST['kw'])
                 itemkw, _ = ItemKeyword.objects.get_or_create(
                                 item=item, keyword=keyword, defaults={'created_by': request.user})
+        index_item(item)
     item_data = item_render(item)
     context = {
         'title': str(item),
