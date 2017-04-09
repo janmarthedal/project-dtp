@@ -15,7 +15,7 @@
         <li><a href="{% url 'def-home' %}">Definitions</a></li>
         <li><a href="{% url 'thm-home' %}">Theorems</a></li>
         <li><a href="{% url 'prf-home' %}">Proofs</a></li>
-        <li><a href="#">Media</a></li>
+        <li><a href="{% url 'media-home' %}">Media</a></li>
       </ul>
       <span class="navbar-user">
         {% if user.is_authenticated %}Signed in as <a href="{% url 'profile' %}" class="navbar-link">{{ user.username }}</a>

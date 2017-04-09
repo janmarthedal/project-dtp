@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.conf.urls import url, include
 
-from main.views import admin, concepts, drafts, main, mathitems, sources
+from main.views import admin, concepts, drafts, main, mathitems, media, sources
 
 accounts_patterns = [
     url(r'^login/$', main.login, name='login'),
@@ -26,22 +26,25 @@ urlpatterns = [
     url(r'^([DTP][1-9]\d*)/dump$', mathitems.dump_item, name='dump-item'),
     url(r'^([DTP][1-9]\d*)/add-validation$', mathitems.add_item_validation, name='add-item-validation'),
     url(r'^([DTP][1-9]\d*)/keywords$', mathitems.edit_item_keywords, name='edit-item-keywords'),
+    url(r'^(M[1-9]\d*)$', media.show_media, name='media-show'),
+    url(r'^admin/backup', admin.backup),
+    url(r'^admin/datadump$', admin.datadump),
+    url(r'^accounts/', include(accounts_patterns)),
+    url(r'^concept/([-a-z]+)$', concepts.show_concept, name='concept-page'),
+    url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
     url(r'^definitions/$', mathitems.def_home, name='def-home'),
     url(r'^definitions/list$', mathitems.def_list, name='def-list'),
     url(r'^definitions/search$', mathitems.def_search, name='def-search'),
-    url(r'^theorems/$', mathitems.thm_home, name='thm-home'),
-    url(r'^theorems/list$', mathitems.thm_list, name='thm-list'),
-    url(r'^theorems/search$', mathitems.thm_search, name='thm-search'),
+    url(r'^drafts/', include(drafts_patterns)),
+    url(r'^media/$', media.home, name='media-home'),
+    url(r'^media/add$', media.media_add, name='media-add'),
     url(r'^proofs/$', mathitems.prf_home, name='prf-home'),
     url(r'^proofs/list$', mathitems.prf_list, name='prf-list'),
     url(r'^proofs/search', mathitems.prf_search, name='prf-search'),
-    url(r'^admin/backup', admin.backup),
-    url(r'^accounts/', include(accounts_patterns)),
-    url(r'^drafts/', include(drafts_patterns)),
-    url(r'^datadump$', admin.datadump),
+    url(r'^theorems/$', mathitems.thm_home, name='thm-home'),
+    url(r'^theorems/list$', mathitems.thm_list, name='thm-list'),
+    url(r'^theorems/search$', mathitems.thm_search, name='thm-search'),
     url(r'^sources/$', sources.sources_list, name='sources-list'),
-    url(r'^concept/([-a-z]+)$', concepts.show_concept, name='concept-page'),
-    url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
 ]
 
 if settings.DEBUG:

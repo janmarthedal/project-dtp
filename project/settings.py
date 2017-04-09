@@ -36,6 +36,7 @@ LOCAL_APPS = [
     'equations',
     'keywords',
     'userdata',
+    'media',
     'main',
 ]
 
