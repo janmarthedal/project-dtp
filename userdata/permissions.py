@@ -3,7 +3,10 @@ from django.core.exceptions import PermissionDenied
 
 
 def has_perm(name, user):
-    return user.is_authenticated and name in user.userdata.perms.split(',')
+    if not user.is_authenticated:
+        return False
+    perms = user.userdata.perms.split(',')
+    return 'all' in perms or name in perms
 
 
 def require_perm(perm_name):
