@@ -28,7 +28,7 @@ def home(request):
         'prf_count': MathItem.objects.filter(item_type=ItemTypes.PRF).count(),
         'media_count': media_count,
         'concept_count': ConceptMeta.objects.filter(def_count__gt=0).count(),
-        'eqn_count': Equation.objects.filter(itemequation__item__isnull=False).distinct().count(),
+        'eqn_count': Equation.objects.filter(cache_access__isnull=True).count(),
         'val_count': ItemValidation.objects.count(),
         'src_count': Source.objects.count(),
         'user_count': get_user_model().objects.filter(is_active=True).count()
