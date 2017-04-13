@@ -20,8 +20,10 @@ SVGO_EXE_PATH = os.path.join(settings.BASE_DIR, './node_modules/.bin/svgo')
 
 @require_safe
 def home(request):
+    items = [{'item': item} for item in Media.objects.order_by('id')]
     return render(request, 'media/home.html', {
-        'title': 'Media'
+        'title': 'Media',
+        'items': items
     })
 
 

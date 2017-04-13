@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 
 
@@ -13,3 +14,6 @@ class Media(models.Model):
 
     def get_name(self):
         return 'M{}'.format(self.id)
+
+    def get_absolute_url(self):
+        return reverse('media-show', args=[self.get_name()])

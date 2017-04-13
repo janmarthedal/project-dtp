@@ -1,6 +1,22 @@
 {% extends 'main/page.html' %}
+{% load humanize %}
 
 {% block pagecontent %}
+{% if items %}
+<div class="item-list">
+{% for item in items %}
+<a href="{{ item.item.get_absolute_url }}">
+  <h4 class="item-heading">{{ item.item.get_name }}</h4>
+  <div><span class="tags-header">Format</span>
+    <span class="concept-list"><span class="concept-tag">{{ item.item.format }}</span></span>
+  </div>
+  <p class="item-about">Added {{ item.item.created_at|naturaltime }} by {{ item.item.created_by.get_username }}</p>
+</a>
+{% endfor %}
+</div>
+{% else %}
+<p><em>None</em></p>
+{% endif %}
 {% endblock %}
 
 {% block sidecontent %}

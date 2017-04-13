@@ -2,7 +2,7 @@
 {% if items %}
 <div class="item-list">
 {% for item in items %}
-<a href="{{item.item.get_absolute_url}}">
+<a href="{{ item.item.get_absolute_url }}">
   <h4 class="item-heading">{{ item.item }}{% if item.item.parent %} <small>of {{ item.item.parent }}</small>{% endif %}</h4>
   {% if item.item.is_def %}
   <div><span class="tags-header">Defines</span>
