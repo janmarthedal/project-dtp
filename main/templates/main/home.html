@@ -10,7 +10,7 @@
 {% include 'mathitems/include/item-list.html' with items=latest only %}
 
 <h2>Featured Media Item</h2>
-<img class="item-img" src="{{ MEDIA_URL }}geoprog.svg">
+<img class="item-img" src="{{ MEDIA_URL }}{{ featured_media.path }}">
 {% endblock %}
 
 {% block sidecontent %}
@@ -18,7 +18,7 @@
 <p><a href="{% url 'def-home' %}">{{ def_count }} Definitions</a></p>
 <p><a href="{% url 'thm-home' %}">{{ thm_count }} Theorems</a></p>
 <p><a href="{% url 'prf-home' %}">{{ prf_count }} Proofs</a></p>
-<p>{{ media_count }} Media</p>
+<p><a href="{% url 'media-home' %}">{{ media_count }} Media items</a></p>
 <p><a href="{% url 'list-concepts' %}">{{ concept_count}} Concepts</a></p>
 <p>{{ eqn_count }} Equations</p>
 <p>{{ val_count }} Validations</p>

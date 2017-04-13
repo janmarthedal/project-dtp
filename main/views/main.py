@@ -1,3 +1,4 @@
+import random
 from django.contrib.auth import logout as auth_logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -9,6 +10,7 @@ from equations.models import Equation
 from main.views.helpers import prepare_item_view_list
 from mathitems.models import MathItem
 from mathitems.itemtypes import ItemTypes
+from media.models import Media
 from validations.models import ItemValidation, Source
 
 # import logging
@@ -17,12 +19,14 @@ from validations.models import ItemValidation, Source
 
 @require_safe
 def home(request):
+    media_count = Media.objects.count()
     return render(request, 'main/home.html', {
         'latest': prepare_item_view_list(MathItem.objects.order_by('-created_at')[:1]),
+        'featured_media': Media.objects.all()[random.randrange(0, media_count)],
         'def_count': MathItem.objects.filter(item_type=ItemTypes.DEF).count(),
         'thm_count': MathItem.objects.filter(item_type=ItemTypes.THM).count(),
         'prf_count': MathItem.objects.filter(item_type=ItemTypes.PRF).count(),
-        'media_count': 0,
+        'media_count': media_count,
         'concept_count': ConceptMeta.objects.filter(def_count__gt=0).count(),
         'eqn_count': Equation.objects.filter(itemequation__item__isnull=False).distinct().count(),
         'val_count': ItemValidation.objects.count(),
