@@ -57,17 +57,18 @@ def media_add(request):
         if 'error' in cp.stderr.decode().lower():
             context['error'] = 'Not a valid SVG file'
         else:
-            context['path'] = filename
+            context['url'] = settings.MEDIA_URL + filename
+            context['field_value'] = filename
     return render(request, 'media/add.html', context)
 
 
 @require_safe
 def show_media(request, media_str):
     try:
-        media = Media.objects.get(id=int(media_str[1:]))
+        media = Media.objects.get_by_name(media_str)
     except Media.DoesNotExist:
         raise Http404('Media does not exist')
     return render(request, 'media/show.html', {
         'title': 'Media {}'.format(media.get_name()),
-        'path': media.path
+        'url': media.full_path()
     })

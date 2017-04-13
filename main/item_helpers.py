@@ -1,39 +1,50 @@
 from concepts.models import Concept, ConceptDefinition, ConceptReference, ItemDependency, ConceptMeta
 from equations.models import Equation, ItemEquation
 from mathitems.models import ItemTypes, MathItem, node_to_markup
+from media.models import Media
 from project.server_com import render_item
 
 # import logging
 # logger = logging.getLogger(__name__)
 
 
-def get_node_refs(node, refs):
+def get_node_refs(node, refs, media_refs):
     if 'item' in node:
         refs.add(node['item'])
+    if 'media' in node:
+        media_refs.add(node['media'])
     for child in node.get('children', []):
-        get_node_refs(child, refs)
+        get_node_refs(child, refs, media_refs)
 
 
 def get_document_refs(document):
     item_names = set()
-    get_node_refs(document, item_names)
-    info = {}
+    media_names = set()
+    get_node_refs(document, item_names, media_names)
+    item_info = {}
     for item_name in item_names:
         try:
             item = MathItem.objects.get_by_name(item_name)
             data = {'url': item.get_absolute_url()}
             if item.item_type == ItemTypes.DEF:
                 data['defines'] = list(Concept.objects.filter(conceptdefinition__item=item)
-                                            .values_list('name', flat=True))
-            info[item_name] = data
+                                       .values_list('name', flat=True))
+            item_info[item_name] = data
         except MathItem.DoesNotExist:
             pass
-    return info
+    media_info = {}
+    for media_name in media_names:
+        try:
+            item = Media.objects.get_by_name(media_name)
+            media_info[media_name] = item.full_path()
+        except Media.DoesNotExist:
+            pass
+    return item_info, media_info
 
 
 def get_refs_and_render(item_type, document, eqns, concepts):
-    refs = get_document_refs(document)
-    return render_item(item_type, document, eqns, concepts, refs)
+    refs, media_refs = get_document_refs(document)
+    return render_item(item_type, document, eqns, concepts, refs, media_refs)
 
 
 def create_item_meta_data(item):
@@ -79,7 +90,7 @@ def item_to_markup(item):
 def create_concept_meta(concept_id):
     ConceptMeta.objects.update_or_create(
         concept_id=concept_id,
-        defaults = {
+        defaults={
             'ref_count': ConceptReference.objects.filter(concept_id=concept_id).count(),
             'def_count': ConceptDefinition.objects.filter(concept_id=concept_id).count()
         }

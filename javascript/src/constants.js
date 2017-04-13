@@ -19,6 +19,7 @@ export const AST_TYPES = {
     itemref: 'item-ref',
     list: 'list',
     listitem: 'list-item',
+    media: 'media',
     paragraph: 'para',
     ruler: 'ruler',
     strong: 'strong',

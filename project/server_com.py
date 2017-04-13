@@ -19,15 +19,14 @@ def render_eqns(eqns):
     return node_request('/render-eqns', {'eqns': eqns})
 
 
-"""
-IN: item_type, document, eqns, concepts, refs
-OUT: {html, errors, defines}
-"""
-def render_item(item_type, document, eqns, concepts, refs):
+# IN: item_type, document, eqns, concepts, refs, media_refs
+# OUT: {html, errors, defines}
+def render_item(item_type, document, eqns, concepts, refs, media_refs):
     return node_request('/render-item', {
         'item_type': item_type,
         'document': document,
         'eqns': eqns,
         'concepts': concepts,
         'refs': refs,
+        'media': media_refs
     })

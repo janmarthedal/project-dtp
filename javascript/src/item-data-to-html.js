@@ -1,7 +1,7 @@
 import {flattenDeep, map, uniq} from 'lodash';
 import {ITEM_NAMES, AST_TYPES} from './constants';
 
-function item_node_to_html(emit, node, eqns, concepts, refs, data) {
+function item_node_to_html(emit, node, eqns, concepts, refs, media, data) {
     if (node.type === AST_TYPES.text) {
         if (node.value)
             data.is_empty = false;
@@ -90,6 +90,16 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
         case AST_TYPES.listitem:
             tag = 'li';
             break;
+        case AST_TYPES.media:
+            const media_url = media[node.media];
+            if (media_url) {
+                tag = 'img';
+                class_names.push('item-img');
+                attr.src = media_url;
+            } else {
+                error = 'Illegal media reference ' + node.media;
+            }
+            break;
         case AST_TYPES.paragraph:
             tag = 'p';
             break;
@@ -113,19 +123,19 @@ function item_node_to_html(emit, node, eqns, concepts, refs, data) {
         emit('<', tag, map(attr, (value, key) => [' ', key, '="', value, '"']), '>');
     }
     if (node.children)
-        node.children.forEach(child => item_node_to_html(emit, child, eqns, concepts, refs, data))
-    if (tag)
+        node.children.forEach(child => item_node_to_html(emit, child, eqns, concepts, refs, media, data))
+    if (tag != 'img')
         emit('</', tag, '>');
 }
 
-export default function item_data_to_html(item_type, root, eqns, concepts, refs) {
+export default function item_data_to_html(item_type, root, eqns, concepts, refs, media) {
     const item_type_name = ITEM_NAMES[item_type],
         out_items = [],
         data = {defined: [], errors: [], refs: {}, concept_refs: {}, is_empty: true},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };
-    item_node_to_html(emit, root, eqns, concepts, refs, data);
+    item_node_to_html(emit, root, eqns, concepts, refs, media, data);
     if (data.is_empty)
         data.errors.push('A ' + item_type_name + ' may not be empty')
     if (item_type === 'D' && !data.defined.length)

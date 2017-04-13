@@ -5,6 +5,7 @@ const reader = new commonmark.Parser();
 const regex_tag_def = /^=([-a-z]+)$/;
 const regex_item_ref = /^([DTP][1-9]\d*)(?:#([-a-z]+))?$/;
 const regex_concept_ref = /^#([-a-z]+)$/;
+const regex_media_ref = /^(M[1-9]\d*)$/;
 
 class ConceptMap {
     constructor() {
@@ -39,13 +40,19 @@ function make_text(value) {
     };
 }
 
-function image_handler(node, item) {
+function image_handler(node) {
     const src = node.destination || '';
-    if (src.startsWith('/eqn/')) {
+    let match;
+    if ((match = src.match(regex_media_ref)) != null) {
+        return {
+            type: AST_TYPES.media,
+            media: match[1]
+        };
+    } else if (src.startsWith('/eqn/')) {
         return {
             type: AST_TYPES.eqn,
             eqn: parseInt(src.substr(5))
-        }
+        };
     } else {
         return make_error("illegal img source '" + src + "'");
     }
@@ -128,7 +135,7 @@ function node_visit(node, concept_map) {
             item.type = AST_TYPES.heading;
             break;
         case 'image':
-            item = image_handler(node, item);
+            item = image_handler(node);
             break;
         case 'link':
             item = link_handler(node, item, concept_map);

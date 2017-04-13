@@ -14,8 +14,8 @@ from mathitems.models import ItemTypes, MathItem
 from project.server_com import convert_markup
 from userdata.permissions import has_perm
 
-#import logging
-#logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
 
 
 def draft_prepare(draft):

@@ -40,9 +40,10 @@ app.post('/render-item', function(req, res) {
         document = req.body.document,
         eqns = req.body.eqns,
         concepts = req.body.concepts,
-        refs = req.body.refs;
+        refs = req.body.refs,
+        media = req.body.media;
     if (item_type in ITEM_NAMES && document) {
-        item_data_to_html(item_type, document, eqns, concepts, refs)
+        item_data_to_html(item_type, document, eqns, concepts, refs, media)
             .then(data => {
                 json_response(res, data);
             });
