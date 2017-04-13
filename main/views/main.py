@@ -20,9 +20,8 @@ from validations.models import ItemValidation, Source
 @require_safe
 def home(request):
     media_count = Media.objects.count()
-    return render(request, 'main/home.html', {
+    context = {
         'latest': prepare_item_view_list(MathItem.objects.order_by('-created_at')[:1]),
-        'featured_media': Media.objects.all()[random.randrange(0, media_count)],
         'def_count': MathItem.objects.filter(item_type=ItemTypes.DEF).count(),
         'thm_count': MathItem.objects.filter(item_type=ItemTypes.THM).count(),
         'prf_count': MathItem.objects.filter(item_type=ItemTypes.PRF).count(),
@@ -32,7 +31,10 @@ def home(request):
         'val_count': ItemValidation.objects.count(),
         'src_count': Source.objects.count(),
         'user_count': get_user_model().objects.filter(is_active=True).count()
-    })
+    }
+    if media_count:
+        context['featured_media'] = Media.objects.all()[random.randrange(0, media_count)].full_path()
+    return render(request, 'main/home.html', context)
 
 
 @require_safe

@@ -9,8 +9,10 @@
 <h2>Latest Item</h2>
 {% include 'mathitems/include/item-list.html' with items=latest only %}
 
+{% if featured_media %}
 <h2>Featured Media Item</h2>
-<img class="item-img" src="{{ featured_media.full_path }}">
+<img class="item-img" src="{{ featured_media }}">
+{% endif %}
 {% endblock %}
 
 {% block sidecontent %}
