@@ -5,7 +5,7 @@ from mathitems.models import MathItem
 from project.server_com import render_eqns
 
 
-# alter table equations convert to character set utf8 collate utf8_bin;
+# ALTER TABLE equations CONVERT TO CHARACTER SET utf8 COLLATE utf8_bin;
 
 class Equation(models.Model):
     format = models.CharField(max_length=10)  # inline-TeX, TeX
@@ -14,7 +14,7 @@ class Equation(models.Model):
 
     class Meta:
         db_table = 'equations'
-        #unique_together = ('format', 'math')   # not possible for mysql
+        # unique_together = ('format', 'math')   # not possible for mysql
 
     def __str__(self):
         math = self.math
