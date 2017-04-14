@@ -19,6 +19,35 @@ drafts_patterns = [
     url(r'^clone/([DTP][1-9]\d*)$', drafts.copy_to_draft, name='copy-to-draft'),
 ]
 
+admin_patterns = [
+    url(r'^backup', admin.backup),
+    url(r'^datadump$', admin.datadump),
+]
+
+definitions_patterns = [
+    url(r'^$', mathitems.def_home, name='def-home'),
+    url(r'^list$', mathitems.def_list, name='def-list'),
+    url(r'^search$', mathitems.def_search, name='def-search'),
+]
+
+media_patterns = [
+    url(r'^$', media.home, name='media-home'),
+    url(r'^add$', media.media_add, name='media-add'),
+    url(r'^search$', media.media_search, name='media-search'),
+]
+
+proofs_patterns = [
+    url(r'^$', mathitems.prf_home, name='prf-home'),
+    url(r'^list$', mathitems.prf_list, name='prf-list'),
+    url(r'^search', mathitems.prf_search, name='prf-search'),
+]
+
+theorems_patterns = [
+    url(r'^$', mathitems.thm_home, name='thm-home'),
+    url(r'^list$', mathitems.thm_list, name='thm-list'),
+    url(r'^search$', mathitems.thm_search, name='thm-search'),
+]
+
 urlpatterns = [
     url(r'^$', main.home, name='home'),
     url('', include('social_django.urls', namespace='social')),
@@ -28,24 +57,15 @@ urlpatterns = [
     url(r'^([DTP][1-9]\d*)/keywords$', mathitems.edit_item_keywords, name='edit-item-keywords'),
     url(r'^(M[1-9]\d*)$', media.show_media, name='media-show'),
     url(r'^(M[1-9]\d*)/keywords$', media.edit_media_keywords, name='edit-media-keywords'),
-    url(r'^admin/backup', admin.backup),
-    url(r'^admin/datadump$', admin.datadump),
+    url(r'^admin/', include(admin_patterns)),
     url(r'^accounts/', include(accounts_patterns)),
     url(r'^concept/([-a-z]+)$', concepts.show_concept, name='concept-page'),
     url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
-    url(r'^definitions/$', mathitems.def_home, name='def-home'),
-    url(r'^definitions/list$', mathitems.def_list, name='def-list'),
-    url(r'^definitions/search$', mathitems.def_search, name='def-search'),
+    url(r'^definitions/', include(definitions_patterns)),
     url(r'^drafts/', include(drafts_patterns)),
-    url(r'^media/$', media.home, name='media-home'),
-    url(r'^media/add$', media.media_add, name='media-add'),
-    url(r'^media/search$', media.media_search, name='media-search'),
-    url(r'^proofs/$', mathitems.prf_home, name='prf-home'),
-    url(r'^proofs/list$', mathitems.prf_list, name='prf-list'),
-    url(r'^proofs/search', mathitems.prf_search, name='prf-search'),
-    url(r'^theorems/$', mathitems.thm_home, name='thm-home'),
-    url(r'^theorems/list$', mathitems.thm_list, name='thm-list'),
-    url(r'^theorems/search$', mathitems.thm_search, name='thm-search'),
+    url(r'^media/', include(media_patterns)),
+    url(r'^proofs/', include(proofs_patterns)),
+    url(r'^theorems/', include(theorems_patterns)),
     url(r'^sources/$', sources.sources_list, name='sources-list'),
 ]
 
