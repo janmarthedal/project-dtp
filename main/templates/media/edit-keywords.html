@@ -1,0 +1,9 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<img class="item-img" src="{{ url }}">
+{% endblock %}
+
+{% block sidecontent %}
+{% include 'keywords/edit-box.html' with itemkeywords=mediakeywords %}
+{% endblock %}

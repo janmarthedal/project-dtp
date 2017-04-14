@@ -5,13 +5,15 @@ import tempfile
 from uuid import uuid4
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_safe, require_http_methods
 
-from keywords.models import Keyword
+from keywords.models import Keyword, MediaKeyword
+from main.elasticsearch import index_media
 from media.models import Media
-from userdata.permissions import require_perm
+from userdata.permissions import has_perm, require_perm
 
 import logging
 logger = logging.getLogger(__name__)
@@ -21,7 +23,12 @@ SVGO_EXE_PATH = os.path.join(settings.BASE_DIR, './node_modules/.bin/svgo')
 
 @require_safe
 def home(request):
-    items = [{'item': item} for item in Media.objects.order_by('id')]
+    items = [{
+        'item': media,
+        'keywords': list(Keyword.objects.filter(mediakeyword__media=media)
+                         .order_by('name')
+                         .values_list('name', flat=True)),
+    } for media in Media.objects.order_by('id')]
     return render(request, 'media/home.html', {
         'title': 'Media',
         'items': items
@@ -73,5 +80,31 @@ def show_media(request, media_str):
         'title': 'Media {}'.format(media.get_name()),
         'url': media.full_path(),
         'keywords': Keyword.objects.filter(mediakeyword__media=media).order_by('name').all(),
-        'kw_edit_link': None
+        'kw_edit_link': has_perm('keyword', request.user) and reverse('edit-media-keywords', args=[media.get_name()])
     })
+
+
+@require_http_methods(['GET', 'POST'])
+@login_required
+@require_perm('keyword')
+def edit_media_keywords(request, id_str):
+    try:
+        media = Media.objects.get_by_name(id_str)
+    except Media.DoesNotExist:
+        raise Http404('Item does not exist')
+    if request.method == 'POST':
+        if 'delete' in request.POST:
+            itemkw = MediaKeyword.objects.get(pk=int(request.POST['delete']))
+            itemkw.delete()
+        else:
+            if request.POST['kw']:
+                keyword, _ = Keyword.objects.get_or_create(name=request.POST['kw'])
+                itemkw, _ = MediaKeyword.objects.get_or_create(
+                                media=media, keyword=keyword, defaults={'created_by': request.user})
+        index_media(media)
+    context = {
+        'title': 'Media {}'.format(media.get_name()),
+        'url': media.full_path(),
+        'mediakeywords': MediaKeyword.objects.filter(media=media).order_by('keyword__name').all(),
+    }
+    return render(request, 'media/edit-keywords.html', context)

@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
 
-from main.elasticsearch import create_index, index_item, refresh_index
+from main.elasticsearch import create_index, index_item, index_media, refresh_index
 from mathitems.models import MathItem
+from media.models import Media
 
 
 class Command(BaseCommand):
@@ -13,10 +14,15 @@ class Command(BaseCommand):
         else:
             self.stdout.write('Created index')
 
-        self.stdout.write('Indexing')
+        self.stdout.write('Indexing items')
         for item in MathItem.objects.all():
             self.stdout.write('  ' + item.get_name())
             index_item(item)
+
+        self.stdout.write('Indexing media')
+        for media in Media.objects.all():
+            self.stdout.write('  ' + media.get_name())
+            index_media(media)
 
         self.stdout.write('Refreshing index')
         refresh_index()

@@ -1,0 +1,24 @@
+<div class="sidebar-box">
+<h4>Keywords</h4>
+{% if itemkeywords %}
+<form method="POST">
+  {% csrf_token %}
+  <ul>
+    {% for itemkw in itemkeywords %}
+    <li>{{ itemkw.keyword.name }} <button class="close" type="submit" name="delete" value="{{ itemkw.id }}">x</button></li>
+    {% endfor %}
+  </ul>
+</form>
+{% else %}
+<p><em>None</em></p>
+{% endif %}
+<form method="POST">
+  {% csrf_token %}
+  <div class="input-group">
+    <input class="form-control" type="text" name="kw" placeholder="New keyword" required>
+    <span class="input-group-btn">
+      <button class="btn btn-default" type="submit">Add</button>
+    </span>
+  </div>
+</form>
+</div>

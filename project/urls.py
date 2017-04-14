@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^([DTP][1-9]\d*)/add-validation$', mathitems.add_item_validation, name='add-item-validation'),
     url(r'^([DTP][1-9]\d*)/keywords$', mathitems.edit_item_keywords, name='edit-item-keywords'),
     url(r'^(M[1-9]\d*)$', media.show_media, name='media-show'),
+    url(r'^(M[1-9]\d*)/keywords$', media.edit_media_keywords, name='edit-media-keywords'),
     url(r'^admin/backup', admin.backup),
     url(r'^admin/datadump$', admin.datadump),
     url(r'^accounts/', include(accounts_patterns)),

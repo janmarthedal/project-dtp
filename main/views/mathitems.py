@@ -88,8 +88,6 @@ def edit_item_keywords(request, id_str):
         if 'delete' in request.POST:
             itemkw = ItemKeyword.objects.get(pk=int(request.POST['delete']))
             itemkw.delete()
-            if ItemKeyword.objects.filter(keyword=itemkw.keyword).count() == 0:
-                itemkw.keyword.delete()
         else:
             if request.POST['kw']:
                 keyword, _ = Keyword.objects.get_or_create(name=request.POST['kw'])
@@ -260,7 +258,7 @@ def item_search_helper(request, type_name, name, view):
 
 @require_safe
 def def_search(request):
-    return item_search_helper(request, 'definition', 'Definition', 'def-search')
+        return item_search_helper(request, 'definition', 'Definition', 'def-search')
 
 
 @require_safe
