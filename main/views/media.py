@@ -12,7 +12,7 @@ from django.views.decorators.http import require_safe, require_http_methods
 
 from keywords.models import Keyword, MediaKeyword
 from main.elasticsearch import index_media, item_search
-from main.views.helpers import prepare_media_view_list
+from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
 from media.models import Media
 from userdata.permissions import has_perm, require_perm
 
@@ -20,7 +20,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 SVGO_EXE_PATH = os.path.join(settings.BASE_DIR, './node_modules/.bin/svgo')
-PAGE_SIZE = 25
 
 
 @require_safe
@@ -114,9 +113,9 @@ def media_search(request):
     except ValueError:
         return redirect('{}?q={}'.format(reverse('media-search'), query))
     if query:
-        results, total = item_search(query, 'media', PAGE_SIZE*(page-1), PAGE_SIZE)
+        results, total = item_search(query, 'media', LIST_PAGE_SIZE*(page-1), LIST_PAGE_SIZE)
         items = [Media.objects.get_by_name(name) for name in results]
-        pages_total = (total + PAGE_SIZE - 1)//PAGE_SIZE
+        pages_total = (total + LIST_PAGE_SIZE - 1)//LIST_PAGE_SIZE
     else:
         items = []
         pages_total = 0

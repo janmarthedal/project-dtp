@@ -13,15 +13,13 @@ from equations.models import RenderedEquation
 from keywords.models import Keyword, ItemKeyword
 from main.elasticsearch import index_item, item_search
 from main.item_helpers import get_refs_and_render, item_to_markup
-from main.views.helpers import prepare_item_view_list
+from main.views.helpers import prepare_item_view_list, LIST_PAGE_SIZE
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
 from validations.models import ItemValidation, Source
 from userdata.permissions import has_perm, require_perm
 
 # import logging
 # logger = logging.getLogger(__name__)
-
-PAGE_SIZE = 25
 
 
 def decode_document(node, eqn_set, concept_set):
@@ -196,7 +194,7 @@ def prf_home(request):
 
 
 def item_list_page(request, title, query):
-    paginator = Paginator(query, PAGE_SIZE)
+    paginator = Paginator(query, LIST_PAGE_SIZE)
 
     page = request.GET.get('page')
     try:
@@ -240,9 +238,9 @@ def item_search_helper(request, type_name, name, view):
     except ValueError:
         return redirect('{}?q={}'.format(reverse(view), query))
     if query:
-        results, total = item_search(query, type_name, PAGE_SIZE*(page-1), PAGE_SIZE)
+        results, total = item_search(query, type_name, LIST_PAGE_SIZE*(page-1), LIST_PAGE_SIZE)
         items = [MathItem.objects.get_by_name(name) for name in results]
-        pages_total = (total + PAGE_SIZE - 1)//PAGE_SIZE
+        pages_total = (total + LIST_PAGE_SIZE - 1)//LIST_PAGE_SIZE
     else:
         items = []
         pages_total = 0

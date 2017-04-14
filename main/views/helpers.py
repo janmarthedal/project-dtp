@@ -3,6 +3,8 @@ from django.db.models import Q
 from concepts.models import Concept
 from keywords.models import Keyword
 
+LIST_PAGE_SIZE = 25
+
 
 def prepare_item_view_list(item_iterator):
     return [{
