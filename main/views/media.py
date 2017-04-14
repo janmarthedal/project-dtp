@@ -9,6 +9,7 @@ from django.http import Http404
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_safe, require_http_methods
 
+from keywords.models import Keyword
 from media.models import Media
 from userdata.permissions import require_perm
 
@@ -70,5 +71,7 @@ def show_media(request, media_str):
         raise Http404('Media does not exist')
     return render(request, 'media/show.html', {
         'title': 'Media {}'.format(media.get_name()),
-        'url': media.full_path()
+        'url': media.full_path(),
+        'keywords': Keyword.objects.filter(mediakeyword__media=media).order_by('name').all(),
+        'kw_edit_link': None
     })

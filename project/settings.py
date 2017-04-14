@@ -34,9 +34,9 @@ LOCAL_APPS = [
     'validations',
     'concepts',
     'equations',
+    'media',
     'keywords',
     'userdata',
-    'media',
     'main',
 ]
 

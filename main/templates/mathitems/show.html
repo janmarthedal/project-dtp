@@ -36,21 +36,8 @@
 {% endblock %}
 
 {% block sidecontent %}
-<div class="sidebar-box">
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
-</div>
-<div class="sidebar-box">
-<h4>Keywords{% if can_edit_keywords %} <a href="{% url 'edit-item-keywords' item.get_name %}">edit</a>{% endif %}</h4>
-{% if keywords %}
-<ul>
-  {% for kw in keywords %}
-  <li>{{ kw.name }}</li>
-  {% endfor %}
-</ul>
-{% else %}
-<p><em>None</em></p>
-{% endif %}
-</div>
+{% include 'keywords/show-box.html' with edit_link=kw_edit_link keywords=keywords only %}
 <p>
   <a href="{% url 'copy-to-draft' item.get_name %}" class="btn btn-default">Copy to Draft</a>
 </p>

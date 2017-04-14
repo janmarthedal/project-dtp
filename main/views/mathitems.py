@@ -64,7 +64,7 @@ def show_item(request, id_str):
         'keywords': Keyword.objects.filter(itemkeyword__item=item).order_by('name').all(),
         'validations': item.itemvalidation_set.all(),
         'can_add_validation': has_perm('validation', request.user),
-        'can_edit_keywords': has_perm('keyword', request.user),
+        'kw_edit_link': has_perm('keyword', request.user) and reverse('edit-item-keywords', args=[item.get_name()]),
     }
     if item.item_type == ItemTypes.THM:
         context['can_add_proof'] = True

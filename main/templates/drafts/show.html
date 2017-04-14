@@ -5,9 +5,7 @@
 {% endblock %}
 
 {% block sidecontent %}
-<div class="sidebar-box">
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
-</div>
 <form action="" method="post">
   {% csrf_token %}
   <button type="submit" name="submit" value="delete" class="btn btn-danger">Delete</button>

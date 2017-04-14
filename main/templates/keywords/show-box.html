@@ -1,0 +1,12 @@
+<div class="sidebar-box">
+<h4>Keywords{% if edit_link %} <a href="{{ edit_link }}">edit</a>{% endif %}</h4>
+{% if keywords %}
+<ul>
+  {% for kw in keywords %}
+  <li>{{ kw.name }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p><em>None</em></p>
+{% endif %}
+</div>

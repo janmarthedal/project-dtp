@@ -12,9 +12,7 @@
 {% endblock %}
 
 {% block sidecontent %}
-<div class="sidebar-box">
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
-</div>
 <div class="sidebar-box">
 <h4>Keywords</h4>
 {% if itemkeywords %}

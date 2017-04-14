@@ -25,10 +25,10 @@
 {% endblock %}
 
 {% block sidecontent %}
-<div class="sidebar-box">
 {% if item_data %}
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 {% else %}
+<div class="sidebar-box">
 <h4>Markup Help</h4>
 <p>
   Use <a href="http://commonmark.org/help/">CommonMark</a> for editing, except for links and images.
@@ -76,6 +76,6 @@
   Use <code>$...$</code> to include inline formulas, using LaTeX markup. Use <code>$$...$$</code>
   for block-style formulas.
 </p>
-{% endif %}
 </div>
+{% endif %}
 {% endblock %}
