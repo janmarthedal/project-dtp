@@ -210,8 +210,11 @@ def item_list_page(request, title, query):
 
     return render(request, 'mathitems/item-list-page.html', {
         'title': title,
-        'pager': items,
-        'items': prepare_item_view_list(items)
+        'items': prepare_item_view_list(items),
+        'prev_link': items.has_previous() and '?page={}'.format(items.previous_page_number()),
+        'next_link': items.has_next() and '?page={}'.format(items.next_page_number()),
+        'page_number': items.number,
+        'pages_total': items.paginator.num_pages
     })
 
 

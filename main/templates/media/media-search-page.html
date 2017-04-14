@@ -2,20 +2,6 @@
 
 {% block pagecontent %}
 <p>Search results for <code>{{ query }}</code></p>
-
 {% include 'media/item-list.html' with items=items only %}
-
-<div class="pager">
-{% if prev_link %}
-    <a class="previous" href="{{ prev_link }}">Previous</a>
-{% else %}
-    <a class="previous disabled" href="#">Previous</a>
-{% endif %}
-    <span>Page {{ page_number }} of {{ pages_total }}</span>
-{% if next_link %}
-    <a class="next" href="{{ next_link }}">Next</a>
-{% else %}
-    <a class="next disabled" href="#">Next</a>
-{% endif %}
-</div>
+{% include 'main/list-paging.html' %}
 {% endblock %}
