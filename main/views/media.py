@@ -11,7 +11,8 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_safe, require_http_methods
 
 from keywords.models import Keyword, MediaKeyword
-from main.elasticsearch import index_media
+from main.elasticsearch import index_media, item_search
+from main.views.helpers import prepare_media_view_list
 from media.models import Media
 from userdata.permissions import has_perm, require_perm
 
@@ -19,19 +20,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 SVGO_EXE_PATH = os.path.join(settings.BASE_DIR, './node_modules/.bin/svgo')
+PAGE_SIZE = 25
 
 
 @require_safe
 def home(request):
-    items = [{
-        'item': media,
-        'keywords': list(Keyword.objects.filter(mediakeyword__media=media)
-                         .order_by('name')
-                         .values_list('name', flat=True)),
-    } for media in Media.objects.order_by('id')]
     return render(request, 'media/home.html', {
         'title': 'Media',
-        'items': items
+        'items': prepare_media_view_list(Media.objects.order_by('id'))
     })
 
 
@@ -108,3 +104,30 @@ def edit_media_keywords(request, id_str):
         'mediakeywords': MediaKeyword.objects.filter(media=media).order_by('keyword__name').all(),
     }
     return render(request, 'media/edit-keywords.html', context)
+
+
+@require_safe
+def media_search(request):
+    query = request.GET['q']
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        return redirect('{}?q={}'.format(reverse('media-search'), query))
+    if query:
+        results, total = item_search(query, 'media', PAGE_SIZE*(page-1), PAGE_SIZE)
+        items = [Media.objects.get_by_name(name) for name in results]
+        pages_total = (total + PAGE_SIZE - 1)//PAGE_SIZE
+    else:
+        items = []
+        pages_total = 0
+    if page > pages_total:
+        return redirect('{}?q={}&page={}'.format(reverse('media-search'), query, pages_total))
+    return render(request, 'media/media-search-page.html', {
+        'title': 'Media search',
+        'query': query,
+        'items': prepare_media_view_list(items),
+        'page_number': page,
+        'pages_total': pages_total,
+        'prev_link': page > 1 and '?q={}&page={}'.format(query, page-1),
+        'next_link': page < pages_total and '?q={}&page={}'.format(query, page + 1),
+    })

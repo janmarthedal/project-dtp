@@ -1,29 +1,19 @@
 {% extends 'main/page.html' %}
-{% load humanize %}
 
 {% block pagecontent %}
-{% if items %}
-<div class="item-list">
-{% for item in items %}
-<a href="{{ item.item.get_absolute_url }}">
-  <h4 class="item-heading">{{ item.item.get_name }}</h4>
-  <div><span class="tags-header">Format</span>
-    <span class="concept-list"><span class="concept-tag">{{ item.item.format }}</span></span>
-  </div>
-  {% if item.keywords %}
-  <div><span class="tags-header">Keywords</span>
-    <span class="concept-list">{% for kw in item.keywords %}<span class="concept-tag">{{ kw }}</span>{% endfor %}</span>
-  </div>
-  {% endif %}
-  <p class="item-about">Added {{ item.item.created_at|naturaltime }} by {{ item.item.created_by.get_username }}</p>
-</a>
-{% endfor %}
-</div>
-{% else %}
-<p><em>None</em></p>
-{% endif %}
+{% include 'media/item-list.html' with items=items only %}
 {% endblock %}
 
 {% block sidecontent %}
-<p><a class="btn btn-default" href="{% url 'media-add' %}">Add Media</a></p>
+<div class="sidebar-box">
+  <h4>Find Media</h4>
+  <form method="GET" action="{% url 'media-search' %}">
+    <input type="text" name="q" class="form-control">
+    <button type="submit" class="btn btn-default">Search</button>
+  </form>
+</div>
+<div class="sidebar-box">
+  <h4>Actions</h4>
+  <a class="btn btn-default" href="{% url 'media-add' %}">Add Media</a>
+</div>
 {% endblock %}

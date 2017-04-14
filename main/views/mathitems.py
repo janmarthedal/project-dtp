@@ -258,7 +258,7 @@ def item_search_helper(request, type_name, name, view):
 
 @require_safe
 def def_search(request):
-        return item_search_helper(request, 'definition', 'Definition', 'def-search')
+    return item_search_helper(request, 'definition', 'Definition', 'def-search')
 
 
 @require_safe

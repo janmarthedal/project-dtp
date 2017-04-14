@@ -20,3 +20,12 @@ def prepare_item_view_list(item_iterator):
                          .order_by('name')
                          .values_list('name', flat=True)),
     } for item in item_iterator]
+
+
+def prepare_media_view_list(item_iterator):
+    return [{
+        'item': media,
+        'keywords': list(Keyword.objects.filter(mediakeyword__media=media)
+                         .order_by('name')
+                         .values_list('name', flat=True)),
+    } for media in item_iterator]

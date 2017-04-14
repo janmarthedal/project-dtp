@@ -39,6 +39,7 @@ urlpatterns = [
     url(r'^drafts/', include(drafts_patterns)),
     url(r'^media/$', media.home, name='media-home'),
     url(r'^media/add$', media.media_add, name='media-add'),
+    url(r'^media/search$', media.media_search, name='media-search'),
     url(r'^proofs/$', mathitems.prf_home, name='prf-home'),
     url(r'^proofs/list$', mathitems.prf_list, name='prf-list'),
     url(r'^proofs/search', mathitems.prf_search, name='prf-search'),
