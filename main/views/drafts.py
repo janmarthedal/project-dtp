@@ -62,8 +62,13 @@ def publish(user, item_type, parent, document, eqns, concepts):
     return item
 
 
-def edit_item(request, item):
-    context = {'title': '{} {}'.format('Edit' if item.id else 'New', item)}
+def edit_item(request, item, is_new):
+    context = {
+        'title': '{} {}'.format('Edit' if item.id else 'New', item),
+        'item': item,
+        'is_new': is_new,
+        'can_save': has_perm('draft', request.user)
+    }
     if request.method == 'POST':
         item.body = request.POST['src']
         if request.POST['submit'] == 'preview':
@@ -73,8 +78,6 @@ def edit_item(request, item):
         elif request.POST['submit'] == 'save':
             item.save()
             return redirect(item)
-    context['item'] = item
-    context['can_save'] = has_perm('draft', request.user)
     return render(request, 'drafts/edit.html', context)
 
 
@@ -82,7 +85,7 @@ def new_item(request, item_type, parent=None):
     item = DraftItem(created_by=request.user, item_type=item_type, body='')
     if parent:
         item.parent = parent
-    return edit_item(request, item)
+    return edit_item(request, item, True)
 
 
 @login_required
@@ -129,7 +132,7 @@ def show_draft(request, id_str):
 @require_http_methods(['HEAD', 'GET', 'POST'])
 def edit_draft(request, id_str):
     item = get_object_or_404(DraftItem, id=int(id_str), created_by=request.user)
-    return edit_item(request, item)
+    return edit_item(request, item, False)
 
 
 @login_required

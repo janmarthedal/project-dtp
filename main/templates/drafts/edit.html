@@ -7,7 +7,7 @@
   be able to save it!
 </p>
 {% endif %}
-<form action="" method="post">
+<form method="post">
   {% csrf_token %}
 {% if item_data %}
   {% include 'mathitems/include/show.html' with item_data=item_data only %}
@@ -17,7 +17,7 @@
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
   {% endif %}
 {% else %}
-  <textarea name="src" class="item-edit-box" rows="20">{{ item.body }}</textarea>
+  <textarea name="src" class="item-edit-box {% if is_new %}watch-all{% else%}watch-field{% endif %}" rows="20">{{ item.body }}</textarea>
   <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
 {% endif %}
   <a href="{% url 'home' %}" class="btn btn-warning">Cancel</a>
