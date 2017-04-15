@@ -62,6 +62,17 @@ PIPELINE = {
             'output_filename': 'main.css',
         },
     },
+    'JAVASCRIPT': {
+        'main': {
+            'source_filenames': (
+                'main/analytics.js',
+            ),
+            'output_filename': 'main.js',
+            'extra_context': {
+                'defer': True,
+            },
+        }
+    },
     'CSS_COMPRESSOR': 'pipeline.compressors.cssmin.CSSMinCompressor',
     'CSSMIN_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'cssmin'),
     'COMPILERS': (

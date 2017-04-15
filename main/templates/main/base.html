@@ -27,10 +27,7 @@
       Built by <a href="http://janmr.com">Jan Marthedal Rasmussen</a><br>
       All user-contributed content is licensed under <a href="http://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>
     </footer>
-    <script>{% comment %}Put this at the end of the js bundle{% endcomment %}
-      window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
-      ga('create','UA-46471633-3','auto');ga('send','pageview')
-    </script>
-    {% if not debug %}<script src="https://www.google-analytics.com/analytics.js" async defer></script>{% endif %}
+    {% javascript 'main' %}
+    {% if not debug %}<script src="https://www.google-analytics.com/analytics.js" defer></script>{% endif %}
   </body>
 </html>
