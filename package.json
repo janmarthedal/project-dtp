@@ -8,17 +8,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/janmarthedal/project-dtp.git"
+    "url": "git+https://github.com/janmarthedal/mathitems.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/janmarthedal/project-dtp/issues"
+    "url": "https://github.com/janmarthedal/mathitems/issues"
   },
-  "homepage": "https://github.com/janmarthedal/project-dtp#readme",
+  "homepage": "https://github.com/janmarthedal/mathitems#readme",
   "dependencies": {
-    "cssmin": "^0.4.3",
     "less": "^2.7.1",
-    "svgo": "^0.7.2"
+    "svgo": "^0.7.2",
+    "yuglify": "^0.1.4"
   }
 }

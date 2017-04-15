@@ -73,8 +73,7 @@ PIPELINE = {
             },
         }
     },
-    'CSS_COMPRESSOR': 'pipeline.compressors.cssmin.CSSMinCompressor',
-    'CSSMIN_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'cssmin'),
+    'YUGLIFY_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'yuglify'),
     'COMPILERS': (
         'pipeline.compilers.less.LessCompiler',
     ),
