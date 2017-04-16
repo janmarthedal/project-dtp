@@ -66,7 +66,7 @@ def edit_item(request, item, is_new):
     context = {
         'title': '{} {}'.format('Edit' if item.id else 'New', item),
         'item': item,
-        'is_new': is_new,
+        'src_hash': request.POST.get('src-chk') or (is_new and '-'),
         'can_save': has_perm('draft', request.user)
     }
     if request.method == 'POST':

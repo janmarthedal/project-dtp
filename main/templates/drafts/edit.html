@@ -17,9 +17,10 @@
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
   {% endif %}
 {% else %}
-  <textarea name="src" class="item-edit-box {% if is_new %}watch-all{% else%}watch-field{% endif %}" rows="20">{{ item.body }}</textarea>
-  <button type="submit" name="submit" value="preview" class="btn btn-default">Preview</button>
+  <textarea name="src" class="item-edit-box watch-field" rows="20">{{ item.body }}</textarea>
+  <button type="submit" name="submit" value="preview" class="btn btn-default watch-ok">Preview</button>
 {% endif %}
+  {% if src_hash %}<input type="hidden" name="src-chk" value="{{ src_hash }}">{% endif %}
   <a href="{% url 'home' %}" class="btn btn-warning">Cancel</a>
 </form>
 {% endblock %}
