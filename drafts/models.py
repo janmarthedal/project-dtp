@@ -16,6 +16,7 @@ class DraftItem(models.Model):
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
     parent = models.ForeignKey(MathItem, null=True, blank=True)
     body = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
 
     class Meta:
         db_table = 'drafts'

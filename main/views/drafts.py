@@ -65,6 +65,7 @@ def publish(user, item_type, parent, document, eqns, concepts):
 def edit_item(request, item, is_new):
     if request.method == 'POST':
         item.body = request.POST['src']
+        item.notes = request.POST['notes']
         if request.POST['submit'] == 'save':
             item.save()
             return redirect(item)
@@ -75,6 +76,7 @@ def edit_item(request, item, is_new):
         'item': item,
         'item_data': item_data,
         'src_hash': request.POST.get('src-chk') or (is_new and '-'),
+        'notes_hash': request.POST.get('notes-chk') or (is_new and '-'),
         'can_save': has_perm('draft', request.user)
     })
 

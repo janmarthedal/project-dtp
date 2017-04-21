@@ -12,6 +12,8 @@
   <textarea name="src" class="item-edit-box watch-field" rows="20">{{ item.body }}</textarea>
   <p>Preview:</p>
   {% include 'mathitems/include/show.html' with item_data=item_data only %}
+  <p>Notes:</p>
+  <textarea name="notes" class="notes-edit-box watch-field" rows="4">{{ item.notes }}</textarea>
   <button type="submit" name="submit" value="preview" class="btn btn-default watch-ok">Update Preview</button>
   {% if can_save %}
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>

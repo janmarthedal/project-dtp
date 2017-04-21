@@ -1,7 +1,9 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-{% include 'mathitems/include/show.html' with item_data=item_data only %}
+{% include 'mathitems/include/show.html' with item_data=item_data only %}{% if item.notes %}
+<p>Notes:</p>
+<pre class="notes-show-box">{{ item.notes }}</pre>{% endif %}
 {% endblock %}
 
 {% block sidecontent %}
