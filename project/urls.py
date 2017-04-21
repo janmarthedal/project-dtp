@@ -3,10 +3,10 @@ from django.conf.urls import url, include
 
 from main.views import admin, concepts, drafts, main, mathitems, media, sources
 
-accounts_patterns = [
-    url(r'^login/$', main.login, name='login'),
-    url(r'^logout/$', main.logout, name='logout'),
-    url(r'^profile/$', main.profile, name='profile'),
+user_patterns = [
+    url(r'^login$', main.login, name='login'),
+    url(r'^logout$', main.logout, name='logout'),
+    url(r'^current$', main.profile, name='profile'),
 ]
 
 drafts_patterns = [
@@ -58,7 +58,7 @@ urlpatterns = [
     url(r'^(M[1-9]\d*)$', media.show_media, name='media-show'),
     url(r'^(M[1-9]\d*)/keywords$', media.edit_media_keywords, name='edit-media-keywords'),
     url(r'^admin/', include(admin_patterns)),
-    url(r'^accounts/', include(accounts_patterns)),
+    url(r'^user/', include(user_patterns)),
     url(r'^concept/([-a-z]+)$', concepts.show_concept, name='concept-page'),
     url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
     url(r'^definitions/', include(definitions_patterns)),

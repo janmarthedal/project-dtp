@@ -156,6 +156,9 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media-files')
 MEDIA_URL = '/media-files/'
 
+LOGIN_REDIRECT_URL = '/user/current'
+LOGIN_URL = '/user/login'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -191,5 +194,5 @@ LOGGING = {
 for app_name in LOCAL_APPS:
     LOGGING['loggers'][app_name] = {
         'handlers': ['file', 'console'],
-        'level': 'DEBUG'# if DEBUG else 'WARN'
+        'level': 'DEBUG'  # if DEBUG else 'WARN'
     }
