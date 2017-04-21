@@ -66,7 +66,7 @@ def user_home(request, user_id):
     if user == request.user:
         context['is_me'] = True
         context['drafts'] = DraftItem.objects.filter(created_by=user).order_by('-updated_at').all()
-    return render(request, 'main/profile.html', context)
+    return render(request, 'main/user-home.html', context)
 
 
 @require_safe
