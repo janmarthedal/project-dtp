@@ -1,4 +1,5 @@
 {% extends 'main/page.html' %}
+{% load date_utils %}
 
 {% block pagecontent %}
 {% include 'mathitems/include/show.html' with item_data=item_data only %}
@@ -36,6 +37,10 @@
 {% endblock %}
 
 {% block sidecontent %}
+<div class="sidebar-box">
+  <h4>Publication</h4>
+  Published {{ item.created_at|date_or_ago }} by {{ item.created_by.get_username }}
+</div>
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 {% include 'keywords/show-box.html' with edit_link=kw_edit_link keywords=keywords only %}
 <p>

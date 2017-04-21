@@ -1,4 +1,5 @@
 {% extends 'main/page.html' %}
+{% load date_utils %}
 
 {% block pagecontent %}
 
@@ -13,7 +14,7 @@
     <a href="{{ draft.get_absolute_url }}">
         <h4>{{ draft }}</h4>{% if draft.notes %}
         <p>Notes: {{ draft.notes }}</p>{% endif %}
-        <p>Last edited {{ draft.updated_at|timesince }} ago</p>
+        <p>Last edited {{ draft.updated_at|date_or_ago }}</p>
     </a>{% endfor %}
 </div>
 {% else %}
