@@ -3,10 +3,7 @@
 
 {% block pagecontent %}
 
-{% if user.is_authenticated %}
-<p>Logged in as {{ user.username }}.</p>
-{% endif %}
-
+{% if is_me %}
 <h2>Drafts</h2>
 
 {% if drafts %}
@@ -20,9 +17,12 @@
 {% else %}
 No drafts
 {% endif %}
+{% endif %}
 
 {% endblock %}
 
 {% block sidecontent %}
+{% if is_me %}
 <p><a class="btn btn-warning" href="{% url 'logout' %}">Sign out</a></p>
+{% endif %}
 {% endblock %}

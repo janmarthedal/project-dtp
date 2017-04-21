@@ -6,7 +6,8 @@ from main.views import admin, concepts, drafts, main, mathitems, media, sources
 user_patterns = [
     url(r'^login$', main.login, name='login'),
     url(r'^logout$', main.logout, name='logout'),
-    url(r'^current$', main.profile, name='profile'),
+    url(r'^current$', main.current_user),
+    url(r'^(\d+)$', main.user_home, name='user-home'),
 ]
 
 drafts_patterns = [

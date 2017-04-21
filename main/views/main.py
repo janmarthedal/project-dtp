@@ -1,6 +1,7 @@
 import random
 from django.contrib.auth import logout as auth_logout, get_user_model
 from django.contrib.auth.decorators import login_required
+from django.http import Http404
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe
 
@@ -47,12 +48,25 @@ def login(request):
 
 @login_required
 @require_safe
-def profile(request):
-    drafts = DraftItem.objects.filter(created_by=request.user).order_by('-updated_at').all()
-    return render(request, 'main/profile.html', {
-        'drafts': drafts,
-        'title': 'Profile'
-    })
+def current_user(request):
+    return redirect('user-home', request.user.pk)
+
+
+@require_safe
+def user_home(request, user_id):
+    User = get_user_model()
+    try:
+        user = User.objects.get(id=int(user_id))
+    except User.DoesNotExist:
+        raise Http404('Media does not exist')
+    context = {
+        'is_me': False,
+        'title': user.username
+    }
+    if user == request.user:
+        context['is_me'] = True
+        context['drafts'] = DraftItem.objects.filter(created_by=user).order_by('-updated_at').all()
+    return render(request, 'main/profile.html', context)
 
 
 @require_safe

@@ -18,7 +18,7 @@
         <li><a href="{% url 'media-home' %}">Media</a></li>
       </ul>
       <span class="navbar-user">
-        {% if user.is_authenticated %}Signed in as <a href="{% url 'profile' %}" class="navbar-link">{{ user.username }}</a>
+        {% if user.is_authenticated %}Signed in as <a href="{% url 'user-home' user.id %}" class="navbar-link">{{ user.username }}</a>
         {% else %}<a href="{% url 'login' %}">Sign in</a>{% endif %}
       </span>
     </nav>
