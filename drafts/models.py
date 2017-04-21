@@ -5,8 +5,8 @@ from django.db import models
 
 from mathitems.models import ItemTypes, MathItem
 
-#import logging
-#logger = logging.getLogger(__name__)
+# import logging
+# logger = logging.getLogger(__name__)
 
 
 class DraftItem(models.Model):
@@ -37,3 +37,6 @@ class DraftItem(models.Model):
 
     def get_absolute_url(self):
         return reverse('show-draft', args=[self.id])
+
+    def is_def(self):
+        return self.item_type == ItemTypes.DEF

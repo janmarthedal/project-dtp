@@ -7,28 +7,23 @@
   be able to save it!
 </p>
 {% endif %}
-<form method="post">
+<form method="post" action="">
   {% csrf_token %}
-{% if item_data %}
+  <textarea name="src" class="item-edit-box watch-field" rows="20">{{ item.body }}</textarea>
+  <p>Preview:</p>
   {% include 'mathitems/include/show.html' with item_data=item_data only %}
-  <input type="hidden" name="src" value="{{ item.body|escape }}">
-  <button type="submit" name="submit" value="edit" class="btn btn-default">Edit</button>
+  <button type="submit" name="submit" value="preview" class="btn btn-default watch-ok">Update Preview</button>
   {% if can_save %}
   <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
   {% endif %}
-{% else %}
-  <textarea name="src" class="item-edit-box watch-field" rows="20">{{ item.body }}</textarea>
-  <button type="submit" name="submit" value="preview" class="btn btn-default watch-ok">Preview</button>
-{% endif %}
   {% if src_hash %}<input type="hidden" name="src-chk" value="{{ src_hash }}">{% endif %}
   <a href="{% url 'home' %}" class="btn btn-warning">Cancel</a>
 </form>
 {% endblock %}
 
 {% block sidecontent %}
-{% if item_data %}
-{% include 'mathitems/include/about.html' with item_data=item_data only %}
-{% else %}
+{% include 'mathitems/include/about.html' with title='About the Preview' item_data=item_data only %}
+
 <div class="sidebar-box">
 <h4>Markup Help</h4>
 <p>
@@ -38,38 +33,44 @@
   <em>Referencing:</em>
 </p>
 <p>
-  <code>[link text](D1)</code> will link to item <code>D1</code> and show the text <a href="#">link text</a>.
+  <code>[link text](D1)</code><br>
+  Link to item <code>D1</code> and show the text <a href="#">link text</a>.
 </p>
 <p>
-  <code>[](D1)</code> will link to item <code>D1</code> and show the text <a href="#">D1</a>.
+  <code>[](D1)</code><br>
+  Link to item <code>D1</code> and show the text <a href="#">D1</a>.
 </p>
 <p>
-  <code>[link text](D1#some-concept)</code> will link to item <code>D1</code> and
-  show the text <a href="#">link text</a>. The fragment <code>#some-concept</code> indicates the concept that
-  is being specifically referred to.
+  <code>[link text](D1#some-concept)</code><br>
+  Refer to concept <code>some-concept</code> of item <code>D1</code> and show the text <a href="#">link text</a>.
 </p>
 <p>
-  <code>[](D1#some-concept)</code> will link to item <code>D1</code> and show the text <a href="#">some-concept</a>.
+  <code>[](D1#some-concept)</code><br>
+  Refer to concept <code>some-concept</code> of item <code>D1</code> and show the text <a href="#">some-concept</a>.
 </p>
 <p>
-  <code>[link text](#some-concept)</code> will refer to concept <code>some-concept</code> and
-  show the text <a href="#">link text</a>.
+  <code>[link text](#some-concept)</code><br>
+  Refer to concept <code>some-concept</code> and show the text <a href="#">link text</a>.
 </p>
 <p>
-  <code>[](D1#some-concept)</code> will refer to concept <code>some-concept</code> and
-  show the text <a href="#">some-concept</a>.
+  <code>[](D1#some-concept)</code><br>
+  Refer to concept <code>some-concept</code> and show the text <a href="#">some-concept</a>.
+</p>
+{% if item.is_def %}
+<p>
+  <em>Defining concepts:</em>
 </p>
 <p>
-  <em>Defining concepts (definitions only):</em>
-</p>
-<p>
-  <code>[link text](=some-concept)</code> indicates that <code>some-concept</code> is being defined,
+  <code>[link text](=some-concept)</code><br>
+  Indicates that <code>some-concept</code> is being defined,
   showing the text <a href="#">link text</a>
 </p>
 <p>
-  <code>[](=some-concept)</code> indicates that <code>some-concept</code> is being defined,
+  <code>[](=some-concept)</code><br>
+  Indicates that <code>some-concept</code> is being defined,
   showing the text <a href="#">some-concept</a>
 </p>
+{% endif %}
 <p>
   <em>Including mathematics:</em>
 </p>
@@ -78,5 +79,4 @@
   for block-style formulas.
 </p>
 </div>
-{% endif %}
 {% endblock %}

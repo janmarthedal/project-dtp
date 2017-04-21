@@ -1,5 +1,5 @@
 <div class="sidebar-box">
-<h4>About the Item</h4>
+<h4>{% if title %}{{ title }}{% else %}About the Item{% endif %}</h4>
 {% if item_data.refs %}
 <p>Item references:</p>
 <ul>{% for key, value in item_data.refs.items %}

@@ -63,22 +63,20 @@ def publish(user, item_type, parent, document, eqns, concepts):
 
 
 def edit_item(request, item, is_new):
-    context = {
-        'title': '{} {}'.format('Edit' if item.id else 'New', item),
-        'item': item,
-        'src_hash': request.POST.get('src-chk') or (is_new and '-'),
-        'can_save': has_perm('draft', request.user)
-    }
     if request.method == 'POST':
         item.body = request.POST['src']
-        if request.POST['submit'] == 'preview':
-            document, eqns, concepts = draft_prepare(item)
-            item_data = get_refs_and_render(item.item_type, document, eqns, concepts)
-            context['item_data'] = item_data
-        elif request.POST['submit'] == 'save':
+        if request.POST['submit'] == 'save':
             item.save()
             return redirect(item)
-    return render(request, 'drafts/edit.html', context)
+    document, eqns, concepts = draft_prepare(item)
+    item_data = get_refs_and_render(item.item_type, document, eqns, concepts)
+    return render(request, 'drafts/edit.html', {
+        'title': '{} {}'.format('Edit' if item.id else 'New', item),
+        'item': item,
+        'item_data': item_data,
+        'src_hash': request.POST.get('src-chk') or (is_new and '-'),
+        'can_save': has_perm('draft', request.user)
+    })
 
 
 def new_item(request, item_type, parent=None):
