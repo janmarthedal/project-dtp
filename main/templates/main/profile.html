@@ -4,17 +4,24 @@
 
 {% if user.is_authenticated %}
 <p>Logged in as {{ user.username }}.</p>
-<p><a href="{% url 'logout' %}">Sign out</a></p>
 {% endif %}
 
 <h2>Drafts</h2>
 
 {% if drafts %}
-<ul>{% for draft in drafts %}
-    <li><a href="{{ draft.get_absolute_url }}">{{ draft }}</a></li>{% endfor %}
-</ul>
+<div class="item-list">{% for draft in drafts %}
+    <a href="{{ draft.get_absolute_url }}">
+        <h4>{{ draft }}</h4>{% if draft.notes %}
+        <p>Notes: {{ draft.notes }}</p>{% endif %}
+        <p>Last edited {{ draft.updated_at|timesince }} ago</p>
+    </a>{% endfor %}
+</div>
 {% else %}
-No drafts.
+No drafts
 {% endif %}
 
+{% endblock %}
+
+{% block sidecontent %}
+<p><a class="btn btn-warning" href="{% url 'logout' %}">Sign out</a></p>
 {% endblock %}

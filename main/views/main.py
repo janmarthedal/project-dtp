@@ -48,7 +48,7 @@ def login(request):
 @login_required
 @require_safe
 def profile(request):
-    drafts = DraftItem.objects.filter(created_by=request.user).order_by('updated_at').all()
+    drafts = DraftItem.objects.filter(created_by=request.user).order_by('-updated_at').all()
     return render(request, 'main/profile.html', {
         'drafts': drafts,
         'title': 'Profile'
