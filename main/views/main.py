@@ -58,7 +58,7 @@ def user_home(request, user_id):
     try:
         user = User.objects.get(id=int(user_id))
     except User.DoesNotExist:
-        raise Http404('Media does not exist')
+        raise Http404('User does not exist')
     context = {
         'is_me': False,
         'title': user.username

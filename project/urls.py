@@ -21,7 +21,7 @@ drafts_patterns = [
 ]
 
 admin_patterns = [
-    url(r'^backup', admin.backup),
+    url(r'^backup', admin.backup, name='admin-backup'),
     url(r'^datadump$', admin.datadump),
 ]
 
