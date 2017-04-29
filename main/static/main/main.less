@@ -8,9 +8,13 @@
 @edge-padding: @base-size;
 @box-padding: @base-size/2;
 @p-padding: 0.6*@base-size;
-@navbar-bg: #2c3e50;
+@link-color: #18bc9c;
+@primary-color: #2c3e50;
+@default-color: #95a5a6;
+@warning-color: #f39c12;
+@danger-color: #e74c3c;
+@navbar-bg: @primary-color;
 @navbar-fg: #fff;
-@link-hover: #18bc9c;
 @navbar-brand-size: 1.5*@base-size;
 @thin-border-width: 1px;
 
@@ -41,7 +45,7 @@
 
 .formcontrol() {
     .panel();
-    color: #2c3e50;
+    color: @primary-color;
     height: 3*@base-size;
 }
 
@@ -59,7 +63,7 @@ body {
 
 a {
     text-decoration: none;
-    color: @link-hover;
+    color: @link-color;
 }
 
 p {
@@ -115,7 +119,7 @@ h1 {
 }
 
 .btn-link {
-    color: #18bc9c;
+    color: @link-color;
     font-weight: normal;
     border-radius: 0;
     border-color: transparent;
@@ -127,26 +131,26 @@ h1 {
 
 .btn-default {
     color: #fff;
-    background-color: #95a5a6;
-    border-color: #95a5a6;
+    background-color: @default-color;
+    border-color: @default-color;
 }
 
 .btn-danger {
     color: #fff;
-    background-color: #e74c3c;
-    border-color: #e74c3c;
+    background-color: @danger-color;
+    border-color: @danger-color;
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #2c3e50;
-    border-color: #2c3e50;
+    background-color: @primary-color;
+    border-color: @primary-color;
 }
 
 .btn-warning {
     color: #fff;
-    background-color: #f39c12;
-    border-color: #f39c12;
+    background-color: @warning-color;
+    border-color: @warning-color;
 }
 
 .btn[disabled] {
@@ -375,7 +379,7 @@ h2 > a, h4 > a {
     }
 
     .next, .previous {
-        background-color: #18bc9c;
+        background-color: @link-color;
         border: @thin-border-width solid transparent;
         border-radius: @base-size;
     }
