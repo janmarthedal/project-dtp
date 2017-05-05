@@ -2,18 +2,21 @@ import os
 from shutil import move
 import subprocess
 import tempfile
+import json
 from uuid import uuid4
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_safe, require_http_methods
 
 from keywords.models import Keyword, MediaKeyword
 from main.elasticsearch import index_media, item_search
 from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
 from media.models import Media
+from project.server_com import parse_cindy
 from userdata.permissions import has_perm, require_perm
 
 import logging
@@ -30,6 +33,46 @@ def home(request):
     })
 
 
+def validate_svg(tmpname):
+    filename = '{}.svg'.format(uuid4().hex)
+    cp = subprocess.run([SVGO_EXE_PATH, '--pretty', tmpname,
+                         '-o', os.path.join(settings.MEDIA_ROOT, filename)],
+                        stderr=subprocess.PIPE)
+    if 'error' in cp.stderr.decode().lower():
+        return None, None
+    return filename, 'svg'
+
+
+def validate_cindy(tmpname):
+    result = parse_cindy(tmpname)
+    if 'error' in result:
+        return None, None
+
+    data = result['data']
+    if 'ports' in data:
+        if type(data['ports']) is not list or len(data['ports']) != 1:
+            return None, None
+    else:
+        data['ports'] = [{}]
+    for key in ['width', 'height']:
+        if key in data['ports'][0]:
+            del data['ports'][0][key]
+    data['ports'][0]['id'] = 'cscanvas'
+    data['ports'][0]['fill'] = 'window'
+    if 'scripts' in data:
+        del data['scripts']
+
+    filename = '{}.html'.format(uuid4().hex)
+    content = render_to_string('media/cindy-media.html', {
+        'title': result['title'],
+        'lib': result['lib'],
+        'data': '{{\n{}\n}}'.format(',\n'.join('  "{}": {}'.format(k, json.dumps(v)) for k, v in data.items()))
+    })
+    with open(os.path.join(settings.MEDIA_ROOT, filename), 'w') as dst:
+        dst.write(content)
+    return filename, 'cindy'
+
+
 @require_http_methods(['GET', 'POST'])
 @login_required
 @require_perm('media')
@@ -39,9 +82,9 @@ def media_add(request):
         pass
     elif 'file' in request.POST:
         curpath = request.POST['file']
-        format = 'svg'
+        format = request.POST['format']
         media = Media.objects.create(created_by=request.user, format=format, path=curpath)
-        newpath = '{}.{}'.format(media.get_name(), format)
+        newpath = '{}.{}'.format(media.get_name(), {'svg': 'svg', 'cindy': 'html'}[format])
         move(os.path.join(settings.MEDIA_ROOT, curpath),
              os.path.join(settings.MEDIA_ROOT, newpath))
         media.path = newpath
@@ -53,15 +96,24 @@ def media_add(request):
             tmpname = dst.name
             for chunk in src.chunks():
                 dst.write(chunk)
-        filename = '{}.svg'.format(uuid4().hex)
-        cp = subprocess.run([SVGO_EXE_PATH, '--pretty', tmpname,
-                             '-o', os.path.join(settings.MEDIA_ROOT, filename)],
-                            stderr=subprocess.PIPE)
-        if 'error' in cp.stderr.decode().lower():
-            context['error'] = 'Not a valid SVG file'
-        else:
-            context['url'] = settings.MEDIA_URL + filename
+
+        filename, format = validate_svg(tmpname)
+
+        if format is None:
+            filename, format = validate_cindy(tmpname)
+
+        if format is not None:
+            url = settings.MEDIA_URL + filename
+            if format == 'svg':
+                context['tag'] = '<img class="item-img" src="{}">'.format(url)
+            else:
+                context['tag'] = '''<div style="position: relative; width: 100%; height: 0; padding-bottom: 53.3%;">
+  <iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="{}"></iframe>
+</div>'''.format(url)
             context['field_value'] = filename
+            context['format'] = format
+        else:
+            context['error'] = 'Not a recognized media format'
     return render(request, 'media/add.html', context)
 
 

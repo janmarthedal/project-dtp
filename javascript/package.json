@@ -23,6 +23,7 @@
     "body-parser": "^1.17.1",
     "commonmark": "^0.26.0",
     "express": "^4.15.2",
+    "jsdom": "^10.1.0",
     "lodash": "^4.17.4",
     "mathjax-node": "^1.0.1"
   },

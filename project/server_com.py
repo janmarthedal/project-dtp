@@ -30,3 +30,9 @@ def render_item(item_type, document, eqns, concepts, refs, media_refs):
         'refs': refs,
         'media': media_refs
     })
+
+
+def parse_cindy(filename):
+    return node_request('/parse-cindy', {
+        'html_file': filename
+    })
