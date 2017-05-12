@@ -34,7 +34,7 @@ def home(request):
         'user_count': get_user_model().objects.filter(is_active=True).count()
     }
     if media_count:
-        context['featured_media'] = Media.objects.all()[random.randrange(0, media_count)].full_path()
+        context['featured_media'] = Media.objects.all()[random.randrange(0, media_count)]
     return render(request, 'main/home.html', context)
 
 

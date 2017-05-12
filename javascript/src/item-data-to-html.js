@@ -91,14 +91,11 @@ function item_node_to_html(emit, node, eqns, concepts, refs, media, data) {
             tag = 'li';
             break;
         case AST_TYPES.media:
-            const media_url = media[node.media];
-            if (media_url) {
-                tag = 'img';
-                class_names.push('item-img');
-                attr.src = media_url;
-            } else {
-                error = 'Illegal media reference ' + node.media;
-            }
+            const media_tag = media[node.media];
+            if (media_tag)
+                return emit('<figure class="item-img">', media_tag,
+                    '<figcaption>', node.media, '</figcaption></figure>');
+            error = 'Illegal media reference ' + node.media;
             break;
         case AST_TYPES.paragraph:
             tag = 'p';
@@ -124,8 +121,7 @@ function item_node_to_html(emit, node, eqns, concepts, refs, media, data) {
     }
     if (node.children)
         node.children.forEach(child => item_node_to_html(emit, child, eqns, concepts, refs, media, data))
-    if (tag != 'img')
-        emit('</', tag, '>');
+    emit('</', tag, '>');
 }
 
 export default function item_data_to_html(item_type, root, eqns, concepts, refs, media) {

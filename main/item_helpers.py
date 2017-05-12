@@ -35,8 +35,8 @@ def get_document_refs(document):
     media_info = {}
     for media_name in media_names:
         try:
-            item = Media.objects.get_by_name(media_name)
-            media_info[media_name] = item.full_path()
+            media = Media.objects.get_by_name(media_name)
+            media_info[media_name] = media.get_html()
         except Media.DoesNotExist:
             pass
     return item_info, media_info

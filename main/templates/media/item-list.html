@@ -4,7 +4,7 @@
 <a href="{{ item.item.get_absolute_url }}">
   <h4 class="item-heading">{{ item.item.get_name }}</h4>
   <div><span class="tags-header">Format</span>
-    <span class="concept-list"><span class="concept-tag">{{ item.item.format }}</span></span>
+    <span class="concept-list"><span class="concept-tag">{{ item.item.get_description }}</span></span>
   </div>
   {% if item.keywords %}
   <div><span class="tags-header">Keywords</span>

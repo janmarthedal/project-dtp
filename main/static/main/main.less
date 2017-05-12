@@ -13,6 +13,7 @@
 @default-color: #95a5a6;
 @warning-color: #f39c12;
 @danger-color: #e74c3c;
+@border-color: #dce4ec;
 @navbar-bg: @primary-color;
 @navbar-fg: #fff;
 @navbar-brand-size: 1.5*@base-size;
@@ -33,7 +34,7 @@
 
 .panel() {
     background-color: #fff;
-    border: 2*@thin-border-width solid #dce4ec;
+    border: 2*@thin-border-width solid @border-color;
     //border-radius: 4*@thin-border-width;
     /*-webkit-box-shadow: inset @thin-border-width @thin-border-width rgba(0,0,0,0.05);
     box-shadow: inset @thin-border-width @thin-border-width rgba(0,0,0,0.05);*/
@@ -302,8 +303,16 @@ main, aside {
 
 /* item image */
 
-.item-img {
+figure.item-img {
+    margin: @box-padding 0;
+    & > img, & > iframe {
     .panel();
+        margin: 0;
+    }
+    & > figcaption {
+        background-color: @border-color;
+        padding: @box-padding;
+    }
 }
 
 /* forms */

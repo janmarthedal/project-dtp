@@ -1,9 +1,16 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-<img class="item-img" src="{{ url }}">
+<figure class="item-img">
+  {{ tag|safe }}
+  <figcaption>{{ name }}</figcaption>
+</figure>
 {% endblock %}
 
 {% block sidecontent %}
+<div class="sidebar-box">
+  <h4>Format</h4>
+  <p>{{ description }}</p>
+</div>
 {% include 'keywords/edit-box.html' with itemkeywords=mediakeywords %}
 {% endblock %}

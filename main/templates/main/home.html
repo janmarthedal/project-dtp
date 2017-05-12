@@ -11,7 +11,10 @@
 
 {% if featured_media %}
 <h2>Featured Media Item</h2>
-<img class="item-img" src="{{ featured_media }}">
+<figure class="item-img">
+  {{ featured_media.get_html|safe }}
+  <figcaption>{{ featured_media.get_name }}</figcaption>
+</figure>
 {% endif %}
 {% endblock %}
 

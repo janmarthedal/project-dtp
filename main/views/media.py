@@ -1,22 +1,20 @@
 import os
-from shutil import move
 import subprocess
 import tempfile
-import json
 from uuid import uuid4
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, render
-from django.template.loader import render_to_string
-from django.views.decorators.http import require_safe, require_http_methods
+# from django.template.loader import render_to_string
+from django.views.decorators.http import require_safe, require_POST, require_http_methods
 
 from keywords.models import Keyword, MediaKeyword
 from main.elasticsearch import index_media, item_search
 from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
-from media.models import Media
-from project.server_com import parse_cindy
+from media.models import Media, SVGImage
+# from project.server_com import parse_cindy
 from userdata.permissions import has_perm, require_perm
 
 import logging
@@ -39,11 +37,11 @@ def validate_svg(tmpname):
                          '-o', os.path.join(settings.MEDIA_ROOT, filename)],
                         stderr=subprocess.PIPE)
     if 'error' in cp.stderr.decode().lower():
-        return None, None
-    return filename, 'svg'
+        return None
+    return SVGImage.objects.create(path=filename)
 
 
-def validate_cindy(tmpname):
+"""def validate_cindy(tmpname):
     result = parse_cindy(tmpname)
     if 'error' in result:
         return None, None
@@ -71,49 +69,40 @@ def validate_cindy(tmpname):
     with open(os.path.join(settings.MEDIA_ROOT, filename), 'w') as dst:
         dst.write(content)
     return filename, 'cindy'
+"""
 
 
-@require_http_methods(['GET', 'POST'])
+@require_POST
 @login_required
 @require_perm('media')
 def image_add(request):
     context = {'title': 'Add Image'}
-    """if request.method == 'GET':
-        pass
-    elif 'file' in request.POST:
-        curpath = request.POST['file']
-        format = request.POST['format']
-        media = Media.objects.create(created_by=request.user, format=format, path=curpath)
-        newpath = '{}.{}'.format(media.get_name(), {'svg': 'svg', 'cindy': 'html'}[format])
-        move(os.path.join(settings.MEDIA_ROOT, curpath),
-             os.path.join(settings.MEDIA_ROOT, newpath))
-        media.path = newpath
-        media.save()
-        return redirect('media-home')
+    if 'ref' in request.POST:
+        ref = request.POST['ref']
+        format, id_str = ref.split(':')
+        if format == SVGImage.REFNAME:
+            image = SVGImage.objects.get(id=int(id_str))
+        else:
+            raise RuntimeError()
+        media = Media.objects.create(created_by=request.user)
+        image.finalize(media)
+        return redirect('media-show', media.get_name())
     else:
         src = request.FILES['file']
         with tempfile.NamedTemporaryFile(mode='w+b', prefix='mathitems-', delete=False) as dst:
-            tmpname = dst.name
+            tmp_name = dst.name
             for chunk in src.chunks():
                 dst.write(chunk)
 
-        filename, format = validate_svg(tmpname)
+        image = validate_svg(tmp_name)
 
-        if format is None:
-            filename, format = validate_cindy(tmpname)
-
-        if format is not None:
-            url = settings.MEDIA_URL + filename
-            if format == 'svg':
-                context['tag'] = '<img class="item-img" src="{}">'.format(url)
-            else:
-                context['tag'] = '''<div style="position: relative; width: 100%; height: 0; padding-bottom: 53.3%;">
-  <iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="{}"></iframe>
-</div>'''.format(url)
-            context['field_value'] = filename
-            context['format'] = format
+        if image is not None:
+            context['ref'] = image.get_ref()
+            context['tag'] = image.get_html()
+            context['description'] = image.get_description()
         else:
-            context['error'] = 'Not a recognized media format'"""
+            context['error'] = 'Not a recognized media format'
+
     return render(request, 'media/image-add.html', context)
 
 
@@ -169,7 +158,9 @@ def show_media(request, media_str):
         raise Http404('Media does not exist')
     return render(request, 'media/show.html', {
         'title': 'Media {}'.format(media.get_name()),
-        'url': media.full_path(),
+        'name': media.get_name(),
+        'tag': media.get_html(),
+        'description': media.get_description(),
         'keywords': Keyword.objects.filter(mediakeyword__media=media).order_by('name').all(),
         'kw_edit_link': has_perm('keyword', request.user) and reverse('edit-media-keywords', args=[media.get_name()])
     })
@@ -195,7 +186,9 @@ def edit_media_keywords(request, id_str):
         index_media(media)
     context = {
         'title': 'Media {}'.format(media.get_name()),
-        'url': media.full_path(),
+        'name': media.get_name(),
+        'tag': media.get_html(),
+        'description': media.get_description(),
         'mediakeywords': MediaKeyword.objects.filter(media=media).order_by('keyword__name').all(),
     }
     return render(request, 'media/edit-keywords.html', context)

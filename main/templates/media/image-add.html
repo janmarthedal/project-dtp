@@ -5,12 +5,11 @@
 <p>{{ error }}</p>
 <p><a href="{% url 'media-home' %}" class="btn btn-warning">Back</a></p>
 {% else %}
-<p>Recognized as {{ format }}</p>
+<p>Recognized as {{ description }}</p>
 {{ tag|safe }}
 <form method="POST" action="{% url 'image-add' %}">
   {% csrf_token %}
-  <input type="hidden" name="file" value="{{ field_value }}">
-  <input type="hidden" name="format" value="{{ format }}">
+  <input type="hidden" name="ref" value="{{ ref }}">
   <button type="submit" class="btn btn-default">Add Media</button>
   <a href="{% url 'media-home' %}" class="btn btn-warning">Cancel</a>
 </form>
