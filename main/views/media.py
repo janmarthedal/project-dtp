@@ -76,9 +76,9 @@ def validate_cindy(tmpname):
 @require_http_methods(['GET', 'POST'])
 @login_required
 @require_perm('media')
-def media_add(request):
-    context = {'title': 'Add Media'}
-    if request.method == 'GET':
+def image_add(request):
+    context = {'title': 'Add Image'}
+    """if request.method == 'GET':
         pass
     elif 'file' in request.POST:
         curpath = request.POST['file']
@@ -113,8 +113,52 @@ def media_add(request):
             context['field_value'] = filename
             context['format'] = format
         else:
-            context['error'] = 'Not a recognized media format'
-    return render(request, 'media/add.html', context)
+            context['error'] = 'Not a recognized media format'"""
+    return render(request, 'media/image-add.html', context)
+
+
+@require_http_methods(['GET', 'POST'])
+@login_required
+@require_perm('media')
+def cindy_add(request):
+    context = {'title': 'Add Media'}
+    """if request.method == 'GET':
+        pass
+    elif 'file' in request.POST:
+        curpath = request.POST['file']
+        format = request.POST['format']
+        media = Media.objects.create(created_by=request.user, format=format, path=curpath)
+        newpath = '{}.{}'.format(media.get_name(), {'svg': 'svg', 'cindy': 'html'}[format])
+        move(os.path.join(settings.MEDIA_ROOT, curpath),
+             os.path.join(settings.MEDIA_ROOT, newpath))
+        media.path = newpath
+        media.save()
+        return redirect('media-home')
+    else:
+        src = request.FILES['file']
+        with tempfile.NamedTemporaryFile(mode='w+b', prefix='mathitems-', delete=False) as dst:
+            tmpname = dst.name
+            for chunk in src.chunks():
+                dst.write(chunk)
+
+        filename, format = validate_svg(tmpname)
+
+        if format is None:
+            filename, format = validate_cindy(tmpname)
+
+        if format is not None:
+            url = settings.MEDIA_URL + filename
+            if format == 'svg':
+                context['tag'] = '<img class="item-img" src="{}">'.format(url)
+            else:
+                context['tag'] = '''<div style="position: relative; width: 100%; height: 0; padding-bottom: 53.3%;">
+  <iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="{}"></iframe>
+</div>'''.format(url)
+            context['field_value'] = filename
+            context['format'] = format
+        else:
+            context['error'] = 'Not a recognized media format'"""
+    return render(request, 'media/cindy-add.html', context)
 
 
 @require_safe

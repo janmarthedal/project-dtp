@@ -33,7 +33,8 @@ definitions_patterns = [
 
 media_patterns = [
     url(r'^$', media.home, name='media-home'),
-    url(r'^add$', media.media_add, name='media-add'),
+    url(r'^add-image$', media.image_add, name='image-add'),
+    url(r'^add-cindyjs$', media.cindy_add, name='cindy-add'),
     url(r'^search$', media.media_search, name='media-search'),
 ]
 
