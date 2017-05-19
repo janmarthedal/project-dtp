@@ -114,3 +114,14 @@ class CindyMedia(models.Model):
         return '''<div style="position: relative; width: 100%; height: 0; padding-bottom: {}%;">
       <iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="{}"></iframe>
 </div>'''.format(self.aspect_ratio, settings.MEDIA_URL + self.path)
+
+    def get_description(self):
+        return 'CindyJS illustration'
+
+    def finalize(self, media):
+        new_path = '{}.{}'.format(media.get_name(), 'html')
+        move(os.path.join(settings.MEDIA_ROOT, self.path),
+             os.path.join(settings.MEDIA_ROOT, new_path))
+        self.parent = media
+        self.path = new_path
+        self.save()

@@ -43,37 +43,6 @@ def validate_svg(tmpname):
     return SVGImage.objects.create(path=filename)
 
 
-"""def validate_cindy(tmpname):
-    result = parse_cindy(tmpname)
-    if 'error' in result:
-        return None, None
-
-    data = result['data']
-    if 'ports' in data:
-        if type(data['ports']) is not list or len(data['ports']) != 1:
-            return None, None
-    else:
-        data['ports'] = [{}]
-    for key in ['width', 'height']:
-        if key in data['ports'][0]:
-            del data['ports'][0][key]
-    data['ports'][0]['id'] = 'cscanvas'
-    data['ports'][0]['fill'] = 'window'
-    if 'scripts' in data:
-        del data['scripts']
-
-    filename = '{}.html'.format(uuid4().hex)
-    content = render_to_string('media/cindy-media.html', {
-        'title': result['title'],
-        'lib': result['lib'],
-        'data': '{{\n{}\n}}'.format(',\n'.join('  "{}": {}'.format(k, json.dumps(v)) for k, v in data.items()))
-    })
-    with open(os.path.join(settings.MEDIA_ROOT, filename), 'w') as dst:
-        dst.write(content)
-    return filename, 'cindy'
-"""
-
-
 @require_POST
 @login_required
 @require_perm('media')
@@ -142,6 +111,11 @@ def cindy_add(request):
     context = {'title': 'Add Media'}
     if request.method == 'GET':
         form = AddCindyForm()
+    elif request.POST['submit'] == 'save':
+        cindy = CindyMedia.objects.get(pk=int(request.POST['ref']))
+        media = Media.objects.create(created_by=request.user)
+        cindy.finalize(media)
+        return redirect('media-show', media.get_name())
     else:
         form = AddCindyForm(request.POST)
         if form.is_valid():
