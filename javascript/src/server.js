@@ -4,6 +4,7 @@ import {fromPairs, map} from 'lodash';
 
 import eqn_typeset from './eqn-typeset';
 import item_data_to_html from './item-data-to-html';
+import json_parse_relax_keys from './json-parse-relax-keys';
 import markup_to_item_data from './markup-to-item-data';
 import {ITEM_NAMES} from './constants';
 import parse_cindy from './parse-cindy';
@@ -50,7 +51,15 @@ app.post('/render-item', function(req, res) {
                 json_response(res, data);
             });
     } else {
-        res.status(400).send('Malformed data');
+        res.sendStatus(400);
+    }
+});
+
+app.post('/parse-json-relaxed', function(req, res) {
+    try {
+        json_response(res, json_parse_relax_keys(req.body.data));
+    } catch (ex) {
+        res.sendStatus(400);
     }
 });
 

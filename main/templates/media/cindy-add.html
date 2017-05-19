@@ -1,7 +1,33 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-<p>Cindy Add</p>
+{% if preview %}
+<p>Preview:</p>
+{{ preview.get_html|safe }}
+{% endif %}
+<form method="POST">
+  {% csrf_token %}
+  {% if preview %}
+  <input type="hidden" name="ref" value="{{ ref }}">
+  {% endif %}
+  {{ form.non_field_errors }}
+  <div class="form-control-wrap">
+    {{ form.version.errors }}
+    {{ form.version.label_tag }}
+    {{ form.version }}
+  </div>
+  <div class="form-control-wrap">
+    {{ form.ratio.errors }}
+    {{ form.ratio.label_tag }}
+    {{ form.ratio }}
+  </div>
+  <div class="form-control-wrap">
+    {{ form.create.errors }}
+    {{ form.create.label_tag }}
+    {{ form.create }}
+  </div>
+  <button type="submit" class="btn btn-default">Preview</button>
+</form>
 {% endblock %}
 
 {% block sidecontent %}

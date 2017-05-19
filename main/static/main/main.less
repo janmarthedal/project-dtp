@@ -321,6 +321,12 @@ figure.item-img {
     .formcontrol();
 }
 
+.form-control-wrap {
+    & > input, & > select, & > textarea {
+        .formcontrol();
+    }
+}
+
 .input-group {
     display: table;
     border-collapse: separate;

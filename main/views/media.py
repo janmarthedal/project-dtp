@@ -1,20 +1,22 @@
+import json
 import os
+import requests
 import subprocess
 import tempfile
 from uuid import uuid4
+from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import redirect, render
-# from django.template.loader import render_to_string
 from django.views.decorators.http import require_safe, require_POST, require_http_methods
 
 from keywords.models import Keyword, MediaKeyword
 from main.elasticsearch import index_media, item_search
 from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
-from media.models import Media, SVGImage
-# from project.server_com import parse_cindy
+from media.models import CindyMedia, Media, SVGImage
+from project.server_com import parse_json_relaxed
 from userdata.permissions import has_perm, require_perm
 
 import logging
@@ -106,47 +108,63 @@ def image_add(request):
     return render(request, 'media/image-add.html', context)
 
 
+class JsonField(forms.CharField):
+    def clean(self, value):
+        value = super().clean(value)
+        try:
+            return json.dumps(parse_json_relaxed(value))
+        except requests.HTTPError:
+            raise forms.ValidationError('Not valid JSON')
+
+
+class AddCindyForm(forms.Form):
+    version = forms.ChoiceField(choices=[('0.8.4', '0.8.4')])
+    ratio = forms.DecimalField(min_value=10, max_value=1000, initial=75, label='Aspect ratio (100 height/width)')
+    create = JsonField(widget=forms.Textarea(attrs={'style': 'height:20em'}), label='Creation data')
+
+
+def format_create_field(value):
+    data = json.loads(value)
+    top = []
+    for k, v in data.items():
+        if type(v) is list:
+            value = '[\n' + ',\n'.join('    {}'.format(json.dumps(p)) for p in v) + '\n  ]'
+        else:
+            value = json.dumps(v)
+        top.append('  "{}": {}'.format(k, value))
+    return '{\n' + ',\n'.join(top) + '\n}'
+
+
 @require_http_methods(['GET', 'POST'])
 @login_required
 @require_perm('media')
 def cindy_add(request):
     context = {'title': 'Add Media'}
-    """if request.method == 'GET':
-        pass
-    elif 'file' in request.POST:
-        curpath = request.POST['file']
-        format = request.POST['format']
-        media = Media.objects.create(created_by=request.user, format=format, path=curpath)
-        newpath = '{}.{}'.format(media.get_name(), {'svg': 'svg', 'cindy': 'html'}[format])
-        move(os.path.join(settings.MEDIA_ROOT, curpath),
-             os.path.join(settings.MEDIA_ROOT, newpath))
-        media.path = newpath
-        media.save()
-        return redirect('media-home')
+    if request.method == 'GET':
+        form = AddCindyForm()
     else:
-        src = request.FILES['file']
-        with tempfile.NamedTemporaryFile(mode='w+b', prefix='mathitems-', delete=False) as dst:
-            tmpname = dst.name
-            for chunk in src.chunks():
-                dst.write(chunk)
-
-        filename, format = validate_svg(tmpname)
-
-        if format is None:
-            filename, format = validate_cindy(tmpname)
-
-        if format is not None:
-            url = settings.MEDIA_URL + filename
-            if format == 'svg':
-                context['tag'] = '<img class="item-img" src="{}">'.format(url)
+        form = AddCindyForm(request.POST)
+        if form.is_valid():
+            if 'ref' in request.POST:
+                cindy = CindyMedia.objects.get(pk=int(request.POST['ref']))
             else:
-                context['tag'] = '''<div style="position: relative; width: 100%; height: 0; padding-bottom: 53.3%;">
-  <iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="{}"></iframe>
-</div>'''.format(url)
-            context['field_value'] = filename
-            context['format'] = format
-        else:
-            context['error'] = 'Not a recognized media format'"""
+                cindy = CindyMedia(path='{}.html'.format(uuid4().hex))
+            cindy.version = form.cleaned_data['version']
+            cindy.aspect_ratio = form.cleaned_data['ratio']
+            cindy.data = '{"create":' + form.cleaned_data['create'] + '}'
+
+            # removes cleaned_data
+            form = AddCindyForm(dict(form.cleaned_data,
+                                     create=format_create_field(form.cleaned_data['create'])))
+            try:
+                cindy.create_file()
+                cindy.save()
+                context['preview'] = cindy
+            except Exception as ex:
+                context['error'] = str(ex)
+            if getattr(cindy, 'id') is not None:
+                context['ref'] = cindy.id
+    context['form'] = form
     return render(request, 'media/cindy-add.html', context)
 
 

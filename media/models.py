@@ -1,9 +1,11 @@
+import json
 import os
 from shutil import move
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.template.loader import render_to_string
 
 
 class MediaManager(models.Manager):
@@ -87,7 +89,28 @@ class CindyMedia(models.Model):
     class Meta:
         db_table = 'cindymedia'
 
+    def create_file(self):
+        data = json.loads(self.data).get('create', {})
+        if 'ports' not in data:
+            raise Exception('No ports declaration')
+        if type(data['ports']) is not list or len(data['ports']) != 1:
+            raise Exception('Illegal ports declaration')
+        for key in ['width', 'height']:
+            if key in data['ports'][0]:
+                del data['ports'][0][key]
+        data['ports'][0]['id'] = 'cscanvas'
+        data['ports'][0]['fill'] = 'window'
+        if 'scripts' in data:
+            del data['scripts']
+
+        content = render_to_string('media/cindy-media.html', {
+            'lib': 'https://rawgit.com/janmarthedal/CindyJS-builds/master/v{}/Cindy.js'.format(self.version),
+            'create': '{{\n{}\n}}'.format(',\n'.join('  "{}": {}'.format(k, json.dumps(v)) for k, v in data.items()))
+        })
+        with open(os.path.join(settings.MEDIA_ROOT, self.path), 'w') as dst:
+            dst.write(content)
+
     def get_html(self):
-        return '''<div style="position: relative; width: 100%; height: 0; padding-bottom: 53.3%;">
+        return '''<div style="position: relative; width: 100%; height: 0; padding-bottom: {}%;">
       <iframe style="position: absolute; width: 100%; height: 100%; left: 0; top: 0;" src="{}"></iframe>
-</div>'''.format(settings.MEDIA_URL + self.path)
+</div>'''.format(self.aspect_ratio, settings.MEDIA_URL + self.path)

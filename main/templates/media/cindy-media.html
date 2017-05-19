@@ -2,13 +2,12 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>{{ title }}</title>
   <style type="text/css">
     * { margin: 0px; padding: 0px; }
   </style>
-  <script type="text/javascript" src="{{ lib }}"></script>
+  <script type="text/javascript" src="{{ lib|safe }}"></script>
   <script type="text/javascript">
-createCindy({{ data|safe }});
+createCindy({{ create|safe }});
   </script>
 </head>
 <body>
