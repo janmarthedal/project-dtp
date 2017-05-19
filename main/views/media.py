@@ -16,7 +16,7 @@ from keywords.models import Keyword, MediaKeyword
 from main.elasticsearch import index_media, item_search
 from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
 from media.models import CindyMedia, Media, SVGImage
-from project.server_com import parse_json_relaxed
+from project.server_com import parse_cindy, parse_json_relaxed
 from userdata.permissions import has_perm, require_perm
 
 import logging
@@ -43,6 +43,13 @@ def validate_svg(tmpname):
     return SVGImage.objects.create(path=filename)
 
 
+def request_file_to_temp_file(src):
+    with tempfile.NamedTemporaryFile(mode='w+b', prefix='mathitems-', delete=False) as dst:
+        for chunk in src.chunks():
+            dst.write(chunk)
+        return dst.name
+
+
 @require_POST
 @login_required
 @require_perm('media')
@@ -59,14 +66,8 @@ def image_add(request):
         image.finalize(media)
         return redirect('media-show', media.get_name())
     else:
-        src = request.FILES['file']
-        with tempfile.NamedTemporaryFile(mode='w+b', prefix='mathitems-', delete=False) as dst:
-            tmp_name = dst.name
-            for chunk in src.chunks():
-                dst.write(chunk)
-
+        tmp_name = request_file_to_temp_file(request.FILES['file'])
         image = validate_svg(tmp_name)
-
         if image is not None:
             context['ref'] = image.get_ref()
             context['tag'] = image.get_html()
@@ -87,7 +88,8 @@ class JsonField(forms.CharField):
 
 
 class AddCindyForm(forms.Form):
-    version = forms.ChoiceField(choices=[('0.8.4', '0.8.4')])
+    LATEST_VERSION = '0.8.4'
+    version = forms.ChoiceField(choices=[(LATEST_VERSION, LATEST_VERSION)])
     ratio = forms.DecimalField(min_value=10, max_value=1000, initial=75, label='Aspect ratio (100 height/width)')
     create = JsonField(widget=forms.Textarea(attrs={'style': 'height:20em'}), label='Creation data')
 
@@ -111,6 +113,25 @@ def cindy_add(request):
     context = {'title': 'Add Media'}
     if request.method == 'GET':
         form = AddCindyForm()
+    elif 'file' in request.FILES:
+        tmp_name = request_file_to_temp_file(request.FILES['file'])
+        data = parse_cindy(tmp_name)
+        create = data['data']
+        if 'scripts' in create:
+            del create['scripts']
+        form_data = {'version': AddCindyForm.LATEST_VERSION}
+        if 'ports' in create and type(create['ports']) is list and len(create['ports']) == 1:
+            port = create['ports'][0]
+            if type(port) is dict:
+                try:
+                    form_data['ratio'] = str(100.0*int(port['height'])/int(port['width']))
+                except (KeyError, ValueError):
+                    pass
+                for key in ['width', 'height', 'id']:
+                    if key in port:
+                        del port[key]
+        form_data['create'] = format_create_field(json.dumps(create))
+        form = AddCindyForm(form_data)
     elif request.POST['submit'] == 'save':
         cindy = CindyMedia.objects.get(pk=int(request.POST['ref']))
         media = Media.objects.create(created_by=request.user)

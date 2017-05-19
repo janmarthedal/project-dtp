@@ -13,16 +13,25 @@
   </form>
 </div>
 <div class="sidebar-box">
-  <h4>Actions</h4>
+  <h4>Add Media</h4>
   <form method="POST" action="{% url 'image-add' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="input-group">
       <input class="form-control" type="file" name="file" required>
       <span class="input-group-btn">
-        <button class="btn btn-default" type="submit">Upload</button>
+        <button class="btn btn-default" type="submit">Upload Image</button>
       </span>
     </div>
   </form>
-  <a class="btn btn-default" href="{% url 'cindy-add' %}">Add CindyJS</a>
+  <form method="POST" action="{% url 'cindy-add' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="input-group">
+      <input class="form-control" type="file" name="file" required>
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="submit">Import CindyJS</button>
+      </span>
+    </div>
+  </form>
+  <p><a class="btn btn-default" href="{% url 'cindy-add' %}">Add CindyJS</a></p>
 </div>
 {% endblock %}
