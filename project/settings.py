@@ -66,6 +66,7 @@ PIPELINE = {
             'source_filenames': (
                 'main/analytics.js',
                 'main/watcher.js',
+                'main/one-click-upload.js',
             ),
             'output_filename': 'main.js',
             'extra_context': {

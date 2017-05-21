@@ -14,7 +14,7 @@
 </div>
 <div class="sidebar-box">
   <h4>Add Media</h4>
-  <form method="POST" action="{% url 'image-add' %}" enctype="multipart/form-data">
+  <form method="POST" class="one-click-upload" action="{% url 'image-add' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="input-group">
       <input class="form-control" type="file" name="file" required>
@@ -23,7 +23,7 @@
       </span>
     </div>
   </form>
-  <form method="POST" action="{% url 'cindy-add' %}" enctype="multipart/form-data">
+  <form method="POST" class="one-click-upload" action="{% url 'cindy-add' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="input-group">
       <input class="form-control" type="file" name="file" required>
