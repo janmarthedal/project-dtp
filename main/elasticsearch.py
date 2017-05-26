@@ -82,7 +82,7 @@ def media_to_es_document(media):
 # logger = logging.getLogger(__name__)
 def item_search(query, type_name, offset, limit):
     if not elasticsearch:
-        return []
+        return [], 0
     results = elasticsearch.search(ES_INDEX, ES_TYPE, from_=offset, size=limit, _source=False, body={
         'query': {
             'bool': {
@@ -103,7 +103,6 @@ def item_search(query, type_name, offset, limit):
             }
         }
     })
-    # logger.info(json.dumps(results, indent=2))
     return [hit['_id'] for hit in results['hits']['hits']], results['hits']['total']
 
 

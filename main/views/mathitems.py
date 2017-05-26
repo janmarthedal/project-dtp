@@ -236,6 +236,8 @@ def item_search_helper(request, type_name, name, view):
     try:
         page = int(request.GET.get('page', 1))
     except ValueError:
+        page = 0
+    if page <= 0:
         return redirect('{}?q={}'.format(reverse(view), query))
     if query:
         results, total = item_search(query, type_name, LIST_PAGE_SIZE*(page-1), LIST_PAGE_SIZE)
@@ -244,8 +246,9 @@ def item_search_helper(request, type_name, name, view):
     else:
         items = []
         pages_total = 0
-    if page > pages_total:
-        return redirect('{}?q={}&page={}'.format(reverse(view), query, pages_total))
+    if page != 1 and page > pages_total:
+        go_to_page = max(pages_total, 1)
+        return redirect('{}?q={}&page={}'.format(reverse(view), query, go_to_page))
     return render(request, 'mathitems/item-search-page.html', {
         'title': '{} Search'.format(name),
         'query': query,
