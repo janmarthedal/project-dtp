@@ -1,4 +1,5 @@
 import commonmark from 'commonmark';
+import {last} from 'lodash';
 import {AST_TYPES} from './constants';
 
 const reader = new commonmark.Parser();
@@ -40,6 +41,11 @@ function make_text(value) {
     };
 }
 
+function concept_to_label(con) {
+    const r = last(con.split('/'));
+    return r ? r.replace(/-/g, ' ') : con;
+}
+
 function image_handler(node) {
     const src = node.destination || '';
     let match;
@@ -65,7 +71,7 @@ function link_handler(node, item, concept_map) {
         item.type = AST_TYPES.conceptdef;
         item.concept = concept_map.get_id(match[1]);
         if (!item.children)
-            item.children = [make_text(match[1])];
+            item.children = [make_text(concept_to_label(match[1]))];
     } else if (href.startsWith('=')) {
         return make_error("illegal concept name '" + href.substr(1) + "'");
     } else if ((match = href.match(regex_item_ref)) != null) {
@@ -74,12 +80,12 @@ function link_handler(node, item, concept_map) {
         if (match[2])
             item.concept = concept_map.get_id(match[2]);
         if (!item.children)
-            item.children = [make_text(match[2] || match[1])];
+            item.children = [make_text(match[2] ? concept_to_label(match[2]) : match[1])];
     } else if ((match = href.match(regex_concept_ref)) != null) {
         item.type = AST_TYPES.conceptref;
         item.concept = concept_map.get_id(match[1]);
         if (!item.children)
-            item.children = [make_text(match[1])];
+            item.children = [make_text(concept_to_label(match[1]))];
     } else {
         return make_error("illegal item reference '" + href + "'");
     }
