@@ -61,7 +61,7 @@ urlpatterns = [
     url(r'^(M[1-9]\d*)/keywords$', media.edit_media_keywords, name='edit-media-keywords'),
     url(r'^admin/', include(admin_patterns)),
     url(r'^user/', include(user_patterns)),
-    url(r'^concept/([-a-z]+)$', concepts.show_concept, name='concept-page'),
+    url(r'^concept/([-/a-z]+)$', concepts.show_concept, name='concept-page'),
     url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
     url(r'^definitions/', include(definitions_patterns)),
     url(r'^drafts/', include(drafts_patterns)),
