@@ -23,7 +23,8 @@ ga('send','pageview');
 
         /* watcher */
 
-        if (page_data.watch) {
+        (function(data) {
+            if (!data) return;
 
             let on = false;
             const checks = [];
@@ -53,7 +54,7 @@ ga('send','pageview');
                 }
             }
 
-            forEach(page_data.watch.elements, item => {
+            forEach(data.elements, item => {
                 const el = doc.querySelector(item.el);
                 const saved = typeof item.value === 'string' ? item.value : el.value;
                 checks.push(() => el.value === saved);
@@ -61,14 +62,14 @@ ga('send','pageview');
                 el.addEventListener('change', check, false);
             });
 
-            forEach(page_data.watch.allow, sel => {
+            forEach(data.allow, sel => {
                 doc.querySelector(sel).addEventListener('click', function () {
                     handlerOff();
                 }, false);
             });
 
             check();
-        }
+        })(page_data.watch);
 
         /* one click upload */
 
@@ -84,6 +85,15 @@ ga('send','pageview');
                 el.submit();
             });
         });
+
+        /* focus on first form's first input field */
+
+        (function(form) {
+            if (!form) return;
+            const first_input = form.querySelector('input[type="text"],textarea');
+            if (first_input)
+                first_input.focus();
+        })(doc.querySelector('form'));
 
     }
 
