@@ -305,10 +305,13 @@ main, aside {
 
 figure.item-img {
     margin: @box-padding 0;
+    max-width: 40rem;
+
     & > img, & > iframe {
-    .panel();
+        .panel();
         margin: 0;
     }
+
     & > figcaption {
         background-color: @border-color;
         padding: @box-padding;
