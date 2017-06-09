@@ -1,25 +1,27 @@
 {% extends 'main/page.html' %}
+{% load jsonify %}
 
 {% block pagecontent %}
 {% if not can_save %}
 <p>
-  Warning: You can try editing a draft here, but you will <em>not</em>
-  be able to save it!
+  Warning: You can try editing a draft here, but you will <em>not</em> be able to save it!
 </p>
 {% endif %}
 <form method="post" action="">
   {% csrf_token %}
-  <textarea name="src" class="item-edit-box watch-field" rows="20">{{ item.body }}</textarea>
-  <p>Preview (<button type="submit" name="submit" value="preview" class="btn btn-link watch-ok">update</button>):</p>
+  <textarea name="src" id="src" class="item-edit-box" rows="20">{{ item.body }}</textarea>
+  <p>Preview (<button type="submit" name="submit" id="update" value="preview" class="btn btn-link">update</button>):</p>
   {% include 'mathitems/include/show.html' with item_data=item_data only %}
   <p>Notes:</p>
-  <textarea name="notes" class="notes-edit-box watch-field" rows="4">{{ item.notes }}</textarea>
+  <textarea name="notes" id="notes" class="notes-edit-box" rows="4">{{ item.notes }}</textarea>
   {% if can_save %}
-  <button type="submit" name="submit" value="save" class="btn btn-default">Save</button>
+  <button type="submit" name="submit" id="save" value="save" class="btn btn-default">Save</button>
   {% endif %}
-  {% if src_hash %}<input type="hidden" name="src-chk" value="{{ src_hash }}">{% endif %}
   <a href="{% url 'home' %}" class="btn btn-warning">Cancel</a>
 </form>
+<script type="x-mathitems">
+{"watch": {"allow": ["#update", "#save"], "elements": [{"el": "#src"{% if item.body != saved.body %}, "value": {{ saved.body|jsonify }}{% endif %}}, {"el": "#notes"{% if item.notes != saved.notes %}, "value": {{ saved.notes|jsonify }}{% endif %}}]}}
+</script>
 {% endblock %}
 
 {% block sidecontent %}

@@ -11,6 +11,9 @@ ga('send','pageview');
     if (typeof doc.querySelectorAll === 'function'
             && typeof Array.prototype.forEach === 'function'
             && typeof doc.addEventListener === 'function') {
+        
+        const page_data_script = doc.querySelector('script[type="x-mathitems"]');
+        const page_data = page_data_script ? JSON.parse(page_data_script.text) : {};
 
         /* helpers */
 
@@ -20,64 +23,52 @@ ga('send','pageview');
 
         /* watcher */
 
-        let on = false;
-        const checks = [];
+        if (page_data.watch) {
 
-        function hashCode(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash  = ((hash << 5) - hash) + str.charCodeAt(i);
-                hash |= 0; // Convert to 32bit integer
+            let on = false;
+            const checks = [];
+
+            function unloadHandler(ev) {
+                const msg = 'You have unsaved changes';
+                ev.returnValue = msg;
+                return msg;
             }
-            return hash + '|' + str.length;
-        };
 
-        function unloadHandler(ev) {
-            const msg = 'You have unsaved changes';
-            ev.returnValue = msg;
-            return msg;
-        }
+            function handlerOn() {
+                win.addEventListener('beforeunload', unloadHandler, false);
+            }
 
-        function handlerOn() {
-            win.addEventListener('beforeunload', unloadHandler, false);
-        }
+            function handlerOff() {
+                win.removeEventListener('beforeunload', unloadHandler, false);
+            }
 
-        function handlerOff() {
-            win.removeEventListener('beforeunload', unloadHandler, false);
-        }
+            function check() {
+                let changed = false;
+                checks.forEach(isSame => {
+                    changed = changed || !isSame();
+                });
+                if (changed != on) {
+                    (changed ? handlerOn : handlerOff)();
+                    on = changed;
+                }
+            }
 
-        function check() {
-            let changed = false;
-            checks.forEach(isSame => {
-                changed = changed || !isSame();
+            forEach(page_data.watch.elements, item => {
+                const el = doc.querySelector(item.el);
+                const saved = typeof item.value === 'string' ? item.value : el.value;
+                checks.push(() => el.value === saved);
+                el.addEventListener('keyup', check, false);
+                el.addEventListener('change', check, false);
             });
-            if (changed != on) {
-                (changed ? handlerOn : handlerOff)();
-                on = changed;
-            }
+
+            forEach(page_data.watch.allow, sel => {
+                doc.querySelector(sel).addEventListener('click', function () {
+                    handlerOff();
+                }, false);
+            });
+
+            check();
         }
-
-        forEach(doc.querySelectorAll('textarea.watch-field[name]'), el => {
-            const nameChk = el.getAttribute('name') + '-chk';
-            let elChk = el.parentElement.querySelector('input[name="' + nameChk + '"]')
-            if (elChk === null) {
-                elChk = document.createElement('input');
-                elChk.setAttribute('type', 'hidden');
-                elChk.setAttribute('name', nameChk);
-                elChk.setAttribute('value', hashCode(el.value));
-                el.parentElement.appendChild(elChk);
-            }
-            const hash = elChk.getAttribute('value');                    
-            checks.push(() => hashCode(el.value) === hash);
-            el.addEventListener('keyup', check, false);
-            el.addEventListener('change', check, false);
-        });
-
-        forEach(doc.querySelectorAll('.watch-ok'), el => {
-            el.addEventListener('click', function () {
-                handlerOff();
-            }, false);
-        });
 
         /* one click upload */
 
