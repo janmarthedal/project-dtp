@@ -20,7 +20,7 @@ function item_node_to_html(emit, node, eqns, concepts, refs, media, data) {
     }
     if (node.type === AST_TYPES.error) {
         data.errors.push(node.reason);
-        return emit('<span class="text-danger">', node.reason, '</span>');
+        return emit('<span class="error">', node.reason, '</span>');
     }
 
     let tag, error;
@@ -112,7 +112,7 @@ function item_node_to_html(emit, node, eqns, concepts, refs, media, data) {
 
     if (error) {
         data.errors.push(error);
-        return emit('<span class="text-danger">', error, '</span>');
+        return emit('<span class="error">', error, '</span>');
     }
     if (tag) {
         if (class_names.length)
