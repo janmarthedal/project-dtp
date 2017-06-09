@@ -3,9 +3,9 @@ import {last} from 'lodash';
 import {AST_TYPES} from './constants';
 
 const reader = new commonmark.Parser();
-const regex_tag_def = /^=([-\/a-z]+)$/;
-const regex_item_ref = /^([DTP][1-9]\d*)(?:#([-\/a-z]+))?$/;
-const regex_concept_ref = /^#([-\/a-z]+)$/;
+const regex_tag_def = /^=([-\/a-zA-Z]+)$/;
+const regex_item_ref = /^([DTP][1-9]\d*)(?:#([-\/a-zA-Z]+))?$/;
+const regex_concept_ref = /^#([-\/a-zA-Z]+)$/;
 const regex_media_ref = /^(M[1-9]\d*)$/;
 
 class ConceptMap {
