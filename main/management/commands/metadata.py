@@ -27,9 +27,4 @@ class Command(BaseCommand):
         for concept in Concept.objects.all():
             create_concept_meta(concept.id)
 
-        self.stdout.write('Removing unused concepts')
-        for concept in Concept.objects.exclude(name='*').filter(conceptmeta__ref_count=0, conceptmeta__def_count=0).all():
-            self.stdout.write('  {}'.format(concept.name))
-            concept.delete()
-
         self.stdout.write(self.style.SUCCESS('Done'))
