@@ -9,12 +9,12 @@ from project.server_com import render_eqns
 
 class Equation(models.Model):
     format = models.CharField(max_length=10)  # inline-TeX, TeX
-    math = models.CharField(max_length=2048)
+    math = models.TextField()
     cache_access = models.DateTimeField(auto_now_add=True, null=True)
 
     class Meta:
         db_table = 'equations'
-        unique_together = ('format', 'math')
+        # unique_together = ('format', 'math')   # not possible for mysql
 
     def __str__(self):
         math = self.math
