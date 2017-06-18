@@ -7,7 +7,6 @@ class EqnMap {
         this.eqnToId = {};
     }
     get_id(tex, block) {
-        tex = normalizeTeX(tex);
         const key = (block ? 'B' : 'I') + tex;
         if (key in this.eqnToId)
             return this.eqnToId[key];
@@ -31,15 +30,20 @@ class EqnMap {
     }
 }
 
+const MAX_MATH_LENGTH = 2048;
+
 export default function prepare_markup(text) {
     const eqn_map = new EqnMap(),
         paragraphs = text.split(/\s*\$\$\s*/);
 
     const prepared_text = paragraphs.map(function (para, j) {
         if (j % 2) {
-            const id = (j === paragraphs.length - 1)
+            const math = normalizeTeX(para);
+            const id = j + 1 === paragraphs.length
                 ? eqn_map.get_error_id('unterminated block equation')
-                : eqn_map.get_id(para, true);
+                : math.length > MAX_MATH_LENGTH
+                ? eqn_map.get_error_id('math string too long')
+                : eqn_map.get_id(math, true);
             return '![](/eqn/' + id + ')';
         } else {
             const items = para.split('$');
@@ -52,8 +56,11 @@ export default function prepare_markup(text) {
                         item = [item, items[k + 1], items[k + 2]].join('$');
                         k += 2;
                     }
+                    item = normalizeTeX(item);
                     const id = k + 1 === items.length
                         ? eqn_map.get_error_id('unterminated inline equation')
+                        : item.length > MAX_MATH_LENGTH
+                        ? eqn_map.get_error_id('math string too long')
                         : eqn_map.get_id(item, false);
                     result.push('![](/eqn/', id, ')');
                 } else {
