@@ -15,14 +15,14 @@
 <form method="POST">
   {% csrf_token %}
   <input type="hidden" name="source" value="{{ source.id }}">
-  <input type="text" name="location" class="form-control">
+  <input type="text" name="location" class="form-control auto-focus">
   <button type="submit" class="btn btn-default">Add Validation</button>
 </form>
 {% elif type_slug %}
 <p>Enter {{ type_display }} value:</p>
 <form method="GET">
   <input type="hidden" name="type" value="{{ type_slug }}">
-  <input type="text" name="value" class="form-control">
+  <input type="text" name="value" class="form-control auto-focus">
   <button type="submit" class="btn btn-default">Continue</button>
   <a href="{{ item.get_absolute_url }}" class="btn btn-warning">Cancel</a>
 </form>

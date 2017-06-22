@@ -9,7 +9,7 @@
 {% endif %}
 <form method="post" action="">
   {% csrf_token %}
-  <textarea name="src" id="src" class="item-edit-box" rows="20">{{ item.body }}</textarea>
+  <textarea name="src" id="src" class="item-edit-box auto-focus" rows="20">{{ item.body }}</textarea>
   <p>Preview (<button type="submit" name="submit" id="update" value="preview" class="btn btn-link">update</button>):</p>
   {% include 'mathitems/include/show.html' with item_data=item_data only %}
   <p>Notes:</p>

@@ -86,14 +86,11 @@ ga('send','pageview');
             });
         });
 
-        /* focus on first form's first input field */
+        /* trigger focus on element with class auto-focus */
 
-        (function(form) {
-            if (!form) return;
-            const first_input = form.querySelector('input[type="text"],textarea');
-            if (first_input)
-                first_input.focus();
-        })(doc.querySelector('form'));
+        (function(el) {
+            el && el.focus();
+        })(doc.querySelector('.auto-focus'));
 
     }
 
