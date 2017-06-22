@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from equations.models import Equation, RenderedEquation
+from equations.models import CachedEquation, Equation, RenderedEquation
 from project.server_com import render_eqns
 
 
@@ -45,11 +45,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Done'))
 
     def clean(self):
-        total_count = Equation.objects.count()
-        self.stdout.write('Total equations : {}'.format(total_count))
-        cached_count = Equation.objects.filter(cache_access__isnull=False).count()
+        cached_count = CachedEquation.objects.count()
         self.stdout.write('Cached equations: {}'.format(cached_count))
         too_old = timezone.now() - timezone.timedelta(days=7)
-        delete_info = Equation.objects.filter(cache_access__isnull=False, cache_access__lt=too_old).delete()
-        self.stdout.write('Purged equations: {}'.format(delete_info[1].get('equations.Equation', 0)))
+        delete_info = CachedEquation.objects.filter(access_at__lt=too_old).delete()
+        self.stdout.write('Purged equations: {}'.format(delete_info[1].get('equations.CachedEquation', 0)))
         self.stdout.write(self.style.SUCCESS('Done'))
