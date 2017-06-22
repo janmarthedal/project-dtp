@@ -10,12 +10,13 @@ class Command(BaseCommand):
         call_command(dumpdata.Command(), exclude=[
             'auth.permission',
             'auth.group',
+            'contenttypes',
+            'sessions',
             'concepts.conceptdefinition',
             'concepts.conceptmeta',
             'concepts.conceptreference',
             'concepts.itemdependency',
-            'contenttypes',
+            'equations.CachedEquation',
             'equations.ItemEquation',
             'equations.RenderedEquation',
-            'sessions'
         ], **options)
