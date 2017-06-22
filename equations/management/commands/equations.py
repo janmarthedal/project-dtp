@@ -50,4 +50,3 @@ class Command(BaseCommand):
         too_old = timezone.now() - timezone.timedelta(days=7)
         delete_info = CachedEquation.objects.filter(access_at__lt=too_old).delete()
         self.stdout.write('Purged equations: {}'.format(delete_info[1].get('equations.CachedEquation', 0)))
-        self.stdout.write(self.style.SUCCESS('Done'))
