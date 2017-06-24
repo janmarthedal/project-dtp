@@ -5,8 +5,7 @@ db.sqlite3
 debug.log
 .DS_Store
 secrets.py
-db_data
-es_data
 /static/
 /.idea/
 /.vscode/
+/media-files/
