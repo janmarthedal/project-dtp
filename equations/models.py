@@ -10,15 +10,12 @@ def calc_hash(format, math):
     return hashlib.md5((format + math).encode()).hexdigest()
 
 
-# ALTER TABLE equations CONVERT TO CHARACTER SET utf8 COLLATE utf8_bin;
-
 class Equation(models.Model):
     format = models.CharField(max_length=10)  # inline-TeX, TeX
     math = models.TextField()
 
     class Meta:
         db_table = 'equations'
-        # unique_together = ('format', 'math')   # not possible for mysql
 
     def __str__(self):
         math = self.math

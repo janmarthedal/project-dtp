@@ -9,7 +9,7 @@ class UserDataManager(models.Manager):
 
 class UserData(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, models.CASCADE, primary_key=True)
-    perms = models.CharField(max_length=128, blank=True)  # draft,keyword,publish,validation
+    perms = models.CharField(max_length=128, default='', blank=True)
     objects = UserDataManager()
 
     class Meta:
