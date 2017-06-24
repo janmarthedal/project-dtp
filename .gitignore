@@ -8,4 +8,5 @@ secrets.py
 db_data
 es_data
 /static/
-.idea
+/.idea/
+/.vscode/
