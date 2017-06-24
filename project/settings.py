@@ -17,10 +17,11 @@ if DEBUG:
         }
     }
 else:
+    # CREATE DATABASE mathitems DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin;
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'dtp',
+            'NAME': 'mathitems',
             'USER': 'root',
             'PASSWORD': 'orangebear',
             'HOST': 'db',
