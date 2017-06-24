@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.conf.urls import url, include
 
-from main.views import admin, concepts, drafts, main, mathitems, media, sources
+from main.views import (admin, concepts, drafts, equations, main,
+                        mathitems, media, sources)
 
 user_patterns = [
     url(r'^login$', main.login, name='login'),
@@ -18,6 +19,11 @@ drafts_patterns = [
     url(r'^(\d+)$', drafts.show_draft, name='show-draft'),
     url(r'^(\d+)/edit$', drafts.edit_draft, name='edit-draft'),
     url(r'^clone/([DTP][1-9]\d*)$', drafts.copy_to_draft, name='copy-to-draft'),
+]
+
+equations_patterns = [
+    url(r'^$', equations.home, name='eqns-home'),
+    url(r'^(\d+)$', equations.show, name='eqn-show'),
 ]
 
 admin_patterns = [
@@ -65,6 +71,7 @@ urlpatterns = [
     url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
     url(r'^definitions/', include(definitions_patterns)),
     url(r'^drafts/', include(drafts_patterns)),
+    url(r'^equations/', include(equations_patterns)),
     url(r'^media/', include(media_patterns)),
     url(r'^proofs/', include(proofs_patterns)),
     url(r'^theorems/', include(theorems_patterns)),

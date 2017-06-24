@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+
+{% block title %}MathItems | Equations{% endblock %}
+
+{% block content %}
+<h1>List of Equations</h1>
+
+<table style="width: 100%; max-width:100%">
+  <thead>
+    <tr>
+      <th style="text-align: left">#</th>
+      <th style="text-align: left">Uses</th>
+      <th style="text-align: left; width: 6em">Format</th>
+      <th style="text-align: left">Markup</th>
+    </tr>
+  </thead>
+  <tbody>{% for eqn in equations %}
+    <tr>
+      <td><a href="{% url 'eqn-show' eqn.id %}">{{ eqn.id }}</a></td>
+      <td>{{ eqn.use_count }}</td>
+      <td>{{ eqn.format }}</td>
+      <td>{{ eqn.math }}</td>
+    </tr>{% endfor %}
+  </tbody>
+</table>
+{% endblock %}

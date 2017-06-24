@@ -1,0 +1,15 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<div class="item-show-box">
+{{ eqn.renderedequation.html|safe }}
+</div>
+{% endblock %}
+
+{% block sidecontent %}
+<p>Format: {{ eqn.format }}</p>
+<p>Used by:</p>
+<ul>{% for mi in used_by %}
+  <li><a href="{{ mi.get_absolute_url }}">{{ mi.get_name }}</a></li>{% endfor %}
+</ul>
+{% endblock %}
