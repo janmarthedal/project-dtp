@@ -89,3 +89,9 @@ if settings.DEBUG:
             'document_root': join(settings.BASE_DIR, 'main', 'static', 'main')
         })
     ]
+
+if settings.DEBUG_TOOLBAR:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'^debug/', include(debug_toolbar.urls)),
+    ] + urlpatterns

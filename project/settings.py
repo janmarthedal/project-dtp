@@ -6,6 +6,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = secrets.SECRET_KEY
 
 DEBUG = True
+DEBUG_TOOLBAR = DEBUG
 ALLOWED_HOSTS = ['*']
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -50,6 +51,9 @@ INSTALLED_APPS = [
     'social_django',
     'pipeline',
 ] + LOCAL_APPS
+
+if DEBUG_TOOLBAR:
+    INSTALLED_APPS.append('debug_toolbar')
 
 PIPELINE = {
     'STYLESHEETS': {
@@ -108,6 +112,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG_TOOLBAR:
+    MIDDLEWARE = [
+       'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ] + MIDDLEWARE
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
