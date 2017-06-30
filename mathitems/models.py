@@ -93,6 +93,12 @@ def analyze_node(node, eqns, concept_defs, concept_refs, item_refs):
         analyze_node(child, eqns, concept_defs, concept_refs, item_refs)
 
 
+# keep in sync with function in javascript/src/markup-to-ast.js
+def concept_to_label(con):
+    r = con.split('/')[-1]
+    return r.replace('-', ' ') if r else con
+
+
 def node_to_markup(node, concept_map, eqn_map):
     if node['type'] == 'break':
         return '{}\n'.format('  ' if node.get('hard') else '')
@@ -131,21 +137,29 @@ def node_to_markup(node, concept_map, eqn_map):
         return '> ' + '\n> '.join('\n\n'.join(children).split('\n'))
     if node['type'] == 'document':
         return '\n\n'.join(children)
+
+    child_markup = ''.join(children)
+
     if node['type'] == 'emph':
-        return '*{}*'.format(''.join(children))
+        return '*{}*'.format(child_markup)
     if node['type'] == 'heading':
-        return '{} {}'.format('#' * node['level'], ''.join(children))
+        return '{} {}'.format('#' * node['level'], child_markup)
     if node['type'] == 'para':
-        return ''.join(children)
+        return child_markup
     if node['type'] == 'strong':
-        return '**{}**'.format(''.join(children))
+        return '**{}**'.format(child_markup)
+
+    con = concept_map[node['concept']] if 'concept' in node else None
+    if concept_to_label(con) == child_markup:
+        child_markup = ''
+
     if node['type'] == 'concept-ref':
-        return '[{}](#{})'.format(''.join(children), concept_map[node['concept']])
+        return '[{}](#{})'.format(child_markup, con)
     if node['type'] == 'concept-def':
-        return '[{}](={})'.format(''.join(children), concept_map[node['concept']])
+        return '[{}](={})'.format(child_markup, con)
     if node['type'] == 'item-ref':
         ref = node['item']
-        if node.get('concept'):
-            ref = '{}#{}'.format(ref, concept_map[node['concept']])
-        return '[{}]({})'.format(''.join(children), ref)
+        if con:
+            ref += '#{}'.format(con)
+        return '[{}]({})'.format(child_markup, ref)
     raise Exception('Unsupported AST node {}'.format(node['type']))

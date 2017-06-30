@@ -25,7 +25,7 @@ class Equation(models.Model):
 
     def to_markup(self):
         if self.format == 'TeX':
-            return '$${}$$'.format(self.math)
+            return '$$\n{}\n$$'.format(self.math)
         return '${}$'.format(self.math)
 
 

@@ -41,6 +41,7 @@ function make_text(value) {
     };
 }
 
+// keep in sync with function in mathitems/models.py
 function concept_to_label(con) {
     const r = last(con.split('/'));
     return r ? r.replace(/-/g, ' ') : con;
