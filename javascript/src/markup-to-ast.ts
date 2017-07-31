@@ -1,4 +1,4 @@
-import commonmark from 'commonmark';
+import * as commonmark from 'commonmark';
 import {last} from 'lodash';
 import {AST_TYPES} from './constants';
 
@@ -9,11 +9,9 @@ const regex_concept_ref = /^#([-\/a-zA-Z]+)$/;
 const regex_media_ref = /^(M[1-9]\d*)$/;
 
 class ConceptMap {
-    constructor() {
-        this.counter = 0;
-        this.idToCon = {};
-        this.conToId = {};
-    }
+    private counter = 0;
+    private readonly idToCon = {};
+    private readonly conToId = {};
     get_id(con) {
         if (con in this.conToId)
             return this.conToId[con];
@@ -42,7 +40,7 @@ function make_text(value) {
 }
 
 // keep in sync with function in mathitems/models.py
-function concept_to_label(con) {
+function concept_to_label(con: string) {
     const r = last(con.split('/'));
     return r ? r.replace(/-/g, ' ') : con;
 }
@@ -93,8 +91,20 @@ function link_handler(node, item, concept_map) {
     return item;
 }
 
+interface ItemData {
+    type?: string;
+    value?: string;
+    info?: string;
+    ordered?: boolean;
+    listStart?: number;
+    listDelimiter?: string;
+    hard?: boolean;
+    level?: number;
+    children?: ItemData[];
+}
+
 function node_visit(node, concept_map) {
-    let item = {};
+    let item: ItemData = {};
     const children = [];
     for (let child = node.firstChild; child; child = child.next) {
         let child_item = node_visit(child, concept_map);
@@ -175,7 +185,7 @@ export default function markup_to_ast(html) {
     const concept_map = new ConceptMap();
     const ast = node_visit(reader.parse(html), concept_map);
     return {
-        'document': ast,
-        'concepts': concept_map.get_concept_map()
+        document: ast,
+        concepts: concept_map.get_concept_map()
     };
 }

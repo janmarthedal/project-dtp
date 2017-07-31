@@ -1,7 +1,5 @@
-'use strict';
-
-const mjAPI = require('mathjax-node');
-const mjConfig = require('./mathjax-config');
+import * as mjAPI from 'mathjax-node';
+import mjConfig from './mathjax-config';
 
 mjAPI.config(mjConfig);
 mjAPI.start();
@@ -11,7 +9,7 @@ mjAPI.typeset({
     format: 'TeX',
     html: true,
     css: true
-}, function (data) {
+}, data => {
     if (!data.errors) {
         console.log(data.css);
     }

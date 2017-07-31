@@ -1,11 +1,9 @@
 import {normalizeTeX, TeX_brace_balance} from './pure-fun';
 
 class EqnMap {
-    constructor() {
-        this.counter = 0;
-        this.eqns = {};
-        this.eqnToId = {};
-    }
+    private counter = 0;
+    private readonly eqns = {};
+    private readonly eqnToId = {};
     get_id(tex, block) {
         const key = (block ? 'B' : 'I') + tex;
         if (key in this.eqnToId)

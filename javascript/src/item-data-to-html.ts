@@ -1,7 +1,25 @@
 import {flattenDeep, map, uniq} from 'lodash';
 import {ITEM_NAMES, AST_TYPES} from './constants';
 
-function item_node_to_html(emit, node, eqns, concepts, refs, media, data) {
+interface RefInfo {
+    url?: string;
+    concepts: {[key:string]:string};
+}
+
+interface MetaData {
+    defined: string[];
+    errors: string[];
+    refs: {
+        [key: string]: RefInfo
+    };
+    concept_refs: {
+        [key: string]: string;
+    };
+    is_empty: boolean;
+    html?: string;        
+}
+
+function item_node_to_html(emit, node, eqns, concepts, refs, media, data: MetaData) {
     if (node.type === AST_TYPES.text) {
         if (node.value)
             data.is_empty = false;
@@ -24,7 +42,11 @@ function item_node_to_html(emit, node, eqns, concepts, refs, media, data) {
     }
 
     let tag, error;
-    const attr = {};
+    const attr: {
+        href?: string;
+        start?: number;
+        'class'?: string;
+    } = {};
     const class_names = [];
     const concept_name = node.concept ? concepts[node.concept] : undefined;
 
@@ -127,7 +149,7 @@ function item_node_to_html(emit, node, eqns, concepts, refs, media, data) {
 export default function item_data_to_html(item_type, root, eqns, concepts, refs, media) {
     const item_type_name = ITEM_NAMES[item_type],
         out_items = [],
-        data = {defined: [], errors: [], refs: {}, concept_refs: {}, is_empty: true},
+        data: MetaData = {defined: [], errors: [], refs: {}, concept_refs: {}, is_empty: true},
         emit = (...items) => {
             Array.prototype.push.apply(out_items, items);
         };

@@ -1,10 +1,10 @@
-import mjAPI from 'mathjax-node';
+import * as mjAPI from 'mathjax-node';
 import mjConfig from './mathjax-config';
 
 mjAPI.config(mjConfig);
 mjAPI.start();
 
-export default function typeset(id, data) {
+export default function typeset(id, data): Promise<any[]> {
     if (data.error)
         return Promise.resolve([id, data]);
     if (['TeX', 'inline-TeX'].indexOf(data.format) < 0)

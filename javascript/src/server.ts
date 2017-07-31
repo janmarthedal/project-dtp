@@ -1,5 +1,5 @@
-import express from 'express';
-import bodyParser from 'body-parser';
+import * as express from 'express';
+import * as bodyParser from 'body-parser';
 import {fromPairs, map} from 'lodash';
 
 import eqn_typeset from './eqn-typeset';
@@ -39,12 +39,7 @@ app.post('/render-eqns', function(req, res) {
 });
 
 app.post('/render-item', function(req, res) {
-    const item_type = req.body.item_type,
-        document = req.body.document,
-        eqns = req.body.eqns,
-        concepts = req.body.concepts,
-        refs = req.body.refs,
-        media = req.body.media;
+    const {item_type, document, eqns, concepts, refs, media} = req.body;
     if (item_type in ITEM_NAMES && document) {
         item_data_to_html(item_type, document, eqns, concepts, refs, media)
             .then(data => {

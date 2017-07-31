@@ -1,11 +1,10 @@
-FROM node:6.10.2
+FROM node:6.11.1
 
 WORKDIR /code
 
 COPY . .
 
-RUN npm install -g gulp-cli \
-  && npm install \
-  && gulp
+RUN npm install \
+  && npm run build
 
 CMD node dst/server.js

@@ -5,7 +5,7 @@ const rx_code = /^\s*createCindy\s*\(\s*([\s\S]*?)\s*\)(\s*;)?\s*$/;
 
 export default function (html_file) {
     return JSDOM.fromFile(html_file).then(dom => {
-        const external_js = dom.window.document.querySelectorAll('script[type="text/javascript"][src]');
+        const external_js = dom.window.document.querySelectorAll('script[type="text/javascript"][src]') as NodeListOf<HTMLScriptElement>;
         const inline_js = dom.window.document.querySelectorAll('script[type="text/javascript"]:not([src])');
         if (external_js.length === 0) {
             return {error: 'No library import'};
