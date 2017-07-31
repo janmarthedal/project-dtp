@@ -69,7 +69,7 @@ PIPELINE = {
     'JAVASCRIPT': {
         'main': {
             'source_filenames': (
-                'main/main.es6',
+                'main/main.ts',
             ),
             'output_filename': 'main.js',
             'extra_context': {
@@ -79,13 +79,13 @@ PIPELINE = {
     },
     'JS_WRAPPER': '%s',
     'COMPILERS': (
-        'pipeline.compilers.es6.ES6Compiler',
+        'main.typescript_compiler.TypescriptCompiler',
         'pipeline.compilers.less.LessCompiler',
     ),
     'YUGLIFY_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'yuglify'),
     'LESS_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'lessc'),
-    'BABEL_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'babel'),
-    'BABEL_ARGUMENTS': '--presets=es2015',
+    'PIPELINE_TYPESCRIPT_BINARY': os.path.join(BASE_DIR, 'node_modules', '.bin', 'tsc'),
+    'PIPELINE_TYPESCRIPT_ARGUMENTS': '',
 }
 
 # By defining SOCIAL_AUTH_PIPELINE, we avoid a conflict between django-pipeline

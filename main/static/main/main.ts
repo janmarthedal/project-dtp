@@ -1,5 +1,10 @@
 /* google analytics */
 
+interface Window {
+    ga: any;
+}
+declare var ga: any;
+
 window.ga=function(){ga.q.push(arguments)};
 ga.q=[];
 ga.l=+new Date;
@@ -12,7 +17,7 @@ ga('send','pageview');
             && typeof Array.prototype.forEach === 'function'
             && typeof doc.addEventListener === 'function') {
         
-        const page_data_script = doc.querySelector('script[type="x-mathitems"]');
+        const page_data_script = doc.querySelector('script[type="x-mathitems"]') as HTMLScriptElement;
         const page_data = page_data_script ? JSON.parse(page_data_script.text) : {};
 
         /* helpers */
@@ -74,7 +79,7 @@ ga('send','pageview');
         /* one click upload */
 
         forEach(doc.querySelectorAll('form.one-click-upload'), el => {
-            const input = el.querySelector('input[type="file"]');
+            const input = el.querySelector('input[type="file"]') as HTMLInputElement;
             const submit = el.querySelector('[type="submit"]');
             input.style.display = 'none';
             submit.addEventListener('click', e => {
@@ -82,15 +87,15 @@ ga('send','pageview');
                 input.click();
             });
             input.addEventListener('change', () => {
-                el.submit();
+                (el as HTMLFormElement).submit();
             });
         });
 
         /* trigger focus on element with class auto-focus */
 
-        (function(el) {
+        (function(el: HTMLElement) {
             el && el.focus();
-        })(doc.querySelector('.auto-focus'));
+        })(doc.querySelector('.auto-focus') as HTMLElement);
 
     }
 
