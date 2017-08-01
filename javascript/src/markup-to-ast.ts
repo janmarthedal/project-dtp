@@ -1,3 +1,5 @@
+/// <reference path="item-doc-node.d.ts" />
+
 import * as commonmark from 'commonmark';
 import {last} from 'lodash';
 import {AST_TYPES} from './constants';
@@ -45,7 +47,7 @@ function concept_to_label(con: string) {
     return r ? r.replace(/-/g, ' ') : con;
 }
 
-function image_handler(node) {
+function image_handler(node): ItemDocNode {
     const src = node.destination || '';
     let match;
     if ((match = src.match(regex_media_ref)) != null) {
@@ -63,7 +65,7 @@ function image_handler(node) {
     }
 }
 
-function link_handler(node, item, concept_map) {
+function link_handler(node, item: ItemDocNode, concept_map) {
     const href = node.destination || '';
     let match;
     if ((match = href.match(regex_tag_def)) != null) {
@@ -91,20 +93,8 @@ function link_handler(node, item, concept_map) {
     return item;
 }
 
-interface ItemData {
-    type?: string;
-    value?: string;
-    info?: string;
-    ordered?: boolean;
-    listStart?: number;
-    listDelimiter?: string;
-    hard?: boolean;
-    level?: number;
-    children?: ItemData[];
-}
-
 function node_visit(node, concept_map) {
-    let item: ItemData = {};
+    let item: ItemDocNode = {};
     const children = [];
     for (let child = node.firstChild; child; child = child.next) {
         let child_item = node_visit(child, concept_map);
