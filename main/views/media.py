@@ -16,6 +16,7 @@ from keywords.models import Keyword, MediaKeyword
 from main.elasticsearch import index_media, item_search
 from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
 from media.models import CindyMedia, Media, SVGImage
+from project.paginator import Paginator, PaginatorError
 from project.server_com import parse_cindy, parse_json_relaxed
 from userdata.permissions import has_perm, require_perm
 
@@ -211,24 +212,15 @@ def edit_media_keywords(request, id_str):
 def media_search(request):
     query = request.GET['q']
     try:
-        page = int(request.GET.get('page', 1))
-    except ValueError:
-        return redirect('{}?q={}'.format(reverse('media-search'), query))
-    if query:
-        results, total = item_search(query, 'media', LIST_PAGE_SIZE*(page-1), LIST_PAGE_SIZE)
-        items = [Media.objects.get_by_name(name) for name in results]
-        pages_total = (total + LIST_PAGE_SIZE - 1)//LIST_PAGE_SIZE
-    else:
-        items = []
-        pages_total = 0
-    if page > pages_total:
-        return redirect('{}?q={}&page={}'.format(reverse('media-search'), query, pages_total))
+        paginator = Paginator(request, LIST_PAGE_SIZE)
+        results, total = item_search(query, 'media', paginator.per_page * (paginator.page - 1), paginator.per_page)
+        paginator.set_count(total)
+    except PaginatorError as pe:
+        return redirect(pe.url)
+
     return render(request, 'media/media-search-page.html', {
         'title': 'Media search',
         'query': query,
-        'items': prepare_media_view_list(items),
-        'page_number': page,
-        'pages_total': pages_total,
-        'prev_link': page > 1 and '?q={}&page={}'.format(query, page-1),
-        'next_link': page < pages_total and '?q={}&page={}'.format(query, page + 1),
+        'items': prepare_media_view_list(Media.objects.get_by_name(name) for name in results),
+        'paginator': paginator
     })
