@@ -1,7 +1,6 @@
 import json
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import Http404
@@ -15,6 +14,7 @@ from main.elasticsearch import index_item, item_search
 from main.item_helpers import get_refs_and_render, item_to_markup
 from main.views.helpers import prepare_item_view_list, LIST_PAGE_SIZE
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
+from project.paginator import QuerySetPaginator, Paginator, PaginatorError
 from validations.models import ItemValidation, Source
 from userdata.permissions import has_perm, require_perm
 
@@ -194,25 +194,15 @@ def prf_home(request):
 
 
 def item_list_page(request, title, query):
-    paginator = Paginator(query, LIST_PAGE_SIZE)
-
-    page = request.GET.get('page')
     try:
-        items = paginator.page(page)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page.
-        items = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range (e.g. 9999), deliver last page of results.
-        items = paginator.page(paginator.num_pages)
+        paginator = QuerySetPaginator(request, query, LIST_PAGE_SIZE)
+    except PaginatorError as pe:
+        return redirect(pe.url)
 
     return render(request, 'mathitems/item-list-page.html', {
         'title': title,
-        'items': prepare_item_view_list(items),
-        'prev_link': items.has_previous() and '?page={}'.format(items.previous_page_number()),
-        'next_link': items.has_next() and '?page={}'.format(items.next_page_number()),
-        'page_number': items.number,
-        'pages_total': items.paginator.num_pages
+        'items': prepare_item_view_list(paginator.items),
+        'paginator': paginator
     })
 
 
@@ -231,48 +221,37 @@ def prf_list(request):
     return item_list_page(request, 'Latest Proofs', get_latest_mathitems(ItemTypes.PRF))
 
 
-def item_search_helper(request, type_name, name, view):
+def item_search_helper(request, type_name):
     query = request.GET['q']
     try:
-        page = int(request.GET.get('page', 1))
-    except ValueError:
-        page = 0
-    if page <= 0:
-        return redirect('{}?q={}'.format(reverse(view), query))
-    if query:
-        results, total = item_search(query, type_name, LIST_PAGE_SIZE*(page-1), LIST_PAGE_SIZE)
-        items = [MathItem.objects.get_by_name(name) for name in results]
-        pages_total = (total + LIST_PAGE_SIZE - 1)//LIST_PAGE_SIZE
-    else:
-        items = []
-        pages_total = 0
-    if page != 1 and page > pages_total:
-        go_to_page = max(pages_total, 1)
-        return redirect('{}?q={}&page={}'.format(reverse(view), query, go_to_page))
+        paginator = Paginator(request, LIST_PAGE_SIZE)
+        results, total = item_search(query, type_name, paginator.per_page * (paginator.page - 1), paginator.per_page)
+        paginator.set_count(total)
+    except PaginatorError as pe:
+        return redirect(pe.url)
+
+    name = type_name.capitalize()
     return render(request, 'mathitems/item-search-page.html', {
         'title': '{} Search'.format(name),
         'query': query,
-        'items': prepare_item_view_list(items),
-        'page_number': page,
-        'pages_total': pages_total,
-        'prev_link': page > 1 and '?q={}&page={}'.format(query, page-1),
-        'next_link': page < pages_total and '?q={}&page={}'.format(query, page + 1),
+        'items': prepare_item_view_list(MathItem.objects.get_by_name(name) for name in results),
+        'paginator': paginator
     })
 
 
 @require_safe
 def def_search(request):
-    return item_search_helper(request, 'definition', 'Definition', 'def-search')
+    return item_search_helper(request, 'definition')
 
 
 @require_safe
 def thm_search(request):
-    return item_search_helper(request, 'theorem', 'Theorem', 'thm-search')
+    return item_search_helper(request, 'theorem')
 
 
 @require_safe
 def prf_search(request):
-    return item_search_helper(request, 'proof', 'Proof', 'prf-search')
+    return item_search_helper(request, 'proof')
 
 
 @require_safe

@@ -2,5 +2,5 @@
 
 {% block pagecontent %}
 {% include 'mathitems/include/item-list.html' with items=items only %}
-{% include 'main/list-paging.html' %}
+{% include 'main/list-paging.html' with paginator=paginator only %}
 {% endblock %}

@@ -1,12 +1,12 @@
 <div class="pager">
-{% if prev_link %}
-    <a class="previous" href="{{ prev_link }}">Previous</a>
+{% if paginator.prev_link %}
+    <a class="previous" href="{{ paginator.prev_link }}">Previous</a>
 {% else %}
     <a class="previous disabled" href="#">Previous</a>
 {% endif %}
-    <span>Page {{ page_number }} of {{ pages_total }}</span>
-{% if next_link %}
-    <a class="next" href="{{ next_link }}">Next</a>
+    <span>Page {{ paginator.page }} of {{ paginator.pages_total }}</span>
+{% if paginator.next_link %}
+    <a class="next" href="{{ paginator.next_link }}">Next</a>
 {% else %}
     <a class="next disabled" href="#">Next</a>
 {% endif %}
