@@ -201,7 +201,7 @@ def item_list_page(request, title, query):
 
     return render(request, 'mathitems/item-list-page.html', {
         'title': title,
-        'items': prepare_item_view_list(paginator.items),
+        'items': prepare_item_view_list(paginator.get_items()),
         'paginator': paginator
     })
 

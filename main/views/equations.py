@@ -1,16 +1,23 @@
 from django.db.models import Count
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe
 
 from equations.models import Equation
 from mathitems.models import MathItem
+from project.paginator import QuerySetPaginator, PaginatorError
 
 
 @require_safe
 def home(request):
+    try:
+        paginator = QuerySetPaginator(request, Equation.objects, 100)
+    except PaginatorError as ex:
+        return redirect(ex.url)
+
     return render(request, 'equations/home.html', {
-        'equations': Equation.objects.annotate(use_count=Count('itemequation')).order_by('id')
+        'equations': paginator.get_items(Equation.objects.annotate(use_count=Count('itemequation')).order_by('id')),
+        'paginator': paginator
     })
 
 

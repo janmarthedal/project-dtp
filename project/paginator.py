@@ -42,5 +42,9 @@ class QuerySetPaginator(Paginator):
     def __init__(self, request, query_set, per_page):
         super().__init__(request, per_page)
         self.set_count(query_set.count())
-        offset = per_page * (self.page - 1)
-        self.items = query_set[offset:(offset + per_page - 1)]
+        self.query_set = query_set
+
+    def get_items(self, query_set=None):
+        query_set = query_set or self.query_set
+        offset = self.per_page * (self.page - 1)
+        return query_set[offset:(offset + self.per_page - 1)]
