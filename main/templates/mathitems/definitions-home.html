@@ -1,10 +1,10 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-<h2>Latest Definitions{% if latest_all %} <a href="{{ latest_all }}">browse all</a>{% endif %}</h2>
+<h2>Latest Definitions{% if latest_link %} <a href="{{ latest_link }}">browse all</a>{% endif %}</h2>
 {% include 'mathitems/include/item-list.html' with items=latest only %}
 
-<h2>Definitions Without Validations</h2>
+<h2>Definitions Without Validations{% if no_vals_link %} <a href="{{ no_vals_link }}">browse all</a>{% endif %}</h2>
 {% include 'mathitems/include/item-list.html' with items=no_vals only %}
 
 <h2>Referenced Concepts Without Any Definitions</h2>

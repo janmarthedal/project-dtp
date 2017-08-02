@@ -35,6 +35,7 @@ definitions_patterns = [
     url(r'^$', mathitems.def_home, name='def-home'),
     url(r'^list$', mathitems.def_list, name='def-list'),
     url(r'^search$', mathitems.def_search, name='def-search'),
+    url(r'^without-validations$', mathitems.def_no_vals, name='def-no-vals'),
 ]
 
 media_patterns = [
@@ -48,12 +49,15 @@ proofs_patterns = [
     url(r'^$', mathitems.prf_home, name='prf-home'),
     url(r'^list$', mathitems.prf_list, name='prf-list'),
     url(r'^search', mathitems.prf_search, name='prf-search'),
+    url(r'^without-validations$', mathitems.prf_no_vals, name='prf-no-vals'),
 ]
 
 theorems_patterns = [
     url(r'^$', mathitems.thm_home, name='thm-home'),
     url(r'^list$', mathitems.thm_list, name='thm-list'),
     url(r'^search$', mathitems.thm_search, name='thm-search'),
+    url(r'^without-proof$', mathitems.thm_wo_proof, name='thm-wo-proof'),
+    url(r'^without-validations$', mathitems.thm_no_vals, name='thm-no-vals'),
 ]
 
 urlpatterns = [

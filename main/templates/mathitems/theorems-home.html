@@ -1,13 +1,13 @@
 {% extends 'main/page.html' %}
 
 {% block pagecontent %}
-<h2>Latest Theorems{% if latest_all %} <a href="{{ latest_all }}">browse all</a>{% endif %}</h2>
+<h2>Latest Theorems{% if latest_link %} <a href="{{ latest_link }}">browse all</a>{% endif %}</h2>
 {% include 'mathitems/include/item-list.html' with items=latest only %}
 
-<h2>Theorems Without Proof</h2>
-{% include 'mathitems/include/item-list.html' with items=without_proof only %}
+<h2>Theorems Without Proof{% if wo_proof_link %} <a href="{{ wo_proof_link }}">browse all</a>{% endif %}</h2>
+{% include 'mathitems/include/item-list.html' with items=wo_proof only %}
 
-<h2>Theorems Without Validations</h2>
+<h2>Theorems Without Validations{% if no_vals_link %} <a href="{{ no_vals_link }}">browse all</a>{% endif %}</h2>
 {% include 'mathitems/include/item-list.html' with items=no_vals only %}
 {% endblock %}
 

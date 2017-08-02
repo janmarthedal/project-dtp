@@ -146,8 +146,13 @@ def add_item_validation(request, id_str):
     return render(request, 'mathitems/add-item-validation.html', context)
 
 
-def get_latest_mathitems(item_type):
-    return MathItem.objects.filter(item_type=item_type).order_by('-created_at')
+def get_latest_mathitems(item_type, no_vals=False, no_proofs=False):
+    query_set = MathItem.objects.filter(item_type=item_type).order_by('-created_at')
+    if no_vals:
+        query_set = query_set.annotate(vals=Count('itemvalidation')).filter(vals=0)
+    if no_proofs:
+        query_set = query_set.annotate(proofs=Count('mathitem')).filter(proofs=0)
+    return query_set
 
 
 def get_first_elements_check_more(query, count):
@@ -157,39 +162,48 @@ def get_first_elements_check_more(query, count):
 
 @require_safe
 def def_home(request):
-    items = get_latest_mathitems(ItemTypes.DEF)
-    latest, more_latest = get_first_elements_check_more(items, 5)
+    latest, more_latest = get_first_elements_check_more(get_latest_mathitems(ItemTypes.DEF), 5)
+    no_vals, more_no_vals = get_first_elements_check_more(get_latest_mathitems(ItemTypes.DEF, no_vals=True), 1)
+
     return render(request, 'mathitems/definitions-home.html', {
         'title': 'Definitions',
         'latest': prepare_item_view_list(latest),
-        'latest_all': more_latest and reverse('def-list'),
-        'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
-        'no_defs': Concept.objects.filter(conceptmeta__def_count=0, conceptmeta__ref_count__gt=0).order_by('-conceptmeta__ref_count', 'name'),
+        'no_vals': prepare_item_view_list(no_vals),
+        'no_defs': Concept.objects.filter(conceptmeta__def_count=0, conceptmeta__ref_count__gt=0)
+                                  .order_by('-conceptmeta__ref_count', 'name'),
+        'latest_link': more_latest and reverse('def-list'),
+        'no_vals_link': more_no_vals and reverse('def-no-vals'),
     })
 
 
 @require_safe
 def thm_home(request):
-    items = get_latest_mathitems(ItemTypes.THM)
-    latest, more_latest = get_first_elements_check_more(items, 5)
+    latest, more_latest = get_first_elements_check_more(get_latest_mathitems(ItemTypes.THM), 5)
+    wo_proof, more_wo_proof = get_first_elements_check_more(get_latest_mathitems(ItemTypes.THM, no_proofs=True), 5)
+    no_vals, more_no_vals = get_first_elements_check_more(get_latest_mathitems(ItemTypes.THM, no_vals=True), 5)
+
     return render(request, 'mathitems/theorems-home.html', {
         'title': 'Theorems',
         'latest': prepare_item_view_list(latest),
-        'latest_all': more_latest and reverse('thm-list'),
-        'without_proof': prepare_item_view_list(items.annotate(proofs=Count('mathitem')).filter(proofs=0)[:5]),
-        'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
+        'wo_proof': prepare_item_view_list(wo_proof),
+        'no_vals': prepare_item_view_list(no_vals),
+        'latest_link': more_latest and reverse('thm-list'),
+        'wo_proof_link': more_wo_proof and reverse('thm-wo-proof'),
+        'no_vals_link': more_no_vals and reverse('thm-no-vals'),
     })
 
 
 @require_safe
 def prf_home(request):
-    items = get_latest_mathitems(ItemTypes.PRF)
-    latest, more_latest = get_first_elements_check_more(items, 5)
+    latest, more_latest = get_first_elements_check_more(get_latest_mathitems(ItemTypes.PRF), 5)
+    no_vals, more_no_vals = get_first_elements_check_more(get_latest_mathitems(ItemTypes.PRF, no_vals=True), 5)
+
     return render(request, 'mathitems/proofs-home.html', {
         'title': 'Proofs',
         'latest': prepare_item_view_list(latest),
-        'latest_all': more_latest and reverse('prf-list'),
-        'no_vals': prepare_item_view_list(items.annotate(vals=Count('itemvalidation')).filter(vals=0)[:5]),
+        'no_vals': prepare_item_view_list(no_vals),
+        'latest_link': more_latest and reverse('prf-list'),
+        'no_vals_link': more_no_vals and reverse('prf-no-vals'),
     })
 
 
@@ -212,13 +226,33 @@ def def_list(request):
 
 
 @require_safe
+def def_no_vals(request):
+    return item_list_page(request, 'Definitions Without Validations', get_latest_mathitems(ItemTypes.DEF, no_vals=True))
+
+
+@require_safe
 def thm_list(request):
     return item_list_page(request, 'Latest Theorems', get_latest_mathitems(ItemTypes.THM))
 
 
 @require_safe
+def thm_wo_proof(request):
+    return item_list_page(request, 'Theorems Without Proof', get_latest_mathitems(ItemTypes.THM, no_proofs=True))
+
+
+@require_safe
+def thm_no_vals(request):
+    return item_list_page(request, 'Theorems Without Validations', get_latest_mathitems(ItemTypes.THM, no_vals=True))
+
+
+@require_safe
 def prf_list(request):
     return item_list_page(request, 'Latest Proofs', get_latest_mathitems(ItemTypes.PRF))
+
+
+@require_safe
+def prf_no_vals(request):
+    return item_list_page(request, 'Proofs Without Validations', get_latest_mathitems(ItemTypes.PRF, no_vals=True))
 
 
 def item_search_helper(request, type_name):
