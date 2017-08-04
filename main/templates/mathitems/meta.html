@@ -1,0 +1,11 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<h4>Items that depend on this</h4>
+<p>{% for dep in dependents %}
+  <a href="{{ dep.get_absolute_url }}">{{ dep }}</a>{% if not forloop.last %},{% endif %}{% endfor %}
+</p>
+{% endblock %}
+
+{% block sidecontent %}
+{% endblock %}

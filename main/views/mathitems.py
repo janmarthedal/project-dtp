@@ -300,3 +300,15 @@ def dump_item(request, id_str):
         'markup': markup,
         'validations': item.itemvalidation_set.all()
     }, content_type="text/plain")
+
+
+@require_safe
+def item_meta(request, id_str):
+    try:
+        item = MathItem.objects.get_by_name(id_str)
+    except MathItem.DoesNotExist:
+        raise Http404('Item does not exist')
+    return render(request, 'mathitems/meta.html', {
+        'title': str(item),
+        'dependents': MathItem.objects.filter(itemdep_item__uses=item).order_by('id')
+    })

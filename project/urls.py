@@ -67,6 +67,7 @@ urlpatterns = [
     url(r'^([DTP][1-9]\d*)/dump$', mathitems.dump_item, name='dump-item'),
     url(r'^([DTP][1-9]\d*)/add-validation$', mathitems.add_item_validation, name='add-item-validation'),
     url(r'^([DTP][1-9]\d*)/keywords$', mathitems.edit_item_keywords, name='edit-item-keywords'),
+    url(r'^([DTP][1-9]\d*)/meta$', mathitems.item_meta, name='item-meta'),
     url(r'^(M[1-9]\d*)$', media.show_media, name='media-show'),
     url(r'^(M[1-9]\d*)/keywords$', media.edit_media_keywords, name='edit-media-keywords'),
     url(r'^admin/', include(admin_patterns)),

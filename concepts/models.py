@@ -36,9 +36,9 @@ class ConceptReference(models.Model):
 
 
 class ItemDependency(models.Model):
-    item = models.ForeignKey(MathItem, related_name='+')
+    item = models.ForeignKey(MathItem, related_name='itemdep_item')
     uses = models.ForeignKey(MathItem, related_name='+')
-    concepts = models.ManyToManyField(Concept)  # only when depends_on.item_type = 'D'
+    concepts = models.ManyToManyField(Concept)  # only when uses.item_type = 'D'
 
     class Meta:
         db_table = 'item_deps'
