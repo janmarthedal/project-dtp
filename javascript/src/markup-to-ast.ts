@@ -1,7 +1,7 @@
 /// <reference path="item-doc-node.d.ts" />
 
 import * as commonmark from 'commonmark';
-import {last} from 'lodash';
+import * as last from 'lodash/last';
 import {AST_TYPES} from './constants';
 
 const reader = new commonmark.Parser();

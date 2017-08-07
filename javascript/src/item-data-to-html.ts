@@ -1,6 +1,8 @@
 /// <reference path="item-doc-node.d.ts" />
 
-import {flattenDeep, map, uniq} from 'lodash';
+import * as flattenDeep from 'lodash/flattenDeep';
+import * as map from 'lodash/map';
+import * as uniq from 'lodash/uniq';
 import {ITEM_NAMES, AST_TYPES} from './constants';
 
 interface RefInfo {

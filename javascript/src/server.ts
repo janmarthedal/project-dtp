@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import {fromPairs, map} from 'lodash';
+import * as fromPairs from 'lodash/fromPairs';
+import * as map from 'lodash/map';
 
 import eqn_typeset from './eqn-typeset';
 import item_data_to_html from './item-data-to-html';
