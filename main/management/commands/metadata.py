@@ -4,6 +4,7 @@ from concepts.models import Concept, ConceptDefinition, ConceptReference, ItemDe
 from equations.models import ItemEquation
 from main.item_helpers import create_item_meta_data, create_concept_meta
 from mathitems.models import MathItem
+from media.models import ItemMediaDependency
 
 
 class Command(BaseCommand):
@@ -14,6 +15,7 @@ class Command(BaseCommand):
         ConceptDefinition.objects.all().delete()
         ConceptReference.objects.all().delete()
         ItemDependency.objects.all().delete()
+        ItemMediaDependency.objects.all().delete()
         ItemEquation.objects.all().delete()
 
         self.stdout.write('Looping through math items')

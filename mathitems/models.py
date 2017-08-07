@@ -65,18 +65,21 @@ class MathItem(models.Model):
         concept_defs = set()
         concept_refs = set()
         item_refs = {}
+        media_refs = set()
         root = self.get_body_root()
-        analyze_node(root, eqns, concept_defs, concept_refs, item_refs)
-        return eqns, concept_defs, concept_refs, item_refs
+        analyze_node(root, eqns, concept_defs, concept_refs, item_refs, media_refs)
+        return eqns, concept_defs, concept_refs, item_refs, media_refs
 
 
-def analyze_node(node, eqns, concept_defs, concept_refs, item_refs):
+def analyze_node(node, eqns, concept_defs, concept_refs, item_refs, media_refs):
     if node['type'] == 'eqn':
         eqns.add(node['eqn'])
     elif node['type'] == 'concept-def':
         concept_defs.add(node['concept'])
     elif node['type'] == 'concept-ref':
         concept_refs.add(node['concept'])
+    elif node['type'] == 'media':
+        media_refs.add(node['media'])
     elif node['type'] == 'item-ref':
         item_id = node['item']
         if item_id in item_refs:
@@ -90,7 +93,7 @@ def analyze_node(node, eqns, concept_defs, concept_refs, item_refs):
         else:
             data['whole'] = True
     for child in node.get('children', []):
-        analyze_node(child, eqns, concept_defs, concept_refs, item_refs)
+        analyze_node(child, eqns, concept_defs, concept_refs, item_refs, media_refs)
 
 
 # keep in sync with function in javascript/src/markup-to-ast.js

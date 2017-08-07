@@ -7,6 +7,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.loader import render_to_string
 
+from mathitems.models import MathItem
+
 
 class MediaManager(models.Manager):
     def get_by_name(self, name):
@@ -50,6 +52,15 @@ class Media(models.Model):
 
     def get_description(self):
         return self._get_main_image().get_description()
+
+
+class ItemMediaDependency(models.Model):
+    item = models.ForeignKey(MathItem)
+    uses = models.ForeignKey(Media)
+
+    class Meta:
+        db_table = 'item_media_deps'
+        unique_together = ('item', 'uses')
 
 
 class SVGImage(models.Model):

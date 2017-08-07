@@ -1,7 +1,7 @@
 from concepts.models import Concept, ConceptDefinition, ConceptReference, ItemDependency, ConceptMeta
 from equations.models import Equation, ItemEquation
 from mathitems.models import ItemTypes, MathItem, node_to_markup
-from media.models import Media
+from media.models import Media, ItemMediaDependency
 from project.server_com import render_item
 
 # import logging
@@ -48,7 +48,7 @@ def get_refs_and_render(item_type, document, eqns, concepts):
 
 
 def create_item_meta_data(item):
-    eqns, concept_defs, concept_refs, item_refs = item.analyze()
+    eqns, concept_defs, concept_refs, item_refs, media_refs = item.analyze()
 
     wildcard_concept = Concept.objects.get(name='*')
 
@@ -70,15 +70,19 @@ def create_item_meta_data(item):
                 concepts.append(wildcard_concept.id)
             dep.concepts = concepts
 
+    ItemMediaDependency.objects.bulk_create(
+        ItemMediaDependency(item=item, uses=Media.objects.get_by_name(media))
+        for media in media_refs)
+
     ItemEquation.objects.bulk_create(
-        ItemEquation(item=item, equation_id=id)
-        for id in eqns)
+        ItemEquation(item=item, equation_id=eqn_id)
+        for eqn_id in eqns)
 
     return concept_defs | concept_refs
 
 
 def item_to_markup(item):
-    eqns, concept_defs, concept_refs, item_refs = item.analyze()
+    eqns, concept_defs, concept_refs, item_refs, media_refs = item.analyze()
     concepts = concept_defs | concept_refs
     for data in item_refs.values():
         concepts |= data.get('concepts', set())

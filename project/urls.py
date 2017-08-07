@@ -70,6 +70,7 @@ urlpatterns = [
     url(r'^([DTP][1-9]\d*)/meta$', mathitems.item_meta, name='item-meta'),
     url(r'^(M[1-9]\d*)$', media.show_media, name='media-show'),
     url(r'^(M[1-9]\d*)/keywords$', media.edit_media_keywords, name='edit-media-keywords'),
+    url(r'^(M[1-9]\d*)/meta$', media.media_meta, name='media-meta'),
     url(r'^admin/', include(admin_patterns)),
     url(r'^user/', include(user_patterns)),
     url(r'^concept/([-/a-zA-Z]+)$', concepts.show_concept, name='concept-page'),

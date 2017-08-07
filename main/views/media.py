@@ -15,6 +15,7 @@ from django.views.decorators.http import require_safe, require_POST, require_htt
 from keywords.models import Keyword, MediaKeyword
 from main.elasticsearch import index_media, item_search
 from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
+from mathitems.models import MathItem
 from media.models import CindyMedia, Media, SVGImage
 from project.paginator import Paginator, PaginatorError
 from project.server_com import parse_cindy, parse_json_relaxed
@@ -223,4 +224,16 @@ def media_search(request):
         'query': query,
         'items': prepare_media_view_list(Media.objects.get_by_name(name) for name in results),
         'paginator': paginator
+    })
+
+
+@require_safe
+def media_meta(request, media_str):
+    try:
+        media = Media.objects.get_by_name(media_str)
+    except Media.DoesNotExist:
+        raise Http404('Media does not exist')
+    return render(request, 'media/meta.html', {
+        'title': 'Media {}'.format(media.get_name()),
+        'dependents': MathItem.objects.filter(itemmediadependency__uses=media).order_by('id')
     })
