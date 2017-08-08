@@ -139,3 +139,8 @@ class CindyMedia(models.Model):
         self.parent = media
         self.path = new_path
         self.save()
+
+
+def all_file_paths():
+    return ([os.path.join(settings.MEDIA_ROOT, m.path) for m in SVGImage.objects.all()]
+            + [os.path.join(settings.MEDIA_ROOT, m.path) for m in CindyMedia.objects.all()])
