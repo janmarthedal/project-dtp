@@ -41,7 +41,11 @@ ES_INDEX_CONF = {
     }
 }
 
-elasticsearch = Elasticsearch(ES_HOSTS) if ES_HOSTS else None
+elasticsearch = Elasticsearch(ES_HOSTS)
+
+
+def skip_requests():
+    return settings.DEBUG and not elasticsearch.ping()
 
 
 def collect_body_text(node):
@@ -81,8 +85,8 @@ def media_to_es_document(media):
 # import logging
 # logger = logging.getLogger(__name__)
 def item_search(query, type_name, offset, limit):
-    if not elasticsearch:
-        return [], 0
+    # if not elasticsearch:
+    #     return [], 0
     results = elasticsearch.search(ES_INDEX, ES_TYPE, from_=offset, size=limit, _source=False, body={
         'query': {
             'bool': {
@@ -106,13 +110,13 @@ def item_search(query, type_name, offset, limit):
     return [hit['_id'] for hit in results['hits']['hits']], results['hits']['total']
 
 
-def get_item(id):
-    return elasticsearch.get(ES_INDEX, id, doc_type=ES_TYPE)
+def get_item_source(id):
+    if skip_requests():
+        return {}
+    return elasticsearch.get(ES_INDEX, id, doc_type=ES_TYPE)['_source']
 
 
 def create_index():
-    if not elasticsearch:
-        return
     existed = elasticsearch.indices.exists(ES_INDEX)
     if existed:
         elasticsearch.indices.delete(ES_INDEX)
@@ -121,20 +125,18 @@ def create_index():
 
 
 def index_item(item):
-    if not elasticsearch:
+    if skip_requests():
         return
     data = item_to_es_document(item)
     elasticsearch.index(ES_INDEX, ES_TYPE, id=data['id'], body=data['body'])
 
 
 def index_media(media):
-    if not elasticsearch:
+    if skip_requests():
         return
     data = media_to_es_document(media)
     elasticsearch.index(ES_INDEX, ES_TYPE, id=data['id'], body=data['body'])
 
 
 def refresh_index():
-    if not elasticsearch:
-        return
     elasticsearch.indices.refresh(ES_INDEX)
