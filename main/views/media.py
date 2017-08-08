@@ -13,7 +13,7 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_safe, require_POST, require_http_methods
 
 from keywords.models import Keyword, MediaKeyword
-from main.elasticsearch import index_media, item_search
+from main.elasticsearch import index_media, item_search, get_item
 from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
 from mathitems.models import MathItem
 from media.models import CindyMedia, Media, SVGImage
@@ -228,7 +228,9 @@ def media_meta(request, media_str):
         media = Media.objects.get_by_name(media_str)
     except Media.DoesNotExist:
         raise Http404('Media does not exist')
+    elastic = get_item(media_str)
     return render(request, 'media/meta.html', {
         'title': 'Media {}'.format(media.get_name()),
+        'elastic': json.dumps(elastic['_source'], indent='  '),
         'dependents': MathItem.objects.filter(itemmediadependency__uses=media).order_by('id')
     })

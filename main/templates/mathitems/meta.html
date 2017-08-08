@@ -6,6 +6,9 @@
   <a href="{{ dep.get_absolute_url }}">{{ dep }}</a>{% if not forloop.last %},{% endif %}{% empty %}
   <em>None</em>{% endfor %}
 </p>
+
+<h4>ElasticSearch</h4>
+<pre>{{ elastic }}</pre>
 {% endblock %}
 
 {% block sidecontent %}

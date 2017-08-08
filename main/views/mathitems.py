@@ -10,7 +10,7 @@ from django.views.decorators.http import require_safe, require_http_methods
 from concepts.models import Concept
 from equations.models import RenderedEquation
 from keywords.models import Keyword, ItemKeyword
-from main.elasticsearch import index_item, item_search
+from main.elasticsearch import index_item, item_search, get_item
 from main.item_helpers import get_refs_and_render, item_to_markup
 from main.views.helpers import prepare_item_view_list, LIST_PAGE_SIZE
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
@@ -308,7 +308,9 @@ def item_meta(request, id_str):
         item = MathItem.objects.get_by_name(id_str)
     except MathItem.DoesNotExist:
         raise Http404('Item does not exist')
+    elastic = get_item(id_str)
     return render(request, 'mathitems/meta.html', {
         'title': str(item),
+        'elastic': json.dumps(elastic['_source'], indent='  '),
         'dependents': MathItem.objects.filter(itemdep_item__uses=item).order_by('id')
     })

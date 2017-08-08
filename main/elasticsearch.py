@@ -106,6 +106,10 @@ def item_search(query, type_name, offset, limit):
     return [hit['_id'] for hit in results['hits']['hits']], results['hits']['total']
 
 
+def get_item(id):
+    return elasticsearch.get(ES_INDEX, id, doc_type=ES_TYPE)
+
+
 def create_index():
     if not elasticsearch:
         return
