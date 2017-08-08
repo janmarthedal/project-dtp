@@ -1,5 +1,12 @@
+from io import StringIO
+import json
+
+from django.core.management import call_command
+
 from concepts.models import Concept, ConceptDefinition, ConceptReference, ItemDependency, ConceptMeta
+from main.elasticsearch import delete_doc
 from equations.models import Equation, ItemEquation
+from main.management.commands import clean
 from mathitems.models import ItemTypes, MathItem, node_to_markup
 from media.models import Media, ItemMediaDependency
 from project.server_com import render_item
@@ -99,3 +106,17 @@ def create_concept_meta(concept_id):
             'def_count': ConceptDefinition.objects.filter(concept_id=concept_id).count()
         }
     )
+
+
+# item can be both an MathItem and an Media instance
+def delete_item(item):
+    lines = ['Deleted {}'.format(item)]
+    item_id = item.get_name()
+    r = item.delete()
+    lines.append(json.dumps(r))
+    r = delete_doc(item_id)
+    lines.append(('Deleted' if r else 'Failed deleting') + ' from elasticsearch index')
+    with StringIO() as st:
+        call_command(clean.Command(), stdout=st)
+        lines.append(st.getvalue())
+    return '\n\n'.join(lines)

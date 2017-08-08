@@ -8,15 +8,16 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_safe, require_POST, require_http_methods
 
 from keywords.models import Keyword, MediaKeyword
 from main.elasticsearch import index_media, item_search, get_item_source
+from main.item_helpers import delete_item
 from main.views.helpers import prepare_media_view_list, LIST_PAGE_SIZE
 from mathitems.models import MathItem
-from media.models import CindyMedia, Media, SVGImage
+from media.models import CindyMedia, Media, SVGImage, ItemMediaDependency
 from project.paginator import Paginator, PaginatorError
 from project.server_com import parse_cindy, parse_json_relaxed
 from userdata.permissions import has_perm, require_perm
@@ -66,6 +67,7 @@ def image_add(request):
             raise RuntimeError()
         media = Media.objects.create(created_by=request.user)
         image.finalize(media)
+        index_media(media)
         return redirect('media-show', media.get_name())
     else:
         tmp_name = request_file_to_temp_file(request.FILES['file'])
@@ -138,6 +140,7 @@ def cindy_add(request):
         cindy = CindyMedia.objects.get(pk=int(request.POST['ref']))
         media = Media.objects.create(created_by=request.user)
         cindy.finalize(media)
+        index_media(media)
         return redirect('media-show', media.get_name())
     else:
         form = AddCindyForm(request.POST)
@@ -222,15 +225,20 @@ def media_search(request):
     })
 
 
-@require_safe
+@require_http_methods(['GET', 'POST'])
 def media_meta(request, media_str):
     try:
         media = Media.objects.get_by_name(media_str)
     except Media.DoesNotExist:
         raise Http404('Media does not exist')
-    elastic = get_item_source(media_str)
-    return render(request, 'media/meta.html', {
-        'title': 'Media {}'.format(media.get_name()),
-        'elastic': json.dumps(elastic, indent='  '),
-        'dependents': MathItem.objects.filter(itemmediadependency__uses=media).order_by('id')
-    })
+    if request.method == 'POST':
+        res = delete_item(media)
+        return HttpResponse(res, content_type='text/plain')
+    else:
+        elastic = get_item_source(media_str)
+        return render(request, 'media/meta.html', {
+            'title': 'Media {}'.format(media.get_name()),
+            'elastic': json.dumps(elastic, indent='  '),
+            'can_delete': has_perm('delete', request.user) and not ItemMediaDependency.objects.filter(uses=media).exists(),
+            'dependents': MathItem.objects.filter(itemmediadependency__uses=media).order_by('id')
+        })

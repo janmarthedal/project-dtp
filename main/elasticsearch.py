@@ -1,9 +1,13 @@
+import logging
+
 from django.db.models import Q
 from django.conf import settings
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, TransportError
 
 from concepts.models import Concept
 from keywords.models import Keyword
+
+logger = logging.getLogger(__name__)
 
 
 if settings.DEBUG:
@@ -42,10 +46,6 @@ ES_INDEX_CONF = {
 }
 
 elasticsearch = Elasticsearch(ES_HOSTS)
-
-
-def skip_requests():
-    return settings.DEBUG and not elasticsearch.ping()
 
 
 def collect_body_text(node):
@@ -111,9 +111,24 @@ def item_search(query, type_name, offset, limit):
 
 
 def get_item_source(id):
-    if skip_requests():
+    try:
+        return elasticsearch.get(ES_INDEX, id, doc_type=ES_TYPE)['_source']
+    except TransportError as ex:
+        if not settings.DEBUG:
+            raise
+        logger.warning('get_item_source %s', ex)
         return {}
-    return elasticsearch.get(ES_INDEX, id, doc_type=ES_TYPE)['_source']
+
+
+def delete_doc(id):
+    try:
+        elasticsearch.delete(ES_INDEX, ES_TYPE, id)
+        return True
+    except TransportError as ex:
+        if not settings.DEBUG:
+            raise
+        logger.warning('delete_doc %s', ex)
+        return False
 
 
 def create_index():
@@ -125,17 +140,23 @@ def create_index():
 
 
 def index_item(item):
-    if skip_requests():
-        return
     data = item_to_es_document(item)
-    elasticsearch.index(ES_INDEX, ES_TYPE, id=data['id'], body=data['body'])
+    try:
+        elasticsearch.index(ES_INDEX, ES_TYPE, id=data['id'], body=data['body'])
+    except TransportError as ex:
+        if not settings.DEBUG:
+            raise
+        logger.warning('index_item %s', ex)
 
 
 def index_media(media):
-    if skip_requests():
-        return
     data = media_to_es_document(media)
-    elasticsearch.index(ES_INDEX, ES_TYPE, id=data['id'], body=data['body'])
+    try:
+        elasticsearch.index(ES_INDEX, ES_TYPE, id=data['id'], body=data['body'])
+    except TransportError as ex:
+        if not settings.DEBUG:
+            raise
+        logger.warning('index_media %s', ex)
 
 
 def refresh_index():

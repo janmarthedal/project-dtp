@@ -3,15 +3,15 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db.models import Count
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_safe, require_http_methods
 
-from concepts.models import Concept
+from concepts.models import Concept, ItemDependency
 from equations.models import RenderedEquation
 from keywords.models import Keyword, ItemKeyword
 from main.elasticsearch import index_item, item_search, get_item_source
-from main.item_helpers import get_refs_and_render, item_to_markup
+from main.item_helpers import get_refs_and_render, item_to_markup, delete_item
 from main.views.helpers import prepare_item_view_list, LIST_PAGE_SIZE
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
 from project.paginator import QuerySetPaginator, Paginator, PaginatorError
@@ -302,15 +302,20 @@ def dump_item(request, id_str):
     }, content_type='text/plain')
 
 
-@require_safe
+@require_http_methods(['GET', 'POST'])
 def item_meta(request, id_str):
     try:
         item = MathItem.objects.get_by_name(id_str)
     except MathItem.DoesNotExist:
         raise Http404('Item does not exist')
-    elastic = get_item_source(id_str)
-    return render(request, 'mathitems/meta.html', {
-        'title': str(item),
-        'elastic': json.dumps(elastic, indent='  '),
-        'dependents': MathItem.objects.filter(itemdep_item__uses=item).order_by('id')
-    })
+    if request.method == 'POST':
+        res = delete_item(item)
+        return HttpResponse(res, content_type='text/plain')
+    else:
+        elastic = get_item_source(id_str)
+        return render(request, 'mathitems/meta.html', {
+            'title': str(item),
+            'elastic': json.dumps(elastic, indent='  '),
+            'can_delete': has_perm('delete', request.user) and not ItemDependency.objects.filter(uses=item).exists(),
+            'dependents': MathItem.objects.filter(itemdep_item__uses=item).order_by('id')
+        })

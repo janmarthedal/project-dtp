@@ -19,6 +19,6 @@ class Command(BaseCommand):
         self.stdout.write('Removed {} keywords'.format(info[1].get('keywords.Keyword', 0)))
 
         self.stdout.write('>> Cleaning equations')
-        call_command(equations.Command(), 'clean')
+        call_command(equations.Command(), 'clean', stdout=self.stdout)
 
-        self.stdout.write(self.style.SUCCESS('Done'))
+        self.stdout.write('Done')
