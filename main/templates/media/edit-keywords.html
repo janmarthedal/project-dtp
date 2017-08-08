@@ -2,15 +2,18 @@
 
 {% block pagecontent %}
 <figure class="item-img">
-  {{ tag|safe }}
-  <figcaption>{{ name }}</figcaption>
+  {{ media.get_html|safe }}
+  <figcaption>{{ media.get_name }}</figcaption>
 </figure>
 {% endblock %}
 
 {% block sidecontent %}
 <div class="sidebar-box">
   <h4>Format</h4>
-  <p>{{ description }}</p>
+  <p>{{ media.get_description }}</p>
 </div>
 {% include 'keywords/edit-box.html' with itemkeywords=mediakeywords %}
+<p>
+  <a href="{% url 'media-show' media.get_name %}" class="btn btn-default">Done</a>
+</p>
 {% endblock %}

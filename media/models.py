@@ -33,6 +33,9 @@ class Media(models.Model):
     def get_name(self):
         return 'M{}'.format(self.id)
 
+    def __str__(self):
+        return 'Media {}'.format(self.get_name())
+
     def get_absolute_url(self):
         return reverse('media-show', args=[self.get_name()])
 

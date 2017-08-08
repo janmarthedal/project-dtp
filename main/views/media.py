@@ -172,10 +172,8 @@ def show_media(request, media_str):
     except Media.DoesNotExist:
         raise Http404('Media does not exist')
     return render(request, 'media/show.html', {
-        'title': 'Media {}'.format(media.get_name()),
-        'name': media.get_name(),
-        'tag': media.get_html(),
-        'description': media.get_description(),
+        'title': str(media),
+        'media': media,
         'keywords': Keyword.objects.filter(mediakeyword__media=media).order_by('name').all(),
         'kw_edit_link': has_perm('keyword', request.user) and reverse('edit-media-keywords', args=[media.get_name()])
     })
@@ -199,14 +197,11 @@ def edit_media_keywords(request, id_str):
                 itemkw, _ = MediaKeyword.objects.get_or_create(
                                 media=media, keyword=keyword, defaults={'created_by': request.user})
         index_media(media)
-    context = {
-        'title': 'Media {}'.format(media.get_name()),
-        'name': media.get_name(),
-        'tag': media.get_html(),
-        'description': media.get_description(),
+    return render(request, 'media/edit-keywords.html', {
+        'title': str(media),
+        'media': media,
         'mediakeywords': MediaKeyword.objects.filter(media=media).order_by('keyword__name').all(),
-    }
-    return render(request, 'media/edit-keywords.html', context)
+    })
 
 
 @require_safe
