@@ -1,5 +1,6 @@
+from datetime import datetime, timedelta
 import json
-import os
+from os import path
 from shutil import move
 
 from django.conf import settings
@@ -86,8 +87,8 @@ class SVGImage(models.Model):
 
     def finalize(self, media):
         new_path = '{}.{}'.format(media.get_name(), 'svg')
-        move(os.path.join(settings.MEDIA_ROOT, self.path),
-             os.path.join(settings.MEDIA_ROOT, new_path))
+        move(path.join(settings.MEDIA_ROOT, self.path),
+             path.join(settings.MEDIA_ROOT, new_path))
         self.parent = media
         self.path = new_path
         self.save()
@@ -121,7 +122,7 @@ class CindyMedia(models.Model):
             'lib': 'https://rawgit.com/janmarthedal/CindyJS-builds/master/v{}/Cindy.js'.format(self.version),
             'create': '{{\n{}\n}}'.format(',\n'.join('  "{}": {}'.format(k, json.dumps(v)) for k, v in data.items()))
         })
-        with open(os.path.join(settings.MEDIA_ROOT, self.path), 'w') as dst:
+        with open(path.join(settings.MEDIA_ROOT, self.path), 'w') as dst:
             dst.write(content)
 
     def get_html(self):
@@ -134,13 +135,35 @@ class CindyMedia(models.Model):
 
     def finalize(self, media):
         new_path = '{}.{}'.format(media.get_name(), 'html')
-        move(os.path.join(settings.MEDIA_ROOT, self.path),
-             os.path.join(settings.MEDIA_ROOT, new_path))
+        move(path.join(settings.MEDIA_ROOT, self.path),
+             path.join(settings.MEDIA_ROOT, new_path))
         self.parent = media
         self.path = new_path
         self.save()
 
 
 def all_file_paths():
-    return ([os.path.join(settings.MEDIA_ROOT, m.path) for m in SVGImage.objects.all()]
-            + [os.path.join(settings.MEDIA_ROOT, m.path) for m in CindyMedia.objects.all()])
+    return ([path.join(settings.MEDIA_ROOT, m.path) for m in SVGImage.objects.all()]
+            + [path.join(settings.MEDIA_ROOT, m.path) for m in CindyMedia.objects.all()])
+
+
+# a non-existent file is "infinitely old"
+def file_timestamp(filepath):
+    try:
+        return path.getmtime(filepath)
+    except OSError:
+        return 0
+
+
+def kill_abandoned_orphans():
+    too_old = int(datetime.now().timestamp() - timedelta(days=1).total_seconds())
+    deleted = 0
+    for m in SVGImage.objects.filter(parent__isnull=True):
+        if file_timestamp(path.join(settings.MEDIA_ROOT, m.path)) <= too_old:
+            m.delete()
+            deleted += 1
+    for m in CindyMedia.objects.filter(parent__isnull=True):
+        if file_timestamp(path.join(settings.MEDIA_ROOT, m.path)) <= too_old:
+            m.delete()
+            deleted += 1
+    return deleted

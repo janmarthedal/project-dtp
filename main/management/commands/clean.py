@@ -7,7 +7,7 @@ from django.core.management import call_command
 from concepts.models import Concept
 from equations.management.commands import equations
 from keywords.models import Keyword
-from media.models import all_file_paths
+from media.models import all_file_paths, kill_abandoned_orphans
 
 
 class Command(BaseCommand):
@@ -26,6 +26,8 @@ class Command(BaseCommand):
         call_command(equations.Command(), 'clean', stdout=self.stdout)
 
         self.stdout.write('>> Cleaning media files')
+        orphans_deleted = kill_abandoned_orphans()
+        self.stdout.write('Removed {} orphans'.format(orphans_deleted))
         media_paths = set(all_file_paths())
         for (dirpath, dirnames, filenames) in os.walk(settings.MEDIA_ROOT):
             for filename in filenames:
