@@ -1,0 +1,20 @@
+{% extends 'main/page.html' %}
+{% load date_utils %}
+
+{% block pagecontent %}
+
+<div class="item-list">
+{% for user in users %}
+<a href="{% url 'user-page' user.id %}">
+  <h4 class="item-heading">{{ user.username }}</h4>
+  <p class="item-about">
+    {{ user.items }} items, {{ user.validations }} validations. Latest login {{ user.last_login|date_or_ago }}.
+  </p>
+</a>
+{% endfor %}
+</div>
+
+{% endblock %}
+
+{% block sidecontent %}
+{% endblock %}

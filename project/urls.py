@@ -11,7 +11,7 @@ user_patterns = [
 ]
 
 users_patterns = [
-    # url(r'^$', main.users_home, name='users-home'),
+    url(r'^$', main.users_home, name='users-home'),
     url(r'^(\d+)$', main.user_page, name='user-page'),
 ]
 

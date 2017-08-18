@@ -53,6 +53,12 @@ def current_user(request):
 
 
 @require_safe
+def logout(request):
+    auth_logout(request)
+    return redirect('home')
+
+
+@require_safe
 def user_page(request, user_id):
     User = get_user_model()
     try:
@@ -70,6 +76,14 @@ def user_page(request, user_id):
 
 
 @require_safe
-def logout(request):
-    auth_logout(request)
-    return redirect('home')
+def users_home(request):
+    return render(request, 'main/users-home.html', {
+        'title': 'Users',
+        'users': [{
+            'id': user.id,
+            'username': user.username,
+            'last_login': user.last_login,
+            'items': MathItem.objects.filter(created_by=user).count(),
+            'validations': ItemValidation.objects.filter(created_by=user).count(),
+        } for user in get_user_model().objects.order_by('username')]
+    })
