@@ -49,11 +49,11 @@ def login(request):
 @login_required
 @require_safe
 def current_user(request):
-    return redirect('user-home', request.user.pk)
+    return redirect('user-page', request.user.pk)
 
 
 @require_safe
-def user_home(request, user_id):
+def user_page(request, user_id):
     User = get_user_model()
     try:
         user = User.objects.get(id=int(user_id))
@@ -66,7 +66,7 @@ def user_home(request, user_id):
     if user == request.user:
         context['is_me'] = True
         context['drafts'] = DraftItem.objects.filter(created_by=user).order_by('-updated_at').all()
-    return render(request, 'main/user-home.html', context)
+    return render(request, 'main/user-page.html', context)
 
 
 @require_safe

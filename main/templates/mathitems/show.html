@@ -39,7 +39,7 @@
 {% block sidecontent %}
 <div class="sidebar-box">
   <h4>Publication</h4>
-  Published {{ item.created_at|date_or_ago }} by <a href="{% url 'user-home' item.created_by.id %}">{{ item.created_by.get_username }}</a>
+  Published {{ item.created_at|date_or_ago }} by <a href="{% url 'user-page' item.created_by.id %}">{{ item.created_by.get_username }}</a>
 </div>
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 {% include 'keywords/show-box.html' with edit_link=kw_edit_link keywords=keywords only %}

@@ -1,14 +1,18 @@
 from django.conf import settings
 from django.conf.urls import url, include
 
-from main.views import (admin, concepts, drafts, equations, main,
-                        mathitems, media, sources)
+from main.views import admin, concepts, drafts, equations, main, mathitems, media, sources
+
 
 user_patterns = [
     url(r'^login$', main.login, name='login'),
     url(r'^logout$', main.logout, name='logout'),
     url(r'^current$', main.current_user),
-    url(r'^(\d+)$', main.user_home, name='user-home'),
+]
+
+users_patterns = [
+    # url(r'^$', main.users_home, name='users-home'),
+    url(r'^(\d+)$', main.user_page, name='user-page'),
 ]
 
 drafts_patterns = [
@@ -73,6 +77,7 @@ urlpatterns = [
     url(r'^(M[1-9]\d*)/meta$', media.media_meta, name='media-meta'),
     url(r'^admin/', include(admin_patterns)),
     url(r'^user/', include(user_patterns)),
+    url(r'^users/', include(users_patterns)),
     url(r'^concept/([-/a-zA-Z]+)$', concepts.show_concept, name='concept-page'),
     url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
     url(r'^definitions/', include(definitions_patterns)),
