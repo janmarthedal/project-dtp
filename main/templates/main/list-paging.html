@@ -1,3 +1,4 @@
+{% if paginator.pages_total > 0 %}
 <div class="pager">
 {% if paginator.prev_link %}
     <a class="previous" href="{{ paginator.prev_link }}">Previous</a>
@@ -11,3 +12,4 @@
     <a class="next disabled" href="#">Next</a>
 {% endif %}
 </div>
+{% endif %}

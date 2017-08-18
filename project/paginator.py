@@ -8,8 +8,8 @@ class Paginator:
         self.per_page = per_page
         self.query_dict = request.GET.copy()
         self.path = request.path
-        self.count = None
-        self.pages_total = None
+        self.count = 0
+        self.pages_total = 0
         self.prev_link = None
         self.next_link = None
         try:
@@ -23,9 +23,10 @@ class Paginator:
 
     def set_count(self, count):
         self.count = count
-        self.pages_total = (self.count + self.per_page - 1) // self.per_page
-        if self.page > self.pages_total:
-            raise PaginatorError(self.to_link(self.pages_total))
+        self.pages_total = (count + self.per_page - 1) // self.per_page
+        last_page = max(self.pages_total, 1)
+        if self.page > last_page:
+            raise PaginatorError(self.to_link(last_page))
         self.prev_link = self.page > 1 and self.to_link(self.page - 1)
         self.next_link = self.page < self.pages_total and self.to_link(self.page + 1)
 
@@ -34,8 +35,7 @@ class Paginator:
         if page != 1:
             query_dict = query_dict.copy()
             query_dict['page'] = page
-        path = self.path
-        return path + '?' + query_dict.urlencode() if query_dict else path
+        return self.path + '?' + query_dict.urlencode() if query_dict else self.path
 
 
 class QuerySetPaginator(Paginator):
