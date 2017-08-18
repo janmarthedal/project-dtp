@@ -12,7 +12,7 @@ from main.elasticsearch import index_item
 from main.item_helpers import get_refs_and_render, create_item_meta_data, item_to_markup, create_concept_meta
 from mathitems.models import ItemTypes, MathItem
 from project.server_com import convert_markup
-from userdata.permissions import has_perm
+from userdata.permissions import has_perm, PERM_DRAFT, PERM_PUBLISH
 
 # import logging
 # logger = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ def edit_item(request, item):
         'item': item,
         'saved': saved,
         'item_data': item_data,
-        'can_save': has_perm('draft', request.user)
+        'can_save': has_perm(PERM_DRAFT, request.user)
     })
 
 
@@ -124,7 +124,7 @@ def show_draft(request, id_str):
         'title': str(item),
         'item': item,
         'item_data': get_refs_and_render(item.item_type, document, eqns, concepts),
-        'can_publish': has_perm('publish', request.user)
+        'can_publish': has_perm(PERM_PUBLISH, request.user)
     })
 
 

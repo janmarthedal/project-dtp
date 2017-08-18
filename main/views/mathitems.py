@@ -16,7 +16,7 @@ from main.views.helpers import prepare_item_view_list, LIST_PAGE_SIZE
 from mathitems.models import ItemTypes, MathItem, IllegalMathItem
 from project.paginator import QuerySetPaginator, Paginator, PaginatorError
 from validations.models import ItemValidation, Source
-from userdata.permissions import has_perm, require_perm
+from userdata.permissions import has_perm, require_perm, PERM_DELETE, PERM_KEYWORD, PERM_VALIDATION
 
 # import logging
 # logger = logging.getLogger(__name__)
@@ -61,8 +61,8 @@ def show_item(request, id_str):
         'item_data': item_data,
         'keywords': Keyword.objects.filter(itemkeyword__item=item).order_by('name').all(),
         'validations': item.itemvalidation_set.all(),
-        'can_add_validation': has_perm('validation', request.user),
-        'kw_edit_link': has_perm('keyword', request.user) and reverse('edit-item-keywords', args=[item.get_name()]),
+        'can_add_validation': has_perm(PERM_VALIDATION, request.user),
+        'kw_edit_link': has_perm(PERM_KEYWORD, request.user) and reverse('edit-item-keywords', args=[item.get_name()]),
     }
     if item.item_type == ItemTypes.THM:
         context['can_add_proof'] = True
@@ -316,6 +316,6 @@ def item_meta(request, id_str):
         return render(request, 'mathitems/meta.html', {
             'title': str(item),
             'elastic': json.dumps(elastic, indent='  '),
-            'can_delete': has_perm('delete', request.user) and not ItemDependency.objects.filter(uses=item).exists(),
+            'can_delete': has_perm(PERM_DELETE, request.user) and not ItemDependency.objects.filter(uses=item).exists(),
             'dependents': MathItem.objects.filter(itemdep_item__uses=item).order_by('id')
         })
