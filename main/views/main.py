@@ -67,11 +67,15 @@ def user_page(request, user_id):
         raise Http404('User does not exist')
     context = {
         'is_me': False,
-        'title': user.username
+        'title': user.username,
+        'def_count': MathItem.objects.filter(created_by=user, item_type=ItemTypes.DEF).count(),
+        'thm_count': MathItem.objects.filter(created_by=user, item_type=ItemTypes.THM).count(),
+        'prf_count': MathItem.objects.filter(created_by=user, item_type=ItemTypes.PRF).count(),
+        'val_count': ItemValidation.objects.filter(created_by=user).count(),
     }
     if user == request.user:
         context['is_me'] = True
-        context['drafts'] = DraftItem.objects.filter(created_by=user).order_by('-updated_at').all()
+        context['drafts'] = DraftItem.objects.filter(created_by=user).order_by('-updated_at')
     return render(request, 'main/user-page.html', context)
 
 

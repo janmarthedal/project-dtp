@@ -3,15 +3,24 @@
 
 {% block pagecontent %}
 
+<h3>Items Created</h3>
+
+<ul>
+    <li>Definitions: {{ def_count }}</li>
+    <li>Theorems: {{ thm_count }}</li>
+    <li>Proofs: {{ prf_count }}</li>
+    <li>Validations: {{ val_count }}</li>
+</ul>
+
 {% if is_me %}
-<h2>Drafts</h2>
+<h3>Drafts</h3>
 
 {% if drafts %}
 <div class="item-list">{% for draft in drafts %}
     <a href="{{ draft.get_absolute_url }}">
-        <h4>{{ draft }}</h4>{% if draft.notes %}
+        <h4 class="item-heading">{{ draft }}</h4>{% if draft.notes %}
         <p>Notes: {{ draft.notes }}</p>{% endif %}
-        <p>Last edited {{ draft.updated_at|date_or_ago }}</p>
+        <p class="item-about">Last edited {{ draft.updated_at|date_or_ago }}</p>
     </a>{% endfor %}
 </div>
 {% else %}
