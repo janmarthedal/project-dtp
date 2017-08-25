@@ -13,6 +13,11 @@
   </li>{% endfor %}
 </ul>
 {% endif %}
+{% if item_data.media_refs %}
+<p>Media referenced:</p>
+<ul>{% for media, url in item_data.media_refs.items %}
+  <li><a href="{{ url }}">{{ media }}</a></li>{% endfor %}
+</ul>{% endif %}
 {% if item_data.concept_refs %}
 <p>Concepts referenced:</p>
 <ul>{% for concept, url in item_data.concept_refs.items %}

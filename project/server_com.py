@@ -20,7 +20,7 @@ def render_eqns(eqns):
 
 
 # IN: item_type, document, eqns, concepts, refs, media_refs
-# OUT: {html, errors, defines}
+# OUT: {defined, errors, refs, concept_refs, media_refs, html}
 def render_item(item_type, document, eqns, concepts, refs, media_refs):
     return node_request('/render-item', json={
         'item_type': item_type,

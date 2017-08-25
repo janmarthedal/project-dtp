@@ -27,6 +27,7 @@ class Converter {
     private readonly errors: string[] = [];
     private readonly refs: { [key: string]: RefInfo } = {};
     private readonly concept_refs: { [key: string]: string; } = {};
+    private readonly media_refs: { [key: string]: string; } = {};
 
     constructor(item_type, eqns, concepts, item_info, media) {
         this.item_type = item_type;
@@ -134,10 +135,12 @@ class Converter {
                 tag = 'li';
                 break;
             case AST_TYPES.media:
-                const media_tag = this.media[node.media];
-                if (media_tag)
-                    return this.emit('<figure class="item-img">', media_tag,
+                const media_info = this.media[node.media];
+                if (media_info) {
+                    this.media_refs[node.media] = media_info.url;
+                    return this.emit('<figure class="item-img">', media_info.html,
                         '<figcaption>', node.media, '</figcaption></figure>');
+                }
                 error = 'Illegal media reference ' + node.media;
                 break;
             case AST_TYPES.paragraph:
@@ -180,6 +183,7 @@ class Converter {
             errors: uniq(this.errors),
             refs: this.refs,
             concept_refs: this.concept_refs,
+            media_refs: this.media_refs,
             html: flattenDeep(this.out_items).join(''),
         };
     }

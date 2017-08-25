@@ -43,7 +43,10 @@ def get_document_refs(document):
     for media_name in media_names:
         try:
             media = Media.objects.get_by_name(media_name)
-            media_info[media_name] = media.get_html()
+            media_info[media_name] = {
+                'url': media.get_absolute_url(),
+                'html': media.get_html()
+            }
         except Media.DoesNotExist:
             pass
     return item_info, media_info
