@@ -6,6 +6,7 @@ interface ItemDocNode {
     item?: string;
     info?: string;
     media?: string;            // media
+    caption?: string;          // media
     ordered?: boolean;         // list
     listStart?: number;        // list
     listDelimiter?: string;    // list

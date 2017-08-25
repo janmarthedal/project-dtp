@@ -53,7 +53,8 @@ function image_handler(node): ItemDocNode {
     if ((match = src.match(regex_media_ref)) != null) {
         return {
             type: AST_TYPES.media,
-            media: match[1]
+            media: match[1],
+            ...node.title && {caption: node.title}
         };
     } else if (src.startsWith('/eqn/')) {
         return {

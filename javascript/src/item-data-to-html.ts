@@ -139,7 +139,8 @@ class Converter {
                 if (media_info) {
                     this.media_refs[node.media] = media_info.url;
                     return this.emit('<figure class="item-img">', media_info.html,
-                        '<figcaption>', node.media, '</figcaption></figure>');
+                        '<figcaption>', node.media,
+                        node.caption ? ': ' + node.caption : '', '</figcaption></figure>');
                 }
                 error = 'Illegal media reference ' + node.media;
                 break;
