@@ -9,6 +9,7 @@ DEBUG = True
 DEBUG_TOOLBAR = DEBUG
 ALLOWED_HOSTS = ['*']
 INTERNAL_IPS = ['127.0.0.1']
+ADMINS = secrets.ADMINS
 
 if DEBUG:
     DATABASES = {
@@ -20,14 +21,7 @@ if DEBUG:
 else:
     # CREATE DATABASE mathitems DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_bin;
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'mathitems',
-            'USER': 'root',
-            'PASSWORD': 'orangebear',
-            'HOST': 'db',
-            'PORT': '3306'
-        }
+        'default': secrets.PROD_DB
     }
 
 LOCAL_APPS = [
@@ -170,6 +164,12 @@ MEDIA_URL = '/media-files/'
 
 LOGIN_REDIRECT_URL = '/user/current'
 LOGIN_URL = '/user/login'
+
+EMAIL_HOST = secrets.EMAIL_HOST
+EMAIL_PORT = secrets.EMAIL_PORT
+EMAIL_HOST_USER = secrets.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = secrets.EMAIL_HOST_PASSWORD
+EMAIL_USE_TLS = secrets.EMAIL_USE_TLS
 
 LOGGING = {
     'version': 1,
