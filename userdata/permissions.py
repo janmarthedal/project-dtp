@@ -12,6 +12,9 @@ class Perms:
     CINDY = 'cindy'
 
 
+DEFAULT_PERMS = [Perms.DRAFT, Perms.PUBLISH, Perms.VALIDATION]
+
+
 def has_perm(name, user):
     if not user.is_authenticated:
         return False
