@@ -11,7 +11,7 @@ from django.http import FileResponse
 
 from main.item_helpers import item_to_markup
 from main.management.commands.backup import Command as BackupCommand
-from userdata.permissions import has_perm, PERM_ADMIN
+from userdata.permissions import has_perm, Perms
 from mathitems.models import MathItem
 
 
@@ -60,7 +60,7 @@ def backup(request):
             with open(path, 'w') as f:
                 call_command(BackupCommand(), stdout=f)
             return FileResponse(open(path, 'rb'), content_type='application/json')
-    elif has_perm(PERM_ADMIN, request.user):
+    elif has_perm(Perms.ADMIN, request.user):
         return HttpResponse('{}?key={}'.format(reverse('admin-backup'), make_key()),
                             content_type="text/plain")
     raise PermissionDenied()

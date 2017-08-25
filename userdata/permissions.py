@@ -2,12 +2,13 @@ from functools import wraps
 from django.core.exceptions import PermissionDenied
 
 
-PERM_ADMIN = 'admin'
-PERM_DRAFT = 'draft'
-PERM_PUBLISH = 'publish'
-PERM_DELETE = 'delete'
-PERM_VALIDATION = 'validation'
-PERM_KEYWORD = 'keyword'
+class Perms:
+    ADMIN = 'admin'
+    DRAFT = 'draft'
+    PUBLISH = 'publish'
+    DELETE = 'delete'
+    VALIDATION = 'validation'
+    KEYWORD = 'keyword'
 
 
 def has_perm(name, user):

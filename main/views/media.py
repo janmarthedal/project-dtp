@@ -20,7 +20,7 @@ from mathitems.models import MathItem
 from media.models import CindyMedia, Media, SVGImage, ItemMediaDependency
 from project.paginator import Paginator, PaginatorError
 from project.server_com import parse_cindy, parse_json_relaxed
-from userdata.permissions import has_perm, require_perm, PERM_DELETE, PERM_KEYWORD
+from userdata.permissions import has_perm, require_perm, Perms
 
 import logging
 logger = logging.getLogger(__name__)
@@ -178,7 +178,7 @@ def show_media(request, media_str):
         'title': str(media),
         'media': media,
         'keywords': Keyword.objects.filter(mediakeyword__media=media).order_by('name').all(),
-        'kw_edit_link': has_perm(PERM_KEYWORD, request.user) and reverse('edit-media-keywords', args=[media.get_name()])
+        'kw_edit_link': has_perm(Perms.KEYWORD, request.user) and reverse('edit-media-keywords', args=[media.get_name()])
     })
 
 
@@ -239,6 +239,6 @@ def media_meta(request, media_str):
         return render(request, 'media/meta.html', {
             'title': 'Media {}'.format(media.get_name()),
             'elastic': json.dumps(elastic, indent='  '),
-            'can_delete': has_perm(PERM_DELETE, request.user) and not ItemMediaDependency.objects.filter(uses=media).exists(),
+            'can_delete': has_perm(Perms.DELETE, request.user) and not ItemMediaDependency.objects.filter(uses=media).exists(),
             'dependents': MathItem.objects.filter(itemmediadependency__uses=media).order_by('id')
         })
