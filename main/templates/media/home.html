@@ -23,6 +23,7 @@
       </span>
     </div>
   </form>
+  {% if has_perm_cindy %}
   <form method="POST" class="one-click-upload" action="{% url 'cindy-add' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="input-group">
@@ -33,5 +34,6 @@
     </div>
   </form>
   <p><a class="btn btn-default" href="{% url 'cindy-add' %}">Add CindyJS</a></p>
+  {% endif %}
 </div>
 {% endblock %}

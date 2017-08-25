@@ -9,6 +9,7 @@ class Perms:
     DELETE = 'delete'
     VALIDATION = 'validation'
     KEYWORD = 'keyword'
+    CINDY = 'cindy'
 
 
 def has_perm(name, user):

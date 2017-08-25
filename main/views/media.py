@@ -32,7 +32,8 @@ SVGO_EXE_PATH = os.path.join(settings.BASE_DIR, './node_modules/.bin/svgo')
 def home(request):
     return render(request, 'media/home.html', {
         'title': 'Media',
-        'items': prepare_media_view_list(Media.objects.order_by('id'))
+        'items': prepare_media_view_list(Media.objects.order_by('id')),
+        'has_perm_cindy': has_perm(Perms.CINDY, request.user),
     })
 
 
