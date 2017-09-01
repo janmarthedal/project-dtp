@@ -29,10 +29,10 @@ ES_INDEX_CONF = {
                     "type": "keyword"
                 },
                 "defines": {
-                    "type": "keyword"
+                    "type": "text"
                 },
                 "uses": {
-                    "type": "keyword"
+                    "type": "text"
                 },
                 "keyword": {
                     "type": "text"
