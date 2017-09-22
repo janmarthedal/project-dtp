@@ -2,6 +2,8 @@
 /requirements-debug.txt
 /package.json
 /javascript/package.json
+/javascript/Dockerfile
+  nodejs
 
 /docker/dev/Dockerfile
   python
