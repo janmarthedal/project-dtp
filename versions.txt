@@ -1,0 +1,19 @@
+/requirements.txt
+/requirements-debug.txt
+/package.json
+/javascript/package.json
+
+/docker/dev/Dockerfile
+  python
+  nodejs
+/docker/dev/docker-compose.yml
+  elasticsearch
+/docker/prod/Dockerfile
+  python
+  nodejs
+  nginx
+/docker/prod/docker-compose.yml
+  elasticsearch
+
+Python
+Node.js
