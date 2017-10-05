@@ -31,6 +31,7 @@ LOCAL_APPS = [
     'concepts',
     'equations',
     'media',
+    'documents',
     'keywords',
     'userdata',
     'main',
