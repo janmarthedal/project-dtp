@@ -4,12 +4,13 @@ from django.core.exceptions import PermissionDenied
 
 class Perms:
     ADMIN = 'admin'
-    DRAFT = 'draft'
-    PUBLISH = 'publish'
-    DELETE = 'delete'
-    VALIDATION = 'validation'
-    KEYWORD = 'keyword'
     CINDY = 'cindy'
+    DELETE = 'delete'
+    DOCUMENT = 'document'
+    DRAFT = 'draft'
+    KEYWORD = 'keyword'
+    PUBLISH = 'publish'
+    VALIDATION = 'validation'
 
 
 DEFAULT_PERMS = [Perms.DRAFT, Perms.PUBLISH, Perms.VALIDATION]
