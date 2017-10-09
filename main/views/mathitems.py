@@ -63,6 +63,7 @@ def show_item(request, id_str):
         'validations': item.itemvalidation_set.all(),
         'can_add_validation': has_perm(Perms.VALIDATION, request.user),
         'kw_edit_link': has_perm(Perms.KEYWORD, request.user) and reverse('edit-item-keywords', args=[item.get_name()]),
+        'can_add_to_doc': has_perm(Perms.DOCUMENT, request.user),
     }
     if item.item_type == ItemTypes.THM:
         context['can_add_proof'] = True

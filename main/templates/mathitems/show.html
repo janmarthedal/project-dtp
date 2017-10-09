@@ -43,6 +43,11 @@
 </div>
 {% include 'mathitems/include/about.html' with item_data=item_data only %}
 {% include 'keywords/show-box.html' with edit_link=kw_edit_link keywords=keywords only %}
+{% if can_add_to_doc %}
+<p>
+  <a href="{% url 'doc-add-item' item.get_name %}" class="btn btn-default">Add to Document</a>
+</p>
+{% endif %}
 <p>
   <a href="{% url 'copy-to-draft' item.get_name %}" class="btn btn-default">Copy to Draft</a>
 </p>

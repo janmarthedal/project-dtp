@@ -1,0 +1,15 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<form method="post" action="">
+  {% csrf_token %}{% if documents %}
+  <p>Add to existing document:</p>
+  <ul>{% for doc in documents %}
+    <li><button type="submit" name="addto" value="{{ doc.id }}" class="btn btn-link">{{ doc.name }}</button></li>{% endfor %}
+  </ul>{% endif %}
+  <button type="submit" name="new" class="btn btn-default">Create New Document</button>
+</form>
+{% endblock %}
+
+{% block sidecontent %}
+{% endblock %}

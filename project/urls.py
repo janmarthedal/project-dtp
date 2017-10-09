@@ -1,18 +1,25 @@
 from django.conf import settings
 from django.conf.urls import url, include
 
-from main.views import admin, concepts, drafts, equations, main, mathitems, media, sources
+from main.views import (admin, concepts, documents, drafts, equations,
+                        main, mathitems, media, sources)
 
 
-user_patterns = [
-    url(r'^login$', main.login, name='login'),
-    url(r'^logout$', main.logout, name='logout'),
-    url(r'^current$', main.current_user),
+admin_patterns = [
+    url(r'^backup', admin.backup, name='admin-backup'),
+    url(r'^datadump$', admin.datadump),
 ]
 
-users_patterns = [
-    url(r'^$', main.users_home, name='users-home'),
-    url(r'^(\d+)$', main.user_page, name='user-page'),
+definitions_patterns = [
+    url(r'^$', mathitems.def_home, name='def-home'),
+    url(r'^list$', mathitems.def_list, name='def-list'),
+    url(r'^search$', mathitems.def_search, name='def-search'),
+    url(r'^without-validations$', mathitems.def_no_vals, name='def-no-vals'),
+]
+
+documents_patterns = [
+    url(r'^add-item/([DTP][1-9]\d*)$', documents.add_item, name='doc-add-item'),
+    url(r'^(\d+)$', documents.show, name='doc-show'),
 ]
 
 drafts_patterns = [
@@ -28,18 +35,6 @@ drafts_patterns = [
 equations_patterns = [
     url(r'^$', equations.home, name='eqns-home'),
     url(r'^(\d+)$', equations.show, name='eqn-show'),
-]
-
-admin_patterns = [
-    url(r'^backup', admin.backup, name='admin-backup'),
-    url(r'^datadump$', admin.datadump),
-]
-
-definitions_patterns = [
-    url(r'^$', mathitems.def_home, name='def-home'),
-    url(r'^list$', mathitems.def_list, name='def-list'),
-    url(r'^search$', mathitems.def_search, name='def-search'),
-    url(r'^without-validations$', mathitems.def_no_vals, name='def-no-vals'),
 ]
 
 media_patterns = [
@@ -64,6 +59,18 @@ theorems_patterns = [
     url(r'^without-validations$', mathitems.thm_no_vals, name='thm-no-vals'),
 ]
 
+user_patterns = [
+    url(r'^login$', main.login, name='login'),
+    url(r'^logout$', main.logout, name='logout'),
+    url(r'^current$', main.current_user),
+]
+
+users_patterns = [
+    url(r'^$', main.users_home, name='users-home'),
+    url(r'^(\d+)$', main.user_page, name='user-page'),
+]
+
+
 urlpatterns = [
     url(r'^$', main.home, name='home'),
     url('', include('social_django.urls', namespace='social')),
@@ -81,6 +88,7 @@ urlpatterns = [
     url(r'^concept/([-/a-zA-Z]+)$', concepts.show_concept, name='concept-page'),
     url(r'^concepts/$', concepts.list_concepts, name='list-concepts'),
     url(r'^definitions/', include(definitions_patterns)),
+    url(r'^documents/', include(documents_patterns)),
     url(r'^drafts/', include(drafts_patterns)),
     url(r'^equations/', include(equations_patterns)),
     url(r'^media/', include(media_patterns)),
