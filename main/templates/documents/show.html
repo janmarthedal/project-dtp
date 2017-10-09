@@ -1,0 +1,10 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+{% for item in items %}
+<h4>{{ item.title }}</h4>
+{% include 'mathitems/include/show.html' with item_data=item.item_data only %}{% endfor %}
+{% endblock %}
+
+{% block sidecontent %}
+{% endblock %}

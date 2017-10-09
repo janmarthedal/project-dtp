@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods, require_safe
 
 from documents.models import Document, DocumentItem
+from main.views.mathitems import item_render
 from mathitems.models import MathItem
 from userdata.permissions import Perms, require_perm
 
@@ -38,5 +39,10 @@ def show(request, doc_id):
         document = Document.objects.get(id=int(doc_id))
     except Document.DoesNotExist:
         raise Http404('Document does not exist')
-    from django.http import HttpResponse
-    return HttpResponse('Document: {}'.format(document))
+    return render(request, 'documents/show.html', {
+        'title': document.name,
+        'items': [{
+            'title': str(docitem.item),
+            'item_data': item_render(docitem.item),
+        } for docitem in DocumentItem.objects.filter(document=document).order_by('order')],
+    })
