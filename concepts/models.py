@@ -44,6 +44,9 @@ class ItemDependency(models.Model):
         db_table = 'item_deps'
         unique_together = ('item', 'uses')
 
+    def __str__(self):
+        return '{} -> {}'.format(self.item.get_name(), self.uses.get_name())
+
 
 class ConceptMeta(models.Model):
     concept = models.OneToOneField(Concept)

@@ -242,8 +242,11 @@ main, aside {
         padding: 0 0.5em;
         color: #ddd;
     }
-    &:first-child:before {
-        content: none;
+    &:first-child {
+        padding-left: 0.25em;
+        &:before {
+            content: none;
+        }
     }
 }
 

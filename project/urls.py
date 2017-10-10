@@ -20,6 +20,7 @@ definitions_patterns = [
 documents_patterns = [
     url(r'^add-item/([DTP][1-9]\d*)$', documents.add_item, name='doc-add-item'),
     url(r'^(\d+)$', documents.show, name='doc-show'),
+    url(r'^(\d+)/edit$', documents.edit, name='doc-edit'),
 ]
 
 drafts_patterns = [

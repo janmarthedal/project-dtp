@@ -1,0 +1,24 @@
+{% extends 'main/page.html' %}
+
+{% block pagecontent %}
+<div class="item-list">
+{% for item in items %}
+  <div>
+    <h4 class="item-heading">{{ item.title }}</h4>
+    <div><span class="tags-header">Defines</span>
+      <span class="concept-list">{% for con in item.defines %}<span class="concept-tag">{{ con }}</span>{% endfor %}</span>
+    </div>
+    <div><span class="tags-header">Concept references</span>
+      <span class="concept-list">{% for con in item.concept_refs %}<span class="concept-tag">{{ con }}</span>{% endfor %}</span>
+    </div>
+    <div><span class="tags-header">Item references</span>
+      <span class="concept-list">{% for p in item.item_refs %}<span class="concept-tag">{{ p }}</span>{% endfor %}</span>
+    </div>
+  </div>
+{% endfor %}
+</div>
+{% endblock %}
+
+{% block sidecontent %}
+<p><button class="btn btn-default">Sort Items</button></p>
+{% endblock %}
