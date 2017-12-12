@@ -20,5 +20,8 @@
 {% endblock %}
 
 {% block sidecontent %}
-<p><button class="btn btn-default">Sort Items</button></p>
+<form method="POST" action="">
+  {% csrf_token %}
+  <p><button type="submit" name="sort" class="btn btn-default">Sort Items</button></p>
+</form>
 {% endblock %}
