@@ -30,7 +30,7 @@ class Equation(models.Model):
 
 
 class RenderedEquation(models.Model):
-    eqn = models.OneToOneField(Equation, models.CASCADE, primary_key=True)
+    eqn = models.OneToOneField(Equation, on_delete=models.CASCADE, primary_key=True)
     hash = models.CharField(max_length=32, db_index=True)
     html = models.TextField(blank=True)
     error = models.CharField(max_length=256, blank=True)
@@ -70,8 +70,8 @@ class CachedEquation(models.Model):
 
 
 class ItemEquation(models.Model):
-    item = models.ForeignKey(MathItem, db_index=True)
-    equation = models.ForeignKey(Equation, db_index=True)
+    item = models.ForeignKey(MathItem, db_index=True, on_delete=models.CASCADE)
+    equation = models.ForeignKey(Equation, db_index=True, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'item_eqns'

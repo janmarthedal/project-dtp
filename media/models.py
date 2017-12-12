@@ -4,9 +4,9 @@ from os import path
 from shutil import move
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from mathitems.models import MathItem
 
@@ -21,7 +21,7 @@ class MediaManager(models.Manager):
 class Media(models.Model):
     objects = MediaManager()
 
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -59,8 +59,8 @@ class Media(models.Model):
 
 
 class ItemMediaDependency(models.Model):
-    item = models.ForeignKey(MathItem)
-    uses = models.ForeignKey(Media)
+    item = models.ForeignKey(MathItem, on_delete=models.CASCADE)
+    uses = models.ForeignKey(Media, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'item_media_deps'

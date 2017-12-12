@@ -1,8 +1,8 @@
 import json
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 
 from mathitems.itemtypes import ItemTypes
 
@@ -22,10 +22,10 @@ class MathItemManager(models.Manager):
 class MathItem(models.Model):
     objects = MathItemManager()
 
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
-    parent = models.ForeignKey('self', null=True, blank=True)
+    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
     body = models.TextField()
 
     class Meta:

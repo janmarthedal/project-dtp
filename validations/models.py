@@ -50,10 +50,10 @@ class Source(models.Model):
 
 
 class ItemValidation(models.Model):
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    item = models.ForeignKey(MathItem)
-    source = models.ForeignKey(Source)
+    item = models.ForeignKey(MathItem, on_delete=models.CASCADE)
+    source = models.ForeignKey(Source, on_delete=models.CASCADE)
     location = models.CharField(max_length=255)
 
     class Meta:

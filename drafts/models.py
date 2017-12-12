@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 
 from mathitems.models import ItemTypes, MathItem
 
@@ -10,11 +10,11 @@ from mathitems.models import ItemTypes, MathItem
 
 
 class DraftItem(models.Model):
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     item_type = models.CharField(max_length=1, choices=ItemTypes.CHOICES)
-    parent = models.ForeignKey(MathItem, null=True, blank=True)
+    parent = models.ForeignKey(MathItem, null=True, blank=True, on_delete=models.CASCADE)
     body = models.TextField(blank=True)
     notes = models.TextField(blank=True)
 

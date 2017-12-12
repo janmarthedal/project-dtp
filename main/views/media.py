@@ -7,9 +7,9 @@ from uuid import uuid4
 from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_safe, require_POST, require_http_methods
 
 from keywords.models import Keyword, MediaKeyword

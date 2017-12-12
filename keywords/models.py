@@ -16,10 +16,10 @@ class Keyword(models.Model):
 
 
 class ItemKeyword(models.Model):
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    item = models.ForeignKey(MathItem, db_index=True)
-    keyword = models.ForeignKey(Keyword)
+    item = models.ForeignKey(MathItem, db_index=True, on_delete=models.CASCADE)
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'item_keyword'
@@ -27,10 +27,10 @@ class ItemKeyword(models.Model):
 
 
 class MediaKeyword(models.Model):
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    media = models.ForeignKey(Media, db_index=True)
-    keyword = models.ForeignKey(Keyword)
+    media = models.ForeignKey(Media, db_index=True, on_delete=models.CASCADE)
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'media_keyword'
