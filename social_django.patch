@@ -1,0 +1,14 @@
+--- fields.py	2017-12-14 10:08:33.000000000 +0100
++++ fields.fix.py	2017-12-14 09:59:57.000000000 +0100
+@@ -85,8 +85,9 @@
+ 
+     def value_to_string(self, obj):
+         """Return value from object converted to string properly"""
+-        return smart_text(self.get_prep_value(self._get_val_from_obj(obj)))
++        return smart_text(self.value_from_object(obj))
+ 
+     def value_from_object(self, obj):
+         """Return value dumped to string."""
+-        return self.get_prep_value(self._get_val_from_obj(obj))
++        orig_val = super(JSONField, self).value_from_object(obj)
++        return self.get_prep_value(orig_val)

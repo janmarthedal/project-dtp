@@ -44,6 +44,7 @@ COPY . .
 RUN cp docker/prod/dtp.conf /etc/nginx/conf.d/ \
     && sed -i 's/^DEBUG *=.*/DEBUG = False/' project/settings.py \
     && pip install -r requirements.txt \
+    && patch /usr/local/lib/python3.6/site-packages/social_django/fields.py social_django.patch \
     && npm install \
     && python manage.py collectstatic --noinput \
     && chown -R www-data:www-data .
